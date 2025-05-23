@@ -1,4 +1,4 @@
-# ProcessWire-Commerce
+# ProcessWire Commerce
 
 Full Ecommerce application for ProcessWire.
 
