@@ -1,0 +1,502 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: Process.
+ *
+ * Process Module for PWCommerce.
+ * Displays the dashboard for accessing PWCommerce in the ProcessWire Admin.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * ProcessPWCommerce for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+// =========
+// IMPORT TRAITS FILES
+$traitsFiles = ['admin/TraitPWCommerceAdmin'];
+
+foreach ($traitsFiles as $traitFileName) {
+	require_once __DIR__ . "/../traits/{$traitFileName}.php";
+}
+
+
+class ProcessPWCommerce extends Process implements Module, ConfigModule
+{
+
+	use TraitPWCommerceAdmin;
+
+
+	public static function getModuleInfo() {
+
+		$moduleInfo =
+
+			[
+				'title' => __('Shop', __FILE__),
+				'summary' => __('ProcessWire ecommerce module', __FILE__),
+				'author' => 'Francis Otieno (Kongondo)',
+				'version' => "100",
+				'href' => 'http://kongondo.com',
+				'icon' => 'cart-plus',
+				// non-supusers need this permission before ProcessWire will load this module
+				'permission' => 'pwcommerce-shop',
+				'singular' => true,
+				'requires' => [
+					'PHP>=8.2.0',
+					'ProcessWire>=3.0.200'
+				],
+				'installs' => ['PwCommerce', 'PwCommerceHooks'],
+				// Array of permissions that ProcessWire will install (and uninstall) automatically. Permissions should be in the format: array('permission-name' => 'Permission description').
+				'permissions' => [
+					'pwcommerce-shop' => __('Permission to use PWCommerce Shop admin.', __FILE__),
+				],
+				// see below; we add dynamically
+				// 'nav' => (new self)->getNavItemsForDropdown()
+			];
+
+		// NOTE FIX THIS! ONLY POSSIBLE ONCE PWCOMMERCE INSTALLED! SO, WE SKIP IF NOT YET INSTALLED!
+
+		if (wire('modules')->isInstalled('PWCommerce')) {
+			$pwcommerce = wire('pwcommerce');
+			// don't invoke dropdown menu if not enabled in settings!
+			if (!empty($pwcommerce) && !empty($pwcommerce->isUseDropdownMenu())) {
+				// NAV IN TOP PROCESSWIRE MENU
+				// @NOTE: NEEDS THE PAGE '/shop/pwcommerce/' TO BE 'HIDDEN'!!!
+				$moduleInfo['nav'] = (new self)->getNavItemsForDropdown();
+			}
+		}
+
+		// ------
+		return $moduleInfo;
+	}
+
+	public function __construct() {
+		parent::__construct();
+	}
+
+	private $isConfigurePWCommerceComplete;
+	private $installedOptionalFeatures;
+	// -----
+	private $context;
+	private $options;
+	// private $adminPageID;
+	// private $adminURL;
+	private $ajaxPostURL;
+	private $assetsURL;
+	private $assetsPath;
+	// private $urlSegment1;// TODO: DELETE IF NOT IN USE
+	private $urlSegment2;
+	private $urlSegment3;
+	private $selector;
+	private $contextCustomListerSettings;
+	private $currentPaginationNumberForContext;
+	private $currentPaginationLimitForContext;
+
+
+	private $isInstalledProductCategoriesFeature;
+	private $isCategoryACollection;
+
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SETUP/INIT  ~~~~~~~~~~~~~~~~~~
+
+	public function init() {
+		parent::init();
+
+		// DON'T RUN CHECK DURING MODULE UNINSTALL!
+		if (str_contains($this->wire('input')->url(), 'module')) {
+			return;
+		}
+
+
+
+		// #################
+		// INIT TRAITS 'INIT' METHOD
+		$this->_initTraitPWCommerceAdmin();
+		// #################
+
+		$this->isConfigurePWCommerceComplete = $this->isConfigurePWCommerceComplete();
+
+		// #################
+
+		//   $this->wire()->addHookAfter('Process::breadcrumb', $this, 'modifyBreadcrumb');
+		$this->addHookAfter('Process::breadcrumb', $this, 'modifyBreadcrumb');
+
+		// ######################();
+
+		//
+
+
+		/////////////////////////
+
+		// set ADMIN PAGE ID (used by installer)
+		// $this->adminPageID = $this->wire('page')->id;
+		// set ADMIN URL
+		// $this->adminURL = $this->wire('page')->url;
+
+		// set AJAX POST URL
+		$this->ajaxPostURL = $this->adminURL . 'ajax/';
+		$input = $this->wire('input');
+
+		//
+		// set context based on urlSegment1
+		$this->context = $input->urlSegment1;
+		// set urlSegment2 value for add/edit/view pages
+		$this->urlSegment2 = $input->urlSegment2;
+		// set urlSegment3 value for view addons that are 'viewable'
+		$this->urlSegment3 = $input->urlSegment3;
+		//-------------------
+
+		//----------------------------------------
+		// add PWCommerce shared styles
+		$sharedStyles = $this->config->urls->$this . 'common/PWCommerceCommonStyles.css';
+		$this->wire->config->styles->add($sharedStyles);
+		$sharedTailwindStyles = $this->config->urls->$this . 'common/PWCommerceTailwindStyles.css';
+		$this->wire->config->styles->add($sharedTailwindStyles);
+		//-------------
+		// assets URL
+		$this->assetsURL = $this->wire('config')->urls->$this . "assets/";
+		// assets PATH
+		$this->assetsPath = $this->wire('config')->paths->$this . "assets/";
+
+		//--------------
+		$url = $this->wire('config')->urls->$this;
+		// add htmx
+		// $htmx = "{$url}vendors/scripts/htmx/htmx.1.7.0.min.js";
+		$htmx = "{$url}vendors/scripts/htmx/htmx.1.9.10.min.js";
+		$this->wire->config->scripts->add($htmx);
+
+		// ----
+		// add chart js if in home dashboard
+		if (empty($this->context)) {
+			$chartjs = "{$url}vendors/scripts/chartjs/chart.3.5.1.min.js";
+			$this->wire->config->scripts->add($chartjs);
+		}
+
+		//--------
+		// add PWCommerce shared scripts
+		$sharedScripts = $this->config->urls->$this . 'common/PWCommerceCommonScripts.js';
+		$this->wire->config->scripts->add($sharedScripts);
+		// ###################################
+		// add alpine js @note: @update: need to defer so cannot load like this! @see getInlineScripts()
+		// $url = $this->wire('config')->urls->$this;
+		// $alpinejs = "{$url}vendors/scripts/alpinejs/alpinejs.3.2.4.min.js";
+		// $this->wire->config->scripts->add($alpinejs);
+
+		// ------
+
+		// ---------------
+		$this->selector = null;
+
+		// --------
+		// SET IF SHOW ADDONS IN SETTINGS MENU
+		$this->setIsShowAddonsMenuItem();
+
+
+		// @note: for future release; not in use for now
+		// set browser title per context
+		// $this->browserTitle($this->getContextBrowserTitle());
+
+		// ++++++++++++++++++
+		// REDIRECT TO CONFIGURE PWCOMMERCE INSTALL IF NEEDED
+		$this->checkPWCommerceConfiguration();
+
+		$this->installedOptionalFeatures = $this->pwcommerce->getPWCommerceInstalledOptionalFeatures($this);
+
+		if ($this->isCurrentContextAnOptionalFeature()) {
+			$this->checkOptionalFeaturePageViewable();
+		}
+
+		$this->setOptions();
+
+		// +++++++++++++++++
+		// SPECIAL FOR CATEGORIES and CATEGORIES AS COLLECTIONS
+		// set if product categories feature is installed
+		$productCategoriesFeature = 'product_categories';
+		$this->isInstalledProductCategoriesFeature = !empty($this->pwcommerce->isOptionalFeatureInstalled($productCategoriesFeature));
+		$this->isCategoryACollection = $this->pwcommerce->isOtherOptionalSettingInstalled(PwCommerce::PWCOMMERCE_IS_CATEGORY_A_COLLECTION_SETTING_NAME);
+
+
+		###########################
+		// WARNING IF SHOP IS NOT COMPLETELY SET UP
+		// i.e. need some general settings to be completed including shop currency, email, country, images and files extensions, etc
+		$this->checkShopRequiredGeneralSettingsIsComplete();
+
+
+	}
+
+
+	private function setOptions() {
+		$this->options = [
+			'current_page_number' => $this->currentPaginationNumberForContext,
+			'admin_url' => $this->adminURL,
+			'assets_url' => $this->assetsURL,
+			'assets_path' => $this->assetsPath,
+			'ajax_post_url' => $this->ajaxPostURL
+		];
+		// ==================
+		$this->xstoreProcessPWCommerce = 'ProcessPWCommerceStore';
+		// i.e., '$store.ProcessPWCommerceStore'
+		$this->xstore = "\$store.{$this->xstoreProcessPWCommerce}";
+	}
+
+	private function getInlineScripts() {
+		// @note: need to load alpine as 'defer'
+		$url = $this->wire('config')->urls->$this;
+		// $alpinejs = "{$url}vendors/scripts/alpinejs/alpinejs.3.2.4.min.js";
+		$alpinejs = "{$url}vendors/scripts/alpinejs/alpinejs.3.13.4.min.js";
+		$out = "<script src='{$alpinejs}'defer></script>\n";
+		return $out;
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PAGES HANDLER  ~~~~~~~~~~~~~~~~~~
+
+	private function pagesHandler($isAjaxContext = false) {
+
+
+		//===============
+		// CONTEXT CONTENTS - GET
+		// e.g. custom lister results, etc
+
+		$out = "";
+
+		// ~~~~~~~~~~~~
+		// SET $this->selector for lister
+		// @note: we set here to cater for both ajax and non ajax modes below
+		// @note: TODO: interim solution for limit until develop own simpler PWCommerce filter
+		// @note: the issues other than simplicity are persistence and selected field/filter not showing on page reload.
+		$this->setLimitForSelectorForLister();
+
+		// get the CURRENT PAGINATION NUMBER FOR THIS CONTEXT if applicable
+		// @note: this needs to be set before we call $this->getPWCommerceContextRender() so that it can set the value to $option['current_page_number']
+		$this->currentPaginationNumberForContext = $this->getPaginationNumberCookieForContext();
+		//-------------
+
+
+		// TODO DO LIMIT HERE IF NOT 10!!!
+
+		// ~~~~~~~~~~~~~~~~~~~
+		// HTMX - AJAX RETURN
+		if ($isAjaxContext) {
+			//----------------------
+			$out = $this->renderResults($this->selector);
+			return $out;
+		}
+
+		// +++++++++++++++++++++
+		// NON-AJAX RENDER MARKUP
+
+		// ~~~~~~~~~~~~~~~~~~~
+		// IF CONTEXT USES INPUTFIELDSELECTOR!
+		if ($this->isContextUseInputfieldSelector()) {
+			// get this context's custom lister settings.
+			$this->contextCustomListerSettings = $this->getCustomListerSettings();
+		}
+
+		// -------------------------------
+
+		// TODO WIP!!!
+		$post = $this->wire('input')->post;
+		// TODO: delete when done - we post to self
+		// $formAction = "./{$context}/";
+		// $form = $this->pwcommerce->getInputfieldForm(['action' => $formAction]);
+		$form = $this->pwcommerce->getInputfieldForm();
+		//   $form->attr('id', 'pwcommerce_tabs_wrapper');
+		/** @var InputfieldWrapper $wrapper */
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		if ($this->isContextUseTabs()) {
+			// Get WireTabs
+			$this->modules->get('JqueryWireTabs');
+			// give our wrapper an ID so we can init tabs later in JS
+			$wrapper->attr('id', 'pwcommerce_tabs_wrapper');
+			// add tabs to our main wrapper
+			//    $form = $this->getTabs($form);
+			$wrapper = $this->getTabs($wrapper);
+		} else {
+
+			// ~~~~~~~~~~~~~~~~~~~
+			// IF CONTEXT USES QUICK FILTER! && FILTERS IN USE!
+			if ($this->isContextUseQuickFilters()) {
+				// quick filters
+				$field = $this->getContextQuickFilters();
+				$wrapper->add($field);
+			}
+
+			// @note: we display inputfield selector once - in non-ajax context AND non-tabs content!
+			//--------------------
+			if ($this->isContextUseInputfieldSelector()) {
+				// CONTEXTS BULK EDIT INPUTFIELD SELECTOR
+				// @note: only if need in the context!
+				// TODO: make contextual! e.g., not needed in main, shipping zones(?) etc
+				//------------------- selector (getInputfieldSelector)
+				$field = $this->getInputfieldSelector();
+				$wrapper->add($field);
+			}
+			//===============
+			// CONTEXT CONTENTS
+			// e.g. custom lister results, other markup, etc
+
+			//----------------------
+			$out = $this->renderResults($this->selector);
+
+			//------------------- content (getInputfieldMarkup)
+			// @note: $out here was generated earlier up
+
+			$options = [
+				'id' => 'pwcommerce_bulk_edit_context_contents_wrapper',
+				'skipLabel' => Inputfield::skipLabelHeader,
+				'collapsed' => Inputfield::collapsedNever,
+				'wrapClass' => true,
+				// TODO: DELETE IF NOT IN USE
+				// 'wrapper_classes' => 'pwcommerce_no_outline',
+				'value' => $out,
+			];
+
+			$field = $this->pwcommerce->getInputfieldMarkup($options);
+			// add content from current context render class
+			$wrapper->add($field);
+		}
+
+		//--------------------------------
+		// CONTEXT NEEDS SAVE BUTTON
+		if ($this->isContextNeedSaveButton()) {
+			//------------------- save button (getInputfieldButton)
+			// @note: we need Save + Exit in this regard
+			// TODO: IF NEEDED, MOVE TO THE CONTEXT RENDER ITSELF!
+			$options = [
+				'id' => "submit_save",
+				'name' => "pwcommerce_save_button",
+				'label' => $this->_('Save'),
+				'save_and_exit' => true,
+				'showInHeader' => true,
+			];
+			$field = $this->getInputfieldButtonSingleEdit($options);
+			// add submit button for single page process views
+			$wrapper->add($field);
+		}
+
+		//------------------
+		// ADD WRAPPER TO FORM
+		$form->add($wrapper);
+
+		//------------------------------
+		// HANDLE POST
+
+		// TODO? SEEMS FORM IS ALWAYS POSTED, EVEN ON RELOAD? WHY?
+		// TODO - WE NEED TO CATER FOR OTHER NEEDS! E.G. SINGLE EDIT SUCH AS GENERAL SETTINGS!
+		// TODO - IN THAT CASE RENAME INPUTFIELD AND CALL IT IS READY TO SAVE?
+		// we check if ready to post an action (action selected + at least one item selected)
+
+		if (!empty((int) $post->pwcommerce_is_ready_to_save)) {
+
+			// check if bulk edit vs single edit for process executes
+			if ($this->isContextUseBulkEdit()) {
+
+				// BULK EDIT process views
+				$this->processBulkEditAction($form);
+			} else {
+
+				// SINGLE EDIT process views, e.g. General Settings, Tax Settings, etc
+				$this->processSingleEdit($form);
+			}
+			// } else if ($this->isContextNeedPreProcess()) {
+		} else if (!empty((int) $post->pwcommerce_is_need_pre_process)) {
+			// SPECIAL INTERMEDIATE PRE-PROCESS
+			// e.g. 'select discount type in modal before creating the discount page'
+
+			$this->processPreProcess($form);
+		}
+
+		//===========================
+		// FINAL OUTPUT
+
+		//--------------
+		// TODO: ADD CSRF TOKEN, HIDDEN? NOT INCLUDED IN THIS VIEW!
+
+		$ajaxPostURL = $this->ajaxPostURL;
+		//---------------------
+		// @note: hx-trigger will be triggered via js by the event 'pwcommercefetchpagesforcustomlister' which is a result of observing changes to the inputfieldseletor in use here. '#pwcommerce_inputfield_selector_value' is the inputfield's hidden input that contains the current selector. Render classe's output will be inserted as the new output for the target '#pwcommerce_bulk_edit_custom_lister' by htmx.
+		// TODO delay??? delay:500ms ok?
+		$hxInclude = ".pwcommerce_inputfield_selector input[type=\"hidden\"]";
+		$out = "<div id='pwcommerce_bulk_edit_wrapper' hx-trigger='pwcommercefetchpagesforcustomlister delay:500ms' hx-target='#pwcommerce_bulk_edit_custom_lister' hx-post='{$ajaxPostURL}'  hx-include='{$hxInclude}' hx-swap='outerHTML' hx-indicator='#pwcommerce_inputfield_selector_spinner' x-data='ProcessPWCommerceData'>" . $form->render() . "</div>";
+
+		//------------------
+		// ALL CONTEXTS DETECT IF IN PWCOMMERCE SHOP CONTEXT
+		// @note: if a pwcommerce page is being edited in usual edit, will tell JavaScript not to init PWCommerce scripts!
+		// @note: if we add after getMenuPanelBelow() it is getting pulled inside the panel markup! Not a biggy, but we don't want that
+		$out .= $this->getDetectIfInPWCommerceShopContextMarkup();
+
+		//------------------
+		// ALL CONTEXTS SET CURRENT PWCOMMERCE SHOP CONTEXT
+		$out .= $this->getPWCommerceShopCurrentContextMarkup();
+
+		//------------------
+		// ALL CONTEXTS MENU
+		// @note: processwire side panel!
+		$out .= $this->getMenuPanel();
+
+		// --------
+		return $out;
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INSTALL  ~~~~~~~~~~~~~~~~~~
+
+	public function ___install() {
+
+		// check if there is another page in admin with the name 'shop'. If so, abort installation
+		if ($this->installerOurModulePageAlreadyExists()) {
+			throw new WireException($this->_("Process PWCommerce: Installation aborted. A page with the name 'shop' already exists. This module needs that name. Please fix this then retry."));
+		}
+
+		// PWCOMMERCE PROCESS MODULE ADMIN PAGE
+		// create the page for this module (ProcessPWCommerce)
+		// it needs to use the template admin and it needs to have this module as its process
+		$page = new Page();
+		$page->template = 'admin';
+		$page->parent = $this->wire('pages')->get($this->wire('config')->adminRootPageID);
+		$page->title = 'Shop';
+		$page->name = PwCommerce::PAGE_NAME;
+		$page->process = $this;
+		$page->save();
+		// -------------
+		// @note: A SINGLE CHILD PAGE FOR PWCOMMERCE PAGE above will also be created by installer
+		// we call this 'pwcommerce'
+		// - we need this to be the parent of all other pwcommerce pages such as products, orders, settings, etc
+		// - this is because we are using embedded edit for some of these, e.g. add/edit categories, products, etc
+		// - if these were children of the main pwcommerce page, we will get a 404 if we try to add/edit them
+		// - this is because their parent would be using an 'admin' template
+		// - however, if under this 'pwcommerce' page, we are able to edit and add OK.
+		// - this is because its template is PWCommerce
+		//
+
+		//--------------------
+		// SAVE THIS MODULE'S CONFIGURATION
+		// save data to indicate that FIRST STEP of installer has run
+		$status = 'first_stage_install';
+		$this->setConfigurePWCommerceStatus($status);
+
+		// -------
+		// tell the user we created the page for this module
+		$this->message("Process PWCommerce: Created page {$page->path}");
+	}
+
+	public function ___uninstall() {
+		// find and delete the page we installed, locating it by the process field (which has the module ID)
+		// it would probably be sufficient just to locate by name, but this is just to be extra sure.
+		$moduleID = $this->wire('modules')->getModuleID($this);
+		$page = $this->wire('pages')->get("template=admin, process=$moduleID, name=" . PwCommerce::PAGE_NAME);
+		// $page = $this->wire('pages')->get('template=admin, name='.PwCommerce::PAGE_NAME);
+		if ($page->id) {
+			// if we found the page, let the user know and delete it
+			$this->message($this->_('Process PWCommerce: Deleted page ') . $page->path);
+			// @note: delete any child pages as well
+			$this->wire('pages')->delete($page, true);
+		}
+	}
+}

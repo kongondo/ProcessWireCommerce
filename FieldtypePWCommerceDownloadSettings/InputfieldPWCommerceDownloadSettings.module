@@ -1,0 +1,170 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceDownloadSettings
+ *
+ * Inputfield for FieldtypePWCommerceDownloadSettings, the field that stores and outputs settings of a PWCommerce download.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceDownloadSettings for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceDownloadSettings extends Inputfield
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Download Settings: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce download settings.',
+			'requires' => 'FieldtypePWCommerceDownloadSettings',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for download
+	 *
+	 */
+	public function ___render() {
+		$out = $this->buildForm();
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+
+	private function buildForm() {
+
+		/** @var WireData $value */
+		$value = $this->attr('value');
+
+		// GET WRAPPER FOR ALL INPUTFIELDS HERE
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		//------------------- maximumDownloads (getInputfieldText)
+
+		$options = [
+			'id' => "pwcommerce_download_maximum_downloads",
+			'name' => "pwcommerce_download_maximum_downloads",
+			'type' => 'number',
+			'step' => '1',
+			'min' => 0,
+			'label' => $this->_('Maximum Downloads'),
+			'description' => $this->_('How many times the file should be downloadable after purchase.'),
+			'notes' => $this->_('Leave empty for unlimited.'),
+			'columnWidth' => 50,
+			'value' => $value->maximumDownloads,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+
+		//------------------- timeToDownload (getInputfieldText)
+
+		$options = [
+			'id' => "pwcommerce_download_time_to_download",
+			'name' => "pwcommerce_download_time_to_download",
+			'label' => $this->_('Download Time'),
+			'description' => $this->_('How long after the purchase should the file be available.'),
+			'notes' => $this->_("Leave empty for unlimited. You can use any [strtotime date format](http://php.net/manual/en/datetime.formats.relative.php). i.e. '+2 weeks'"),
+			'columnWidth' => 50,
+			'value' => $value->timeToDownload,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+
+		//----------------------
+
+		$out = $wrapper->render();
+
+		return $out;
+	}
+
+
+	// ~~~~~~~~~~~~~~
+
+	/**
+	 * Process input for the values sent from the download values for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// @note: @see processInputDeleteItems() - a handler to delete product variants called via InputfieldRuntimeMarkup::processInput()
+
+		$download = $this->field->type->getBlankValue($this->page, $this->field);
+		$pageID = $this->page->id;
+
+		// process values
+		$download->maximumDownloads = (int) $input->pwcommerce_download_maximum_downloads;
+		$download->timeToDownload = $this->wire('sanitizer')->text($input->pwcommerce_download_time_to_download);
+
+
+		// if the string values of the processed properties are different from the previous,
+		// then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+		if ($this->toStringInhouse($download) !== $this->toStringInhouse($this->value)) {
+			$this->attr('value', $download);
+			$this->trackChange('value');
+		}
+	}
+
+
+	// ~~~~~~~~~~~~
+
+	/**
+	 * Make a string value to represent the download values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($item) {
+		$string = (string) "$item->maximumDownloads: $item->timeToDownload";
+		return $string;
+	}
+}

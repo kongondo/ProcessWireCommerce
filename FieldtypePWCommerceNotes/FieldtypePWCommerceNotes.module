@@ -1,0 +1,387 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * FieldtypePWCommerceNotes for ProcessWire.
+ *
+ * This Fieldtype stores values for PWCommerce notes.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceNotes for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceNotes extends FieldtypeMulti
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Notes: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'Field that stores PWCommerce notes.',
+			'installs' => 'InputfieldPWCommerceNotes',
+		);
+	}
+
+	/**
+	 * We keep a copy of the $page that owns these notes so that we can follow
+	 * its outputFormatting state and change our output per that state
+	 *
+	 */
+	// @for use in InputfieldPWCommerceNotes
+	protected $page;
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->wire('modules')->get("InputfieldPWCommerceNotes");
+		// our inputfield requires a Page and Field
+		// @note: these two are methods in InputfieldPWCommerceNotes
+		$inputfield->setPage($page);
+		$inputfield->setField($field);
+		return $inputfield;
+	}
+
+	/**
+	 * Get a blank value of this type, i.e. return a blank WireArray
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireArray
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$wireArray = new WireArray();
+		$wireArray->setTrackChanges(true);
+		return $wireArray;
+	}
+
+	/**
+	 * Get a blank single item value of this type, i.e. return a blank WireData
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankRecord() {
+		return new WireData();
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	// @credits: borrowed from ProcessWire FieldtypeDatetime.module
+	/**
+	 * Sanitize a value assumed to be either a timestamp or in strtotime() compatible format
+	 *
+	 * @param string|int|\DateTime
+	 * @return int|string Returns unix timestamp integer or blank string if empty or invalid value
+	 *
+	 */
+	protected function _sanitizeValue($value) {
+		if (empty($value)) {
+			// empty value
+			$value = '';
+		} elseif (is_int($value)) {
+			// value okay as-is
+		} elseif ($value instanceof \DateTime) {
+			// instance of DateTime
+			$value = $value->getTimestamp();
+		} elseif (ctype_digit(ltrim("$value", '-'))) {
+			// already a timestamp
+			$value = (int) $value;
+		} else {
+			// convert date string to time
+			$value = strtotime($value);
+			if ($value === false) {
+				$value = '';
+			}
+		}
+		return $value;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array $value
+	 * @return string|int|array|object $value
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireArray) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$records = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireArray
+		if (empty($value) || !is_array($value)) {
+			return $records;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+		$cnt = 1; // @note: for temporary runtime ID
+
+		// create new WireData objects from each item in the array
+		foreach ($value as $v) {
+
+			$record = $this->getBlankRecord();
+
+			// NOTE TEXT/CONTENT/VALUE
+			// note we are converting 'data' to 'record->text' (the note content)
+			$text = $sanitizer->text($v['data']);
+			$record->text = $text;
+			// aliases
+			$record->note = $text;
+			$record->content = $text;
+			$record->value = $text;
+
+			//--------
+			// CREATED
+			// ** note created date **
+			// TODO: UNSURE IF TO RETURN TIMESTAMP OR TIME STRING! MAYBE EXTRA VARIABLE FOR THIS?
+			$created = $v['created'];
+			if (empty($created)) {
+				$created = '';
+			} else {
+				$created = strtotime($created);
+				if ($created === false) {
+					$created = '';
+				}
+			}
+
+			$record->created = $created;
+			// aliases
+			$record->createdDate = $created;
+			$record->date = $created;
+
+			//--------
+			// MODIFIED
+			// ** note modified date **
+			// TODO: UNSURE IF TO RETURN TIMESTAMP OR TIME STRING! MAYBE EXTRA VARIABLE FOR THIS?
+			$modified = $v['modified'];
+			if (empty($modified)) {
+				$modified = '';
+			} else {
+				$modified = strtotime($modified);
+				if ($modified === false) {
+					$modified = '';
+				}
+			}
+
+			$record->modified = $modified;
+			// aliases
+			$record->modifiedDate = $modified;
+
+
+			//--------
+			// CREATED USERS ID
+			$createdUsersID = (int) $v['created_users_id'];
+			$record->createdUsersID = $createdUsersID;
+			// aliases
+			$record->userID = $createdUsersID;
+
+			//--------
+			// MODIFIED USERS ID
+			$modifiedUsersID = (int) $v['modified_users_id'];
+			$record->modifiedUsersID = $modifiedUsersID;
+
+			//--------
+			// NOTE TYPE (system | admin {| customer TODO?})
+			$record->type = $sanitizer->text($v['type']);
+
+			// ============= RUNTIME VALUES
+			$record->id = $cnt;
+
+
+			//---------
+			$cnt++;
+
+
+			//----------------
+			$record->resetTrackChanges();
+			$records->add($record); // add to records
+
+		} // end foreach $value as $v
+
+		// tell it to start tracking changes from this point forward
+		$records->resetTrackChanges(); // reset track changes for all records
+
+		return $records;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array|object $value
+	 * @return string|int
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than an WireArray,
+		// then just return a blank array
+		if (!$value instanceof WireArray) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+		// $allowedValues = ['system', 'admin', 'customer'];
+		// @note: for now we only allow these two; TODO: might change in the future
+		$allowedNoteTypeValues = ['system', 'admin'];
+
+		// convert each record to an array within sleepValue
+		foreach ($value as $record) {
+			// ---------------
+			// limit note type to set values
+			$type = $sanitizer->option($record->type, $allowedNoteTypeValues);
+			// default to system if sanitizer returns null
+			if (empty($type))
+				$type = 'system';
+
+			// make the notices sort by note->created descending (newest first)
+			$value->sort('-created');
+			//--------------
+			$sleepValue[] = array(
+				// note: record->text is becoming data which is a required column in a Fieldtype
+				'data' => $sanitizer->text($record->text),
+				'created' => date('Y-m-d H:i:s', $this->_sanitizeValue($record->created)),
+				'modified' => date('Y-m-d H:i:s', $this->_sanitizeValue($record->modified)),
+				'created_users_id' => (int) $record->createdUsersID,
+				'modified_users_id' => (int) $record->modifiedUsersID,
+				'type' => $type,
+			);
+		}
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 *
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireArray) {
+			throw new WireException("Value set to field '$field->name' must be a WireArray");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO: NOT NEEDED?
+		return $value;
+	}
+
+	/**
+	 * Return the database schema that defines a product property item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// we reuse this required field/column (data) for item->text
+		$schema['data'] = 'TEXT NOT NULL'; // TODO: ok?
+		// @note: default to current timestamp ONLY; no auto-update
+		$schema['created'] = 'DATETIME DEFAULT CURRENT_TIMESTAMP';
+		// @note: default + auto-update to current timestamp
+		// @note: having issues with on update here. Whole column across all rows seem to be getting updated! we'll do it manually
+		// $schema['modified'] = 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP';
+		$schema['modified'] = 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP';
+		$schema['created_users_id'] = 'INT(10) UNSIGNED NOT NULL';
+		$schema['modified_users_id'] = 'INT(10) UNSIGNED NOT NULL';
+		// for note type: system or admin - system notes cannot be modified (e.g. 'order created', etc)#
+		// TODO: in future, can also have 'customer' as note author
+		$schema['type'] = 'CHAR(10) NOT NULL';
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		//--------------
+		// for 'value'
+		$schema['keys']['data'] = 'FULLTEXT KEY data (data)';
+		$schema['keys']['created'] = 'KEY created(created)';
+		$schema['keys']['modified'] = 'KEY modified(modified)';
+		$schema['keys']['created_users_id'] = 'KEY created_users_id(created_users_id)';
+		$schema['keys']['modified_users_id'] = 'KEY modified_users_id(modified_users_id)';
+		$schema['keys']['type'] = 'FULLTEXT KEY type (type)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+
+		if (in_array($subfield, ['text', 'note', 'content', 'value'])) {
+			// if searching 'text' (or its aliases) then assume our default (data) field
+			$subfield = 'data';
+		} else if (in_array($subfield, ['createdDate', 'date'])) {
+			// else if searching for created (created date) using aliases
+			$subfield = 'created';
+		} else if ($subfield == 'modifiedDate') {
+			// else if searching for modified (modified date) using aliases
+			$subfield = 'modified';
+		} else if (in_array($subfield, ['createdUsersID', 'userID'])) {
+			// else if searching for created users id using aliases
+			$subfield = 'created_users_id';
+		} else if ($subfield == 'modifiedUsersID') {
+			// else if searching for modified users id using aliases
+			$subfield = 'modified_users_id';
+		}
+
+
+		/*
+						- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+						- the latter allow for finer, fulltext search
+						*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

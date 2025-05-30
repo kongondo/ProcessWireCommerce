@@ -1,0 +1,442 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * InputfieldPWCommerceTaxOverrides for ProcessWire.
+ *
+ * This Inputfield is a GUI for FieldtypePWCommerceTaxOverrides.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceTaxOverrides for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceTaxOverrides extends Inputfield
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Tax Overrides: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce tax overrides values.',
+			'requires' => 'FieldtypePWCommerceTaxOverrides',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+	// for storing tax overrides locations for select dropdown.
+	// keep it here once for multiple use in buildRow().
+	private $countryAndTerritoriesLocations;
+	// for checking if a country has territories (provinces, states, etc) set up
+	private $hasTerritories;
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+		// get helper for rendering inputfields
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for tax overrides
+	 *
+	 */
+	public function ___render() {
+
+		// IF ADD NEW BLANK OVERRIDE ITEM/RECORD - AJAX
+		$input = $this->wire('input');
+		$ajax = $this->wire('config')->ajax;
+		if ($ajax && $input->get('field') == $this->attr('name')) {
+			$newItem = $this->field->type->getBlankRecord();
+			$uniqueCount = str_replace('.', '-', microtime(true));
+			// send back just the new row
+			$out = $this->buildRow($newItem, $uniqueCount, 'pwcommerce_tax_override_new')->render();
+			echo $out;
+			die();
+			return $out;
+		}
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		$out =
+			"<div id='pwcommerce_tax_overrides_wrapper'>" . $this->buildForm() . "</div>" .
+			"<div id='pwcommerce_tax_override_add_new_wrapper'>" . $this->renderFooter() . "</div>";
+
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$this->preloadInputfieldAssets();
+		// init locations for location select dropdown
+		$locations = $this->getLocations();
+		$this->countryAndTerritoriesLocations = $locations;
+		$this->hasTerritories = count($locations) > 1;
+		// $scripts = $this->config->js($this->id, $options);
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	protected function renderAddNewLink() {
+		$name = $this->attr('name');
+		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
+		$adminEdit = "{$adminEditURL}?id={$this->page->id}&field={$name}";
+		$out =
+			"<div>" .
+			"<a id='pwcommerce_tax_override_add_new' class='pwcommerce_run_request_indicators_operations' href='#' hx-get='{$adminEdit}' hx-target='#pwcommerce_tax_overrides_wrapper' hx-swap='beforeend' hx-indicator='#pwcommerce_add_new_tax_override_spinner_indicator'>" .
+			"<i id='pwcommerce_add_new_tax_override_spinner_indicator' class='pwcommerce_spinner_indicator fa fa-fw fa-plus-circle'></i>" .
+			$this->_("Add new tax override") .
+			"</a>" .
+			"</div>";
+		return $out;
+	}
+
+	private function renderFooter() {
+
+		//------------------- add new tax override (InputfieldMarkup)
+		// @note: SINGLE ADD NEW IN FOOTER OF WRAPPER - CAN ONLY HAVE ONE!
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_tax_override_add_new',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $this->renderAddNewLink(),
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		$wrapper->add($field);
+		return $wrapper->render();
+	}
+
+	private function preloadInputfieldAssets() {
+		// if no override items, we need to preload InputfieldPageAutocomplete assets.
+		// @note: $this->name = pwcommerce_tax_overrides
+		if (empty($this->page->{"{$this->name}"}->count)) {
+			try {
+				// the following forces assets to be loaded
+				$inputfield = $this->modules->get('InputfieldPageAutocomplete');
+				if ($inputfield) {
+					$inputfield->renderReady(null, false);
+				}
+			} catch (\Exception $e) {
+				$this->warning("Tax Overrides '$this->name' preload '$this->field': " . $e->getMessage(), Notice::debug);
+			}
+		}
+	}
+
+	private function buildForm() {
+
+		/** @var WireArray $value */
+		$value = $this->attr('value');
+
+		// GET MAIN WRAPPER
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		foreach ($value as $n => $override) {
+			/** @var InputfieldWrapper $row */
+			$row = $this->buildRow($override, $n);
+			$wrapper->add($row);
+		}
+		// FINAL WRAPPER MARKUP
+		return $wrapper->render();
+	}
+
+	/**
+	 * Build a row of inputs representing a single tax override.
+	 *
+	 * @access private
+	 * @return InputfieldWrapper
+	 */
+	private function buildRow(WireData $override, $n, $newClass = '') {
+
+		// GET WRAPPER
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		$columnWidth = $this->hasTerritories ? 22 : 26;
+
+		//------------------- override_type (InputfieldSelect)
+
+		$selectOptionsOverrideType = [
+			'category' => __('Category'),
+			'shipping' => __('Shipping'),
+		];
+
+		$options = [
+			'id' => "pwcommerce_tax_override_override_type_{$n}",
+			'name' => 'pwcommerce_tax_override_override_type[]',
+			'label' => $this->_('Type'),
+			'description' => $this->_('Override type.'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'select_options' => $selectOptionsOverrideType,
+			'classes' => 'pwcommerce_tax_override_type',
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => empty($override->overrideType) ? 'category' : $override->overrideType,
+		];
+
+		$field = $this->pwcommerce->getInputfieldSelect($options);
+		$wrapper->add($field);
+
+		//------------------- location_id (InputfieldSelect/InputfieldHidden)
+		// country has territories
+		if ($this->hasTerritories) {
+			$options = [
+				'id' => "pwcommerce_tax_override_location_id_{$n}",
+				'name' => 'pwcommerce_tax_override_location_id[]',
+				'label' => $this->_('Location'),
+				'description' => $this->_('Override location.'),
+				'select_options' => $this->countryAndTerritoriesLocations,
+				'collapsed' => Inputfield::collapsedNever,
+				'columnWidth' => $columnWidth,
+				'wrapClass' => true,
+				'wrapper_classes' => 'pwcommerce_no_outline',
+				'value' => $override->locationID,
+			];
+
+			$field = $this->pwcommerce->getInputfieldSelect($options);
+		}
+		// no territories; country only: use hidden input instead of select dropdown above
+		else {
+			$options = [
+				'id' => "pwcommerce_tax_override_location_id_{$n}",
+				'name' => 'pwcommerce_tax_override_location_id[]',
+				'columnWidth' => 10,
+				// if country has no territories, this value will always be the country id (page->id)
+				'value' => $this->page->id,
+			];
+
+			$field = $this->pwcommerce->getInputfieldHidden($options);
+		}
+
+		$wrapper->add($field);
+
+		//------------------- override_tax_rate (InputfieldText)
+		$description = $this->_('Override tax rate');
+		// append percentage symbol string
+		$description .= ' (%).';
+		$options = [
+			'id' => "pwcommerce_tax_override_override_tax_rate_{$n}",
+			'name' => "pwcommerce_tax_override_override_tax_rate[]",
+			'type' => 'number',
+			'step' => '0.01',
+			'min' => 0,
+			'label' => $this->_('Tax Rate'),
+			'description' => $description,
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			// 'value' => $override->overrideTaxRate,
+			// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+			'value' => $this->pwcommerce->localeConvertValue($override->overrideTaxRate)
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		// TODO: CATEGORY NEEDS TO BE DYNAMIC, i.e. don't show for shipping overrides
+		// TODO @note: cannot use showIf since cannot use multiname i.e. [] so use js instead
+		//------------------- category (InputfieldPageAutocomplete)
+
+		$pagesSelector = "template=pwcommerce-category,limit=50, status<" . Page::statusTrash;
+
+		// TODO: make sure works!
+		// $extraClasses = $override->overrideType === 'shipping' ? ' pwcommerce_hide' : '';
+
+		$wrapperClasses = "pwcommerce_no_outline pwcommerce_tax_override_category";
+		if ($override->overrideType === 'shipping') {
+			// TODO: USE TAILWIND CLASS HERE 'hidden' ONCE WE SHARE THE STYLES
+			$wrapperClasses .= " pwcommerce_hide";
+		}
+		// @note: $newClass to target in JS to init PageAutocompletes on newly added tax override (using HTMX)
+		if ($newClass) {
+			$wrapperClasses .= " {$newClass}";
+		}
+
+		$optionsPageAutoComplete = [
+			'id' => "pwcommerce_tax_override_category_id_{$n}",
+			// @note: InputfieldPageAutocomplete will set [] suffix to 'name'
+			'name' => 'pwcommerce_tax_override_category_id',
+			'pagesSelector' => $pagesSelector,
+			'maxSelectedItems' => 1,
+			'notes' => $this->_('Start typing to search.'),
+			'label' => $this->_('Product Category'),
+			'description' => $this->_('Category for override.'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => $wrapperClasses,
+			'value' => $override->categoryID,
+		];
+
+		$field = $this->pwcommerce->getInputfieldPageAutocomplete($optionsPageAutoComplete);
+		$wrapper->add($field);
+
+		//------------------- trash (InputfieldMarkup)
+
+		$removeTitle = $this->_('Click to delete this override, or double-click to delete all');
+		$trashMarkup =
+			"<span class='fa fa-trash pwcommerce_tax_override_delete pwcommerce_trash' title='{$removeTitle}'></span>" .
+			"<input type='hidden' name=pwcommerce_tax_override_delete[] value='0' class='pwcommerce_trash'>";
+
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => 10,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_tax_override_delete',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $trashMarkup,
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper->add($field);
+
+		//--------------
+		return $wrapper;
+	}
+
+	private function getLocations() {
+		// TODO: use findRaw to get parents children + add parent at top
+		$page = $this->page;
+		$locations = [$page->id => $page->title];
+		$territories = $this->wire('pages')->findRaw("parent={$page->id}", 'title');
+		$locations = $locations + $territories;
+		return $locations;
+	}
+
+	/**
+	 * Process input for the values sent from the tax overrides for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// no overrides added yet, return early
+		if (empty($input->pwcommerce_tax_override_location_id)) {
+			return;
+		}
+
+		//------------------
+
+		$overrides = $this->field->type->getBlankValue($this->page, $this->field);
+		$numDeleted = 0;
+		// we only allow a category ID override ONCE PER LOCATION
+		$inUseLocationIDCategoryIDCombination = [];
+		// we only allow a shipping override ONCE PER LOCATION
+		$inUseLocationIDShippingCombination = [];
+
+		// loop through and process values
+		foreach ($input->pwcommerce_tax_override_location_id as $n => $locationID) {
+			// a location id is required
+			if (!$locationID) {
+				continue;
+			}
+
+			//--------------
+			// check if the item is being deleted
+			if ($input->pwcommerce_tax_override_delete[$n]) {
+				// if being deleted, then we simply skip over it
+				$numDeleted++;
+				continue;
+			}
+
+			//-----------
+			// @note: if override type is category, check that location-id+category-id combo is unique
+			$overrideType = $this->wire('sanitizer')->pageName($input->pwcommerce_tax_override_override_type[$n]);
+			$categoryID = (int) $input->pwcommerce_tax_override_category_id[$n];
+
+			if ($overrideType === 'category') {
+				$locationIDCategoryIDCombination = $locationID . $categoryID;
+				// we only allow a category ID override ONCE PER LOCATION
+				if (in_array((int) $locationIDCategoryIDCombination, $inUseLocationIDCategoryIDCombination)) {
+					continue;
+				}
+				// if override is category and no category selected, skip the override
+				if (!$categoryID) {
+					continue;
+				}
+				// track used locationID + categoryID combinations for duplication
+				$inUseLocationIDCategoryIDCombination[] = (int) $locationIDCategoryIDCombination;
+			}
+			// else in shipping;
+			else {
+
+				// we only allow a shipping override ONCE PER LOCATION
+				if (in_array((int) $locationID, $inUseLocationIDShippingCombination)) {
+					continue;
+				}
+
+				// track used locationID + shipping combinations for duplication
+				$inUseLocationIDShippingCombination[] = (int) $locationID;
+
+				//-------------
+				// set categoryID to zero in case was changing from category to shipping
+				$categoryID = 0;
+			}
+
+			// GOOD TO GO
+
+			// create tax override and add to tax overrides
+			$override = $this->field->type->getBlankRecord();
+			$override->locationID = (int) $locationID;
+			$override->locationType = $this->page->id === (int) $locationID ? 'country' : 'territory';
+			$override->overrideType = $overrideType;
+			$override->overrideTaxRate = (float) $input->pwcommerce_tax_override_override_tax_rate[$n];
+			$override->categoryID = $categoryID;
+
+			$overrides->add($override);
+		} // end loop
+
+		// if the string values of the processed overrides are different from the previous,
+		// or if any overrides have been deleted, then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+		if ($this->toStringInhouse($overrides) !== $this->toStringInhouse($this->value) || $numDeleted) {
+			$this->attr('value', $overrides);
+			$this->trackChange('value');
+		}
+	}
+
+	/**
+	 * Make a string value to represent these values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($items) {
+		$a = [];
+		foreach ($items as $item) {
+			$a[] = "$item->locationType: $item->locationID: $item->overrideType: $item->overrideTaxRate: $item->categoryID";
+		}
+		return implode("\n", $a);
+	}
+}

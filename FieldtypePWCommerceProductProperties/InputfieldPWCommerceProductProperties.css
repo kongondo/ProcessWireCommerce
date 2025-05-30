@@ -1,0 +1,89 @@
+li.Inputfield.pwcommerce_product_property_delete
+
+/*div.InputfieldContent*/
+	{
+	/* background-color: chocolate; */
+	position: relative;
+}
+
+/* @TODO: NEED TO RESET/REMOVE VALUES ON SMALLEST SCREENS! */
+li.Inputfield.pwcommerce_product_property_delete div.InputfieldContent
+
+/*span.pwcommerce_product_property_delete*/
+	{
+	/* background-color: rgb(66, 210, 30); */
+	position: absolute;
+	top: 60%;
+	/*@TODO: REVISIT*/
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+div.pwcommerce_product_property_row_wrapper {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+div.pwcommerce_product_property_row_wrapper:not(:last-child) {
+	/* @todo: remove border-bottom from last child */
+	border-bottom: 1px solid #d9e1ea;
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.pwcommerce_trash {
+	cursor: pointer;
+}
+
+div#pwcommerce_product_property_selected_colour_wrapper {
+	margin-top: 20px;
+}
+
+div#pwcommerce_product_property_selected_colour_preview {
+	height: 50px;
+	width: 50px;
+	max-height: 50px;
+	max-width: 50px;
+	outline: 1px solid #d9e1ea;
+	cursor: pointer;
+}
+
+/* background image if no product colour selected */
+div#pwcommerce_product_property_selected_colour_preview:not(.pwcommerce_product_property_selected_colour_show_preview) {
+	background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+		linear-gradient(135deg, #ccc 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, #ccc 75%),
+		linear-gradient(135deg, transparent 75%, #ccc 75%);
+	background-size: 25px 25px;
+	/* Must be a square */
+	background-position: 0 0, 12.5px 0, 12.5px -12.5px, 0px 12.5px;
+	/* Must be half of one side of the square */
+}
+
+/* override colour picker button styles */
+div#pwcommerce_product_property_selected_colour_preview .picker_wrapper button {
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	/* font-size: 3em; */
+}
+
+/* .parent {
+  position: relative;
+}
+.child {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+} */
+
+/* .parent {
+	position: relative;
+}
+.child {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+} */

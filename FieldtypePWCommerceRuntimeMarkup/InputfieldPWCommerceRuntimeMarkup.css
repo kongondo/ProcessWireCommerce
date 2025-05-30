@@ -1,0 +1,44 @@
+.Inputfields .InputfieldPWCommerceRuntimeMarkup .Inputfields .InputfieldPWCommerceRuntimeMarkupItem>.InputfieldHeader {
+	border: none;
+	background: #3eb998;
+	color: #fff;
+	outline: 1px solid #d9e1ea;
+	outline-color: #3eb998;
+	line-height: 1em;
+	padding: 0.5em 0 0.5em 0.4em;
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+}
+
+.Inputfields .InputfieldPWCommerceRuntimeMarkup .Inputfields .InputfieldPWCommerceRuntimeMarkupItem:not(:last-child) {
+	margin: 4px 0;
+}
+
+.Inputfields .InputfieldPWCommerceRuntimeMarkup .Inputfields .InputfieldPWCommerceRuntimeMarkupItem>.InputfieldContent {
+	outline: 1px solid #d9e1ea;
+	padding: 0;
+	background: #f0f3f7;
+}
+
+.InputfieldPWCommerceRuntimeMarkupItem span.pwcommerce_runtime_item_delete {
+	display: block;
+	padding-right: 0.5em;
+	padding-left: 0.5em;
+	margin-top: 0.5em;
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 1;
+	display: block;
+	white-space: nowrap;
+	height: 100%;
+}
+
+.Inputfields .InputfieldContent .InputfieldPWCommerceRuntimeMarkupItem>.InputfieldHeader.ui-state-error {
+	text-decoration: line-through;
+	background: #bc283d;
+	color: #fff;
+	border: none;
+	outline-color: #bc283d;
+}

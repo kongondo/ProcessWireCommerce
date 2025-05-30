@@ -1,0 +1,1574 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: Hooks.
+ *
+ * Autoload module containing all PWCommerce Hooks in one convenient place.
+ * For backend use.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * PWCommerceHooks  for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+// TODO:
+/*
+	PURPOSE
+	1. INSERTING TABS
+	- We only insert tabs where we need a template to be dynamic
+	- For instance on pwcommerce-settings, we need different inputs for checkout vs general settings.
+	- We use hooks to insert the tabs (and the fields) we want for the respective scenarios
+	- For all other cases, where the tabs are constant, e.g. on product pages -> classification, we set the tabs inside fieldset tabs in the template
+
+	2. HIDING TABS
+	-  For cases where we want to hide a tab, e.g. when editing general settings in the process module, we don't need to see the settings tab
+
+	3. HIDING INPUT/FIELDS (e.g. json text field or image fields)
+	- For times we want to hide an inputfield/field. For instance, when editing general settings, we don't need to see the JSON textarea field. Or, for products, if images are stored in variants, we might want to hide the products ones. (@update: although for now we wont hide the main product one to use as fallback in case dev wants to - or make configurable? for now, fallback plus description!)
+
+	4. INSERTING CHILD PAGES + THEIR FIELDS
+
+	5. INSERTING CUSTOM INPUTS/MARKUP
+	- e.g. inserting generate product variants button
+	- can use insertAfter, etc
+
+	6.
+ */
+
+class PwCommerceHooks extends Wire implements Module {
+
+	/**
+	 * Return information about this module (required).
+	 *
+	 * @access public
+	 * @return array module info
+	 *
+	 */
+	public static function getModuleInfo() {
+
+		return array(
+			'title' => __('ProcessWire Commerce Hooks', __FILE__),
+			'summary' => __('Autoload module for PWCommerce Hooks for use in ProcessWire Admin)', __FILE__),
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'icon' => 'anchor',
+			'singular' => true,
+			'requires' => [
+				'ProcessPWCommerce>=0.0.1',
+				'PHP>=8.2.0',
+				'ProcessWire>=3.0.200'
+			],
+			//  'autoload' => true,
+			// @note: these two don't work
+			//  'autoload' => '(template=admin),(name=http404)',   //
+			//  'autoload' => 'template|name=admin|http404',
+			//---------------
+			//   'autoload' => 'template=admin',// works but we also need admin
+			//   'autoload' => 'name=http404',// works but we also need http404
+			// @note: works!!! @note: we need the http404 (for now, at least) for hooking virtual url to find results for InputfieldTextTags
+			'autoload' => function () {
+				if (wire('page')->template == 'admin' || wire('page')->name == 'http404') {
+					return true;
+				} else {
+					return false;
+				}
+			},
+
+		);
+	}
+	// to check if page is being edited in usual ProcessWire 'edit' page
+	// @note: for ajax edits such as variants image upload, this will also return true since the PWCommerce embedded page edit will be unknown
+	private $isNormalEdit;
+
+	/**
+	 * Name of field that appeared in HTTP_X_FIELDNAME, before it was modified
+	 *
+	 * @credits: FieldtypeRepeater
+	 * @see hookProcessPageEditAjaxSave()
+	 *
+	 */
+	protected $ajaxFieldName = '';
+
+	public function init() {
+
+
+		if(!empty($this->page->id)){
+			$this->isNormalEdit = $this->page->name === 'edit' || (int) $this->page->id === 10;
+		}
+		
+
+		// ====================
+		// TODO: IF NORMAL EDIT, SHOW WARNING ABOUT LIMITED FUNCTIONALITY IF EDITING A PWCOMMERCE PAGE!
+		// TODO: MAYBE THE BUILD FORM HOOK? NAH - JUST CALL METHOD! - NO! NEED HOOK SO CAN CHECK PAGE BEING EDITED?!!
+		//$this->showWarningIfEditingPWCommercePageOutsideShopContext();
+
+		////////////////////////////////////////
+		// ************* PAGE EDIT GUI **********
+		// =======================
+		// @credits: @see: https: //processwire.com/talk/topic/15870-how-to-add-own-tab-in-admin-on-edit-page-via-api/?do=findComment&comment=204171
+		// --------------
+		$this->addHookAfter("ProcessPageEdit::buildForm", $this, "hookModifyEditFormGUI");
+		// --------------
+		$this->addHookAfter("ProcessPageEdit::buildFormContent", $this, "hookModifyEditFormGUI");
+		////////////////////////////////////////
+		// ************* PAGE EDIT **********
+		// --------------
+		// SETUP A HOOK SO THAT WE CAN KEEP AJAX SAVES WORKING WITH PROCESSPAGEEDIT.
+		// HOOK BEFORE ProcessPageEdit or ProcessProfile AJAX SAVE TO REPLACE '_repeater' SUFFIX
+		$this->addHookBefore('ProcessPageEdit::ajaxSave', $this, 'hookProcessPageEditAjaxSave');
+		// --------------
+		// SETUP A HOOK TO AMEND A PWCOMMERCE PAGE NAME WHEN ITS TITLE IS CHANGED
+		// important if URL segments matching a name are used in the frontend
+		// they need to be in sync with the changed page title
+		// note: this now applies to ALL pwcommerce pages
+		// $this->addHookBefore('Page(template=pwcommerce-product|pwcommerce-product-variant)::changed(title)', $this, 'hookModifyPageNameOnPageTitleChanged');
+		$this->addHookBefore('Page(template^=pwcommerce-)::changed(title)', $this, 'hookModifyPageNameOnPageTitleChanged');
+		// --------------
+		// TODO: DELETE IF NOT IN USE!
+		//$this->addHookBefore("Pages::saveReady", $this, "hookCustomSave");
+		// TODO: TESTING HOOKING TO REMOVE TABS IN PAGE EDIT
+		// @note: see the alternatives below!
+		// $this->addHook('ProcessPageEdit::getTabs', $this, 'hookEditFormTabs');
+		//############
+		////////////////////////////////////////
+		// ************* FINDERS **********
+		// TODO @note: temporary for now - list to InputfieldTextTags call for searching options for attributes in a product page with variants. We cannot make this work outside site/init.php so trying here. We have tried in the concerned inputfield, InputfieldPWCommerceProductStock and the process module as well with no luck. Seems the module expects an array back and not JSON. Don't know how it processes that and where. In this hook, we use the example provided in InputfieldTextTags
+		// FIND PRODUCT ATTRIBUTE OPTIONS FOR InputfieldTextTags/selectize FOR PRODUCT GENERATE VARIANTS
+		$this->addHook("/find-pwcommerce_product_attributes/", $this, 'hookFindPWCommerceProductAttributesOptions');
+		// --------------
+		// FIND PRODUCT PROPERTIES FOR InputfieldTextTags/selectize FOR GENERAL SETTINGS DEFAULT PROPERTIES & PRODUCT WEIGHT PROPERTY
+		$this->addHook("/find-pwcommerce_general_settings_product_properties/", $this, 'hookFindPWCommerceGeneralSettingsProductProperties');
+		// --------------
+		// FIND SHIPPING ZONES FOR InputfieldTextTags/selectize FOR GENERAL SETTINGS REST OF THE WORLD SHIPPING ZONE
+		$this->addHook("/find-pwcommerce_general_settings_shipping_zones/", $this, 'hookFindPWCommerceGeneralSettingsShippingZones');
+		// FIND USERS EMAILS FOR InputfieldTextTags/selectize FOR MANUALLY ISSUING GIFT CARD
+		$this->addHook("/find-pwcommerce_gift_card_manual_issue_customers_emails/", $this, 'hookFindPWCommerceGiftCardManualIssueCustomersEmails');
+		// FIND USER: SPECIFIC OR GROUPS FOR InputfieldTextTags/selectize FOR DISCOUNT CUSTOMER ELIGIBILITY
+		$this->addHook("/find-pwcommerce_discount_customer_eligibility/", $this, 'hookFindPWCommerceDiscountCustomerEligibility');
+		// FIND CATEGORIES/PRODUCTS/VARIANTS/COUNTRIES:  FOR InputfieldTextTags/selectize FOR DISCOUNT APPLIES TO
+		$this->addHook("/find-pwcommerce_discount_applies_to/", $this, 'hookFindPWCommerceDiscountAppliesTo');
+		// --------------
+		////////////////////////////////////////
+		// ************* CART **********
+		// @update: not in use for now!
+		////////////////////////////////////////
+		// ************* CUSTOM SHOP ROOT PAGE **********
+		// --------------
+		// SETUP A HOOK SO THAT WE CAN HIDE PWCOMMERCE PARENT PAGES THAT LIVE UNDER A CUSTOM SHOP ROOT PAGE
+		$this->addHookAfter('ProcessPageList::find', $this, 'hookProcessPageListFind');
+		// SETUP A HOOK SO THAT WE CAN EDIT AVAILABLE ACTIONS IN THE PAGES TREE IN RELATION TO PWCOMMERCE PARENT PAGES THAT LIVE UNDER A CUSTOM SHOP ROOT PAGE
+		$this->addHookAfter('ProcessPageListActions::getActions', $this, 'hookProcessPageListActionsGetActions');
+		// TODO ADD HOOK(S) TO AMEND PRODUCT PAGE VISIBLE FIELDS WITH RESPECT TO VARIANTS.
+		// --------------
+		// ************* CUSTOMERS **********
+		// --------------
+		// SETUP A HOOK TO DELETE PROCESSWIRE USER IF ASSOCIATED CUSTOMER IS DELETED.
+		$this->addHookAfter('Pages::deleteReady', $this, 'hookUpdateCustomerUserAssociation');
+		// SETUP A HOOK TO UNLINK USER ID FROM CUSTOMER IF ASSOCIATED USER IS DELETED.
+		$this->addHookAfter('Users::deleteReady', $this, 'hookUpdateCustomerUserAssociation');
+		// SETUP A HOOK TO AMEND CUSTOMER EMAIL IF ASSOCIATED USER EMAIL HAS CHANGED.
+		$this->addHookAfter('Users::saved', $this, 'hookUpdateCustomerUserAssociation');
+
+		// --------------
+		////////////////////////////////////////
+		// ************* PAGE SEARCH LIVE **********
+		// --------------
+		// SETUP A HOOK SO THAT WE CAN USE ProcessPageSearchLive to find and modify results for PWCommerce pages
+		// HOOK AFTER ProcessPageSearchLive
+		$this->addHookAfter('ProcessPageSearchLive::execute', $this, 'hookProcessPageSearchLive');
+		// --------------
+		////////////////////////////////////////
+		// ************* PRODUCTS **********
+		// --------------
+		// SETUP A HOOK TO DELETE A PRODUCT'S VARIANTS IF ITS ATTRIBUTES CHANGE.
+		// @NOTE: this means they will need to be regenarated afresh
+		// there is a warning in the field's notes
+		$this->addHookAfter('Page(template=pwcommerce-product)::changed(pwcommerce_product_attributes)', $this, 'hookDeleteProductVariants');
+
+	}
+
+	// ~~~~~~~~~~~~~
+
+	//  public function ready() {
+	//
+
+	//
+
+	//  }
+
+	////////////////////////////////////////
+	// ************* PAGE EDIT GUI **********
+
+	public function hookModifyEditFormGUI(HookEvent $event) {
+		/*********************
+		 *
+		 * TODO
+		 *
+		 ****/
+
+		$page = $event->process->getPage();
+		// only modify specific pwcommerce pages based on their templates
+		if (!\in_array($page->template, $this->getModifyEditFormGUITemplates())) {
+			return;
+		}
+
+		$this->showWarningIfEditingPWCommercePageOutsideShopContext();
+
+		//-------------
+
+		// add new tab after content tab
+		if ($event->method == 'buildFormContent') {
+			// TODO: DELETE WHEN DONE IF NOT IN USE!
+			// @ALSO @see: hookAddGUIInEditForm
+			//  $event->process->addTab($tabid, __('My Hooked Tab'));
+			// hide fields if needed
+
+			// ----------
+			$hideFields = $this->getHideFields($page);
+			if (!empty($hideFields)) {
+				$this->hookHideInputfieldsInEditForm($event, $hideFields);
+			}
+
+			// modify rest of the world shipping zone countries if needed
+			$this->replaceRestOfTheWorldCountriesMarkup($page);
+
+			// @note: we return since the code below is now for the other method we hook into, i.e. 'buildForm'
+			//  return;
+		}
+		// else : continue with hook for 'buildForm'
+		elseif ($event->method == 'buildForm') {
+
+			$this->hookAddGUIInEditForm($event);
+		}
+	}
+
+	// TODO: MIGHT NO LONGER NEED THIS! - DELETE WHEN DONE THEN
+	// @credits: @see: https: //processwire.com/talk/topic/15870-how-to-add-own-tab-in-admin-on-edit-page-via-api/?do=findComment&comment=204171
+	public function hookAddGUIInEditForm(HookEvent $event) {
+		//-------------
+		$form = $event->return;
+		$page = $event->process->getPage();
+
+		//##################################
+
+		//   $inputfield = $inputfields->get($key);
+		//   $myInsertedPropertiesTab->add($inputfields);
+
+		// ****************
+
+		//  if in embed mode, remove TABS as needed, e.g. children tab
+		if (!$this->isNormalEdit) {
+			// TODO: NEED TO CHECK PAGE TEMPLATES HERE!?? ok to alway move?
+			// TODO: see alternative hook below
+			//-----------
+			// REMOVE CHILDREN TAB AND CONTENT
+			$this->removeTabs($form, $event);
+		}
+
+		// ****************
+
+		//  MOVE PRODUCT SETTINGS INPUTFIELD/FIELD TO 'SETTINGS' TAB
+		// the name of the INPUTFIELD to move
+		$inputfieldName = "pwcommerce_product_settings";
+		// the TAB to move the inputfield from
+		$moveFromTabID = "ProcessPageEditContent";
+		// the TAB to move the inputfield to
+		$moveToTabID = "ProcessPageEditSettings";
+		// how to attach the moved inputfield (append/prepend/insertBefore/insertAfter)
+		$attachMode = "prepend";
+
+		$this->moveFieldToOtherTab($inputfieldName, $form, $moveFromTabID, $moveToTabID, $attachMode);
+
+		//#######################
+		// TODO: DELETE WHEN DONE IF NOT IN USE!
+		// @ALSO @see: hookModifyEditFormGUI
+		// $form->prepend($myInsertedPropertiesTab);
+
+	}
+
+	// ~~~~~~~~~~~~~~~~~
+
+	////////////////////////////////////////
+	// ************* PAGE EDIT **********
+
+	// ~~~~~~~~~~~~~~~~~
+
+	/**
+	 * This hook is called before ProcessPageEdit::ajaxSave.
+	 *
+	 * For use with PWCommerce Product Variants' images uploads.
+	 * We modify the HTTP_X_FIELDNAME var to remove the "_repeater123" portion of the variable,
+	 * since ProcessPageEdit doesn't know about 'repeaters'.
+	 * @see: InputfieldRuntimeMarkup why we need the suffix '_repeaters'
+	 * @see: FieldtypeRepeater::hookProcessPageEditAjaxSave
+	 */
+	public function hookProcessPageEditAjaxSave(HookEvent $event) {
+		// @note: in Ajax mode $this->isNormalEditit will always be true
+		if ($this->isNormalEdit && $this->config->ajax) {
+
+			// we need to limit this to PWCommerce Image fields In Variants ONLY
+			// we CHECK for both 'pwcommerce_images' and 'repeater' in the FIELDNAME 'pwcommerce_images' as well as presence of 'HTTP_X_FIELDNAME'
+
+			// if this isn't a runtimemarkup page we are dealing with, then abort
+			if (!isset($_SERVER['HTTP_X_FIELDNAME']) || !preg_match('/^(.+)(_repeater(\d+))$/', $_SERVER['HTTP_X_FIELDNAME'], $matches))
+				return;
+			// -----------
+
+			$fieldName = $this->wire('sanitizer')->fieldName($matches[1]);
+			$variantPageID = (int) $matches[3];
+
+			// if this isn't a variant's pwcommerce images field, then abort
+			if ($fieldName !== 'pwcommerce_images')
+				return;
+			// if no variant page ID, then abort
+			if ($variantPageID < 1)
+				return;
+			// ------
+
+			// make sure the owning page is editable since we'll be replacing the $page param that goes to ajaxSave
+			/** @var Page $ownerPage */
+			$ownerPage = $event->arguments[0];
+
+			if (!$ownerPage->editable())
+				return;
+
+			// make sure it's a valid variantPage
+			$variantPageID = (int) $this->wire('pages')->getRaw("id={$variantPageID}", 'id');
+
+			if (empty($variantPageID))
+				return;
+
+			// TODO @DEDUG: DELETE WHEN DONE
+			// $args = $event->arguments;
+			// // $args[0] = $repeaterPage;
+
+			// repopulate the server header to be the fieldName (sans _repeater\d+)
+			$this->ajaxFieldName = $this->wire('sanitizer')->fieldName($_SERVER['HTTP_X_FIELDNAME']);
+			$_SERVER['HTTP_X_FIELDNAME'] = $fieldName;
+			// ---------
+
+			// ensures that InputfieldFile outputs markup with the proper fieldname, including the repeater_ part
+			$this->addHookBefore('InputfieldFile::renderItem', $this, 'hookInputfieldFileRenderItem');
+		}
+	}
+
+	public function hookModifyPageNameOnPageTitleChanged(HookEvent $event) {
+		$page = $event->object;
+		// $oldTitle = $event->arguments(1); // old value
+		$newTitle = $event->arguments(2); // new value
+		// --------
+		// title has changed
+		// determine if multilingual title or single
+		if ($newTitle instanceof LanguagesPageFieldValue) {
+			// modify language names
+			foreach ($this->wire('languages') as $language) {
+				$languageID = $language->id;
+				$productLanguageTitle = $newTitle->getLanguageValue($languageID);
+				$productLanguageName = $this->wire('sanitizer')->pageName($productLanguageTitle, true);
+				// ------
+				// set name
+				if ($language->name == 'default') {
+					// $page->set('name', $productLanguageName);
+					$page->setName($productLanguageName);
+				} else {
+					// $page->set("name$language", $productLanguageName);
+					$page->setName($productLanguageName, $language);
+				}
+
+			}
+		} else {
+			// modify single name
+			$name = $this->wire('sanitizer')->pageName($newTitle, true);
+			$page->set('name', $name);
+		}
+
+	}
+
+	// ~~~~~~~~~~~~~~~~~
+
+	public function hookCustomSave(HookEvent $event) {
+		// TODO: DELETE IF NOT IN USE!
+		return;
+		// Get the object the event occurred on, if needed
+		$pages = $event->object;
+
+		// Get values of arguments sent to hook (and optionally modify them)
+		$page = $event->arguments(0);
+
+		// Populate back arguments (if you have modified them)
+		//$event->arguments(0, $page);
+	}
+
+	// example hide for GENERAL SETTINGS, CHECKOUT SETTINGS AND TAX SETTINGS
+	/**
+	 * Hide inputfields in page edit.
+	 *
+	 * We save values to the hidden inputfields via a hook here.
+	 * Typically for use by pages that have an inputfield for storing json settings.
+	 * We use custom inputs inserted in the page edit to populate and edit the json settings.
+	 *
+	 * @param HookEvent $event
+	 * @return void
+	 */
+	public function hookHideInputfieldsInEditForm(HookEvent $event, $hideFields = []) {
+
+		// we only hide the JSON textarea if editing the page in PWCommerce Process Module
+		// TODO: if using this for other fields, we need to check dynamically! e.g. if general settings, etc
+		if ($this->isNormalEdit || empty($hideFields)) {
+			return;
+		}
+
+		//-------------
+
+		$wrapper = $event->return;
+
+		foreach ($hideFields as $fieldName) {
+			if (!$wrapper->has($fieldName)) {
+				continue;
+			}
+			// hide the field
+
+			$wrapper->{"$fieldName"}->collapsed = Inputfield::collapsedHidden;
+		}
+	}
+
+	// TODO: use this extra hook or remove as above?
+	// TODO: NO LONGER IN USE; USING DIFFERENT METHOD HERE (removeTabs()) - DELETE IF NOT IN USE
+	public function hookEditFormTabs($event) {
+		// logic check
+		//        if ($this->user->isSuperuser()) return;
+		//        if ($this->page->id != 29) return;
+		$tabs = $event->return;
+
+		// TODO: UNSET IF PAGE IS ORDER!
+		// unset($tabs['ProcessPageEditDelete']);
+		unset($tabs['ProcessPageEditChildren']);
+		$event->return = $tabs;
+	}
+
+	public function hookFindPWCommerceProductAttributesOptions(HookEvent $event) {
+		$q = $event->input->get("q", "text,selectorValue");
+
+		$results = [];
+		// require at least 3 characters
+		if (strlen($q) < 3) {
+			return $results;
+		}
+		// require parent ID
+		$parentID = (int) $event->input->get('parent_id');
+		if (!$parentID) {
+			return $results;
+		}
+
+		// require context
+		$context = $event->input->get("context", "fieldName");
+		if ($context !== 'options') {
+			return $results;
+		}
+
+		// good to go
+		$selector = "template=pwcommerce-attribute-option, parent_id={$parentID},include=hidden, title%=$q";
+		$fields = ["id" => "value", "title" => "label"];
+		$results = array_values($event->pages->findRaw($selector, $fields));
+
+		return $results;
+	}
+
+	////////////////////////////////////////
+	// ************* FINDERS **********
+
+	/**
+	 * Hook to find product properties for use in PWCommerce General Settings page.
+	 *
+	 * For use by  InputfieldTextTags/selectize.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return array $results Results to populate the InputfieldTextTags.
+	 */
+	public function hookFindPWCommerceGeneralSettingsProductProperties(HookEvent $event) {
+		$q = $event->input->get("q", "text,selectorValue");
+		$results = [];
+		// require at least 3 characters
+		if (strlen($q) < 3) {
+			return $results;
+		}
+		//----------------
+		// good to go
+		$selector = "template=pwcommerce-property,include=hidden, title%=$q";
+		$fields = ["id" => "value", "title" => "label"];
+		$results = array_values($event->pages->findRaw($selector, $fields));
+
+		return $results;
+	}
+
+	/**
+	 * Hook to find shipping zones for use in PWCommerce General Settings page.
+	 *
+	 * For use by  InputfieldTextTags/selectize.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return array $results Results to populate the InputfieldTextTags.
+	 */
+	public function hookFindPWCommerceGeneralSettingsShippingZones(HookEvent $event) {
+		$q = $event->input->get("q", "text,selectorValue");
+		$results = [];
+		// require at least 3 characters
+		if (strlen($q) < 3) {
+			return $results;
+		}
+		//----------------
+		// good to go
+		$selector = "template=pwcommerce-shipping-zone,include=hidden, title%=$q";
+		$fields = ["id" => "value", "title" => "label"];
+		$results = array_values($event->pages->findRaw($selector, $fields));
+
+		return $results;
+	}
+
+	/**
+	 * Hook to find customer emails for use in PWCommerce Manually Issue Gift Card page.
+	 *
+	 * For use by  InputfieldTextTags/selectize.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return array $results Results to populate the InputfieldTextTags.
+	 */
+	public function hookFindPWCommerceGiftCardManualIssueCustomersEmails(HookEvent $event) {
+		$q = $event->input->get("q", "text,selectorValue");
+		$results = [];
+		// require at least 3 characters
+		if (strlen($q) < 3) {
+			return $results;
+		}
+		//----------------
+		// good to go
+		// TODO HOW TO EXCLUDE SHOP ADMINS? SHOULD WE?
+		$selector = "email%=$q";
+		$customers = $event->users->find($selector);
+		if (!empty($customers->count())) {
+			foreach ($customers as $customer) {
+				$results[] = [
+					'value' => $customer->email,
+					'label' => $customer->email
+				];
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Hook to find specific customers or customer groups for use in PWCommerce Discounts Customer Eligibility.
+	 *
+	 * For use by  InputfieldTextTags/selectize.
+	 * Called when editing a discount.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return array $results Results to populate the InputfieldTextTags.
+	 */
+	public function hookFindPWCommerceDiscountCustomerEligibility(HookEvent $event) {
+		$q = $event->input->get("q", "text,selectorValue");
+		$results = [];
+		// require at least 3 characters
+		if (strlen($q) < 3) {
+			return $results;
+		}
+		//----------------
+		// good to go
+		# +++++++
+
+		// determine if searching for specific customers vs customer groups
+		// $customerSelectorType = $event->input->customer_type;
+		$customerSelectorType = $event->input->get("customer_type", "text,selectorValue");
+		if ($customerSelectorType === 'specific_customers') {
+			// $selector = "email%=$q";
+			// TODO: search by name as well? NOT SURE SINCE MIGHT NOT SHOW UP IN SELECTIZE since first letters of first name might not match first letters of email. I.e., in results we return email as the label
+			$selector = "template=pwcommerce-customer, include=hidden, pwcommerce_customer.email|pwcommerce_customer.first_name%=$q";
+			// TODO delete when done; we now have customer pages!
+			// $customerEligibilityItems = $event->users->find($selector);
+			// $label = 'email';
+			$fields = ["id", "pwcommerce_customer"];
+			$customers = $event->pages->findRaw($selector, $fields);
+
+			foreach ($customers as $customer) {
+				$results[] = [
+					'value' => $customer['id'],
+					'label' => $customer['pwcommerce_customer']['email']
+				];
+			}
+
+		} else if ($customerSelectorType === 'customer_groups') {
+			// TODO - FOR TESTING ONLY; CUSTOMER GROUPS WILL BE OWN PAGES!
+			$selector = "title%=$q";
+			// $customerEligibilityItems = $event->roles->find($selector);
+			$selector = "template=pwcommerce-customer-group, include=hidden, title%=$q";
+			$fields = ["id" => "value", "title" => "label"];
+			$results = array_values($event->pages->findRaw($selector, $fields));
+		} else {
+			// unknown customer eligibility search
+			return $results;
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Hook to find discount applies to items.
+	 *
+	 * Can be specific categories or products and product variants or countries for use in PWCommerce Discounts Applies To.
+	 *
+	 * Used by Products, Free shipping and Buy X Get Y (BOGO) discounts.
+	 * For use by  InputfieldTextTags/selectize.
+	 * Called when editing a discount.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return array $results Results to populate the InputfieldTextTags.
+	 */
+	public function hookFindPWCommerceDiscountAppliesTo(HookEvent $event) {
+		$q = $event->input->get("q", "text,selectorValue");
+		$results = [];
+		// require at least 3 characters
+		if (strlen($q) < 3) {
+			return $results;
+		}
+		//----------------
+		// good to go
+		# +++++++
+
+		// determine if searching for categories vs products/variants
+		// $customerSelectorType = $event->input->customer_type;
+		$appliesToSelectorType = $event->input->get("applies_to_type", "text,selectorValue");
+		if ($appliesToSelectorType === 'specific_categories') {
+			# CATEGORIES SEARCH
+			// TODO: WHAT IF CATEGORY IS NOT USED FOR ANY PRODUCT!
+			$selector = "template=pwcommerce-category, include=hidden, title%=$q";
+		} else if ($appliesToSelectorType === 'specific_products') {
+			# PRODUCTS AND VARIANTS SEARCH
+			$selector = "template=pwcommerce-product|pwcommerce-product-variant, include=hidden, title%=$q";
+		} else if ($appliesToSelectorType === 'selected_countries') {
+			# COUNTRIES SEARCH
+			$selector = "template=pwcommerce-country, include=hidden, title%=$q";
+		} else {
+			// unknown applies to items  search
+			return $results;
+		}
+
+		$fields = ["id" => "value", "title" => "label"];
+		$results = array_values($event->pages->findRaw($selector, $fields));
+
+		return $results;
+	}
+
+	////////////////////////////////////////
+	// ************* CART *********
+
+	////////////////////////////////////////
+	// ************* CUSTOM SHOP ROOT PAGE  *********
+
+	/**
+	 * Hook to hide PWCommerce Parent Pages that live under a specified Custom Shop Root Page.
+	 *
+	 * The custom shop root page allows shop to install certain Pdloper parent pages outside 'admin' page tree.
+	 * This hook implements the setting to hide those pages (and their children) in the page tree.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return void
+	 */
+	public function hookProcessPageListFind(HookEvent $event) {
+
+		// DON'T HIDE THEM FOR SUPERUSERS
+		if ($this->user->isSuperuser()) {
+
+			// TODO UNCOMMENT WHEN DONE!
+			// return;
+		}
+
+		// ===========
+		// GET SETTINGS FOR PAGE TREE MANAGEMENT FOR CUSTOM SHOP ROOT PAGE
+		$installedOtherOptionalSettings = $this->pwcommerce->getPWCommerceInstalledOtherOptionalSettings('ProcessPWCommerce');
+		$customShopRootPageChildrenPageTreeManagement = 'pwcommerce_custom_shop_root_page_children_page_tree_management';
+
+		// TODO: SHOULD WE ALSO CHECK 'pwcommerce_custom_shop_root_page_id' OR 'pwcommerce_is_use_custom_shop_root_page' JUST IN CASE?
+		if (empty($installedOtherOptionalSettings[$customShopRootPageChildrenPageTreeManagement])) {
+			// NOT USING CUSTOM SHOP ROOT PAGE
+			return;
+		}
+
+		$hiddenPageTreeManagement = 'not_visible_in_page_tree';
+		$pageTreeManagementSetting = $installedOtherOptionalSettings[$customShopRootPageChildrenPageTreeManagement];
+
+		if ($pageTreeManagementSetting !== $hiddenPageTreeManagement) {
+			// NOT USING 'not_visible_in_page_tree' TO MANAGE VISIBILITY AND BEHAVIOUR OF CHILDREN OF CUSTOM SHOP ROOT PAGE IN TREE
+			// leave early
+			return;
+		}
+
+		// ------
+		if (!empty($installedOtherOptionalSettings['pwcommerce_custom_shop_root_page_children'])) {
+			// PWCOMMERCE PARENT PAGES (FEATURE NAMES) THAT LIVE UNDER CUSTOM SHOP ROOT PAGE
+			$customShopRootPageParentPagesItems = $installedOtherOptionalSettings['pwcommerce_custom_shop_root_page_children'];
+			// ------
+			$customShopRootPageAllowedChildrenDetails = $this->pwcommerce->getCustomShopRootPageAllowedChildrenDetails();
+			$pwcommerceParentPagesTemplatesNames = $customShopRootPageAllowedChildrenDetails['templates'];
+
+			// SKIP NON-SELECTED ELIGIBLE PARENT PAGES (using their template names)
+			$selectedPWCommerceParentPagesTemplatesNames = [];
+			foreach ($pwcommerceParentPagesTemplatesNames as $feature => $templateName) {
+				if (in_array($feature, $customShopRootPageParentPagesItems)) {
+					$selectedPWCommerceParentPagesTemplatesNames[] = $templateName;
+				}
+			}
+
+			$event->return->each(function ($page) use ($event, $selectedPWCommerceParentPagesTemplatesNames) {
+				if (!in_array($page->template, $selectedPWCommerceParentPagesTemplatesNames)) {
+					return;
+				}
+				// hide (remove) pwcommerce parent pages under custom shop root page
+				$event->return->remove($page);
+			});
+		}
+
+	}
+
+	/**
+	 * Hook to amend page tree actions for some pages in relation to PWCommerce parent pages that are children of a speficied Custom Shop Root Page.
+	 *
+	 * The custom shop root page allows shop to install certain Pdloper parent pages outside 'admin' page treee.
+	 * This hook implements the setting to limit tree actions for those pages (and their children) in the page tree.
+	 * All actions on the children pages are limited and redirect to PWCommerce dashboards.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return void
+	 */
+	public function hookProcessPageListActionsGetActions(HookEvent $event) {
+
+		// TODO - IF SLOW, SHOULD WE CACHE?!
+
+		// ===========
+		// GET SETTINGS FOR PAGE TREE MANAGEMENT FOR CUSTOM SHOP ROOT PAGE
+		$installedOtherOptionalSettings = $this->pwcommerce->getPWCommerceInstalledOtherOptionalSettings('ProcessPWCommerce');
+		$customShopRootPageChildrenPageTreeManagement = 'pwcommerce_custom_shop_root_page_children_page_tree_management';
+
+		// TODO: SHOULD WE ALSO CHECK 'pwcommerce_custom_shop_root_page_id' OR 'pwcommerce_is_use_custom_shop_root_page' JUST IN CASE?
+		if (empty($installedOtherOptionalSettings[$customShopRootPageChildrenPageTreeManagement])) {
+			// NOT USING CUSTOM SHOP ROOT PAGE
+			return;
+		}
+
+		// @note: UPDATE Sunday 31 December 2023 13:49 'default_page_tree_behaviour' NO LONGER IN USE. Doesn't make much sense + need amending page edit GUI for products.
+		$nonHiddenPageTreeManagement = ['page_tree_with_redirect', 'default_page_tree_behaviour'];
+		$pageTreeManagementSetting = $installedOtherOptionalSettings[$customShopRootPageChildrenPageTreeManagement];
+
+		// lEAVE EARLY IF TREE MANAGEMENT SETTING IS 'HIDE'
+		if (!in_array($pageTreeManagementSetting, $nonHiddenPageTreeManagement)) {
+			return;
+		}
+
+		$actions = $event->return;
+		$page = $event->arguments('page');
+		$adminRootPageID = $this->wire('config')->adminRootPageID;
+		$parent = $page->parent("template=admin");
+		if (!$parent instanceof NullPage) {
+			return;
+		}
+		if ($page->id === $adminRootPageID) {
+			return;
+		}
+
+		// PWCOMMERCE PARENT PAGES (FEATURE NAMES) THAT LIVE UNDER CUSTOM SHOP ROOT PAGE
+		// @note: not needed as we filter out non-custom shop root page ones above using $parent = $page->parent("template=admin");
+		// $customShopRootPageParentPagesItems = $installedOtherOptionalSettings['pwcommerce_custom_shop_root_page_children'];
+		// ------
+		/** @var array $customShopRootPageAllowedChildrenDetails */
+		$customShopRootPageAllowedChildrenDetails = $this->pwcommerce->getCustomShopRootPageAllowedChildrenDetails();
+		/** @var array $pwcommerceParentPagesTemplatesNames */
+		$pwcommerceParentPagesTemplatesNames = $customShopRootPageAllowedChildrenDetails['templates'];
+
+		$templatesForPageActions = $pwcommerceParentPagesTemplatesNames;
+		$templatesForPageActions[] = 'pwcommerce-product-variant';
+
+		$isNotMetCondition = !in_array($page->template, $templatesForPageActions) && !in_array($page->parent->template, $templatesForPageActions);
+
+		if ($isNotMetCondition) {
+			return;
+		}
+
+		$pages = $this->wire('pages');
+		$shopProcessPWCommercePageID = $pages->getRaw("template=pwcommerce", 'parent_id');
+		$shopProcessPWCommercePage = $pages->get("id={$shopProcessPWCommercePageID}");
+		$shopProcessPWCommercePageURL = $shopProcessPWCommercePage->url;
+
+		if (in_array($page->template, $pwcommerceParentPagesTemplatesNames)) {
+			// PWCOMMERCE PARENT PAGE
+			$actionsToUnset = [
+				'edit',
+				'move',
+			];
+			// unset actions for parent pages
+			foreach ($actionsToUnset as $action) {
+				unset($actions[$action]);
+			}
+
+			// -----
+			// unset trash (nested) - i.e., should not be able to trash parent pages
+			unset($actions['extras']['extras']['trash']);
+			// ---------
+			// AMEND 'ADD NEW' URL
+			if ($pageTreeManagementSetting === 'page_tree_with_redirect') {
+
+				$pageTemplateName = $page->template->name;
+				$parentURLPart = str_replace("pwcommerce-", '', $pageTemplateName);
+				$actions['new']['url'] = "{$shopProcessPWCommercePageURL}{$parentURLPart}/add/";
+			}
+
+		} else {
+
+			// CHILD OF PWCOMMERCE PARENT PAGE
+			$actionsToUnset = [
+				'new', // so that cannot add 'new product variant' directly!
+				'move',
+			];
+
+			// unset actions for child pages
+			foreach ($actionsToUnset as $action) {
+				unset($actions[$action]);
+			}
+
+			// ---------
+			// AMEND 'EDIT' URL
+			if ($pageTreeManagementSetting === 'page_tree_with_redirect') {
+				# START BUILD EDIT URL
+				if ($page->template->name === 'pwcommerce-product-variant') {
+					// SPECIAL TREATMENT FOR PRODUCT VARIANTS
+					// ------------
+					// page edit should point to product edit
+					// parent url should point to grandparent (products)
+					$parentURLPart = 'products';
+					$pageID = $page->parent->id;
+				} else {
+					// DEFAULT TREATMENT FOR OTHER PWCOMMERCE PAGES
+					// ------------
+					$pageParentTemplateName = $page->parent->template->name;
+					$parentURLPart = str_replace("pwcommerce-", '', $pageParentTemplateName);
+					$pageID = $page->id;
+				}
+
+				// -----------
+				// EDIT ITEM URL (in pwcommerce dashboard)
+				$actions['edit']['url'] = "{$shopProcessPWCommercePageURL}{$parentURLPart}/edit/?id={$pageID}";
+			}
+		}
+
+		$event->return = $actions;
+
+	}
+
+	////////////////////////////////////////
+	// ************* CUSTOMERS  *********
+	/**
+	 * Hook to update customer and associated ProcessWire user and vice versa when certain changes happen in either.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return void
+	 */
+	public function hookUpdateCustomerUserAssociation(HookEvent $event) {
+
+		$customersFeature = 'customers';
+		// -------
+		$isCustomersFeatureInstalled = !empty($this->pwcommerce->isOptionalFeatureInstalled($customersFeature));
+		if (empty($isCustomersFeatureInstalled)) {
+			// CUSTOMERS FEATURE NOT INSTALLED: REATURN EARLY
+			return;
+		}
+
+		$page = $event->arguments(0);
+		$templateName = $page->template->name;
+		$eventMethod = $event->method;
+
+		if (!in_array($templateName, ['user', 'pwcommerce-customer'])) {
+			return;
+		}
+
+		# GOOD TO GO
+		$customerField = 'pwcommerce_customer';
+
+		// ------
+
+		if ($eventMethod === 'deleteReady') {
+			# DELETE ACTION
+			if ($templateName === 'user') {
+				// user deleted: delink user_id from associated customer
+				$customerPage = $event->pages->get("{$customerField}.user_id={$page->id}");
+				if (!$customerPage instanceof NullPage) {
+					$customer = $customerPage->get($customerField);
+					$customer->set('userID', 0);
+					$customerPage->setAndSave($customerField, $customer);
+				}
+			} else {
+				// customer deleted: delete associated user
+				$customer = $page->get($customerField);
+				$customerUserPage = $event->users->get($customer->userID);
+				if (!$customerUserPage instanceof NullPage) {
+					$event->users->delete($customerUserPage);
+				}
+			}
+		} elseif ($eventMethod === 'saved') {
+			# SAVED ACTION
+			// user email changed: change customer email as well
+			// NOTE @SEE InputfieldCustomer::processInput - NO INFINITE LOOP!
+			// this is because below will save customere page. This will not trigger this hook since the hook is on Users::saved
+			$changes = $event->arguments(1);
+			// $values = $event->arguments(2);
+			if (!empty($changes['email'])) {
+				$newEmail = $page->email;
+				$customerPage = $event->pages->get("{$customerField}.user_id={$page->id}");
+				if (!$customerPage instanceof NullPage) {
+					$customer = $customerPage->get($customerField);
+					$customer->set('email', $newEmail);
+					$customerPage->setAndSave($customerField, $customer);
+				}
+			}
+
+		}
+
+	}
+
+	////////////////////////////////////////
+	// ************* PAGE SEARCH LIVE **********
+
+	/**
+	 * Hook to modify values for pwcommerce pages found via page search live.
+	 *
+	 * Modify template_label, editUrl and type.
+	 * Also removes pwcommerce parent pages from results.
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return void
+	 */
+	public function hookProcessPageSearchLive(HookEvent $event) {
+
+		// get return value
+		// can be array or JSON
+		$matches = $event->return;
+
+		if (!is_array($matches)) {
+			$matches = json_decode($matches, true);
+			$getJSON = true;
+		} else {
+			// already got array
+			$getJSON = false;
+		}
+
+		$results = $matches['matches'];
+
+		if (!empty($results)) {
+
+			// 			STRUCTURE OF ARRAY, example:
+
+			// 		array
+			// 		'matches' => array
+			// 0 => array
+			// 	'id' => 1840
+			// 	'name' => 'kimono-jacket'
+			// 	'title' => 'Kimono Jacket'
+			// 	'template_label' => 'pwcommerce-product (1 month ago)'
+			// 	'tip' => '/en/processwire/shop/pwcommerce/products/kimono-jacket/'
+			// 	'editUrl' => '/processwire/page/edit/?id=1840&language=1010'
+			// 	'type' => 'Pages'
+			// 	'icon' => ''
+			// 1 => array
+			// 	'id' => 3041
+			// 	'name' => 'order-line-item-kimono-jacket'
+			// 	'title' => 'Kimono Jacket'
+			// 	'template_label' => 'pwcommerce-order-line-item (2 years ago)'
+			// 	'tip' => '/en/processwire/shop/pwcommerce/orders/62bd9136aa9bd/order-line-item-kimono-jacket/'
+			// 	'editUrl' => '/processwire/page/edit/?id=3041&language=1010'
+			// 	'type' => 'Pages'
+			// 	'icon' => ''
+
+			###############
+
+			// 1. first check if we have at least one child item that requires parent retrieveal
+			// - i.e., 'pwcommerce-order-line-item', 'pwcommerce-product-variant', 'pwcommerce-attribute-option', 'pwcommerce-shipping-rate'
+			$parentNeededArray = [];
+			foreach ($results as $result) {
+				$templateLabel = $result['template_label'];
+				// check if parent page needed
+				if (str_contains($templateLabel, 'pwcommerce-order-line-item')) {
+					// order parent page needed
+					$parentNeededArray[$result['id']] = 'pwcommerce-order';
+				} elseif (str_contains($templateLabel, 'pwcommerce-product-variant')) {
+					// product parent page needed
+					$parentNeededArray[$result['id']] = 'pwcommerce-product';
+				} elseif (str_contains($templateLabel, 'pwcommerce-attribute-option')) {
+					// attribute parent page needed
+					$parentNeededArray[$result['id']] = 'pwcommerce-attribute';
+				} elseif (str_contains($templateLabel, 'pwcommerce-shipping-rate')) {
+					// shipping zone parent page needed
+					$parentNeededArray[$result['id']] = 'pwcommerce-shipping-zone';
+				} elseif (str_contains($templateLabel, 'pwcommerce-country-territory')) {
+					// country parent page needed (for country territory)
+					$parentNeededArray[$result['id']] = 'pwcommerce-country';
+				}
+			}
+
+			// 2. get the parent pages using findRaw() if $parentNeededArray IS NOT EMPTY
+			$parentPages = [];
+			if (!empty($parentNeededArray)) {
+				$ids = array_keys($parentNeededArray);
+				$idsSelector = implode("|", $ids);
+				$fields = ['id', 'parent_id'];
+				// $fields = 'parent_id';
+				$parentPages = $this->wire('pwcommerce')->findRaw("id={$idsSelector}", $fields);
+			}
+
+			// 3. arrange the parents so we can associate them with the child items
+			// - maybe can do in findRaw(), i.e. instead of looking for parents, get these pages but return the fields as ['id', 'parent_id']
+
+			// 4. Loop through the $results and amend:
+			// - template_label -> for this can create methods that returns 'cleaned' names and replacements
+			// - editUrl -> for this we check if in array $parentNeededFindRaw
+			// - type -> this can go hand in hand with 'template_label'
+			// ALSO SKIP 'PARENT'
+			// - for this, we check in array with parents templates names
+
+			$adminURL = $this->wire('config')->urls->admin;
+
+			// +++++++++++
+			foreach ($results as $key => $result) {
+				// TODO ALSO CHANGE EDIT URL!
+				$templateLabel = $result['template_label'];
+
+				if ($this->isParentPage($templateLabel)) {
+					// SKIP A PWCOMMERCE PARENT PAGE!
+					unset($matches['matches'][$key]);
+					continue;
+				}
+
+				# //////////////
+				// if (str_contains($templateLabel, 'pwcommerce-product')) {
+				// 	// TODO IF THIS IS A VARIANT, IT NEEDS TO LEAD TO THE PARENT PRODUCT!
+				// 	$result['template_label'] = str_replace('pwcommerce-product', 'product', $templateLabel);
+				// 	$result['type'] = 'Products';
+				// } elseif (str_contains($templateLabel, 'pwcommerce-order-line-item')) {
+				// 	// TODO THIS NEEDS TO LEAD TO THE ORDER; NOT THE LINE ITEM!
+				// 	$result['template_label'] = str_replace('pwcommerce-order-line-item', 'order', $templateLabel);
+				// 	$result['type'] = 'Orders';
+				// }
+				$resultValues = $this->getResultValues($result);
+				if (!empty($resultValues)) {
+					$result['template_label'] = $resultValues['template_label'];
+					$result['type'] = $resultValues['type'];
+					$id = $result['id'];
+					$editID = !empty($parentPages[$id]) ? $parentPages[$id]['parent_id'] : $id;
+					$editOrViewStr = !empty($resultValues['is_view_first']) ? 'view' : 'edit';
+					// e.g. '/processwire/shop/shipping/edit/?id=1997'
+					$editURL = "{$adminURL}shop/{$resultValues['edit_url_part']}/{$editOrViewStr}/?id={$editID}";
+					$result['editUrl'] = $editURL;
+				}
+				// ---------
+				// --------
+				// repopulate matches
+				$matches['matches'][$key] = $result;
+
+			}
+
+			if (empty($getJSON)) {
+				// retunring array
+				$event->return = $matches;
+			} else {
+				$event->return = json_encode($matches);
+			}
+
+		}
+
+	}
+
+	private function getResultsParts() {
+		return [
+			// PRODUCT ATTRIBUTES
+			// NOTE: needs to be checked before 'pwcommerce-attribute' to avoid matching this there
+			'pwcommerce-attribute-option' => [
+				'template_label' => 'attribute option',
+				'type' => 'Attributes',
+				'edit_url_part' => 'attributes',
+			],
+			'pwcommerce-attribute' => [
+				'template_label' => 'attribute',
+				'type' => 'Attributes',
+				'edit_url_part' => 'attributes',
+			],
+			// PRODUCT BRANDS
+			'pwcommerce-brand' => [
+				'template_label' => 'brand',
+				'type' => 'Brand',
+				'edit_url_part' => 'brands',
+			],
+			// PRODUCT CATEGORIES
+			'pwcommerce-category' => [
+				'template_label' => 'category',
+				'type' => 'Categories',
+				'edit_url_part' => 'categories',
+			],
+			// CUSTOMERS
+			'pwcommerce-customer-group' => [
+				'template_label' => 'customer group',
+				'type' => 'Customer Groups',
+				'edit_url_part' => 'customer-groups',
+			],
+			'pwcommerce-customer' => [
+				'template_label' => 'customer',
+				'type' => 'Customers',
+				'edit_url_part' => 'customers',
+			],
+			// PRODUCT DIMENSIONS
+			'pwcommerce-dimension' => [
+				'template_label' => 'dimension',
+				'type' => 'Dimensions',
+				'edit_url_part' => 'dimensions',
+			],
+			// DISCOUNTS
+			'pwcommerce-discount' => [
+				'template_label' => 'discount',
+				'type' => 'Discounts',
+				'edit_url_part' => 'discounts',
+			],
+			// DOWNLOADS
+			'pwcommerce-download' => [
+				'template_label' => 'download',
+				'type' => 'Downloads',
+				'edit_url_part' => 'downloads',
+			],
+			// LEGAL PAGES
+			'pwcommerce-legal-page' => [
+				'template_label' => 'legal page',
+				'type' => 'Legal Pages',
+				'edit_url_part' => 'legal-pages',
+			],
+			// ORDERS
+			// NOTE: needs to be checked before 'pwcommerce-order' to avoid matching this there
+			'pwcommerce-order-line-item' => [
+				'template_label' => 'order line item',
+				'type' => 'Orders',
+				'edit_url_part' => 'orders',
+				// orders usually not editable; so take to view
+				'is_view_first' => true
+			],
+			// not likely, but you never know; can search for 'order'!
+			'pwcommerce-order' => [
+				'template_label' => 'order',
+				'type' => 'Orders',
+				'edit_url_part' => 'orders',
+				// orders usually not editable; so take to view
+				'is_view_first' => true
+			],
+			// PAYMENT PROVIDERS
+			'pwcommerce-payment-provider' => [
+				'template_label' => 'payment provider',
+				'type' => 'Payment Providers',
+				'edit_url_part' => 'payment-providers',
+			],
+			// PRODUCTS
+			// NOTE: needs to be checked before 'pwcommerce-product' to avoid matching this there
+			'pwcommerce-product-variant' => [
+				'template_label' => 'product variant',
+				'type' => 'Products',
+				'edit_url_part' => 'products',
+			],
+			'pwcommerce-product' => [
+				'template_label' => 'product',
+				'type' => 'Products',
+				'edit_url_part' => 'products',
+			],
+			// PRODUCT PROPERTIES
+			'pwcommerce-property' => [
+				'template_label' => 'property',
+				'type' => 'Properties',
+				'edit_url_part' => 'properties',
+			],
+			// SHIPPING ZONES
+			'pwcommerce-shipping-zone' => [
+				'template_label' => 'shipping zone',
+				'type' => 'Shipping Zones',
+				'edit_url_part' => 'shipping',
+			],
+			'pwcommerce-shipping-rate' => [
+				'template_label' => 'shipping rate',
+				'type' => 'Shipping Zones',
+				'edit_url_part' => 'shipping',
+			],
+			// PRODUCT TAGS
+			'pwcommerce-tag' => [
+				'template_label' => 'tag',
+				'type' => 'Tags',
+				'edit_url_part' => 'tags',
+			],
+			// COUNTRIES/TAXES
+			// NOTE: needs to be checked before 'pwcommerce-country' to avoid matching this there
+			'pwcommerce-country-territory' => [
+				'template_label' => 'country territory',
+				'type' => 'Countries',
+				'edit_url_part' => 'tax-rates',
+			],
+			'pwcommerce-country' => [
+				'template_label' => 'country',
+				'type' => 'Countries',
+				'edit_url_part' => 'tax-rates',
+			],
+			// PRODUCT TYPES
+			'pwcommerce-type' => [
+				'template_label' => 'type',
+				'type' => 'Types',
+				'edit_url_part' => 'types',
+			],
+		];
+
+	}
+
+	private function getResultValues(array $result) {
+		$templateLabel = $result['template_label'];
+		$editUrl = $result['editUrl'];
+		$resultParts = [];
+		$resultsParts = $this->getResultsParts();
+		foreach ($resultsParts as $templateName => $parts) {
+			if (str_contains($templateLabel, $templateName)) {
+				$resultParts['template_label'] = str_replace($templateName, $parts['template_label'], $templateLabel);
+				$resultParts['type'] = $parts['type'];
+				$resultParts['edit_url_part'] = $parts['edit_url_part'];
+				if (!empty($parts['is_view_first'])) {
+					$resultParts['is_view_first'] = $parts['is_view_first'];
+				}
+				break;
+			}
+		}
+		return $resultParts;
+
+	}
+
+	private function getPWCommerceParentsTemplatesNames() {
+		return [
+			'pwcommerce-attributes',
+			'pwcommerce-brands',
+			'pwcommerce-categories',
+			'pwcommerce-countries',
+			'pwcommerce-customer-groups',
+			'pwcommerce-customers',
+			'pwcommerce-dimensions',
+			'pwcommerce-discounts',
+			'pwcommerce-downloads',
+			'pwcommerce-legal-pages',
+			'pwcommerce-orders',
+			'pwcommerce-payment-providers',
+			'pwcommerce-products',
+			'pwcommerce-properties',
+			'pwcommerce-shipping-zones',
+			'pwcommerce-tags',
+			'pwcommerce-types',
+		];
+	}
+
+	private function isParentPage($templateNamePart) {
+		$isParentPage = false;
+		$parentsTemplatesNames = $this->getPWCommerceParentsTemplatesNames();
+		foreach ($parentsTemplatesNames as $parentsTemplatesName) {
+			if (str_contains($templateNamePart, $parentsTemplatesName)) {
+				$isParentPage = true;
+				break;
+			}
+		}
+		// ------
+		return $isParentPage;
+
+	}
+
+
+	////////////////////////////////////////
+	// ************* PRODUCTS **********
+
+	/**
+	 * Hook to delete a product's variants if its attributes have changed.
+	 *
+	 * User will need to create variants afresh.
+	 * There is a warning on the field (pwcommerce_product_attributes).
+	 *
+	 * @access public
+	 * @param HookEvent $event The HookEvent we are attaching to.
+	 * @return void
+	 */
+	public function hookDeleteProductVariants(HookEvent $event) {
+		$page = $event->object;
+		// $oldAttributes = $event->arguments(1); // old value
+		// $newAttributes = $event->arguments(2); // new value
+		if ($page->numChildren) {
+			foreach ($page->children("include=all") as $child) {
+				$child->delete();
+			}
+			$this->warning($this->_('All variants for this product have been deleted because you amended the product attributes. Please regenerate variants afresh.'));
+		}
+	}
+
+	////////////////////////////////////////
+	// ************* OTHER *********
+
+	/**
+	 * Hide inputfields in page edit.
+	 *
+	 * We save values to the hidden inputfields via a hook here.
+	 * Typically for use by pages that have an inputfield for storing json settings.
+	 * We use custom inputs inserted in the page edit to populate and edit the json settings.
+	 *
+	 * @param HookEvent $event
+	 * @return void
+	 */
+	public function hookModifyRestOfTheWorldShippingZoneCountriesGUI(HookEvent $event) {
+
+		// we only hide the JSON textarea if editing the page in PWCommerce Process Module
+		// TODO: if using this for other fields, we need to check dynamically! e.g. if general settings, etc
+		if ($this->isNormalEdit) {
+			return;
+		}
+
+		//-------------
+
+		$pwcommerceRender = $this->pwcommerce->getPWCommerceClassByName('PWCommerceAdminRenderShipping');
+
+		// $wrapper = $event->return;
+
+		$value = $pwcommerceRender->renderRestOfTheWorldShippingCountries();
+		// TODO HERE, FROM SHIPPING ZONES COUNTRIES CSV LIST, BRING THAT MARKUP HERE
+		// $value = "<div id='pwcommerce_rest_of_the_world_countries'>{$countriesString}</div>";
+		$event->return = $value;
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~
+
+	private function moveFieldToOtherTab($inputfieldName, $form, $moveFromTabID, $moveToTabID, $attachMode, $afterOrBefore = null) {
+
+		$moveFromTab = $form->children->get("id={$moveFromTabID}");
+
+		$inputfieldToMove = null;
+		// we  got tab to move from
+		if ($moveFromTab) {
+			// get inputfield to move
+			$inputfield = $moveFromTab->getChildByName($inputfieldName);
+			// get tab to move inputfield to
+			$moveToTab = $form->children->get("id={$moveToTabID}");
+			//--------------
+			// if we got both inputfield and destination tab
+			if ($inputfield && $moveToTab) {
+				$moveFromTab->remove($inputfield);
+				//  determine attach move
+
+				$this->insertField($inputfield, $moveToTab, $attachMode);
+			} // end: got inputfield to move && move tab
+		} // end got move from tab
+
+	}
+
+	private function insertField($inputfield, $destinationTab, $attachMode) {
+		// append
+		if ($attachMode === 'append') {
+			$destinationTab->append($inputfield);
+		}
+		// prepend
+		else if ($attachMode === 'prepend') {
+			$destinationTab->prepend($inputfield);
+		}
+		// insert after
+		else if ($attachMode === 'insertAfter') {
+			// TODO: GET EXISTING ITEM HERE OR PASS AS inputfield object?
+			//  $destinationTab->insertAfter($inputfield, $existingItem);
+		}
+		// insert before
+		else if ($attachMode === 'insertBefore') {
+			// TODO: GET EXISTING ITEM HERE OR PASS AS inputfield object?
+			//  $destinationTab->insertAfter($inputfield, $existingItem);
+		}
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~
+
+	/**
+	 * Removes tabs depending on context.
+	 *
+	 * @param [Mixed] $form The form/wrapper hooked into.
+	 * @param [Hook] $event The event the Hook was called on.
+	 * @return void
+	 */
+	private function removeTabs($form, $event) {
+		$page = $event->process->getPage();
+		// we remove CHILDREN TAB in ALL CONTEXTS
+		$tabs = ['ProcessPageEditChildren'];
+		// we remove DELETE TAB in SOME CONTEXTS
+		if ($this->isRemoveProcessPageEditDeleteTab($page)) {
+			$tabs[] = 'ProcessPageEditDelete';
+		}
+		foreach ($tabs as $tab) {
+			$this->removeTab($form, $event, $tab);
+		}
+	}
+
+	/**
+	 * Remove a give tab and its content.
+	 *
+	 * @param [Mixed] $form The form/wrapper hooked into.
+	 * @param [Hook] $event The event the Hook was called on.
+	 * @param [String] $id The ID of the tab to remove.
+	 * @return void
+	 */
+	private function removeTab($form, $event, $id) {
+		$tab = $form->children->get("id={$id}");
+		//  $childrenTab->collapsed = Inputfield::collapsedHidden;
+		$form->remove($tab);
+		$event->object->removeTab($id);
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~
+
+	private function replaceRestOfTheWorldCountriesMarkup($page) {
+
+
+		$restOfTheWorldShippingZoneID = $this->pwcommerce->getShopRestOfTheWorldShippingZoneID();
+
+		$isShowRestOfTheWorldCountries = (int) $page->id === $restOfTheWorldShippingZoneID;
+
+		if ($isShowRestOfTheWorldCountries) {
+			// in Rest of the World zone edit: we modify the countries markup
+
+			$page->addHookAfter("InputfieldTextTags::render", $this, "hookModifyRestOfTheWorldShippingZoneCountriesGUI");
+		}
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~
+
+	private function getModifyEditFormGUITemplates() {
+		// TODO: ADD MORE?
+		return [
+			//'pwcommerce',// TODO: not needed delete when done
+			// @note: some of the above will not be edited directly within ProcessPWCommerce but we just add here in case something changes in the future
+			'pwcommerce-attribute',
+			'pwcommerce-attribute-option',
+			'pwcommerce-brand',
+			'pwcommerce-category',
+			'pwcommerce-country',
+			'pwcommerce-country-territory',
+			'pwcommerce-customer-group',
+			'pwcommerce-dimension',
+			'pwcommerce-download',
+			'pwcommerce-legal-page',
+			'pwcommerce-order',
+			'pwcommerce-order-line-item',
+			'pwcommerce-payment-provider',
+			'pwcommerce-product',
+			'pwcommerce-product-variant',
+			'pwcommerce-property',
+			'pwcommerce-settings',
+			'pwcommerce-shipping-rate',
+			'pwcommerce-shipping-zone',
+			'pwcommerce-tag',
+			'pwcommerce-type',
+		];
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~
+	private function isRemoveProcessPageEditDeleteTab($page) {
+		$contextsRemovingProcessPageEditDeleteTab = [
+			// @note: these are page templates!
+			'pwcommerce-order',
+			'pwcommerce-order-line-item',
+			// TODO: MORE? payment providers?
+		];
+		$isRemovingProcessPageEditDeleteTab = in_array($page->template->name, $contextsRemovingProcessPageEditDeleteTab);
+		// -----
+		return $isRemovingProcessPageEditDeleteTab;
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~
+	private function getHideFields($page) {
+		$contextsHidingFields = [
+			// @note: these are page templates!
+			'pwcommerce-settings' => ['pwcommerce_settings'],
+			'pwcommerce-payment-provider' => ['pwcommerce_settings'],
+			'pwcommerce-customer-group' => ['pwcommerce_settings'],
+		];
+		## SPECIAL CASES ##
+
+		// special case if editing a country page that does not have territories
+		// we hide the runtimemarkup field
+		if ($page->template->name === 'pwcommerce-country' && empty($page->numChildren)) {
+			$contextsHidingFields['pwcommerce-country'] = ['pwcommerce_runtime_markup'];
+		}
+		// special case if editing a product page that does not use variants
+		// we hide the fieldset 'pwcommerce_variants_fieldset' and 'pwcommerce_product_attributes'
+		else if ($page->template->name === 'pwcommerce-product' && empty($page->pwcommerce_product_settings->useVariants)) {
+			$contextsHidingFields['pwcommerce-product'] = ['pwcommerce_variants_fieldset', 'pwcommerce_product_attributes'];
+		}
+
+		// TODO: ALSO ADD PRODUCT PAGES: IF NOT USING VARIATNS, HIDE VARIANTS AND ATTRIBUTES FIELDS
+
+		//----------------
+		$isHidingFields = null;
+		if (!empty($contextsHidingFields[$page->template->name])) {
+			$isHidingFields = $contextsHidingFields[$page->template->name];
+		}
+		// -----
+		return $isHidingFields;
+	}
+
+	/**
+	 * Ensure that InputfieldFile outputs markup with the proper fieldname (including the repeater_ part)
+	 *
+	 * @param HookEvent $event
+	 * @credits: FieldtypeRepeater::hookInputfieldFileRenderItem.
+	 */
+	public function hookInputfieldFileRenderItem(HookEvent $event) {
+
+		$arguments = $event->arguments;
+
+		$id = $arguments[1];
+
+		$id = str_replace($_SERVER['HTTP_X_FIELDNAME'], $this->ajaxFieldName, $id);
+
+		$arguments[1] = $id;
+
+		$event->arguments = $arguments;
+
+		// update id attribute of the Inputfield itself
+		// so that anything in InputfieldFile referring to its overall id attribute
+		// reflects the actual id attribute of the Inputfield
+		/** @var Inputfield $inputfield */
+		$inputfield = $event->object;
+		$id = $inputfield->attr('id');
+		$id = str_replace($_SERVER['HTTP_X_FIELDNAME'], $this->ajaxFieldName, $id);
+		$inputfield->attr('id', $id);
+	}
+
+	// ~~~~~~~~~~~~~~~~~
+
+	// OTHER
+
+	private function showWarningIfEditingPWCommercePageOutsideShopContext() {
+		if ($this->isNormalEdit) {
+			// @note: this does not show!
+			// $this->wire('session')->warning($this->_('You are editing a Shop page outside the shop context. Some functionality may not work'));
+			// @note: this works
+			$this->warning($this->_('You are editing a Shop page outside the shop context. Some functionality may be limited or not work at all!'));
+		}
+	}
+}

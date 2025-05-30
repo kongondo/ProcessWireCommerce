@@ -1,0 +1,122 @@
+/* @TODO DELETE THOSE NO LONGER IN USE */
+/* for order and line items in runtime markup fieldset */
+
+#Inputfield_pwcommerce_order_fieldset .InputfieldPWCommerceOrder,
+#Inputfield_pwcommerce_order_fieldset .InputfieldPWCommerceRuntimeMarkup {
+	outline: none;
+}
+
+#Inputfield_pwcommerce_order_fieldset>.InputfieldHeader,
+#Inputfield_pwcommerce_order_fieldset>.InputfieldContent {
+	background-color: transparent;
+}
+
+#Inputfield_pwcommerce_order_fieldset>.InputfieldHeader {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+#Inputfield_pwcommerce_order_fieldset .InputfieldPWCommerceOrder>.InputfieldHeader,
+#Inputfield_pwcommerce_order_fieldset .InputfieldPWCommerceRuntimeMarkup>.InputfieldHeader,
+#Inputfield_pwcommerce_order_fieldset .InputfieldPWCommerceOrder>.InputfieldContent,
+#Inputfield_pwcommerce_order_fieldset .InputfieldPWCommerceRuntimeMarkup>.InputfieldContent {
+	padding-left: 0;
+}
+
+/* hide the label for the field pwcommerce_order */
+#wrap_Inputfield_pwcommerce_order>label {
+	display: none;
+}
+
+/* override processwire large padding top on mainly label.InputfieldHeader */
+#main .pwcommerce_order_edit_discount>.InputfieldHeader,
+#main .pwcommerce_order_line_item_edit_discount>.InputfieldHeader,
+#wrap_pwcommerce_order_charge_taxes>.InputfieldHeader {
+	padding-top: 0;
+}
+
+li#wrap_pwcommerce_order_calculate_shipping_button p.notes {
+	background-color: transparent;
+	display: inline;
+}
+
+p#pwcommerce_order_recalculate_shipping_and_taxes_notice_top,
+p#pwcommerce_order_recalculate_shipping_and_taxes_notice_bottom {
+	background-color: #e83561;
+	color: white;
+	padding: 5px 10px;
+	/* display: block; */
+}
+
+p#pwcommerce_order_recalculate_shipping_and_taxes_notice_top {
+	margin-top: 10px;
+}
+
+p.pwcommerce_error {
+	color: crimson;
+}
+
+/* @TODO: DELETE IF NOT IN USE */
+li.Inputfield.pwcommerce_shipping_rate_delete {
+	position: relative;
+}
+
+.pwcommerce_trash {
+	cursor: pointer;
+}
+
+.pwcommerce_hide {
+	display: none;
+}
+
+/* @TODO: DELETE IF NOT IN USE */
+.Inputfields .InputfieldPWCommerceShippingRates .Inputfields .InputfieldPWCommerceShippingRatesItem>.InputfieldContent {
+	outline: 1px solid #d9e1ea;
+	padding: 0;
+	background: #f0f3f7;
+}
+
+/* @TODO APPLY THIS TO WHOLE ORDER GUI NOW  - DELETE WHEN DONE
+#wrap_pwcommerce_order_search_products > .InputfieldHeader,
+#wrap_pwcommerce_order_search_products > .InputfieldContent,
+.pwcommerce_order_add_products > .InputfieldContent {
+	padding-left: 0;
+}
+*/
+div#pwcommerce_order_wrapper .InputfieldContent,
+div#pwcommerce_order_wrapper .InputfieldHeader {
+	padding-left: 0;
+}
+
+/* override big padding top on label.InputfieldHeader */
+li.pwcommerce_manual_order .InputfieldHeader {
+	padding-top: 0;
+}
+
+/* override big padding bottom on div.InputfieldContent */
+li.pwcommerce_manual_order_shipping_and_handling_info div.InputfieldContent {
+	padding-bottom: 0;
+}
+
+/* @TODO: WILL MOVE SHARED STYLES TO SHARED STYLE FILE */
+
+/* #main .pwcommerce_no_outline,
+li.InputfieldPWCommerceRuntimeMarkup li.InputfieldPWCommerceOrderLineItem {
+	outline: none;
+} */
+
+/* border after each line item row */
+li.InputfieldPWCommerceOrder .InputfieldPWCommerceOrderLineItem {
+	border-bottom: 1px solid #d9e1ea;
+}
+
+/* for order calculate shipping, overriding button wrapper width. otherwise funny bunching up! */
+#wrap_pwcommerce_order_calculate_shipping_button {
+	width: 100% !important;
+}
+
+/* @TODO DELETE IF NOT IN USE */
+/* border top before line items rows start / after add products to order button  */
+/* div#add_products_to_order {
+	border-top: 1px solid #d9e1ea;
+} */

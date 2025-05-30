@@ -1,0 +1,295 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * FieldtypePWCommerceTaxOverrides for ProcessWire.
+ *
+ * This Fieldtype stores values for a PWCommerce tax overrides.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceTaxOverrides for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceTaxOverrides extends FieldtypeMulti
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Tax Overrides: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce tax overrides values.',
+			'installs' => 'InputfieldPWCommerceTaxOverrides',
+		);
+	}
+
+	/**
+	 * We keep a copy of the $page that owns these overrides so that we can follow
+	 * its outputFormatting state and change our output per that state
+	 *
+	 */
+	// @for use in InputfieldPWCommerceTaxOverrides
+	protected $page;
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceTaxOverrides");
+		// our inputfield requires a Page and Field
+		// @note: these two are methods in InputfieldPWCommerceTaxOverrides
+		$inputfield->setPage($page);
+		$inputfield->setField($field);
+		return $inputfield;
+	}
+
+	/**
+	 * Get a blank value of this type, i.e. return a blank WireArray
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireArray
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$wireArray = new WireArray();
+		$wireArray->setTrackChanges(true);
+		return $wireArray;
+	}
+
+	/**
+	 * Get a blank single item value of this type, i.e. return a blank WireData
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankRecord() {
+		return new WireData();
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array $value
+	 * @return string|int|array|object $value
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireArray) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$records = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireArray
+		if (empty($value) || !is_array($value)) {
+			return $records;
+		}
+
+		// create new WireData objects from each item in the array
+		foreach ($value as $v) {
+
+			$record = $this->getBlankRecord();
+
+			$record->locationType = $this->wire('sanitizer')->pageName($v['data']); // note we are converting 'data' to 'record->locationType'
+			$locationID = (int) $v['location_id'];
+			$record->locationID = $locationID;
+			$record->overrideType = $this->wire('sanitizer')->pageName($v['override_type']);
+			$record->overrideTaxRate = (float) $v['override_tax_rate'];
+			$categoryID = (int) $v['category_id'];
+			$record->categoryID = $categoryID;
+
+			// TODO - friendly 'labels', i.e. titles
+			// TODO: NOT SURE IF THESE ARE MULTILINGUAL AWARE?
+			// user-friendly location title/label
+			$record->location = $this->wire('pages')->getRaw("id={$locationID}", "title");
+			// user-friendly category title/label
+			$record->category = $this->wire('pages')->getRaw("id={$categoryID}", "title");
+
+			// $record->setTrackChanges(true); // track changes for individual record
+			$record->resetTrackChanges();
+			$records->add($record); // add to records
+
+		} // end foreach $value as $v
+		// tell it to start tracking changes from this point forward
+		$records->resetTrackChanges(); // reset track changes for all records
+
+		return $records;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array|object $value
+	 * @return string|int
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than an WireArray,
+		// then just return a blank array
+		if (!$value instanceof WireArray) {
+			return $sleepValue;
+		}
+
+		// convert each record to an array within sleepValue
+		foreach ($value as $record) {
+
+			$sleepValue[] = array(
+				// note: record->locationType is becoming data which is a required column in a Fieldtype
+				'data' => $this->wire('sanitizer')->pageName($record->locationType),
+				'location_id' => (int) $record->locationID,
+				// TODO: change to limit values to 'category' and 'shipping' only?
+				'override_type' => $this->wire('sanitizer')->pageName($record->overrideType),
+				'override_tax_rate' => (float) $record->overrideTaxRate,
+				'category_id' => (int) $record->categoryID,
+
+			);
+		}
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 *
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireArray) {
+			throw new WireException("Value set to field '$field->name' must be a WireArray");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO: NOT NEEDED?
+		return $value;
+	}
+
+	/**
+	 * Return the database schema that defines a tax override item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->locationType' field (column in db)
+		// we reuse this required field/column (data) for item->locationType
+		$schema['data'] = 'CHAR(10) NOT NULL'; // 'location_type' country | territory
+		$schema['location_id'] = 'INT UNSIGNED NOT NULL';
+		$schema['override_type'] = 'CHAR(10) NOT NULL'; // shipping | category
+		$schema['override_tax_rate'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		$schema['category_id'] = 'INT UNSIGNED NOT NULL'; // category (page_id)
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		// $schema['keys']['data'] = 'KEY data(data)'; // searchable (=, !=, >, <, >=, <=, etc)
+		$schema['keys']['data'] = 'FULLTEXT KEY data (data)';
+		$schema['keys']['location_id'] = 'KEY location_id(location_id)';
+		$schema['keys']['override_type'] = 'FULLTEXT KEY override_type (override_type)';
+		$schema['keys']['override_tax_rate'] = 'KEY override_tax_rate(override_tax_rate)';
+		$schema['keys']['category_id'] = 'KEY category_id(category_id)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// if searching 'value' then assume our default (data) field
+		if ($subfield == 'locationType' || $subfield == 'location_type') {
+			$subfield = 'data';
+		}
+		// if we got a location=selection string OR category=selection string, we assume it is a title
+		else if ($subfield == 'location' || $subfield == 'category') {
+			if (!ctype_digit("$value") && strlen($value)) {
+				// TODO: SHOULD WE SUPPORT PARTIAL MATCHES HERE? ie. %=, etc not sure if name supports these operators though!
+				// first get the page by name, then grab their ID
+				$name = $this->sanitizer->pageName($value, true);
+				$template = $subfield == 'location' ? 'pwcommerce-country' : 'pwcommerce-category';
+				$recordID = $this->wire('pages')->getRaw("template={$template},name={$name}", "id");
+				if ($recordID > 0) {
+					$value = $recordID;
+				}
+			}
+			// set subfield
+			$subfield = $subfield == 'location' ? 'location_id' : 'category_id';
+		}
+		// ** SEARCHING USING 'friendly' PROPERTIES format **
+
+		// searching subfield locationID
+		else if ($subfield == 'locationID') {
+			$subfield = 'location_id';
+		}
+		// searching subfield overrideType
+		else if ($subfield == 'overrideType') {
+			$subfield = 'override_type';
+		}
+		// searching subfield overrideTaxRate
+		else if ($subfield == 'overrideTaxRate') {
+			$subfield = 'override_tax_rate';
+		}
+		// searching subfield categoryID
+		else if ($subfield == 'categoryID') {
+			$subfield = 'category_id';
+		}
+
+		/*
+					- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+					- the latter allow for finer, fulltext search
+					 */
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

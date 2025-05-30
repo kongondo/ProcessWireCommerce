@@ -1,0 +1,102 @@
+{
+	"products": {
+		"title": "Products",
+		"template": "pwcommerce-products"
+	},
+	"orders": {
+		"title": "Orders",
+		"template": "pwcommerce-orders"
+	},
+	"product_categories": {
+		"title": "Categories",
+		"template": "pwcommerce-categories"
+	},
+	"product_tags": {
+		"title": "Tags",
+		"template": "pwcommerce-tags"
+	},
+	"product_types": {
+		"title": "Types",
+		"template": "pwcommerce-types"
+	},
+	"product_brands": {
+		"title": "Brands",
+		"template": "pwcommerce-brands"
+	},
+	"product_attributes": {
+		"title": "Attributes",
+		"template": "pwcommerce-attributes"
+	},
+	"taxes": {
+		"title": "Countries",
+		"template": "pwcommerce-countries"
+	},
+	"shipping": {
+		"title": "Shipping Zones",
+		"template": "pwcommerce-shipping-zones"
+	},
+	"legal_pages": {
+		"title": "Legal Pages",
+		"template": "pwcommerce-legal-pages"
+	},
+	"downloads": {
+		"title": "Downloads",
+		"template": "pwcommerce-downloads"
+	},
+	"payment_providers": {
+		"title": "Payment Providers",
+		"template": "pwcommerce-payment-providers",
+		"children": [
+			{
+				"title": "Invoice",
+				"template": "pwcommerce-payment-provider"
+			},
+			{
+				"title": "PayPal",
+				"template": "pwcommerce-payment-provider"
+			},
+			{
+				"title": "Stripe",
+				"template": "pwcommerce-payment-provider"
+			}
+		]
+	},
+	"settings": {
+		"title": "Settings",
+		"template": "pwcommerce",
+		"children": [
+			{
+				"title": "General",
+				"template": "pwcommerce-settings"
+			},
+			{
+				"title": "Checkout",
+				"template": "pwcommerce-settings"
+			},
+			{
+				"title": "Taxes",
+				"template": "pwcommerce-settings"
+			}
+		]
+	},
+	"product_properties": {
+		"title": "Properties",
+		"template": "pwcommerce-properties"
+	},
+	"product_dimensions": {
+		"title": "Dimensions",
+		"template": "pwcommerce-dimensions"
+	},
+	"discounts": {
+		"title": "Discounts",
+		"template": "pwcommerce-discounts"
+	},
+	"customers": {
+		"title": "Customers",
+		"template": "pwcommerce-customers"
+	},
+	"customer_groups": {
+		"title": "Customer Groups",
+		"template": "pwcommerce-customer-groups"
+	}
+}

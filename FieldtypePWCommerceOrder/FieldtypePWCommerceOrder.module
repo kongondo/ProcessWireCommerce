@@ -1,0 +1,913 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceOrder
+ *
+ * Fieldtype that stores and outputs values of a PWCommerce order.
+ * @note: Order line items, customer and notes are modelled and stored separately.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceOrder for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+
+class FieldtypePWCommerceOrder extends Fieldtype
+{
+
+
+
+	private $orderPage;
+	private $orderDiscounts;
+	private $orderLineItemsPages;
+	private $orderLineItems;
+	public static function getModuleInfo() {
+		return [
+			'title' => 'PWCommerce Order: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce order values.',
+			'installs' => 'InputfieldPWCommerceOrder',
+		];
+	}
+
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type.
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceOrder");
+		// our inputfield requires a Page and Field
+		// @note: easier to set this way than using set() since we will then have to check keys
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceProductSettings
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceProductSettings
+		// $inputfield->set('page', $page);
+		// $inputfield->set('field', $field);
+		return $inputfield;
+	}
+
+	/**
+	 * Return a blank ready-to-populate version of a field of this type.
+	 * @return WireData $record
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * Set the config option fields for this Field.
+	 *
+	 * These appear in the 'Details' Tab when editing an instance of this Field.
+	 *
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on.
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	// @credits: borrowed from ProcessWire FieldtypeDatetime.module
+	/**
+	 * Sanitize a value assumed to be either a timestamp or in strtotime() compatible format
+	 *
+	 * @param string|int|\DateTime
+	 * @return int|string Returns unix timestamp integer or blank string if empty or invalid value
+	 *
+	 */
+	protected function _sanitizeValue($value) {
+
+		if (empty($value)) {
+
+			// empty value
+			$value = '';
+		} elseif (is_int($value)) {
+
+			// value okay as-is
+		} elseif ($value instanceof \DateTime) {
+			// instance of DateTime
+			$value = $value->getTimestamp();
+		} elseif (ctype_digit(ltrim("$value", '-'))) {
+
+			// already a timestamp
+			$value = (int) $value;
+		} else {
+			// convert date string to time
+			$value = strtotime($value);
+			if ($value === false) {
+
+				$value = '';
+			}
+		}
+		return $value;
+	}
+
+
+	private function getOrderTaxAmountTotal(Page $page) {
+
+		// TODO: REFACTOR OR REUSE THIS? NOW WE HAVE $this->orderLineItemsPages!
+		$fields = ['pwcommerce_order_line_item.tax_amount_total'];
+		$orderLineItems = $this->wire('pages')->findRaw("parent={$page},template=" . PwCommerce::ORDER_LINE_ITEMS_TEMPLATE_NAME, $fields);
+		$pwcommerce = $this->pwcommerce;
+		// ------
+		$orderTaxAmountTotalMoney = $pwcommerce->money(0);
+		foreach ($orderLineItems as $orderLineItem) {
+			$lineItemTaxAmountTotal = (float) $orderLineItem['pwcommerce_order_line_item']['tax_amount_total'];
+			$lineItemTaxAmountTotalMoney = $pwcommerce->money($lineItemTaxAmountTotal);
+			//------
+			$orderTaxAmountTotalMoney = $orderTaxAmountTotalMoney->add($lineItemTaxAmountTotalMoney);
+		}
+
+		$orderTaxAmountTotal = $pwcommerce->getWholeMoneyAmount($orderTaxAmountTotalMoney);
+		// ------
+		return $orderTaxAmountTotal;
+
+	}
+
+	private function getOrderShippingFeePlusHandlingFeeAmountTotal(WireData $order) {
+		$pwcommerce = $this->pwcommerce;
+		$shippingFeeMoney = $pwcommerce->money($order->shippingFee);
+		$handlingFeeMoney = $pwcommerce->money($order->handlingFee);
+		// ---------
+		$shippingFeePlusHandlingFeeMoney = $shippingFeeMoney->add($handlingFeeMoney);
+		$shippingFeePlusHandlingFeeAmountTotal = $pwcommerce->getWholeMoneyAmount($shippingFeePlusHandlingFeeMoney);
+		// --------
+		return $shippingFeePlusHandlingFeeAmountTotal;
+	}
+
+	// ~~~~~~~~~~~
+
+
+	private function getOrderLineItemsPropertyTotal(string $property) {
+		// TODO CHANGE TO USE MONEY!
+
+		$pwcommerce = $this->pwcommerce;
+		$orderLineItemsPropertyTotalMoney = $pwcommerce->money(0);
+		// ----
+		foreach ($this->orderLineItems as $orderLineItem) {
+			//
+			$orderLineItemPropertyTotalMoney = $pwcommerce->money($orderLineItem->get($property));
+			$orderLineItemsPropertyTotalMoney = $orderLineItemsPropertyTotalMoney->add($orderLineItemPropertyTotalMoney);
+		}
+
+		$orderLineItemsPropertyTotalAmount = $pwcommerce->getWholeMoneyAmount($orderLineItemsPropertyTotalMoney);
+
+		// --
+		return $orderLineItemsPropertyTotalAmount;
+	}
+
+	private function getOrderLineItemsTotalPrice() {
+		$orderLineItemsTotalPrice = $this->getOrderLineItemsPropertyTotal('totalPrice');
+		// --
+		return $orderLineItemsTotalPrice;
+	}
+
+	private function getOrderLineItemsTotalPriceWithTax() {
+		$orderLineItemsTotalPriceWithTax = $this->getOrderLineItemsPropertyTotal('totalPriceWithTax');
+		// --
+		return $orderLineItemsTotalPriceWithTax;
+	}
+
+	private function getOrderLineItemsTotalPriceDiscounted() {
+		$orderLineItemsTotalPriceDiscounted = $this->getOrderLineItemsPropertyTotal('totalPriceDiscounted');
+		// --
+		return $orderLineItemsTotalPriceDiscounted;
+	}
+
+	private function getOrderLineItemsTotalPriceDiscountedWithTax() {
+		$orderLineItemsTotalPriceDiscountedWithTax = $this->getOrderLineItemsPropertyTotal('totalPriceDiscountedWithTax');
+		// --
+		return $orderLineItemsTotalPriceDiscountedWithTax;
+	}
+
+	private function getOrderLineItemsTotalDiscount($orderLineItemsDiscounts) {
+		$pwcommerce = $this->pwcommerce;
+		$orderLineItemsTotalDiscountMoney = $pwcommerce->money(0);
+		// -
+		foreach ($orderLineItemsDiscounts as $discount) {
+			$discountMoney = $pwcommerce->money($discount->get('discountAmount'));
+			$orderLineItemsTotalDiscountMoney = $orderLineItemsTotalDiscountMoney->add($discountMoney);
+		}
+		$orderLineItemsTotalDiscountAmount = $pwcommerce->getWholeMoneyAmount($orderLineItemsTotalDiscountMoney);
+		return $orderLineItemsTotalDiscountAmount;
+	}
+
+	private function getFreeShippingDiscount() {
+		$freeShippingDiscount = NULL;
+		if (!empty($this->orderDiscounts)) {
+			$freeShippingDiscount = $this->orderDiscounts->get("discountType=free_shipping");
+		}
+		// ----
+		return $freeShippingDiscount;
+	}
+
+	private function getOrderLineItemsDiscounts() {
+		$orderLineItemsDiscounts = new WireArray();
+		foreach ($this->orderLineItems as $orderLineItem) {
+			/** @var WireArray $discounts */
+			$discounts = $orderLineItem->get('discounts');
+			// skip empties
+			if (empty($discounts) || empty($discounts->count())) {
+				continue;
+			}
+
+			foreach ($discounts as $discount) {
+				$discount->orderLineItemID = $orderLineItem->id;
+				$discount->productID = $orderLineItem->productID;
+				$discount->productTitle = $orderLineItem->productTitle;
+				// ----
+				// add to WireArray
+				$orderLineItemsDiscounts->add($discount);
+			}
+
+			// -----
+		}
+		// --------
+		return $orderLineItemsDiscounts;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+		// if for some reason we already got a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// TODO BELOW, DELETE IF NO LONGER USING ALIASES
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return getBlankValue
+		if (empty($value) || !is_array($value)) {
+
+			return $record;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// GET ORDER CUSTOMER
+		$customer = $page->get(PwCommerce::ORDER_CUSTOMER_FIELD_NAME);
+
+		// SET ORDER PAGE CLASS PROPERTY
+		/** @var Page $this->orderPage */
+		$this->orderPage = $page;
+		// SET ORDER DISCOUNTS PROPERTY TO CLASS
+		/** @var WireArray|NULL $this->orderDiscounts */
+		$this->orderDiscounts = $this->orderPage->get(PwCommerce::ORDER_DISCOUNTS_FIELD_NAME);
+
+		// GET LINE ITEMS PAGES (order page children)
+		/** @var PageArray $orderLineItemsPages */
+		$this->orderLineItemsPages = $page->children('include=all,check_access=0,status!=hidden');
+
+		// GET LINE ITEMS THEMSELVES
+		// @note: they include property 'discounts' as a WireArray
+		// no need to get those separately from their field
+		$this->orderLineItems = $this->orderLineItemsPages->explode(PwCommerce::ORDER_LINE_ITEM_FIELD_NAME);
+
+		// 1. MAIN
+
+		// ** order date (runtime) **
+		// @note: just the page created date RUNTIME
+		$created = $page->created;
+		$record->date = $created;
+		// aliases
+		// $record->created = $created;
+		// -------
+		$record->modified = $page->modified;
+		// -----
+		$id = $page->id;
+		// $record->pageID = $id;
+		$record->id = $id;
+		// aliases
+		// $record->id = $id;
+
+		// ** order id (read-only) **
+		// note we are converting 'data' to 'record->orderID'
+		// @note: this is not the ProcessWire page ID! it is an auto-increment value in the schema
+		$record->orderID = (int) $value['data'];
+
+		// ** order paid date **
+		// TODO: UNSURE IF TO RETURN TIMESTAMP OR TIME STRING! MAYBE EXTRA VARIABLE FOR THIS?
+		$paidDate = $value['order_paid_date'];
+		if (empty($paidDate)) {
+			$paidDate = '';
+		} else {
+			$paidDate = strtotime($paidDate);
+			if ($paidDate === false) {
+				$paidDate = '';
+			}
+		}
+
+		$record->paidDate = $paidDate;
+		// aliases
+		// $record->paid = $paidDate;
+
+		// ** payment method  **
+		$paymentMethod = $sanitizer->text($value['order_payment_method']);
+		$record->paymentMethod = $paymentMethod;
+		// aliases
+		// $record->payment = $paymentMethod;
+
+		// 2. DISCOUNTS
+
+		// ** type **
+		$record->discountType = $sanitizer->pageName($value['order_discount_type']);
+
+		// ** value **
+		$record->discountValue = (float) $value['order_discount_value'];
+
+		// ** amount **
+		$discountAmount = (float) $value['order_discount_amount'];
+		$record->discountAmount = $discountAmount;
+		// aliases
+		// $record->discount = $discountAmount;
+
+		// 3. SHIPPING
+
+		// ** handling fee type **
+		$record->handlingFeeType = $sanitizer->pageName($value['order_handling_fee_type']);
+
+		// ** handling fee value **
+		$handlingFeeValue = (float) $value['order_handling_fee_value'];
+		$record->handlingFeeValue = $handlingFeeValue;
+		// aliases
+		// $record->handlingValue = $handlingFeeValue;
+
+		// ** handling fee amount **
+		$handlingFeeAmount = (float) $value['order_handling_fee_amount'];
+		$record->handlingFee = $handlingFeeAmount;
+		// $record->handlingFeeAmount = $handlingFeeAmount;
+		// aliases
+		// $record->handlingFeeAmount = $handlingFeeAmount;
+		// $record->handlingFee = $handlingFeeAmount;
+
+		// ** shipping amount **
+		$shippingFee = (float) $value['order_shipping_fee'];
+		$record->shippingFee = $shippingFee;
+		// aliases
+		// $record->shipping = $shippingFee;
+		// $record->shippingAmount = $shippingFee;
+
+		# *******************
+		# @NOTE: PWCOMMERCE >= 004
+		//--------
+		// SHIPPING RATE NAME
+		$shippingRateName = $sanitizer->text($value['order_shipping_rate_name']);
+		$record->shippingRateName = $shippingRateName;
+		//--------
+		// SHIPPING RATE DELIVERY TIME MINIMUM
+		$shippingRateDeliveryTimeMinimumDays = (int) $value['order_shipping_rate_delivery_time_minimum_days'];
+		$record->shippingRateDeliveryTimeMinimumDays = $shippingRateDeliveryTimeMinimumDays;
+		//--------
+		// SHIPPING RATE DELIVERY TIME MAXIMUM
+		$shippingRateDeliveryTimeMaximumDays = (int) $value['order_shipping_rate_delivery_time_maximum_days'];
+		$record->shippingRateDeliveryTimeMaximumDays = $shippingRateDeliveryTimeMaximumDays;
+		# *******************
+
+		// ** is custom handling fee **
+		// @note: we still model the value at handling fee amount!
+		// @note: to identify whether the shipping handling fee was custom or per shop's settings
+		$record->isCustomHandlingFee = (int) $value['is_custom_handling_fee'];
+		// ** is custom shipping fee **
+		// @note: to identify whether the shipping fee was custom or per shop's settings
+		// @note: we still model the value at shipping fee amount!
+		$record->isCustomShippingFee = (int) $value['is_custom_shipping_fee'];
+
+		// 4. TOTALS
+
+		// @note: calculated from total discounted prices of line items (inclusive tax) MINUS any order discount amount. It also includes shipping (inclusive tax if applicable) + handling fee
+		$totalPrice = (float) $value['order_total_price'];
+		$record->totalPrice = $totalPrice;
+
+		// aliases
+		// $record->total = $totalPrice;
+
+		// 5. STATUSES
+		$status = (int) $value['order_status'];
+		// $record->status = $status;
+		$record->orderStatus = $status;
+		// aliases
+		// $record->orderStatus = $status;
+		// @note: includes 'shipment status'
+		$fulfilmentStatus = (int) $value['order_fulfilment_status'];
+		$record->fulfilmentStatus = $fulfilmentStatus;
+		// aliases
+		// $record->orderFulfilmentStatus = $fulfilmentStatus;
+
+		$paymentStatus = (int) $value['order_payment_status'];
+		$record->paymentStatus = $paymentStatus;
+		// aliases
+		// $record->orderPaymentStatus = $paymentStatus;
+
+		// 6. TAXES
+		// ** is charge taxes manual exemption **
+		// @note: to identify whether tax exemption was applied to the whole order for a manual order
+		$record->isChargeTaxesManualExemption = (int) $value['is_charge_taxes_manual_exemption'];
+		// ** is prices include taxes **
+		// @note: to identify whether at the time the order was placed, prices included taxes
+		$record->isPricesIncludeTaxes = (int) $value['is_prices_include_taxes'];
+
+		// TODO: RUNTIME STATUS VALUES? E.G.WHAT DOES STATUS 8090 MEAN!!! - TODO WILL LOOKUP IN THE CUSTOM EXTERNAL STATUSES TABLE! ALSO, GOOD TO ADD THE VERBOSE DESCRIPTIONS OF STATUSES TO RUNTIME
+		// TODO: RUNTIME VALUES? E.G. CUSTOMER DETAILS? OR AT LEAST COUNTRY!
+
+		// 7. RUNTIME
+		// ---
+		# tax
+		$record->orderTaxAmountTotal = $this->getOrderTaxAmountTotal($page);
+		$record->isTaxExempt = $customer->isTaxExempt;
+		// ---
+		# shipping
+		$record->orderShippingFeePlusHandlingFeeTotal = $this->getOrderShippingFeePlusHandlingFeeAmountTotal($record);
+		$record->shippingAddressCountry = $customer->shippingAddressCountry;
+		$record->shippingAddressCountryID = $customer->shippingAddressCountryID;
+		// ---
+		# customer
+		$record->email = $customer->email;
+		// **************************
+		# line items totals
+		// total price  (unit prices * quantity)
+		$record->orderLineItemsTotalPrice = $this->getOrderLineItemsTotalPrice();
+		// total price with tax
+		$record->orderLineItemsTotalPriceWithTax = $this->getOrderLineItemsTotalPriceWithTax();
+		// discounted total price
+		$record->orderLineItemsTotalPriceDiscounted = $this->getOrderLineItemsTotalPriceDiscounted();
+		// discounted total price with tax
+		$record->orderLineItemsTotalPriceDiscountedWithTax = $this->getOrderLineItemsTotalPriceDiscountedWithTax();
+		// order line items applied discounts
+		/** @var WireArray $orderLineItemsDiscounts */
+		$orderLineItemsDiscounts = $this->getOrderLineItemsDiscounts();
+		$record->orderLineItemsDiscounts = $orderLineItemsDiscounts;
+		// total discounts
+		$record->orderLineItemsTotalDiscount = $this->getOrderLineItemsTotalDiscount($orderLineItemsDiscounts);
+		// order free shipping discounts
+		// @note: we don't expect more than one!
+		/** @var WireData|NULL $freeShippingDiscount */
+		$freeShippingDiscount = $this->getFreeShippingDiscount();
+		$record->freeShippingDiscount = $freeShippingDiscount;
+
+		//----------------
+
+		$record->setTrackChanges(true); // track changes for the product record TODO? reset instead?
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// TODO: HOW TO HANDLE MULTIPLE? E.G. CAN USE GIFT CARD AND DISCOUNT IN SAME ORDER!
+		// @note: we only allow these discount types
+		$allowedDiscountTypeValues = ['none', 'percentage', 'fixed_applied_once', 'fixed_applied_per_item', 'gift_card'];
+		$orderDiscountType = $sanitizer->option($value->discountType, $allowedDiscountTypeValues);
+		// default to 'none' if sanitizer returns null
+		if (empty($orderDiscountType))
+			$orderDiscountType = 'none';
+
+		// @note: we only allow these handling fee types
+		$allowedHandlingFeeTypeValues = ['none', 'percentage', 'fixed'];
+		$handlingFeeType = $sanitizer->option($value->handlingFeeType, $allowedHandlingFeeTypeValues);
+		// default to 'none' if sanitizer returns null for handling fee type
+		if (empty($handlingFeeType))
+			$handlingFeeType = 'none';
+
+		// convert record to an array within sleepValue
+		$sleepValue = [
+			// note: value->orderID is becoming data which is a required column in a Fieldtype
+			// TODO: test this!!!
+			// 'data' => (int) $value->orderID,// @note: not needed since AUTO_INCREMENT!
+			// TODO: CHANGE THIS! THIS RETURNS AN INT! WE NEED A STRING
+			'order_paid_date' => date('Y-m-d H:i:s', (int) $this->_sanitizeValue($value->paidDate)),
+			'order_payment_method' => $sanitizer->text($value->paymentMethod),
+			// -----------
+			'order_discount_value' => (float) $value->discountValue,
+			'order_discount_amount' => (float) $value->discountAmount,
+			'order_discount_type' => $orderDiscountType,
+			// -----------
+			'order_handling_fee_type' => $handlingFeeType,
+			'order_handling_fee_value' => (float) $value->handlingFeeValue,
+			'order_handling_fee_amount' => (float) $value->handlingFee,
+			'order_shipping_fee' => (float) $value->shippingFee,
+			'is_custom_handling_fee' => (int) $value->isCustomHandlingFee,
+			'is_custom_shipping_fee' => (int) $value->isCustomShippingFee,
+			# *******************
+			# @NOTE: PWCOMMERCE >= 004
+			// e.g. 'Flat Zone 1', 'Weight Rate Mid', etc
+			'order_shipping_rate_name' => $sanitizer->text($value->shippingRateName),
+			'order_shipping_rate_delivery_time_minimum_days' => (int) $value->shippingRateDeliveryTimeMinimumDays,
+			'order_shipping_rate_delivery_time_maximum_days' => (int) $value->shippingRateDeliveryTimeMaximumDays,
+			# *******************
+			// -----------
+			'order_total_price' => (float) $value->totalPrice,
+			// --------- statuses
+			// TODO MAYBE THINK ABOUT ENFORCING STATUSES SO AS NOT TO SAVE WRONG/DISALLOWED ONES? CAN EASILY USE GET STATUS TYPES AND SANITIZER->OPTION
+			'order_status' => (int) $value->orderStatus,
+			'order_fulfilment_status' => (int) $value->fulfilmentStatus,
+			'order_payment_status' => (int) $value->paymentStatus,
+			// --------- taxes
+			'is_charge_taxes_manual_exemption' => (int) $value->isChargeTaxesManualExemption,
+			'is_prices_include_taxes' => (int) $value->isPricesIncludeTaxes,
+			// TODO: IS TOTAL TAX A RUNTIME VALUE THEN? YES, FOR NOW AT LEAST!
+		];
+
+		return $sleepValue;
+	}
+
+	private function updateSchema($field) {
+		$database = $this->wire()->database;
+		$table = $database->escapeTable($field->getTable());
+		if (empty($database->tableExists($table))) {
+			// FRESH INSTALL: no table to update
+			return;
+		}
+
+		// $table = "field_pwcommerce_order";
+		// $array = $database->getColumns($table, true);
+		$tableColumns = $this->database->getColumns($table);
+
+		$newSchemaAddFields = [
+			'order_shipping_rate_name' => [
+				'schema' => 'VARCHAR(250) NOT NULL',
+				'index_type' => 'FULLTEXT'
+			],
+			'order_shipping_rate_delivery_time_minimum_days' => [
+				'schema' => 'SMALLINT UNSIGNED NOT NULL',
+				'index_type' => 'INDEX'
+			],
+			'order_shipping_rate_delivery_time_maximum_days' => [
+				'schema' => 'SMALLINT UNSIGNED NOT NULL',
+				'index_type' => 'INDEX'
+			]
+		];
+
+		$isSchemaAlreadyUpdated = !empty(
+			array_intersect(
+				array_keys($newSchemaAddFields),
+				$tableColumns
+			)
+		);
+
+		if (empty($isSchemaAlreadyUpdated)) {
+			// ---
+			// add columns
+			// @note: we assume all three not added yet!
+			foreach ($newSchemaAddFields as $columnName => $details) {
+				$schema = $details['schema'];
+				$index = $details['index_type'];
+				try {
+					$sql = "ALTER TABLE `$table` ADD `$columnName` $schema, ADD $index `$columnName` (`$columnName`)";
+					$database->query($sql);
+				} catch (\Exception $e) {
+					if ($e->getCode() == '42S21') {
+						// column already exists
+						$this->error($this->_("Could not update order table as column {$columnName} already exists"));
+					} else {
+						$this->error($this->_("Could not add column {$columnName} to order table"));
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Return the database schema that defines an Order item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+		// TODO NOW THAT WE HAVE DISCOUNTS AS A SEPARATE TABLE, HOW DO WE ALSO TRACK THE TOTAL PRICE WITHOUT DISCOUNTS HERE?! LINE ITEMS HAVE IT; BUT NOT ORDER! I.E., TOTAL PRICE HERE IS MINUS DISCOUNTS! SECONDLY, WHILST WE MIGHT GET ON DURING RUNTIME, ISN'T IT WORTH SAVING?
+		$schema = parent::getDatabaseSchema($field);
+
+		// UPDATE SCHEMA for PWCommerce version < 004
+		// we need to save permanent info about shipping rate name, min and max delivery times
+		$this->updateSchema($field);
+
+		//
+		// 1. order_id: use data: BIGINT (?) int for now autoincrement unsigned
+		// 2. order_paid_date
+		// 6. order_payment_method: VARCHAR (50) paypal, stripe, credit card, invoice, etc
+		// 7. order_discount_amount DECIMAL (12,2)
+		// 8. order_discount_type: CHAR (25) percentage | fixed_once | fixed_multiple
+		// 9. order_handling_fee_amount DECIMAL (12,2)
+		// 10. order_handling_fee_type: none | percentage | fixed CHAR(10)
+		// 13. order_shipping_fee DECIMAL (12,2)
+		// // TODO: DELETE WHEN DONE
+		// 0. date - stored as the order page CREATED DATE
+		// 3. order_delivered_date - MOVE TO LINE ITEMS? YES! ***
+		// 4. order_tax_applied: TINYINT - YES/NO 1/0 @SEE #5 IF GOES, THEN GOES TO LINE ITEM AS WELL
+		// 5. order_tax (?) unsure if here or per line item! DECIMAL (12,2) LINE ITEM! ***
+		// 11. order_handling_value/amount: NOT NEEDED AS CAN WORK OUT ON THE FLY! BASED ON #9 and #10
+		// 12. order_status ??? no deduced from line items ON THE FLY! e.g. if all complete, then order complete! ***
+		// @UPDATE MONDAY 6 SEPTEMBER 2021! NO; WE NOW HAVE STATUSES! @SEE BELOW
+		// Timestamps in MySQL are generally used to track changes to records, and are often updated every time the record is changed. If you want to store a specific value you should use a datetime field. @source: https: //stackoverflow.com/questions/409286/should-i-use-the-datetime-or-timestamp-data-type-in-mysql
+		//
+
+		// ****************
+		// 1. MAIN
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our // 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->shippingRate' field (column in db)
+		// we reuse this required field/column (data) for item->shippingRate
+
+		$schema['data'] = 'INT UNSIGNED NOT NULL AUTO_INCREMENT'; // 'order_id'
+		$schema['order_paid_date'] = 'DATETIME';
+		$schema['order_payment_method'] = 'VARCHAR(250) NOT NULL'; // paypal, stripe, credit card, invoice, etc
+
+		// ****************
+		// 2. DISCOUNTS
+
+		$schema['order_discount_type'] = 'CHAR(25) NOT NULL'; // none | percentage | fixed_applied_once | fixed_applied_per_item
+		// order_discount_value (e.g. 2% or 1.35 fixed_applied_once or 1.35 fixed_applied_per_item)
+		$schema['order_discount_value'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// 'order_discount_amount' is calculated from application of order_discount_value, i.e. in cash terms (currency)
+		// @note: this is ONLY the order-level discount! it does not include the totals of line items' discounts!
+		$schema['order_discount_amount'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// TODO: ADD TOTAL DISCOUNTS? IN THAT CASE, HOW ABOUT ADD TOTAL TAX! SO, NO FOR NOW! CAN BE COMPUTED AT RUNTIME! just not queryable
+
+		// ****************
+		// 3. SHIPPING
+
+		$schema['order_handling_fee_type'] = 'CHAR(15) NOT NULL'; // none | percentage | fixed
+		// order_handling_fee_value (e.g. 2% or 1.35 fixed)
+		$schema['order_handling_fee_value'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// 'order_handling_fee_amount' is calculated from application of order_handling_fee_value, i.e. in cash terms (currency)
+		// TODO CHANGE TO SIGNED TO CATER FOR FREE SHIPPING?
+		$schema['order_handling_fee_amount'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// TODO CHANGE TO SIGNED TO CATER FOR FREE SHIPPING?
+		$schema['order_shipping_fee'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// TODO: not null?
+		// @note: to identify whether the shipping handling fee was custom or per shop's settings
+		$schema['is_custom_handling_fee'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		// TODO: not null?
+		// @note: to identify whether the shipping fee was custom or per shop's settings
+		$schema['is_custom_shipping_fee'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		# *******************
+		# @NOTE: PWCOMMERCE >= 004
+		// e.g. 'Flat Zone 1', 'Weight Rate Mid', etc
+		$schema['order_shipping_rate_name'] = 'VARCHAR(250) NOT NULL';
+		$schema['order_shipping_rate_delivery_time_minimum_days'] = 'SMALLINT UNSIGNED NOT NULL';
+		$schema['order_shipping_rate_delivery_time_maximum_days'] = 'SMALLINT UNSIGNED NOT NULL';
+		# *******************
+
+		// ****************
+		// 4. TOTALS (cash terms)
+
+		$schema['order_total_price'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+
+		// ****************
+		// 5. STATUSES
+		// @note: we use SMALLINTs FLAGs for statuses
+		// @see file with statuses TODO!
+		// @note: we use custom external table to store statuses, their names and descriptions TODO!
+
+		// order status itself: e.g. complete, cancelled, pending, refunded, part-refunded, etc
+		$schema['order_status'] = 'SMALLINT UNSIGNED NOT NULL';
+		// order shipment status: e.g. shipped, delayed, refused, damaged, lost, etc
+		$schema['order_fulfilment_status'] = 'SMALLINT UNSIGNED NOT NULL';
+		// order payment status: e.g. paid, part-paid, invoiced, re-invoiced, etc
+		$schema['order_payment_status'] = 'SMALLINT UNSIGNED NOT NULL';
+
+		// ****************
+		// 6. TAXES
+		// TODO: not null?
+		// @note: to identify whether tax exemption was applied to the whole order for a manual order
+		$schema['is_charge_taxes_manual_exemption'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		// TODO REVISIT THIS? DO WE REALLY NEED IT?
+		// @note: to identify whether at the time the order was placed, prices included taxes
+		// this is important if historical invoices are needed and the settings for 'prices include taxes' have since changed
+		// this is because invoices will show prices without taxes plus amount of tax added per line item
+		$schema['is_prices_include_taxes'] = 'TINYINT(1) UNSIGNED NOT NULL';
+
+		//---------------------------- INDEXES -----------------------------
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		$schema['keys']['data'] = 'KEY data (data)'; // for 'order_id'
+		$schema['keys']['order_paid_date'] = 'KEY order_paid_date (order_paid_date)';
+		$schema['keys']['order_payment_method'] = 'FULLTEXT KEY order_payment_method (order_payment_method)';
+		$schema['keys']['order_discount_type'] = 'FULLTEXT KEY order_discount_type (order_discount_type)';
+		$schema['keys']['order_discount_value'] = 'KEY order_discount_value (order_discount_value)';
+		$schema['keys']['order_discount_amount'] = 'KEY order_discount_amount (order_discount_amount)';
+		$schema['keys']['order_handling_fee_type'] = 'FULLTEXT KEY order_handling_fee_type (order_handling_fee_type)';
+		$schema['keys']['order_handling_fee_value'] = 'KEY order_handling_fee_value (order_handling_fee_value)';
+		$schema['keys']['order_handling_fee_amount'] = 'KEY order_handling_fee_amount (order_handling_fee_amount)';
+		$schema['keys']['order_shipping_fee'] = 'KEY order_shipping_fee (order_shipping_fee)';
+		# *******************
+		# @NOTE: PWCOMMERCE >= 004
+		$schema['keys']['order_shipping_rate_name'] = 'FULLTEXT KEY order_shipping_rate_name (order_shipping_rate_name)';
+		$schema['keys']['order_shipping_rate_delivery_time_minimum_days'] = 'KEY order_shipping_rate_delivery_time_minimum_days
+		(order_shipping_rate_delivery_time_minimum_days)';
+		$schema['keys']['order_shipping_rate_delivery_time_maximum_days'] = 'KEY order_shipping_rate_delivery_time_maximum_days (order_shipping_rate_delivery_time_maximum_days)';
+		# *******************
+		$schema['keys']['is_custom_handling_fee'] = 'KEY is_custom_handling_fee (is_custom_handling_fee)';
+		$schema['keys']['is_custom_shipping_fee'] = 'KEY is_custom_shipping_fee (is_custom_shipping_fee)';
+		$schema['keys']['order_total_price'] = 'KEY order_total_price (order_total_price)';
+		// STATUSES
+		// TODO - in future, connect to the statuses definitions table rather than return integer flags only?
+		$schema['keys']['order_status'] = 'KEY order_status (order_status)';
+		$schema['keys']['order_fulfilment_status'] = 'KEY order_fulfilment_status (order_fulfilment_status)';
+		$schema['keys']['order_payment_status'] = 'KEY order_payment_status (order_payment_status)';
+		// TAXES
+		$schema['keys']['is_charge_taxes_manual_exemption'] = 'KEY is_charge_taxes_manual_exemption (is_charge_taxes_manual_exemption)';
+		$schema['keys']['is_prices_include_taxes'] = 'KEY is_prices_include_taxes (is_prices_include_taxes)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// TODO: NEED TO IMPLEMENT SEARCH/QUERY FOR ORDER DATE! THAT IS THE SAME AS THE CREATED DATE OF THE ORDER PAGE! same for modified!
+
+		// match properties/subfields to model subfields/columns
+		if (in_array($subfield, ['orderID', 'order_id', 'id'])) {
+			$subfield = 'data';
+		} elseif (in_array($subfield, ['paidDate', 'paid_date', 'paid'])) {
+			// TODO: WORK MORE ON THIS @SEE FIELDTYPEDATIME!
+			$subfield = 'order_paid_date';
+			return $this->getMatchQueryDatetime($query, $table, $subfield, $operator, $value);
+		} elseif (in_array($subfield, ['paymentMethod', 'payment', 'payment_method'])) {
+			$subfield = 'order_payment_method';
+		} elseif (in_array($subfield, ['discountType', 'discount_type'])) {
+			$subfield = 'order_discount_type';
+		} elseif (in_array($subfield, ['discountValue', 'discount_value'])) {
+			$subfield = 'order_discount_value';
+		} elseif (in_array($subfield, ['discountAmount', 'discount', 'discount_amount'])) {
+			$subfield = 'order_discount_amount';
+		} elseif (in_array($subfield, ['handlingFeeType', 'handling_fee_type'])) {
+			$subfield = 'order_handling_fee_type';
+		} elseif (in_array($subfield, ['handlingFeeValue', 'handlingValue', 'handling_fee_value'])) {
+			$subfield = 'order_handling_fee_value';
+		} elseif (in_array($subfield, ['handlingFeeAmount', 'handling', 'handlingFee', 'handling_fee_amount', 'handling_fee'])) {
+			$subfield = 'order_handling_fee_amount';
+		} elseif (in_array($subfield, ['shippingAmount', 'shipping', 'shippingFee', 'shipping_amount', 'shipping_fee', 'shipping_value'])) {
+			$subfield = 'order_shipping_fee';
+		}
+		# *******************
+		# @NOTE: PWCOMMERCE >= 004
+		else if ($subfield === 'shippingRateName') {
+			$subfield = 'order_shipping_rate_name';
+		} else if ($subfield === 'shippingRateDeliveryTimeMinimumDays') {
+			$subfield = 'order_shipping_rate_delivery_time_minimum_days';
+		} else if ($subfield === 'shippingRateDeliveryTimeMaximumDays') {
+			$subfield = 'order_shipping_rate_delivery_time_maximum_days';
+		}
+		# *******************
+		elseif (in_array($subfield, ['isCustomHandlingFee'])) {
+			$subfield = 'is_custom_handling_fee';
+		} elseif (in_array($subfield, ['isCustomShippingFee'])) {
+			$subfield = 'is_custom_shipping_fee';
+		} elseif (in_array($subfield, ['totalPrice', 'total'])) {
+			$subfield = 'order_total_price';
+		} elseif (in_array($subfield, ['status', 'orderStatus'])) {
+			$subfield = 'order_status';
+		} elseif (in_array($subfield, ['fulfilmentStatus', 'orderFulfilmentStatus'])) {
+			$subfield = 'order_fulfilment_status';
+		} elseif (in_array($subfield, ['paymentStatus', 'orderPaymentStatus'])) {
+			$subfield = 'order_payment_status';
+		} elseif (in_array($subfield, ['isChargeTaxesManualExemption'])) {
+			$subfield = 'is_charge_taxes_manual_exemption';
+		} elseif (in_array($subfield, ['isPricesIncludeTaxes'])) {
+			$subfield = 'is_prices_include_taxes';
+		}
+		//---------
+		// @note: datetime query search implemented separately above
+
+		//
+		// - MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+		// - the latter allow for finer, fulltext search
+		//
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+
+	// @credits: borrowed from FieldtypeDatetime::getMatchQuery
+	/**
+	 * Match a date/time value in the database, as used by PageFinder
+	 *
+	 * @param PageFinderDatabaseQuerySelect $query
+	 * @param string $table
+	 * @param string $subfield
+	 * @param string $operator
+	 * @param int|string $value
+	 * @return DatabaseQuerySelect
+	 * @throws WireException if given invalid operator
+	 *
+	 */
+	public function getMatchQueryDatetime($query, $table, $subfield, $operator, $value) {
+		$database = $this->wire()->database;
+		$intValue = $this->_sanitizeValue($value);
+		$table = $database->escapeTable($table);
+		$subfield = $subfield ? $database->escapeCol($subfield) : 'data';
+		$minDT = '1000-01-01 00:00:00'; // $maxDT = '9999-12-31 23:59:59';
+
+		if (is_string($value) && in_array($operator, ['%=', '^='])) {
+			// partial date string match
+			if (!ctype_digit($value)) {
+				$value = str_replace(['/', '.'], '-', trim($value));
+			}
+			if (!ctype_digit(str_replace(['-', ' '], '', $value))) {
+				throw new WireException("Invalid partial date string '$value' (numbers, hyphens and space only)");
+			}
+			$value = str_replace(['%', '_'], '', $value);
+			$value = $operator === '^=' ? "$value%" : "%$value%";
+			$query->where("$table.$subfield LIKE ?", $value);
+		} elseif (!$database->isOperator($operator)) {
+			// invalid operator
+			throw new WireException("$this invalid date operator: $operator");
+		} elseif (is_int($intValue)) {
+			// matching a populated value that successfully converted to unix timestamp
+			$dateString = date('Y-m-d H:i:s', $intValue);
+			if ($dateString !== false) {
+				$query->where("$table.$subfield$operator?", $dateString);
+			}
+		} else {
+			// matching an empty value
+			if (in_array($operator, ['!=', '>', '>='])) {
+				// match NOT empty (!=0, >0)
+				$query->where("$table.$subfield>=?", $minDT);
+			} elseif (in_array($operator, ['=', '<', '<='])) {
+				// match empty (=0, <0, <=0): match null or value below unix timestamp range
+				// this includes 0000-00-00 when present and used by MySQL version
+				$query->where("$table.$subfield IS NULL OR $table.$subfield<?", $minDT);
+			} else {
+				// unsupported operator
+				throw new WireException("$this operator cannot be used here: $operator");
+			}
+		}
+
+		return $query;
+	}
+}

@@ -1,0 +1,948 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceCustomerAddresses
+ *
+ * Inputfield for FieldtypePWCommerceCustomerAddresses, the field that stores and outputs values of a PWCommerce customer addresses.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceCustomerAddresses for PWCommerce
+ * Copyright (C) 2024 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+
+class InputfieldPWCommerceCustomerAddresses extends Inputfield
+{
+
+
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Customer Addresses: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce customer addresses.',
+			'requires' => 'FieldtypePWCommerceCustomerAddresses',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+	private $datetimeFormat;
+	private $customerAddresses;
+	private $isNoCustomerAddressSaved;
+	protected $xstoreCustomerAddresses; // the alpinejs store used by this inputfield.
+	protected $xstore; // the full prefix to the alpine store used by this inputfield
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+		// get helper for rendering inputfields
+
+		// GET GENERAL SETTINGS: FOR DATE AND TIME FORMAT
+
+
+		$this->datetimeFormat = $this->pwcommerce->getDateTimeFormat();
+
+		// ==================
+		$this->xstoreCustomerAddresses = 'InputfieldPWCommerceCustomerAddressesStore';
+		// i.e., '$store.InputfieldPWCommerceCustomerAddresses'
+		$this->xstore = "\$store.{$this->xstoreCustomerAddresses}";
+		// i.e., '$store.InputfieldPWCommerceCustomerAddressesStore'
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	// TODO: WE NEED A RENDERVALUE() FOR VIEW CUSTOMER ADDRESSES, E.G. IN CUSTOMER VIEW AS OPPOSED TO EDIT
+
+	/**
+	 * Render the entire input area for customer addresses
+	 *
+	 */
+	public function ___render() {
+
+		// TODO SHOW ERROR MESSAGE IF LACKING A PRIMARY SHIPPING ADDRESS
+
+		// IF ADD NEW BLANK CUSTOMER ADDRESS ITEM/RECORD - AJAX
+		$input = $this->wire('input');
+		$ajax = $this->wire('config')->ajax;
+
+		if ($ajax && $input->get('field') == $this->attr('name')) {
+			$newItem = $this->getNewBlankAddress();
+			// $this->buildForm needs a WireArray(). create one here
+			$blankWireArray = new WireArray();
+			$blankWireArray->add($newItem);
+			// $out = $this->buildRow($newItem)->render();
+			$out = $this->buildForm($blankWireArray, true);
+
+			echo $out;
+			die();
+		}
+
+		/** @var WireArray $this->customerAddresses */
+		// $value = $this->attr('value');
+		$this->customerAddresses = $this->attr('value');
+
+		// show error message if lacking a primary shipping address
+		if ($this->isLackingPrimaryShippingAddress()) {
+			$errorStr = $this->_('Customer needs a primary shipping address.');
+			$this->error($errorStr);
+		}
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+
+		$out =
+			"<div id='pwcommerce_customer_addresses_main_wrapper' x-data='InputfieldPWCommerceCustomerAddressesData'>" .
+			// -----------
+			"<div id='pwcommerce_customer_addresses_wrapper'>" .
+			$this->buildForm($this->customerAddresses) .
+			"</div>" .
+			//----------
+			// end: div#pwcommerce_customer_addresses_main_wrapper
+			"</div>" .
+			"<div id='pwcommerce_customer_address_add_new_wrapper'>" . $this->renderFooter() . "</div>";
+
+		// ---------
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		//#########
+		$this->preloadInputfieldAssets();
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	private function getJavaScriptConfigurationsContent() {
+
+		$customerAddresses = $this->customerAddresses;
+
+		$primaryShippingAddress = $customerAddresses->get("addressType=shipping_primary");
+		$primaryBillingAddress = $customerAddresses->get("addressType=billing_primary");
+
+		$primaryShippingAddressID = 0;
+		if ($primaryShippingAddress) {
+			$primaryShippingAddressID = $primaryShippingAddress->id;
+		}
+		$primaryBillingAddressID = 0;
+		if ($primaryBillingAddress) {
+			$primaryBillingAddressID = $primaryBillingAddress->id;
+		}
+
+		$data = [
+			'primary_shipping_address_id' => $primaryShippingAddressID,
+			'primary_billing_address_id' => $primaryBillingAddressID,
+		];
+		// PREPARE SAVED ORDER LINE ITEMS DATA TO SEND TO BROWSER FOR USE BY ALPINE JS
+
+		$dataJSON = json_encode($data);
+
+		// ------
+		return $dataJSON;
+	}
+
+	private function isLackingPrimaryShippingAddress() {
+		$primaryShippingAddress = $this->customerAddresses->get("addressType=shipping_primary");
+		return empty($primaryShippingAddress);
+	}
+
+	protected function renderAddNewLink() {
+		$name = $this->attr('name');
+		$pageID = $this->page->id;
+		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
+		$adminEdit = "{$adminEditURL}?id={$pageID}&field={$name}";
+		//--------
+		$out =
+			"<div id='pwcommerce_customer_address_add_new_wrapper' class='pwcommerce_add_new_wrapper'>" .
+			"<a id='pwcommerce_customer_address_add_new' class='pwcommerce_reload_inputfield_runtimemarkup_list pwcommerce_run_after_settle_operations pwcommerce_open_newly_created_inputfieldset pwcommerce_focus_input_in_newly_created_inputfield pwcommerce_run_request_indicators_operations' href='#' hx-get='{$adminEdit}' hx-target='#pwcommerce_customer_addresses_wrapper > ul.Inputfields:first-child' hx-swap='beforeend' hx-indicator='#pwcommerce_add_new_customer_address_spinner_indicator{$pageID}'>" .
+			"<i id='pwcommerce_add_new_customer_address_spinner_indicator{$pageID}' class='pwcommerce_add_new_customer_address_spinner_indicator pwcommerce_add_new_item_spinner_indicator pwcommerce_spinner_indicator fa fa-fw fa-plus-circle'></i>" .
+			$this->_("Add new address") .
+			"</a>" .
+			"</div>";
+		return $out;
+	}
+
+	private function renderFooter() {
+		//------------------- add new address (getInputfieldMarkup)
+		// @note: SINGLE ADD NEW IN FOOTER OF WRAPPER - CAN ONLY HAVE ONE!
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_customer_address_add_new',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $this->renderAddNewLink(),
+		];
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		$wrapper->add($field);
+		return $wrapper->render();
+	}
+
+	private function renderCopyCustomerNamesLink($customerAddressID) {
+		// @note: using 'span' instead of 'a' as the latter is submitting the form on the page for some reason!
+		// we use 'uk-link' to style it like an 'a'
+		$out =
+			"<div id='pwcommerce_customer_address_copy_customer_names_to_address'>" .
+			"<span class='uk-link' @click.stop='handleCopyCustomerNames(`{$customerAddressID}`)'>" .
+			"<i class='fa fa-fw fa-clone'></i>" .
+			$this->_("Copy names from customer") .
+			"</span>" .
+			"</div>";
+		return $out;
+	}
+
+	public function ___renderValue() {
+		return $this->buildForm($this->customerAddresses, $isNew = false, $isRenderValueOnly = true);
+	}
+
+	/**
+	 * Preload all assets used by Inputfields of this type
+	 *
+	 * This ensures all required JS/CSS files are loaded in the original/non-ajax request.
+	 *
+	 * @param array $fieldIDs Optionally specify the IDs of the Field objects you want to limit preload to.
+	 *
+	 */
+	protected function preloadInputfieldAssets($fieldIDs = []) {
+		//-------------
+		// TODO: MIGHT EVENTUALLY MOVE TO PROCESSMODULE!
+		// LOAD COMMON SHARED STYLES (tailwind, modals, etc)
+		// TODO: change path if needed! (harcoded for now)
+		$sharedStyles = $this->config->urls->{PwCommerce::PWCOMMERCE_PROCESS_MODULE} . 'common/PWCommerceCommonStyles.css';
+		$this->wire->config->styles->add($sharedStyles);
+		$sharedTailwindStyles = $this->config->urls->{PwCommerce::PWCOMMERCE_PROCESS_MODULE} . 'common/PWCommerceTailwindStyles.css';
+		$this->wire->config->styles->add($sharedTailwindStyles);
+
+		// --------
+		// we need InputfieldPageAutocomplete in case addresses not yet created
+		/** @var WireArray $customerAddresses */
+		// $value = $this->attr('value');
+		$customerAddresses = $this->attr('value');
+
+		if (empty($customerAddresses->count())) {
+
+			$url = $this->wire('config')->urls->InputfieldPageAutocomplete;
+
+			// add InputfieldPageAutocomplete.min.js
+			$InputfieldPageAutocomplete = "{$url}InputfieldPageAutocomplete.min.js";
+			$this->wire->config->scripts->add($InputfieldPageAutocomplete);
+		}
+	}
+
+	// ~~~~~~~~~~~~~~~
+
+	private function buildForm($customerAddresses, $isNew = false, $isRenderValueOnly = false) {
+
+		// GET MAIN WRAPPER
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		$out = "";
+		// no customerAddresses found notice
+		if (empty($customerAddresses->count())) {
+			// TODO: HIDE IN JS IF ADD NEW! after htmx settle
+			$out .= $this->getNoCustomerAddressesNotFoundNoticeMarkup();
+
+			// options for InputfieldMarkup
+			$options = [
+				'skipLabel' => Inputfield::skipLabelHeader,
+				'collapsed' => Inputfield::collapsedNever,
+				'wrapClass' => true,
+				// TODO delete if not in use
+				'wrapper_classes' => 'pwcommerce_no_outline',
+				'value' => $out,
+			];
+			$field = $this->pwcommerce->getInputfieldMarkup($options);
+			$wrapper->add($field);
+			// ADD A blank first address ready to be populated
+			$blankAddress = $this->getNewBlankAddress();
+			// $this->buildForm needs a WireArray(). create one here
+			$customerAddresses->add($blankAddress);
+			// ensure it is open, ready to complete
+			$isNew = true;
+
+			// ---------
+			$this->isNoCustomerAddressSaved = true;
+		}
+
+		// BUILD ADDRESSES ROWS
+		foreach ($customerAddresses as $customerAddress) {
+			/** @var InputfieldFieldset $row */
+			$row = $this->buildRow($customerAddress, $isNew);
+			$wrapper->add($row);
+
+		}
+		// ---------------------------
+
+		if (!$isNew) {
+			// TODO: CONFIRM WORKS!
+			$options = [
+				'id' => "pwcommerce_is_delete_item",
+				'name' => "pwcommerce_is_delete_item[]",
+			];
+
+			$field = $this->pwcommerce->getInputfieldHidden($options);
+			$field->attr([
+				'x-bind:value' => "{$this->xstore}.items_to_delete",
+			]);
+			$wrapper->add($field);
+		}
+		// FINAL WRAPPER MARKUP
+		return $wrapper->render();
+	}
+
+	/**
+	 * Build a row of inputs representing a single customer address.
+	 *
+	 * @access private
+	 * @return InputfieldFieldset
+	 */
+	private function buildRow(WireData $customerAddress, $isNew = false) {
+
+		$id = $customerAddress->id;
+
+		// GET WRAPPER
+		// $wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		/** @var InputfieldFieldset $wrap */
+		$wrap = $this->pwcommerce->getInputfieldFieldset();
+		$wrap->name = "pwcommerce_customer_address_item_{$id}";
+		if (empty($isNew)) {
+			// not new: collapse the fieldset
+			$wrap->collapsed = Inputfield::collapsedYes;
+		} else {
+			// new fieldset:
+			// @note: we need the class 'InputfieldStateWasCollapsed' so that the item can be closed again after opening via JavaScript for situations whereby we open the fieldset after adding a new item via ajax.
+			$wrap->addClass('InputfieldStateWasCollapsed');
+		}
+
+		$wrap->addClass('InputfieldPWCommerceCustomerAddressesItem InputfieldNoFocus InputfieldRepeaterItem');
+
+		// @note: not sure about the context here, e.g. the 'repeater-item-action', TODO: not in use for now
+		// $removeTitle =  $this->_x('Click to delete this item, or double-click to delete all', 'repeater-item-action');
+		$removeTitle = $this->_('Click to delete this address, or double-click to delete all');
+		$trashMarkup =
+			"<span class='pwcommerce_customer_address_item_delete pwcommerce_trash'>" .
+			"<i class='fa fa-trash pwcommerce_customer_address_item_delete' @mouseenter ='handleDeleteIntent' @mouseleave='handleDeleteIntent' @click.stop='toggleMarkItemForDeletion(\$event,{$id})' @dblclick.stop='handleDoubleClickToggleMarkItemsForDeletion' data-item-id='{$id}' title='{$removeTitle}'></i>" .
+			"</span>";
+
+		// @kongondo TODO?
+		$label = $customerAddress->id;
+		;
+		$isPost = $this->wire('input')->requestMethod('POST');
+		if (!$isPost) {
+			$wrap->entityEncodeLabel = false;
+			$wrap->label =
+				"<span class='InputfieldPWCommerceCustomerAddressesItemLabel'>" .
+				$customerAddress->addressLineOne . " #" . $customerAddress->addressNumber .
+				"</span>" . $trashMarkup;
+		} else {
+			$wrap->label = "$label " . ($customerAddress->addressNumber);
+		}
+
+		//------------------- address block ID (getInputfieldHidden)
+		// for tracking if we have any addresses to save
+		$field = $this->getCustomerAddressIDMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address type (getInputfieldRadio) [required]
+		$field = $this->getCustomerAddressTypeMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address type (getInputfieldMarkup)
+		$field = $this->getCustomerAddressCopyCustomerNamesMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address first name (getInputfieldText) [required]
+		$field = $this->getCustomerFirstNameMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address middle name (getInputfieldText) [required]
+		$field = $this->getCustomerMiddleNameMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address last namee (getInputfieldText) [required]
+		$field = $this->getCustomerLastNameMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address line one (getInputfieldText) [required]
+		$field = $this->getCustomerAddressLineOneMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address line two (getInputfieldText)
+		$field = $this->getCustomerAddressLineTwoMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address city (getInputfieldText) [required]
+		$field = $this->getCustomerAddressCityMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address region (getInputfieldText)
+		$field = $this->getCustomerAddressRegionMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address postal/zip code (getInputfieldText) [required]
+		$field = $this->getCustomerAddressPostalCodeMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address country (InputfieldPageAutocomplete)
+		$field = $this->getCustomerAddressCountryMarkup($customerAddress, $isNew);
+		$wrap->add($field);
+		//------------------- address phone (getInputfieldText)
+		$field = $this->getCustomerAddressPhoneMarkup($customerAddress);
+		$wrap->add($field);
+		//------------------- address company (getInputfieldText)
+		$field = $this->getCustomerAddressCompanyMarkup($customerAddress);
+		$field->appendMarkup = "<hr>";
+		$wrap->add($field);
+		//-------------------------
+
+		return $wrap;
+
+	}
+
+	private function getCustomerAddressMakePrimaryMarkup(WireData $customerAddress) {
+
+		// ------
+		// for x-show for is primary shipping address
+		$actionMakePrimaryShippingText = $this->_('Primary Shipping Address');
+		$makePrimaryActionStr = "<span x-show='{$this->xstore}.primary_shipping_address_id==`{$customerAddress->id}`'>" . $actionMakePrimaryShippingText . "</span>";
+		// for x-show for is primary billing address
+		$actionMakePrimaryBillingText = $this->_('Primary Billing Address');
+		$makePrimaryActionStr .= "<span x-show='{$this->xstore}.primary_billing_address_id==`{$customerAddress->id}`'>" . $actionMakePrimaryBillingText . "</span>";
+		// for x-show for make primary shipping address
+		$actionMakePrimaryShippingText .= $this->_('Make Primary Shipping Address');
+		$makePrimaryActionStr = "<span x-show='{$this->xstore}.primary_shipping_address_id==`{$customerAddress->id}`'>" . $actionMakePrimaryShippingText . "</span>";
+		// for x-show for make primary billing address
+		$actionMakePrimaryBillingText = $this->_('Make Primary Billing Address');
+		$makePrimaryActionStr .= "<span x-show='{$this->xstore}.primary_billing_address_id==`{$customerAddress->id}`'>" . $actionMakePrimaryBillingText . "</span>";
+
+		//-------------------------
+		// address action
+		$out =
+			"<div>" .
+			$makePrimaryActionStr .
+			"</div>";
+		return $out;
+
+	}
+
+	private function getCustomerAddressIDMarkup(Wiredata $customerAddress) {
+		//------------------- track customer addresses ID just so we know if there is anything to save (getInputfieldHidden)
+
+		$options = [
+			'id' => "pwcommerce_customer_address_id_{$customerAddress->id}",
+			'name' => 'pwcommerce_customer_address_id[]',
+			'value' => $customerAddress->id,
+		];
+		$field = $this->pwcommerce->getInputfieldHidden($options);
+		// --------
+		return $field;
+	}
+
+	private function getCustomerFirstNameMarkup(WireData $customerAddress) {
+		$columnWidth = 33;
+		//------------------- first_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_address_first_name_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_first_name[]",
+			'required' => true,
+			'label' => $this->_('First Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'classes' => 'pwcommerce_customer_address_first_name',
+			'value' => $customerAddress->firstName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$firstNameProperty = "pwcommerce_customer_address_first_name_{$customerAddress->id}";
+		$firstNamePropertyValue = $customerAddress->firstName;
+		$field->attr([
+			// set saved values on load
+			'x-init' => "setStoreValue(`{$firstNameProperty}`,`{$firstNamePropertyValue}`)",
+			'x-model' => "{$this->xstore}.{$firstNameProperty}",
+		]);
+		if (empty($customerAddress->firstName)) {
+			$field->error($this->_('First name is required'));
+		}
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerMiddleNameMarkup(WireData $customerAddress) {
+		$columnWidth = 33;
+
+		//------------------- middle_names (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_customer_address_middle_name_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_middle_name[]",
+			'label' => $this->_('Middle Name(s)'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->middleName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$middleNameProperty = "pwcommerce_customer_address_middle_name_{$customerAddress->id}";
+		$middleNamePropertyValue = $customerAddress->middleName;
+		$field->attr([
+			// set saved values on load
+			'x-init' => "setStoreValue(`{$middleNameProperty}`,`{$middleNamePropertyValue}`)",
+			'x-model' => "{$this->xstore}.{$middleNameProperty}",
+		]);
+		// --------
+		return $field;
+	}
+
+	private function getCustomerLastNameMarkup(WireData $customerAddress) {
+		$columnWidth = 33;
+
+		//------------------- last_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_address_last_name_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_last_name[]",
+			'required' => true,
+			'label' => $this->_('Last Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->lastName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$lastNameProperty = "pwcommerce_customer_address_last_name_{$customerAddress->id}";
+		$lastNamePropertyValue = $customerAddress->lastName;
+		$field->attr([
+			// set saved values on load
+			'x-init' => "setStoreValue(`{$lastNameProperty}`,`{$lastNamePropertyValue}`)",
+			'x-model' => "{$this->xstore}.{$lastNameProperty}",
+		]);
+		if (empty($customerAddress->lastName)) {
+			$field->error($this->_('Last name is required'));
+		}
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressLineOneMarkup(WireData $customerAddress) {
+		//------------------- address line one (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_address_line_one_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_line_one[]",
+			'required' => true,
+			'label' => $this->_('Address'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->addressLineOne,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($customerAddress->addressLineOne)) {
+
+			$field->error($this->_('Address is required'));
+		}
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressLineTwoMarkup(WireData $customerAddress) {
+		//------------------- address line two (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_customer_address_line_two_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_line_two[]",
+			// 'label' => $this->_('Address continued (optional)'),
+			'label' => $this->_('Address Line Two'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->addressLineTwo,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressCityMarkup(WireData $customerAddress) {
+		$columnWidth = 50;
+		//------------------- address city (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_address_city_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_city[]",
+			'required' => true,
+			'label' => $this->_('City'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->city,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($customerAddress->city)) {
+			$field->error($this->_('Address city is required'));
+		}
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressRegionMarkup(WireData $customerAddress) {
+		$columnWidth = 50;
+		//------------------- address region (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_customer_address_region_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_region[]",
+			// 'label' => $this->_('Region (optional)'),
+			'label' => $this->_('Region'),
+			'notes' => $this->_('State. Province, Territory, etc. Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->region,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressPostalCodeMarkup(WireData $customerAddress) {
+		$columnWidth = 50;
+		//------------------- address postal/zip code (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_address_postal_code_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_postal_code[]",
+			'required' => true,
+			'label' => $this->_('Postal / Zip Code'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->postalCode,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($customerAddress->postalCode)) {
+			$field->error($this->_('Address postal code is required'));
+		}
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressCountryMarkup(WireData $customerAddress, $isNew = false) {
+		$columnWidth = 50;
+
+		$customerAddressCountryWrapperClasses = "pwcommerce_no_outline";
+		// to focus input if new tax rate added via ajax
+		if ($isNew) {
+			$customerAddressCountryWrapperClasses .= " pwcommerce_is_new_item";
+		}
+
+		// TODO HERE NEED TO REMOVE COUNTRIES NOT IN ANY SHIPPING ZONES! can we add page reference to selector?? owner???
+		//------------------- address country (InputfieldPageAutocomplete)
+		$pagesSelector = "template=pwcommerce-country,limit=50, status<" . Page::statusTrash;
+		// TODO DOESN'T WORK
+		// $pagesSelector = "template=pwcommerce-country,limit=50, pwcommerce_shipping_zone_countries.owner.template=pwcommerce-shipping-zone,status<" . Page::statusTrash;
+
+		$notes = $this->_('Start typing to search.');
+		// TODO: ENSURE THIS!!
+		$notes .= " " . $this->_('Only countries you ship to will be selectable.');
+
+		$optionsPageAutoComplete = [
+			'id' => "pwcommerce_customer_address_country_id_{$customerAddress->id}",
+			// @note: InputfieldPageAutocomplete will set [] suffix to 'name'
+			'name' => "pwcommerce_customer_address_country_id",
+			'required' => true,
+			'pagesSelector' => $pagesSelector,
+			'maxSelectedItems' => 1,
+			'notes' => $notes,
+			'label' => $this->_('Country'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => $customerAddressCountryWrapperClasses,
+			// @note: address countryID is a runtime value!
+			// instead, we save the real country name for posterity ($value->shippingAddressCountry)
+			'value' => $customerAddress->countryID,
+		];
+
+		$field = $this->pwcommerce->getInputfieldPageAutocomplete($optionsPageAutoComplete);
+		if (empty($customerAddress->countryID)) {
+			$field->error($this->_('Address country is required'));
+		}
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressPhoneMarkup(WireData $customerAddress) {
+		$columnWidth = 50;
+		//------------------- shipping address phone (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_customer_address_phone_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_phone[]",
+			'label' => $this->_('Phone'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_manual_order',
+			'value' => $customerAddress->phone,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressCompanyMarkup(WireData $customerAddress) {
+		//------------------- shipping address company (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_customer_address_company_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_address_company[]",
+			'label' => $this->_('Company'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $customerAddress->company,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+
+		// --------
+		return $field;
+	}
+
+	private function getCustomerAddressTypeMarkup(WireData $customerAddress) {
+
+		// radio responses
+		// @see 'make primary'
+		$radioOptions = [
+			'shipping_primary' => __('Primary Shipping'),
+			'shipping' => __('Shipping'),
+			'billing_primary' => __('Primary Billing'),
+			'billing' => __('Billing'),
+		];
+
+		$currentValue = $customerAddress->addressType;
+		if (!empty($this->isNoCustomerAddressSaved)) {
+			// no addresses saved yet; default to 'shipping_primary'
+			$currentValue = 'shipping_primary';
+		}
+
+		//------------------- address type (getInputfieldRadio) [required]
+
+		$options = [
+			'id' => "pwcommerce_customer_addresses_type_{$customerAddress->id}",
+			'name' => "pwcommerce_customer_addresses_type_{$customerAddress->id}",
+			'label' => $this->_('Address Type'),
+			'notes' => $this->_('Only one primary shipping and one primary billing address per customer allowed.'),
+			'radio_options' => $radioOptions,
+			'collapsed' => Inputfield::collapsedNever,
+			// 'columnWidth' => 50,
+			'classes' => 'pwcommerce_customer_addresses_type',
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_override_processwire_inputfield_content_padding_bottom pb-1.5',
+			'value' => empty($currentValue) ? 'shipping' : $currentValue,
+		];
+
+		$field = $this->pwcommerce->getInputfieldRadios($options);
+
+		// horizontal radio
+		$field->attr(['optionColumns' => 1,]);
+
+		// -----
+		// append hidden input markup to track this input to its address when processing input (save)
+		// this is because we cannot use [] on radios since they need to be unique for each address block
+		$appendMarkup = "<input type='hidden' name=pwcommerce_customer_addresses_type_tracker[] value='{$customerAddress->id}'>";
+		$field->appendMarkup = $appendMarkup;
+
+		// --------
+		return $field;
+
+	}
+
+	private function getCustomerAddressCopyCustomerNamesMarkup(WireData $customerAddress) {
+
+		//------------------- copy customer names to address (getInputfieldMarkup)
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $this->renderCopyCustomerNamesLink($customerAddress->id),
+		];
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		return $field;
+	}
+
+	private function getNoCustomerAddressesNotFoundNoticeMarkup() {
+		$out = "<p id='pwcommerce_customer_addresses_no_customer_addresses_found'>" . $this->_('Customer has no saved addresses. Please add a shipping address.') . "</p>";
+		return $out;
+	}
+
+	/**
+	 * Process input for the values sent from the notes for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// TODO ABORT IF NO PRIMARY SHIPPING ADDRESS? - NO; SAVE BUT WILL SHOW RELOAD
+
+		// nothing to process; no addresses added yet
+		if (empty($input->pwcommerce_customer_address_id)) {
+			return;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		//------------------
+
+		$customerAddresses = $this->field->type->getBlankValue($this->page, $this->field);
+		$numDeleted = 0;
+		$markedForDeletion = [];
+		// @note: first item in array
+
+		if (!empty($input->pwcommerce_is_delete_item)) {
+			$markedForDeletion = $sanitizer->intArray($input->pwcommerce_is_delete_item[0], ['delimiter' => ',']);
+		}
+
+		// loop through and process values
+		foreach ($input->pwcommerce_customer_address_id as $n => $addressID) {
+
+			//--------------
+			// check if the item is being deleted
+			if (in_array($addressID, $markedForDeletion)) {
+				// if being deleted, then we simply skip over it
+				$numDeleted++;
+				continue;
+			}
+
+			// GOOD TO GO
+
+			// create a customer address block to add to customer addresses
+			$customerAddress = $this->field->type->getBlankRecord();
+
+			$customerAddress->id = (int) $input->pwcommerce_customer_address_id[$n];
+			$customerAddress->firstName = $sanitizer->text($input->pwcommerce_customer_address_first_name[$n]);
+			$customerAddress->middleName = $sanitizer->text($input->pwcommerce_customer_address_middle_name[$n]);
+			$customerAddress->lastName = $sanitizer->text($input->pwcommerce_customer_address_last_name[$n]);
+			// ADDRESS
+			$customerAddress->addressLineOne = $sanitizer->text($input->pwcommerce_customer_address_line_one[$n]);
+			$customerAddress->addressLineTwo = $sanitizer->text($input->pwcommerce_customer_address_line_two[$n]);
+			$customerAddress->city = $sanitizer->text($input->pwcommerce_customer_address_city[$n]);
+			$customerAddress->region = $sanitizer->text($input->pwcommerce_customer_address_region[$n]);
+			// @note: 'zip code'
+			$customerAddress->postalCode = $sanitizer->text($input->pwcommerce_customer_address_postal_code[$n]);
+
+			$countryID = (int) $input->pwcommerce_customer_address_country_id[$n];
+			$country = $this->wire('pages')->getRaw($countryID, 'title');
+			$customerAddress->country = $country;
+
+			$customerAddress->phone = $sanitizer->text($input->pwcommerce_customer_address_phone[$n]);
+			$customerAddress->company = $sanitizer->text($input->pwcommerce_customer_address_company[$n]);
+
+			// note the name of the input!
+			// note: sleepValue will ensure only allowed type passes!
+			$addressType = $sanitizer->fieldName($input->get("pwcommerce_customer_addresses_type_{$customerAddress->id}"));
+			$customerAddress->addressType = $addressType;
+
+			$customerAddresses->add($customerAddress);
+		} // end loop
+
+		// if the string values of the processed overrides are different from the previous,
+		// or if any overrides have been deleted, then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+		if ($this->toStringInhouse($customerAddresses) !== $this->toStringInhouse($this->value) || $numDeleted) {
+			$this->attr('value', $customerAddresses);
+			$this->trackChange('value');
+
+		}
+
+		//------------------
+
+	}
+
+	/**
+	 * Make a string value to represent these values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($items) {
+
+		$properties = [
+			'id',
+			'firstName',
+			'middleName',
+			'lastName',
+			// ADDRESS
+			'addressLineOne',
+			'addressLineTwo',
+			'city',
+			'region',
+			// @note: 'zip code'
+			'postalCode',
+			'country',
+			'phone',
+			'company',
+			// note: sleepValue will ensure only allowed type passes!
+			'addressType',
+		];
+
+		// -------
+		$a = [];
+		foreach ($items as $item) {
+			// loop through props
+			$compareString = '';
+			foreach ($properties as $property) {
+				$compareString .= $item->get($property) . ":";
+			}
+			$a[] = $compareString;
+		}
+
+		return implode("\n", $a);
+	}
+
+	private function getNewBlankAddress() {
+		$newItem = $this->field->type->getBlankRecord();
+		$newItem->id = (int) microtime(true);
+		$newItem->addressNumber = $this->_('New Unsaved Address');
+		$newItem->isNew = 1; // bool
+		return $newItem;
+	}
+
+}

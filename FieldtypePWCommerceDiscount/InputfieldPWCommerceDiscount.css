@@ -1,0 +1,32 @@
+/* try to make generate code button align with its discount code input */
+li.Inputfield_pwcommerce_discount_method_code_generate button#pwcommerce_discount_method_code_generate {
+	margin-top: 20px;
+}
+
+/* @TODO: EDIT! */
+.Inputfields .InputfieldPWCommerceDiscounts .Inputfields .InputfieldPWCommerceDiscountsItem>.InputfieldHeader {
+	border: none;
+	background: #3eb998;
+	color: #fff;
+	outline: 1px solid #d9e1ea;
+	outline-color: #3eb998;
+	line-height: 1em;
+	padding: 0.5em 0 0.5em 0.4em;
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+}
+
+.Inputfields .InputfieldPWCommerceDiscounts .Inputfields .InputfieldPWCommerceDiscountsItem:not(:last-child) {
+	margin: 4px 0;
+}
+
+.Inputfields .InputfieldPWCommerceDiscounts .Inputfields .InputfieldPWCommerceDiscountsItem>.InputfieldContent {
+	outline: 1px solid #d9e1ea;
+	padding: 0;
+	background: #f0f3f7;
+}
+
+li#wrap_pwcommerce_discount_fixed_apply_once_toggle p.notes {
+	margin-bottom: 20px;
+}

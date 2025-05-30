@@ -1,0 +1,243 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceShippingFeeSettings
+ *
+ * Fieldtype that stores and outputs values of a PWCommerce shipping fee settings.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceShippingFeeSettings for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceShippingFeeSettings extends Fieldtype
+{
+
+    public static function getModuleInfo() {
+        return array(
+            'title' => 'PWCommerce Product Shipping Fee Settings: Fieldtype',
+            'author' => 'Francis Otieno (Kongondo)',
+            'version' => "100",
+            'href' => 'http://kongondo.com',
+            'summary' => 'Field that stores a PWCommerce shipping handling fee and maximum shipping values.',
+            'installs' => 'InputfieldPWCommerceShippingFeeSettings',
+        );
+    }
+
+    /**
+     * Return the required Inputfield used to populate a field of this type.
+     *
+     */
+    public function getInputfield(Page $page, Field $field) {
+        $inputfield = $this->modules->get("InputfieldPWCommerceShippingFeeSettings");
+        // our inputfield requires a Page and Field (most Inputfields don't)
+        $inputfield->setPage($page); // this is a method in InputfieldPWCommerceProductSettings
+        $inputfield->setField($field); // this is a method in InputfieldPWCommerceProductSettings
+        return $inputfield;
+    }
+
+    /**
+     * Return a blank ready-to-populate version of a field of this type.
+     *
+     */
+    public function getBlankValue(Page $page, Field $field) {
+        $record = new WireData();
+        $record->setTrackChanges(true);
+        return $record;
+    }
+
+    /**
+     * Set the config option fields for this Field.
+     *
+     * These appear in the 'Details' Tab when editing an instance of this Field.
+     *
+     */
+    public function ___getConfigInputfields(Field $field) {
+        $inputfields = parent::___getConfigInputfields($field);
+        return $inputfields;
+    }
+
+    /**
+     * Format a value for output, called when a Page's outputFormatting is on.
+     *
+     */
+    public function formatValue(Page $page, Field $field, $value) {
+        // TODO:???
+
+
+
+
+
+
+        return $value;
+    }
+
+    /**
+     * Given a value, make it clean for storage within a Page
+     * Implementation is required by Fieldtype modules, as this method is abstract.
+     * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+     */
+    public function sanitizeValue(Page $page, Field $field, $value) {
+
+
+
+
+
+
+        // if given a blank value, return a valid blank value
+        if (empty($value)) {
+            return $this->getBlankValue($page, $field);
+        }
+
+        // if given something other than an WireArray, throw an error
+        if (!$value instanceof WireData) {
+            throw new WireException("Value set to field '$field->name' must be a WireData");
+        }
+
+        return $value;
+    }
+
+    /**
+     * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+     *
+     * @param Page $page.
+     * @param Field $field.
+     * @param string|int|array $value.
+     * @access public
+     * @return string|int|array|object $value.
+     *
+     */
+    public function ___wakeupValue(Page $page, Field $field, $value) {
+        // if for some reason we already got a valid value, then just return it
+        if ($value instanceof WireData) {
+            return $value;
+        }
+
+        // start a blank value to be populated
+        $record = $this->getBlankValue($page, $field);
+
+        // if we were given a blank value, then we've got nothing to do: just return getBlankValue
+        if (empty($value) || !is_array($value)) {
+
+            return $record;
+        }
+
+        // HANDLING SHIPPING FEE TYPE
+        // note we are converting 'data' to 'record->handlingFeeType'
+        $handlingFeeType = $this->wire('sanitizer')->pageName($value['data']);
+        $record->handlingFeeType = $handlingFeeType;
+        // aliases
+        $record->handlingType = $handlingFeeType;
+
+        //--------
+        // HANDLING FEE VALUE
+        $handlingFeeValue = (float) $value['handling_fee_value'];
+        $record->handlingFeeValue = $handlingFeeValue;
+        // aliases
+        $record->handling = $handlingFeeValue;
+
+        //--------
+        // MAXIMUM SHIPPING FEE
+        $maximumShippingFee = (float) $value['maximum_shipping_fee'];
+        $record->maximumShippingFee = $maximumShippingFee;
+        // aliases
+        $record->maximum = $maximumShippingFee;
+
+
+
+        $record->setTrackChanges(true); // track changes for the record TODO? reset instead?
+
+        return $record;
+    }
+
+    /**
+     * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+     *
+     * @param Page $page.
+     * @param Field $field.
+     * @param string|int|array|object $value.
+     * @access public
+     * @return array $sleepValue.
+     *
+     */
+    public function ___sleepValue(Page $page, Field $field, $value) {
+
+        $sleepValue = [];
+
+        // if we are given something other than a WireData,
+        // then just return a blank array
+        if (!$value instanceof WireData) {
+            return $sleepValue;
+        }
+
+        // convert records to an array within sleepValue
+        $sleepValue = [
+            // note: record->handlingFeeType is becoming data which is a required column in a Fieldtype
+            'data' => $this->wire('sanitizer')->pageName($value->handlingFeeType),
+            'handling_fee_value' => (float) $value->handlingFeeValue,
+            'maximum_shipping_fee' => (float) $value->maximumShippingFee,
+        ];
+
+        return $sleepValue;
+    }
+
+    /**
+     * Return the database schema that defines a Shipping Fee Settings item
+     *
+     */
+    public function getDatabaseSchema(Field $field) {
+
+        $schema = parent::getDatabaseSchema($field);
+
+        // 'data' is a required field for any Fieldtype, and we're using it to represent our 'record->handlingFeeType' field (column in db)
+        // we reuse this required field/column (data) for record->handlingFeeType
+        $schema['data'] = 'CHAR(15) NOT NULL'; // none | fixed | percentage
+        $schema['handling_fee_value'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+        $schema['maximum_shipping_fee'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+
+        // indexes, for any fields that need to be searchable from selectors
+        // make all our fields searchable
+        $schema['keys']['data'] = 'FULLTEXT KEY data (data)';
+        $schema['keys']['handling_fee_value'] = 'KEY handling_fee_value(handling_fee_value)';
+        $schema['keys']['maximum_shipping_fee'] = 'KEY maximum_shipping_fee(maximum_shipping_fee)';
+
+        return $schema;
+    }
+
+    /**
+     * Method called when the field is database-queried from a selector
+     *
+     */
+    public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+        // if searching 'sku' then assume our default (data) field
+        if (in_array($subfield, ['handlingFeeType', 'handlingType', 'handling_fee_type'])) {
+            $subfield = 'data';
+        } else if (in_array($subfield, ['handlingFeeValue', 'handling'])) {
+            $subfield = 'handling_fee_value';
+        } else if (in_array($subfield, ['maximumShippingFee', 'maximum'])) {
+            $subfield = 'maximum_shipping_fee';
+        }
+        //---------
+
+        /*
+        - MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+        - the latter allow for finer, fulltext search
+        */
+        // if 'normal' sql operators, do 'normal' query, else do fulltext search
+        if ($this->wire('database')->isOperator($operator)) {
+            return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+        } else {
+            $ft = new DatabaseQuerySelectFulltext($query);
+            $ft->match($table, $subfield, $operator, $value);
+            return $query;
+        }
+    }
+}

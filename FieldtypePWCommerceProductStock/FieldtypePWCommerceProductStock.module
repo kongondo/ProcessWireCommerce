@@ -1,0 +1,543 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceProductStock
+ *
+ * Fieldtype that stores and outputs values of a PWCommerce product inventory and pricing values.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceProductStock for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceProductStock extends Fieldtype {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Product Stock: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce product inventory and pricing values.',
+			'installs' => 'InputfieldPWCommerceProductStock',
+		);
+	}
+
+	//  public function init() {
+	//   parent::init();
+
+	//  }
+
+	/**
+	 * Just here to fulfill ConfigurableModule interface.
+	 *
+	 */
+	/*public static function getModuleConfigInputfields(array $data) {
+																																																										 return new InputfieldWrapper();
+																																																										 }*/
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type.
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceProductStock");
+		// our inputfield requires a Page and Field (most Inputfields don't)
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceProductSettings
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceProductSettings
+		return $inputfield;
+	}
+
+	/**
+	 * Return a blank ready-to-populate version of a field of this type.
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * Set the config option fields for this Field.
+	 *
+	 * These appear in the 'Details' Tab when editing an instance of this Field.
+	 *
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on.
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireData, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	private function getPrices(Page $page, array $value) {
+		// IMPLEMENTATION OF PRICE FIELDS STRATEGIES
+		// i. Price & Compare Price vs
+		// ii. Sale & Normal Price
+
+
+		// -------------
+		$this->pwcommerce->isUseSaleAndNormalPriceFields();
+
+
+		// =========
+		// get empty prices array (empty values)
+		$prices = $this->getPricesEmptyValues();
+
+		// ++++++++++++++++++++++
+
+		// get prices info...BUT
+		// only if product/variant page is NOT IN THE TRASH
+		if (empty($page->isTrash())) {
+			if (empty($this->pwcommerce->isUseSaleAndNormalPriceFields())) {
+				// a. PRICE & COMPARE PRICE STRATEGY
+				$prices = $this->getPricesForPriceAndComparePrice($page, $value, $prices);
+			} else {
+				// b. SALE & NORMAL PRICE STRATEGY
+				$prices = $this->getPricesForSaleAndNormalPrice($page, $value, $prices);
+			}
+		}
+
+		// *****************
+		// REMOVE DEBUG IF EMPTY
+		if (empty($prices['debug'])) {
+			unset($prices['debug']);
+		}
+
+
+		// ==================
+		return $prices;
+
+
+	}
+
+	private function getPricesEmptyValues() {
+		$prices = [
+			// this is what is used by 'pwcommerce_price' in TraitPWCommerceCart::___getProductPrice
+			// IT IS ALWAYS SET irrespective of price fields strategy!
+			'price' => NULL,
+			// -------
+			// a. PRICE & COMPARE PRICE STRATEGY
+			// (i) [main] product - NON VARIANT
+			'comparePrice' => NULL,
+			// ++
+			// (ii) variant - VARIANT
+			'variantPrice' => NULL,
+			'variantComparePrice' => NULL,
+			// ++
+			// default/parent/base
+			'defaultPrice' => NULL,
+			'defaultComparePrice' => NULL,
+			// ===========
+			// b. SALE & NORMAL PRICE STRATEGY
+			// (i) [main] product - NON VARIANT
+			'salePrice' => NULL,
+			'normalPrice' => NULL,
+			// ++
+			// (ii) variant - VARIANT
+			'variantSalePrice' => NULL,
+			'variantNormalPrice' => NULL,
+			// ++
+			// default/parent/base
+			'defaultSalePrice' => NULL,
+			'defaultNormalPrice' => NULL,
+			// ===========
+			// DEBUG
+			'debug' => [],
+		];
+
+		return $prices;
+	}
+
+
+
+	private function getPricesForPriceAndComparePrice(Page $page, array $value, $prices) {
+		$isVariant = $this->pwcommerce->isVariant($page);
+
+		if (empty($isVariant)) {
+			// (i) [main] product - NON VARIANT
+			// set 'price' for use by 'pwcommerce_price'
+			$prices['price'] = (float) $value['price'];
+			$prices['comparePrice'] = (float) $value['compare_price'];
+		} else {
+			// (ii) variant - VARIANT
+			$parentProductStock = $page->parent->get('pwcommerce_product_stock');
+			// $prices['price'] = (float) $value['price'];
+			$prices['variantPrice'] = (float) $value['price'];
+			$prices['variantComparePrice'] = (float) $value['compare_price'];
+			// -----------
+			// default (parent product) / base price
+			$parentProductStockPrice = 0;
+			$parentProductStockComparePrice = 0;
+			// might be empty after delete variants in page edit!
+			if (!empty($parentProductStock)) {
+				$parentProductStockPrice = $parentProductStock->price;
+				$parentProductStockComparePrice = $parentProductStock->comparePrice;
+			}
+			$prices['defaultPrice'] = $parentProductStockPrice;
+			$prices['defaultComparePrice'] = $parentProductStockComparePrice;
+
+			// >>>>>>>
+
+			# PRICE
+			// set 'price' for use by 'pwcommerce_price' for this variant
+			if (!empty($prices['variantPrice'])) {
+				// variant price NOT EMPTY: set it as the 'price'
+				$price = $prices['variantPrice'];
+			} else {
+				// variant price IS EMPTY: set parent price as the 'price'
+				$price = $prices['defaultPrice'];
+				// DEBUG:also track that variant price inherited from parent (default) product price
+				$prices['debug'][] = $this->_('Variant price inherited from parent product price.');
+			}
+			// set final determined price for 'pwcommerce_price' for this variant
+			$prices['price'] = $price;
+
+			# COMPARE PRICE
+			// set 'compare price' for frontend use (if desired)
+			if (!empty($prices['variantComparePrice'])) {
+				// variant compare price NOT EMPTY: set it as the 'compare price'
+				$comparePrice = $prices['variantComparePrice'];
+			} else {
+				// variant compare price IS EMPTY: set parent compare price as the 'compare price'
+				$comparePrice = $prices['defaultComparePrice'];
+				// DEBUG:also track that variant compare price inherited from parent (default) product compare price
+				$prices['debug'][] = $this->_('Variant compare price inherited from parent product compare price.');
+			}
+			// set final determined compare price for this variant
+			$prices['comparePrice'] = $comparePrice;
+
+			# +++++++++
+		}
+
+		// --------
+		return $prices;
+	}
+
+	private function getPricesForSaleAndNormalPrice(Page $page, array $value, array $prices): array {
+		$isVariant = $this->pwcommerce->isVariant($page);
+
+		$debug = [];
+		$isOnSale = false;
+
+		if (empty($isVariant)) {
+			// (i) [main] product - NON VARIANT
+			// set sale and normal prices
+			$salePrice = (float) $value['price'];
+			$normalPrice = (float) $value['compare_price'];
+			$prices['salePrice'] = $salePrice;
+			$prices['normalPrice'] = $normalPrice;
+
+			// >>>>>>>
+
+			# PRICE
+
+			// determine 'price' for use by 'pwcommerce_price'
+			if (!empty($salePrice) && $normalPrice > $salePrice) {
+				// sale price is NOT EMPTY AND NOT GREATER THAN normal price
+				// set it as the 'price' for 'pwcommerce_price'
+				$price = $salePrice;
+				$isOnSale = true;
+			} else {
+				// sale price is EMPTY OR GREATER THAN normal price
+				// set normal price as the 'price' for 'pwcommerce_price'
+				$price = $normalPrice;
+				// DEBUG:also track that price has defaulted to normal price
+				$debug[] = $this->_('Sale price is empty or greater than normal price.');
+				$debug[] = $this->_('Price has defaulted to normal price.');
+			}
+
+			// set final determined price for 'pwcommerce_price' for this variant
+			$prices['price'] = $price;
+
+
+		} else {
+			// (ii) variant - VARIANT
+			$parentProductStock = $page->parent->get('pwcommerce_product_stock');
+
+			// ----------
+
+			// set variant sale and variant normal prices
+			$variantSalePrice = (float) $value['price'];
+			$variantNormalPrice = (float) $value['compare_price'];
+			$prices['variantSalePrice'] = $variantSalePrice;
+			$prices['variantNormalPrice'] = $variantNormalPrice;
+
+			// -----------
+			// default (parent product) / base price
+			$defaultSalePrice = $parentProductStock->salePrice;
+			$defaultNormalPrice = $parentProductStock->normalPrice;
+			$prices['defaultSalePrice'] = $defaultSalePrice;
+			$prices['defaultNormalPrice'] = $defaultNormalPrice;
+
+			// >>>>>>>
+
+			# PRICE
+
+			// determine 'price' for use by 'pwcommerce_price'
+			if (!empty($variantSalePrice) && $variantNormalPrice > $variantSalePrice) {
+				// variant sale price is NOT EMPTY AND NOT GREATER THAN variant normal price
+				// set it as the 'price' for 'pwcommerce_price' for this variant
+				$price = $variantSalePrice;
+				$isOnSale = true;
+			} else if (!empty($variantNormalPrice)) {
+				// variant normal price is NOT EMPTY
+				// set it as the 'price' for 'pwcommerce_price' for this variant
+				$price = $variantNormalPrice;
+				// DEBUG:also track that price has defaulted to variant normal price
+				$debug[] = $this->_('Variant sale price is empty or greater than variant normal price.');
+				$debug[] = $this->_('Price has defaulted to variant normal price.');
+			} else if (!empty($defaultSalePrice) && $defaultNormalPrice > $defaultSalePrice) {
+				// default sale price is NOT EMPTY AND NOT GREATER THAN default normal price
+				// set it as the 'price' for 'pwcommerce_price' for this variant
+				$price = $defaultSalePrice;
+				$isOnSale = true;
+				// DEBUG:also track that price has defaulted to default (parent) sale price
+				$debug[] = $this->_('Variant sale price is empty or greater than variant normal price.');
+				$debug[] = $this->_('Variant normal price is empty.');
+				$debug[] = $this->_('Price has defaulted to parent product sale price for this variant.');
+
+			} else {
+				// default sale price is EMPTY OR GREATER THAN default normal price
+				// set default normal price as the 'price' for 'pwcommerce_price'
+				$price = $defaultNormalPrice;
+				// DEBUG:also track that price has defaulted to default (parent) normal price
+				$debug[] = $this->_('Variant sale price is empty or greater than variant normal price.');
+				$debug[] = $this->_('Variant normal price is empty.');
+				$debug[] = $this->_('Default sale price is empty or greater than default normal price.');
+				$debug[] = $this->_('Price has defaulted to parent product normal price for this variant.');
+			}
+
+			// set final determined price for 'pwcommerce_price' for this variant
+			$prices['price'] = $price;
+
+			# COMPARE PRICE
+
+			// set 'normal price' for frontend use (if desired)
+			if (!empty($variantNormalPrice)) {
+				// variant normal price is NOT EMPTY
+				// set it as the 'normal price' for this variant
+				$normalPrice = $variantNormalPrice;
+			} else {
+				// set default normal price as the 'normal price' for this variant
+				$normalPrice = $defaultNormalPrice;
+				// DEBUG:also track that normal price has defaulted to default (parent) normal price
+				$debug[] = $this->_('Variant normal price is empty.');
+				$debug[] = $this->_('Normal price has defaulted to parent product normal price for this variant.');
+			}
+
+			// -----
+			// remove duplicate values
+			$debug = array_unique($debug);
+			$prices['debug'] = $debug;
+
+			// set final determined normal price for this variant
+			$prices['normalPrice'] = $normalPrice;
+
+
+			# +++++++++
+		}
+
+		// ---
+		// on sale?
+		$prices['isOnSale'] = $isOnSale;
+
+		// --------
+		return $prices;
+	}
+
+
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+		// if for some reason we already got a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return getBlankValue
+		if (empty($value) || !is_array($value)) {
+			return $record;
+		}
+
+
+		$record->sku = $this->wire('sanitizer')->text($value['data']); // note we are converting 'data' to 'record->sku'
+		#### PRICES ####
+		// -------
+		/** @var array $prices */
+		$prices = $this->getPrices($page, $value);
+
+		// loop through $prices array and set properties to $record IF VALUES NOT NULL!
+		foreach ($prices as $priceProperty => $priceValue) {
+			if (is_null($priceValue)) {
+				// SKIP AS NOT SET, HENCE NOT RELEVANT FOR CONTEXT!
+				continue;
+			}
+			// SET PRICE RELATED PROPS
+			$record->set($priceProperty, $priceValue);
+		}
+
+		#############
+		// -------
+		$record->quantity = (int) $value['quantity'];
+		$record->allowBackorders = (int) $value['allow_backorders'];
+		$record->enabled = (int) $value['enabled'];
+
+
+
+		$record->setTrackChanges(true); // track changes for the product record TODO? reset instead?
+
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		if (!empty($this->pwcommerce->isUseSaleAndNormalPriceFields())) {
+			// USING SALES + NORMAL PRICE FIELDS/APPROACH
+			$priceSubfield = (float) $value->salePrice;
+			$comparePriceSubfield = (float) $value->normalPrice;
+		} else {
+			// USING PRICE + COMPARE PRICE FIELDS/APPROACH
+			$priceSubfield = (float) $value->price;
+			$comparePriceSubfield = (float) $value->comparePrice;
+		}
+
+		// convert records to an array within sleepValue
+		$sleepValue = [
+			// note: record->sku is becoming data which is a required column in a Fieldtype
+			'data' => $this->wire('sanitizer')->text($value->sku),
+			'price' => $priceSubfield,
+			'compare_price' => $comparePriceSubfield,
+			'quantity' => (int) $value->quantity,
+			'allow_backorders' => (int) $value->allowBackorders,
+			'enabled' => (int) $value->enabled,
+		];
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Return the database schema that defines a Product Stock item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our 'record->sku' field (column in db)
+		// we reuse this required field/column (data) for record->sku
+		$schema['data'] = 'VARCHAR(255) NOT NULL';
+		$schema['price'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		$schema['compare_price'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		$schema['quantity'] = 'INT UNSIGNED NOT NULL'; // TODO: negative stock? or separate?
+		$schema['allow_backorders'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		$schema['enabled'] = 'TINYINT(1) UNSIGNED NOT NULL';
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		$schema['keys']['data'] = 'FULLTEXT KEY data (data)';
+		$schema['keys']['price'] = 'KEY price(price)';
+		$schema['keys']['compare_price'] = 'KEY compare_price(compare_price)';
+		$schema['keys']['quantity'] = 'KEY quantity (quantity)';
+		$schema['keys']['allow_backorders'] = 'KEY allow_backorders(allow_backorders)';
+		$schema['keys']['enabled'] = 'KEY enabled(enabled)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// if searching 'sku' then assume our default (data) field
+		if ($subfield == 'sku') {
+			$subfield = 'data';
+		} else if ($subfield == 'salePrice') {
+			$subfield = 'price';
+		} else if (in_array($subfield, ['comparePrice', 'normalPrice'])) {
+			$subfield = 'compare_price';
+		} else if ($subfield == 'allowBackorders') {
+			$subfield = 'allow_backorders';
+		}
+		//---------
+
+		/*
+																																																																																																																					- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+																																																																																																																					- the latter allow for finer, fulltext search
+																																																																																																																					 */
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

@@ -1,0 +1,1255 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * InputfieldPWCommerceOrderLineItem for ProcessWire.
+ *
+ * This Inputfield is a GUI for FieldtypePWCommerceOrderLineItem.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceOrderLineItem for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceOrderLineItem extends Inputfield
+{
+	public static function getModuleInfo() {
+		return [
+			'title' => 'PWCommerce Order Line Item: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce order single line item values.',
+			'requires' => 'FieldtypePWCommerceOrderLineItem',
+		];
+	}
+
+	protected $page;
+	protected $field;
+
+
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+		// get helper for rendering inputfields
+
+		// GET UTILITIES CLASS
+
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for line items
+	 *
+	 */
+	public function ___render() {
+		// TODO: NEED TO SET! SINCE CALLED BY ORDER!
+		// TODO @see: inputfieldPWCommerceOrderRenderLineItems
+		// $value = $this->attr('value');
+
+		// @note: THIS IS NOT REALLY IN USE SINCE AN ORDER LINE ITEM IS EDITED VIA THE ORDER INSIDE RUNTIME MARKUP!
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		// TODO; REVISTI
+		// @note: we use classes for shared styles but unique ID for htmx here since this field will be used multiple times on the same page in case a country has territories.
+		$out =
+			"<div id='pwcommerce_order_line_item_wrapper{$this->page->id}' class='pwcommerce_order_line_item_wrapper'>" . $this->buildForm() . "</div>";
+
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$this->preloadInputfieldAssets();
+		// $scripts = $this->config->js($this->id, $options);
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	// TODO: HERE OR IN RUNTIME MARKUP? I.E., IF EDITING THIS PAGE AS STANDALONE, WOULDN'T NEED HTMX THERE!
+	private function preloadInputfieldAssets() {
+		// TODO: DELETE WHEN DONE IF NOT IN USE
+	}
+
+	private function buildForm() {
+
+		/** @var WireData $value */
+		$value = $this->attr('value');
+
+		$pageID = $this->page->id;
+
+		// GET MAIN WRAPPER
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		// TODO: NEED TO MAKE THESE INTERACTIVE USING ALPINE, ESPECIALLY THE @change for quantity! see if can add that as an attr?
+
+		// *** ROW 1 ***
+		//------------------- image thumb (if available)
+		$productThumb = $this->renderOrderLineItemProductThumb($value);
+		//------------------- product title and sku (if available)
+		$productTitleAndSKUMarkup = $this->renderOrderLineItemProductTitleAndSKU($value);
+		//------------------- trash
+		$trashMarkup = $this->renderOrderLineItemProductTrash($pageID);
+
+		// *** ROW 2 ***
+		//------------------- unit_price
+		$productUnitPriceMarkup = $this->renderOrderLineItemProductUnitPrice($value);
+		//------------------- quantity (InputfieldText)
+		$productQuantityMarkup = $this->renderOrderLineItemProductQuantity($value, $pageID);
+		//------------------- total_discounted_price
+		// TODO: USE THIS VALUE totalPriceDiscountedWithTax OR THIS VALUE totalPriceDiscounted????
+		$lineItemTotalNetPriceMarkup = $this->renderOrderLineItemProductTotalNetPrice($value);
+		//------------------- edit order line item discount [small modal]
+		$editLineItemDiscountMarkup = $this->renderOrderLineItemProductEditDiscount($value, $pageID);
+
+		//---------------
+		$gridOptions = [
+			'product_thumb' => $productThumb,
+			'product_title_and_sku' => $productTitleAndSKUMarkup,
+			'product_trash' => $trashMarkup,
+			'product_unit_price' => $productUnitPriceMarkup,
+			'product_quantity' => $productQuantityMarkup,
+			'product_total_net_price' => $lineItemTotalNetPriceMarkup,
+			'product_edit_discount' => $editLineItemDiscountMarkup,
+		];
+
+		//--------------------
+		$out = $this->renderOrderLineItemGrid($gridOptions);
+
+		// ADD GRID MARKUP TO FINAL INPUTFIELDMARKUP FOR RENDERING INSIDE INPUTFIELDWRAPPER
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			//'columnWidth' => 16,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_order_line_item',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $out,
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper->add($field);
+
+		//----------------------------
+
+		// FINAL WRAPPER MARKUP
+		return $wrapper->render();
+	}
+
+	private function renderOrderLineItemProductThumb($product) {
+		// TODO: GENERIC ONE OR NO PREVIEW?
+		$productThumb = !empty($product->productThumbURL) ? "<img src='{$product->productThumbURL}' class='w-1/5 md:w-1/3'>" : $this->_('No Image');
+		return $productThumb;
+	}
+
+	private function renderOrderLineItemProductTitleAndSKU($product) {
+
+		// TODO: change these to the real values!
+		//   $title = $this->page->title;
+		//   $sku = "JT-FAKE-123";
+		$title = $product->productTitle;
+		$sku = $product->productSKU;
+		// TODO: replace with this one when done!
+		//   $out = "
+		//           <span class='block'>{$value->productTitle}</span>
+		//         <small>{$value->productSKU}</small>";
+		$out =
+			"<span class='block'>{$title}</span>" .
+			"<small>{$sku}</small>";
+
+		return $out;
+	}
+
+	private function renderOrderLineItemProductTrash($pageID) {
+		$out =
+			"<span class='fa fa-trash pwcommerce_order_line_item_delete pwcommerce_trash'></span>" .
+			"<input type='hidden' name=pwcommerce_order_line_item_delete{$pageID} value='0' class='pwcommerce_trash'>";
+		return $out;
+	}
+
+	private function renderOrderLineItemProductUnitPrice($product) {
+		$out = "<span>{$product->unitPrice}</span>";
+		return $out;
+	}
+
+	private function renderOrderLineItemProductQuantity($product, $lineItemID) {
+		$options = [
+			'id' => "pwcommerce_order_line_item_quantity{$lineItemID}",
+			'name' => "pwcommerce_order_line_item_quantity{$lineItemID}",
+			'type' => 'number',
+			'step' => '1',
+			'min' => 1,
+			'label' => $this->_('Quantity'),
+			'collapsed' => Inputfield::collapsedNever,
+			//'columnWidth' => 25,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			// @note: default to at least one item as cannot order 0 item!
+			'value' => empty($product->quantity) ? 1 : $product->quantity,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$out = $field->render();
+		return $out;
+	}
+
+	private function renderOrderLineItemProductTotalNetPrice($product) {
+		$net = $this->_('Net');
+		$out =
+			"<span>{$product->totalPriceDiscounted}</span>" .
+			"<span class='ml-1 italic'>{$net}</span>";
+		return $out;
+	}
+
+	private function renderOrderLineItemProductEditDiscount($product, $lineItemID) {
+		$addDiscountNote = $this->_('Add item discount');
+		$editDiscountNote = $this->_('Edit item discount');
+		$discountNote = empty($product->discountAmount) ? $addDiscountNote : $editDiscountNote;
+
+		// TODO: ADD CURRENCY FROM SHOP FOR FIXED DISCOUNTS!
+		$discountSubnote = "";
+		//  percentage | fixed_applied_once | fixed_applied_per_item
+		$discountType = $product->discountType;
+		if ($discountType === 'percentage') {
+			// @note: we escape '%' here (with another %)
+			$discountSubnote = sprintf(__("%s%% discount."), $product->discountValue);
+		} elseif ($discountType === 'fixed_applied_once') {
+			$discountSubnote = sprintf(__("%s fixed discount, applied once."), $product->discountValue);
+		} elseif ($discountType === 'fixed_applied_per_item') {
+			// @note: we also just check here to be sure, in case something went wrong during save
+			$discountSubnote = sprintf(__("%s fixed discount, applied per item."), $product->discountValue);
+		}
+
+		$out =
+			"<a class='block' @click='handleEditOrderLineItemDiscount({$lineItemID})'>" .
+			$discountNote .
+			"</a>" .
+			"<span>{$discountSubnote}</span>";
+		$out .= "<a>Test Discount Accordion</a>";
+		return $out;
+	}
+
+	//----------
+
+	private function renderOrderLineItemGrid($options) {
+		$productThumb = $options['product_thumb'];
+		$productTitleAndSKUMarkup = $options['product_title_and_sku'];
+		$trashMarkup = $options['product_trash'];
+		$productUnitPriceMarkup = $options['product_unit_price'];
+		$productQuantityMarkup = $options['product_quantity'];
+		$lineItemTotalNetPriceMarkup = $options['product_total_net_price'];
+		$editLineItemDiscountMarkup = $options['product_edit_discount'];
+
+		$out =
+			"<div class='grid grid-cols-12 gap-4 mb-10' x-data='InputfieldPWCommerceOrderData'>" .
+			"<div class='col-span-full md:col-span-2'>{$productThumb}</div>" .
+			"<div class='col-span-full md:col-span-9'>{$productTitleAndSKUMarkup}</div>" .
+			"<div class='col-span-full md:col-span-1 order-first md:order-last'>{$trashMarkup}</div>" .
+			"</div>" .
+			"<div class='grid grid-cols-12 gap-4 mb-10' x-data='InputfieldPWCommerceOrderData'>" .
+			"<div class='col-span-full md:col-span-2'>{$productUnitPriceMarkup}</div>" .
+			"<div class='col-span-full md:col-span-3'>{$productQuantityMarkup}</div>" .
+			"<div class='col-span-full md:col-span-3'>{$lineItemTotalNetPriceMarkup}</div>" .
+			"<div class='col-span-full md:col-span-4'>{$editLineItemDiscountMarkup} </div>" .
+			"</div>";
+		return $out;
+	}
+
+	// extra content to be prepended to InputfieldPWCommerceRuntimeMarkup with respect to this field
+	// @note: TODO: we MIGHT still handle any JS interactions here!
+	public function getPrependContent($page, $name) {
+		$pageID = $page->id;
+
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		//------------------- track order line item parent (order) (InputfieldHidden)
+		$options = [
+			'id' => "pwcommerce_order_parent_page_id{$pageID}",
+			'name' => 'pwcommerce_order_parent_page_id',
+			// TODO: UNSURE IF STILL NEEDED??? ALPINE?
+			'value' => $pageID, // store the parent ID of the new/incoming order item rate [new Page()]
+		];
+
+		$field = $this->pwcommerce->getInputfieldHidden($options);
+		$wrapper->add($field);
+
+		//------------------- add product(s) to order (getInputfieldButton)
+
+		$label = $this->_('Add products to order');
+		$options = [
+			//    'id' => "pwcommerce_order_line_item_{$action}_selected_product",
+			//    'name' => "pwcommerce_order_line_item_{$action}_selected_product",
+			'label' => $label,
+			'collapsed' => Inputfield::collapsedNever,
+			'small' => true,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+		];
+
+		$field = $this->pwcommerce->getInputfieldButton($options);
+		$field->attr('x-on:click', 'handleOpenOrderAddProductsModal');
+
+		$button = $field->render();
+
+		$addProductsToOrderLink = "<div id='open_modal_wrapper' x-data='InputfieldPWCommerceOrderData'>{$button}</div>";
+
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_order_add_new',
+			// TODO: AMEND TO 'pwcommerce_order_add_products_to_order'
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $addProductsToOrderLink, // TODO: CHANGE TO SMALL BUTTON?
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+
+		$wrapper->add($field);
+		// @note: return unrendered wrapper
+		return $wrapper;
+	}
+
+	public function getCustomBuildForm() {
+
+		// TODO: HAVING ISSUES WITH NON-UNIQUE IDS HERE! E.G. 'pwcommerce_order_line_item_discount_type1211'
+
+		// @note: for use with Alpine JS
+		// @note: data will be sent to it via runtime markup; we don't handle it here
+		// @see: the x-for and $store.InputfieldPWCommerceOrderStore.order_line_items
+
+		// *** ROW 1 ***
+		//------------------- image thumb (if available)
+		// TODO: GENERIC ONE OR NO PREVIEW?
+
+		$productThumb = $this->getCustomBuildFormProductThumbMarkup();
+		//------------------- title and sku (if latter available)
+		$productTitleAndSKUMarkup = $this->getCustomBuildFormProductTitleAndSKUMarkup();
+
+		//------------------- trash can
+		// @note: we use 'productID' instead of the line item ID as we may want to remove a newly added line item that still hasn't been saved, hence has no ID. Using 'productID' is fine since a product can only appear as one line item per order. @note: 'productID' here refers to the variantID where applicable
+		$trashMarkup = $this->getCustomBuildFormTrashMarkup();
+
+		// *** ROW 2 ***
+		//------------------- unit_price
+		$productUnitPriceMarkup = $this->getCustomBuildFormUnitPriceMarkup();
+
+		//------------------- quantity (InputfieldText)
+		$productQuantityMarkup = $this->getCustomBuildFormQuantityMarkup();
+
+		//------------------- total_discounted_price
+		// TODO: USE THIS VALUE totalPriceDiscountedWithTax OR THIS VALUE totalPriceDiscounted????
+		$lineItemTotalNetPriceMarkup = $this->getCustomBuildFormTotalNetPriceMarkup();
+
+		//------------------- edit order line item discount [small modal]
+		// @note: conditionally show add/edit line item discount link
+		$editLineItemDiscountMarkup = $this->getCustomBuildFormEditLineItemDiscountMarkup();
+
+		//------------------
+		// @NOTE: existing items have own order line item ID that is different from the product ID
+		// new items, temporarily, have their order line item ID = product ID
+		// hidden inputs for sending ids of selected products and ids of line items (0 will mean new!)
+
+		//------------------- product_id (InputfieldHidden)
+		$hiddenProductIDMarkup = $this->getCustomBuildFormProductIDHiddenMarkup();
+
+		//------------------- product is variant (InputfieldHidden)
+		$hiddenIsVariantMarkup = $this->getCustomBuildFormProductIsVariantHiddenMarkup();
+
+		// @note: this value helps us get to the main product (if applicable) for its category (for tax overrides calculations aspect of taxes) and settings (for taxable value, track inventory, etc)
+
+		//------------------- discount_type (InputfieldHidden)
+		// @note: the discount_type that will be edited in a modal will trigger the adjustment of this hidden field for this particular variant/product without variant
+		$hiddenDiscountTypeMarkup = $this->getCustomBuildFormDiscountTypeHiddenMarkup();
+
+		//------------------- discount_value (InputfieldHidden)
+		// @note: the discount_value that will be edited in a modal will trigger the adjustment of this hidden field for this particular variant/product without variant
+		$hiddenDiscountValueMarkup = $this->getCustomBuildFormDiscountValueHiddenMarkup();
+
+		//------------------- order_line_item_id (InputfieldHidden)
+		// @note: for existing items this value is the page ID and this will be in the $this->value array. For new items, this is still unknown as items haven't been saved yet. To avoid duplicate IDs of inputs, for new items, we just use the product id. Hence, for unsaved items, product.productID === product.id
+		$hiddenOrderLineItemIDMarkup = $this->getCustomBuildFormOrderLineItemIDHiddenMarkup();
+
+		// ######################
+
+		//------------------- order_new_line_items (InputfieldHidden)
+		// to help determine incoming/added or changed existing items
+		// @note: we model in js using alpine, populating it everytime an item is added to or removed from order_line_items array
+		$hiddenOrderNewLineItemIDMarkup = $this->getCustomBuildFormOrderNewLineItemsHiddenMarkup();
+
+		//------------------- order_deleted_line_items (InputfieldHidden)
+		// to help determine if deleted items are existing ones or just client-side addtions that were deleted before saving
+		$hiddenOrderDeletedLineItemIDMarkup = $this->getCustomBuildFormOrderDeletedLineItemsHiddenMarkup();
+
+		// ##########################
+
+		// FINAL MARKUP WITH ALPINE ATTRIBUTES
+		// @note: '@pwcommercefoundaddableproducts.window' is listening to an event that will be sent by HTMX when it finds products that can be added to the order.
+		$orderLineItemForRuntimeMarkup =
+			"<div id='add_products_to_order' x-data='InputfieldPWCommerceOrderData' @pwcommercefoundaddableproducts.window='handleFoundAddableProducts' class='pt-3.5'>" .
+			"<template x-for='product in \$store.InputfieldPWCommerceOrderStore.order_line_items'>" .
+			"<div class='InputfieldPWCommerceOrderLineItem mb-5'>" .
+			"<div class='grid grid-cols-12 gap-4 mb-10'>" .
+			"<div class='col-span-full md:col-span-2'>{$productThumb}</div>" .
+			"<div class='col-span-full md:col-span-9'>{$productTitleAndSKUMarkup}</div>" .
+			"<div class='col-span-full md:col-span-1 order-first md:order-last'>{$trashMarkup}</div>" .
+			"</div>" .
+			"<div class='grid grid-cols-12 gap-4 mb-10'>" .
+			"<div class='col-span-full md:col-span-2'>{$productUnitPriceMarkup}</div>" .
+			"<div class='col-span-full md:col-span-3'>{$productQuantityMarkup}</div>" .
+			"<div class='col-span-full md:col-span-3'>{$lineItemTotalNetPriceMarkup}</div>" .
+			"<div class='col-span-full md:col-span-4'>{$editLineItemDiscountMarkup}</div>" .
+			"</div>" .
+			$hiddenProductIDMarkup .
+			$hiddenIsVariantMarkup .
+			$hiddenOrderLineItemIDMarkup .
+			$hiddenDiscountTypeMarkup .
+			$hiddenDiscountValueMarkup .
+			"</div>" .
+			"</template>" .
+			$hiddenOrderNewLineItemIDMarkup .
+			$hiddenOrderDeletedLineItemIDMarkup .
+			// @note: with markup to show only if no order line items found!
+			$this->getCustomBuildFormNoOrderLineItemsAddedYetMarkup() .
+			"</div>";
+
+		return $orderLineItemForRuntimeMarkup;
+	}
+
+	/**
+	 * Get markup to show if no order line items yet added to order.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for no items found.
+	 */
+	private function getCustomBuildFormNoOrderLineItemsAddedYetMarkup() {
+		$out = "<template x-if='!\$store.InputfieldPWCommerceOrderStore.order_line_items.length'>" .
+			"<p>" . $this->_('No products have been added to this order yet. You need to add at least one in-stock product.') . "</p>" .
+			"</template>";
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's product thumb.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for product thumb.
+	 */
+	private function getCustomBuildFormProductThumbMarkup() {
+		$noProductThumb = $this->_('No Image');
+		// TODO: check this 'is_generic_no_image_found' and if true, bind this class: 'opacity-25' to image
+		$out = "
+		<template x-if='product.productThumbURL'>
+		<img :src='product.productThumbURL' class='w-1/5 md:w-1/3' :class='product.is_generic_no_image_found ? `opacity-25` : ``'>
+		</template>
+		<template x-if='!product.productThumbURL'>
+		<span>{$noProductThumb}</span>
+		</template>";
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's title and sku.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for title and sku.
+	 */
+	private function getCustomBuildFormProductTitleAndSKUMarkup() {
+		$out = "<span class='block' x-text='product.productTitle'></span>" .
+			"<small x-text='product.productSKU'></small>";
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's trash can.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for trash can.
+	 */
+	private function getCustomBuildFormTrashMarkup() {
+		$out = "<span class='fa fa-trash pwcommerce_order_line_item_delete pwcommerce_trash' @click='handleRemoveOrderLineItem(product.id)'></span>";
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's unit price.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for unit price.
+	 */
+	private function getCustomBuildFormUnitPriceMarkup() {
+		// $out = "<span x-text='product.unitPrice'></span>";
+		$out = "<span x-text='formatValueAsCurrency(product.unitPrice)'></span>";
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's quantity.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for quantity.
+	 */
+	private function getCustomBuildFormQuantityMarkup() {
+		//------------------- quantity (InputfieldText)
+		$options = [
+			'type' => 'number',
+			'step' => '1',
+			'min' => 1,
+			'label' => $this->_('Quantity'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			// no need since we x-model the value
+			//'value' => 'product.quantity',
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		// $field->attr('@change', 'handleOrderLineItemsQuantityChange(product.productID)');
+		$field->attr([
+			// @note: processwire will strip out the '@' - so we use x-on:event instead
+			//  '@change' => 'handleOrderLineItemsQuantityChange(product.productID)',
+			//    'x-on:change' => 'handleOrderLineItemsQuantityChange(product.id)',
+			'x-on:input' => 'handleOrderLineItemsQuantityChange(product)',
+			'x-model.number' => "product.quantity",
+			// TODO: WILL THIS STILL WORK WITH ABOVE [] NAME CHANGE? YES!
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			'x-bind:id' => '`pwcommerce_order_line_item_quantity${product.id}`',
+			'x-bind:name' => '`pwcommerce_order_line_item_quantity${product.id}`',
+		]);
+		$out = $field->render();
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's total net price.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for total net price.
+	 */
+	private function getCustomBuildFormTotalNetPriceMarkup() {
+		// @note: we are now getting this value via a function for easier reactivity
+		// $out = "<span x-text='product.totalPriceDiscounted'></span>" .
+		//   "<span class='ml-1 italic'>" . $this->_('Net') . "</span>";
+		$out = "<span x-text='formatValueAsCurrency(product.totalPriceDiscounted)'></span>" .
+			"<span class='ml-1 italic'>" . $this->_('Net') . "</span>";
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's discount edit.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for discount edit.
+	 */
+	private function getCustomBuildFormEditLineItemDiscountMarkup() {
+		$inputfieldPWCommerceOrderRenderDiscounts = new InputfieldPWCommerceOrderRenderDiscounts(new NullPage());
+
+		$editDiscountMarkup = $inputfieldPWCommerceOrderRenderDiscounts->getMarkupForEditOrderLineItemDiscount();
+		// ------------
+		$addDiscountNote = $this->_('Add item discount'); // TODO not in use for now
+		// $editDiscountNote = $this->_('Edit item discount');// TODO not in use for now
+		$applyDiscountNote = $this->_('Apply item discount');
+		$percentageDiscountSubNote = $this->_('discount');
+		$fixedAppliedOnceDiscountSubNote = $this->_('fixed discount, applied once');
+		$fixedAppliedPerItemDiscountSubNote = $this->_('fixed discount, applied per item');
+		// --------
+		$editDiscountAccordion =
+			"<div x-data='{selected:null}'>" .
+			"<a class='block mb-5' @click='selected !== 1 ? selected = 1 : selected = null'><span>{$applyDiscountNote}</span></a>" .
+			"<div class='text-sm px-0 m-0 relative overflow-hidden transition-all max-h-0 duration-700'
+x-ref='container' x-bind:style='selected == 1 ? `max-height: ` + \$refs.container.scrollHeight + `px` : ``'
+aria-hidden='false'>" .
+			$editDiscountMarkup .
+			"</div>" .
+			"</div>";
+
+		//------------------- edit order line item discount [small modal]
+		// @note: conditionally show add/edit line item discount link
+		$out =
+			// TODO: MAYBE JUST PASS WHOLE OBJECT INSTEAD?
+			//  "<a @click='handleEditOrderLineItemDiscount(product.id)'>" .
+			// TODO DELETE WHEN DONE! NO LONGER USING MODAL!
+			// "<a class='block' @click='handleEditOrderLineItemDiscount(product)'>" .
+			// "<a class='block' @click='handleEditOrderLineItemDiscount(product)'>" .
+			// "<template x-if='!product.discountValue'><span>{$addDiscountNote}</span></template>" .
+			// "<template x-if='product.discountValue'><span>{$editDiscountNote}</span></template>" .
+			// "</a>" .
+			$editDiscountAccordion .
+			"<template x-if='product.discountType==\"percentage\"'><span><span x-text='`\${product.discountValue}%`'></span> {$percentageDiscountSubNote}</span></template>" .
+			"<template x-if='product.discountType==\"fixed_applied_once\"'><span><span x-text='formatValueAsCurrency(`\${product.discountValue}`)'></span> {$fixedAppliedOnceDiscountSubNote}</span></template>" .
+			"<template x-if='product.discountType==\"fixed_applied_per_item\"'><span><span x-text='formatValueAsCurrency(`\${product.discountValue}`)'></span> {$fixedAppliedPerItemDiscountSubNote}</span></template>";
+
+		return $out;
+	}
+
+	/**
+	 * Get markup for a line item's product id.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for product id.
+	 */
+	private function getCustomBuildFormProductIDHiddenMarkup() {
+		//------------------- product_id (InputfieldHidden)
+		$field = $this->pwcommerce->getInputfieldHidden();
+		$field->attr([
+			// TODO: $pageID STILL NEEDED FOR UNIQUENESS OF LINE ITEMS for $input processing. we set those here
+			//  'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			//  'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.id}`',
+			// @NOTE: FOR NEW ITEMS WE WON'T BE ABLE TO KNOW THE PRODUCT ID IN ADVANCE SO WE POOL ALL PRODUCTS IDS AND LOOP THROUGH ARRAY. THIS WILL GIVE US ALL OTHER VALUES
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.id}`',
+			'x-bind:value' => 'product.productID',
+		]);
+		return $field->render();
+	}
+
+	/**
+	 * Get markup for a line item's is product a variant value.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for is product a variant value.
+	 */
+	private function getCustomBuildFormProductIsVariantHiddenMarkup() {
+		//------------------- product is variant (InputfieldHidden)
+		$field = $this->pwcommerce->getInputfieldHidden();
+		$field->attr([
+			// TODO: $pageID STILL NEEDED FOR UNIQUENESS OF LINE ITEMS for $input processing. we set those here
+			//  'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			//  'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			'x-bind:id' => '`pwcommerce_order_line_item_is_variant${product.id}`',
+			// @NOTE: FOR NEW ITEMS WE WON'T BE ABLE TO KNOW THE PRODUCT ID IN ADVANCE SO WE POOL ALL PRODUCTS IDS AND LOOP THROUGH ARRAY. THIS WILL GIVE US ALL OTHER VALUES
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			'x-bind:name' => '`pwcommerce_order_line_item_is_variant${product.id}`',
+			'x-bind:value' => 'product.isVariant',
+		]);
+		return $field->render();
+	}
+
+	/**
+	 * Get markup for a line item's discount type.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for discount type.
+	 */
+	private function getCustomBuildFormDiscountTypeHiddenMarkup() {
+		// @note: the discount_type that will be edited in a modal will trigger the adjustment of this hidden field for this particular variant/product without variant
+		//------------------- discount_type (InputfieldHidden)
+		$field = $this->pwcommerce->getInputfieldHidden();
+		$field->attr([
+			// TODO: $pageID STILL NEEDED FOR UNIQUENESS OF LINE ITEMS for $input processing. we set those here
+			//  'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			//  'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			'x-bind:id' => '`pwcommerce_order_line_item_discount_type${product.id}`',
+			// @NOTE: FOR NEW ITEMS WE WON'T BE ABLE TO KNOW THE PRODUCT ID IN ADVANCE SO WE POOL ALL PRODUCTS IDS AND LOOP THROUGH ARRAY. THIS WILL GIVE US ALL OTHER VALUES
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			'x-bind:name' => '`pwcommerce_order_line_item_discount_type${product.id}`',
+			'x-bind:value' => 'product.discountType',
+		]);
+		return $field->render();
+	}
+
+	/**
+	 * Get markup for a line item's discount value.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for discount value.
+	 */
+	private function getCustomBuildFormDiscountValueHiddenMarkup() {
+		// @note: the discount_value that will be edited in a modal will trigger the adjustment of this hidden field for this particular variant/product without variant
+		//------------------- discount_value (InputfieldHidden)
+		$field = $this->pwcommerce->getInputfieldHidden();
+		$field->attr([
+			// TODO: $pageID STILL NEEDED FOR UNIQUENESS OF LINE ITEMS for $input processing. we set those here
+			//  'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			//  'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			'x-bind:id' => '`pwcommerce_order_line_item_discount_value${product.id}`',
+			// @NOTE: FOR NEW ITEMS WE WON'T BE ABLE TO KNOW THE PRODUCT ID IN ADVANCE SO WE POOL ALL PRODUCTS IDS AND LOOP THROUGH ARRAY. THIS WILL GIVE US ALL OTHER VALUES
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			'x-bind:name' => '`pwcommerce_order_line_item_discount_value${product.id}`',
+			'x-bind:value' => 'product.discountValue',
+		]);
+		return $field->render();
+	}
+
+	/**
+	 * Get markup for a line item's discount value.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for discount value.
+	 */
+	private function getCustomBuildFormOrderLineItemIDHiddenMarkup() {
+
+		## TODO ********************************* ##
+		// TODO: WE NEED TO GO BACK TO _1234! SO THAT WE CAN GET THE VALUE FOR $this->page ONLY!!!!!! OTHERWISE WE LOOP THROUGH FOR NOTHING!
+
+		#####################
+		// @note: for existing items this value is the page ID and this will be in the $this->value array. For new items, this is still unknown as items haven't been saved yet. To avoid duplicate IDs of inputs, for new items, we just use the product id. Hence, for unsaved items, product.productID === product.id. Meaning, if a line item's ID EQUALS the line item's product ID, we are dealing with a new line item!
+		// @note: this is what we loop through when processing values!
+		//------------------- order_line_item_id (InputfieldHidden)
+		$field = $this->pwcommerce->getInputfieldHidden();
+		$field->attr([
+			// TODO: $pageID STILL NEEDED FOR UNIQUENESS OF LINE ITEMS for $input processing. we set those here
+			//  'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			//  'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			'x-bind:id' => '`pwcommerce_order_line_item_id${product.id}`',
+			// @NOTE: FOR NEW ITEMS WE WON'T BE ABLE TO KNOW THE PRODUCT ID IN ADVANCE SO WE POOL ALL PRODUCTS IDS AND LOOP THROUGH ARRAY. THIS WILL GIVE US ALL OTHER VALUES
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			'x-bind:name' => '`pwcommerce_order_line_item_id${product.id}`',
+			'x-bind:value' => 'product.id',
+		]);
+		return $field->render();
+	}
+
+	/**
+	 * Get markup for new order line items.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for new order line items.
+	 */
+	private function getCustomBuildFormOrderNewLineItemsHiddenMarkup() {
+
+		// to help determine incoming/added or changed existing items
+		// @note: we model in js using alpine, populating it everytime an item is added to or removed from order_line_items array
+		$options = [
+			'id' => 'pwcommerce_order_new_line_items',
+			// @note: single!
+			'name' => 'pwcommerce_order_new_line_items',
+
+		];
+		//------------------- order_new_line_items (InputfieldHidden)
+		$field = $this->pwcommerce->getInputfieldHidden($options);
+		$field->attr([
+			// TODO: $pageID STILL NEEDED FOR UNIQUENESS OF LINE ITEMS for $input processing. we set those here
+			//  'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			//  'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			// 'x-bind:id' => '`pwcommerce_order_new_line_items`',
+			// @NOTE: FOR NEW ITEMS WE WON'T BE ABLE TO KNOW THE PRODUCT ID IN ADVANCE SO WE POOL ALL PRODUCTS IDS AND LOOP THROUGH ARRAY. THIS WILL GIVE US ALL OTHER VALUES
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			// 'x-bind:name' => '`pwcommerce_order_new_line_items`',
+			'x-model' => '$store.InputfieldPWCommerceOrderStore.order_new_line_items',
+		]);
+		return $field->render();
+	}
+
+	/**
+	 * Get markup for deleted order line items.
+	 *
+	 * For use by getCustomBuildForm().
+	 * @note: will be built on client using alpine.js
+	 *
+	 * @access private
+	 * @return string $out Markup for deleted order line items.
+	 */
+	private function getCustomBuildFormOrderDeletedLineItemsHiddenMarkup() {
+
+		// to help determine if deleted items are existing ones or just client-side addtions that were deleted before saving
+		// @note: we model in js using alpine, populating it everytime an item is removed from order_line_items array
+		$options = [
+			// 'id' => 'pwcommerce_order_deleted_line_items',
+			// // @note: single!
+			// 'name' => 'pwcommerce_order_deleted_line_items',
+			'id' => "pwcommerce_is_delete_item",
+			'name' => "pwcommerce_is_delete_item[]",
+
+		];
+		//------------------- order_deleted_line_items (InputfieldHidden)
+		$field = $this->pwcommerce->getInputfieldHidden($options);
+		$field->attr([
+			// TODO: $pageID STILL NEEDED FOR UNIQUENESS OF LINE ITEMS for $input processing. we set those here
+			//  'x-bind:id' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			//  'x-bind:name' => '`pwcommerce_order_line_item_product_id${product.productID}`',
+			// 'x-bind:id' => '`pwcommerce_order_deleted_line_items`',
+			// @NOTE: FOR NEW ITEMS WE WON'T BE ABLE TO KNOW THE PRODUCT ID IN ADVANCE SO WE POOL ALL PRODUCTS IDS AND LOOP THROUGH ARRAY. THIS WILL GIVE US ALL OTHER VALUES
+			// TODO: HERE AND ELSEWHERE - WE BIND FOR UNIQUENESS BUT WHY NOT JUST DO [] INSTEAD? BECAUSE, WHE WE LOOP, HOW TO GET THESE VALUES? THIS IS BECAUSE WE HAVE THREE HIDDEN INPUTFIELDS! ONE FOR EXISTING, ANOTHER FOR ADDED AND A THIRD FOR DELETED!
+			// TODO: SO, LET'S BIND IDS BUT NOT NAMES! ids important to bind since processwire will give them same id but in alpine we will loop and create as many as we need, hence, line items with duplicate ids!
+			// 'x-bind:name' => '`pwcommerce_order_deleted_line_items`',
+			// 'x-model' => '$store.InputfieldPWCommerceOrderStore.order_deleted_line_items',
+			'x-bind:value' => '$store.InputfieldPWCommerceOrderStore.order_deleted_line_items',
+		]);
+		return $field->render();
+	}
+
+	// ~~~~~~~~~~~~~~~~
+
+	/**
+	 * Inline javascript configuration values for ALL line items in an order for given $data.
+	 *
+	 * @param array $data
+	 * @return void
+	 */
+	public function getJavaScriptConfigurationsContent($data) {
+		// TODO: DELETE IF NOT IN USE
+		// @note: we only send a subset of the data.
+		$clientData = [];
+		// TODO: ADD 'order_line_items' KEY!!!! NEEDED FOR NOW, JUST IN CASE WE NEED TO ADD DIFFERENT CONFIGS TO THE OBJECT
+		$clientData['order_line_items'] = $this->getOrderLineItemsConfigValuesForClient($data);
+		// return "<script>ProcessWire.config.InputfieldPWCommerceOrderLineItem = " . json_encode($clientData) . ';</script>';
+		return "<script>ProcessWire.config.InputfieldPWCommerceOrder = " . json_encode($clientData) . ';</script>';
+	}
+
+	public function ___processInput(WireInputData $input) {
+		// TODO @UPDATE FRIDAY 11 MARCH 2022 -> WITH THE NEW GUI, THIS MIGHT WORK? WE CALL PROCESSINPUT DIRECTLY FROM PWCOMMERCEINPUTFIELDORDER!
+		##############
+		// @note: WE ARE HAVING RACE CONDITION between order and line items if we process line item here
+		//  FOR NOW, WE DON'T DO ANYTHING HERE BUT LET ORDER HANDLE PROCESSING AND SAVING of EACH LINE ITEM!
+		// JUST RETURN!
+		return;
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~
+
+	public function processInputDeleteItems(WireInputData $input) {
+		$deleteItems = $input->pwcommerce_is_delete_item;
+		// page IDs are in one hidden inputfield; get the first array item
+		$deleteOrderLineItemsIDsCSV = $deleteItems[0]; // csv string of IDs
+		$deleteOrderLineItemsIDsArray = $this->wire('sanitizer')->intArray($deleteOrderLineItemsIDsCSV);
+		if (!empty($deleteOrderLineItemsIDsArray)) {
+			$deleteOrderLineItemsIDs = implode('|', $deleteOrderLineItemsIDsArray);
+			//-------------
+			$pages = $this->wire('pages');
+			$orderLineItems = $pages->find("id={$deleteOrderLineItemsIDs}");
+
+			// ---------
+			// TRASH each order line item page
+
+			$notDeletedOrderLineItemsTitles = [];
+			$deletedOrderLineItemsTitles = [];
+			foreach ($orderLineItems as $orderLineItem) {
+				// locked for edits
+				if ($orderLineItem->isLocked()) {
+					$notDeletedOrderLineItemsTitles[] = $orderLineItem->title;
+					continue;
+				}
+				$pages->trash($orderLineItem);
+				// successfully trashed
+				if ($orderLineItem->isTrash()) {
+					$deletedOrderLineItemsTitles[] = $orderLineItem->title;
+				}
+			}
+			// ------
+			// NOTICES
+			// success
+			if (!empty($deletedOrderLineItemsTitles)) {
+				$this->message(sprintf(__("Deleted these order line items: %s."), implode(', ', $deletedOrderLineItemsTitles)));
+			}
+			// error
+			if (!empty($notDeletedOrderLineItemsTitles)) {
+				$this->warning(sprintf(__("Could not delete these order line items: %s."), implode(', ', $notDeletedOrderLineItemsTitles)));
+			}
+		}
+	}
+
+	// ~~~~~~~~~~~~~~~~~~~~
+
+	//------------------
+	// **** GETTERS AND CALCULATORS ****
+	## ++++++++++++ // TODO - MOVE ALL CALCULATE METHODS TO UTILITIES! #### ++++
+	private function getFieldsForGetRawOriginalProduct() {
+		return [
+			// to store as original product title at time of purchase
+			'title',
+			// to check product 'price' and 'sku'
+			'pwcommerce_product_stock',
+			// to check if  product is 'taxable'
+			'pwcommerce_product_settings',
+			// to check for tax overrides
+			'pwcommerce_categories',
+			// to check if product is a variant, in which case we need to get the settings and categories from the parent product
+			'parent_id',
+			'id',
+		];
+	}
+	// TODO - MOVE ALL CALCULATE METHODS TO UTILITIES!
+	private function getOrderLineItemProductCategoriesAndSettings($originalProduct, $isVariant) {
+		$productCategoriesAndSettings = [];
+
+		// VARIANT - line item product is a variant
+		if ((int) $isVariant) {
+			// we will need to get this variant's parent id in order to get its categories and settings
+			$fields = $this->getFieldsForGetRawOriginalProduct();
+			$parentID = (int) $originalProduct['parent_id'];
+			// we only need these two fields from the parent product
+			$fields = ['pwcommerce_product_settings', 'pwcommerce_categories'];
+			$dataSource = $this->wire('pages')->getRaw("id={$parentID}", $fields);
+			// @note: a main product with unsaved categories or settings will not return results for those fields!
+
+		}
+
+		// NOT VARIANT - line item product is a product (and it has no variants)
+		else {
+			// this is a product without variants
+			//  it cannot be a product with variants as those are never added as order line items - their children (variants) are added instead
+			// @note: a main product with unsaved categories or settings will not return results for those fields!
+			$dataSource = $originalProduct;
+
+		}
+
+		//-------------------
+		// process data
+
+		// @note: a main product with unsaved categories or settings will not return results for those fields! So, need to check
+		$productCategoriesAndSettings = [
+			'pwcommerce_categories' => !empty($dataSource['pwcommerce_categories']) ? $dataSource['pwcommerce_categories'] : null,
+			'pwcommerce_product_settings' => !empty($dataSource['pwcommerce_product_settings']) ? $dataSource['pwcommerce_product_settings'] : null,
+		];
+
+		return $productCategoriesAndSettings;
+	}
+	// TODO - MOVE ALL CALCULATE METHODS TO UTILITIES!
+	// TODO - CAN IMPORT AN 'ACTION' CLASS HERE SO CAN BE SHARED FOR MANUAL AND AUTOMATIC ORDERS!
+	private function getCalculatedDiscountAmount($orderLineItem) {
+
+		// TODO!
+
+		// TODO: if discount type is 'none', just return blank values
+		$discountType = $orderLineItem->discountType;
+		$discountValue = $orderLineItem->discountValue;
+		$unitPrice = $orderLineItem->unitPrice;
+		$quantity = $orderLineItem->quantity;
+
+		// TODO: calculate discount here
+		$discountAmount = 0;
+		return $discountAmount;
+	}
+
+	private function getCalculatedTaxes(WireInputData $input, $productSettings, $productCategories, $stock) {
+
+		// TODO WIP!!!
+		// TODO - MOVE ALL CALCULATE METHODS TO UTILITIES!
+
+		// GET TAX SETTINGS
+		$taxesSettingsJSON = $this->wire('pages')->getRaw("template=pwcommerce-settings,name=taxes", 'pwcommerce_settings');
+		// TODO: IF DIDN'T FIND PAGE ERROR?!
+		$taxesSettings = [];
+
+		if (!empty($taxesSettingsJSON)) {
+			$taxesSettings = json_decode($taxesSettingsJSON, true);
+		}
+
+		$taxesIncludedInPrices = isset($taxesSettings['taxesIncludedInPrices']) ? $taxesSettings['taxesIncludedInPrices'] : null;
+
+		// TODO: IF NO SETTING SHOULD WE ASSUME ALWAYS INCLUDED OR ALWAYS EXCLUDED? HMMM
+		if (is_null($taxesIncludedInPrices)) {
+			$taxesIncludedInPrices = true;
+		}
+
+		// GET THE TAX RATE FROM THE CUSTOMER COUNTRY
+		$customerUseBillingAddress = (int) $input->pwcommerce_order_customer_use_billing_address;
+		$customerCountry = null;
+
+		// @note: we need this irrespective of whether prices already include tax
+		// @note: we get this from the $input since we don't know if the customer field will be saved before or after operations here.
+		// TODO: if billing address in use, we use the country there, else using shipping country. OK?
+
+		// if taxes already included in the price
+		// get the tax portion
+		if ($taxesIncludedInPrices) {
+
+		} else {
+			// taxes not included: need to calculate them
+
+		}
+
+		/* TODO
+												- check if product is taxable. IF NOT, just return blank values
+												- TODO: WILL NEED TO CHECK ALSO, IF TAXES BEING APPLIED TO THIS ORDER! TODO: FOR NOW, MAYBE ALWAYS DO SO?
+												else, get from $input for the order!
+												- use customer information (order customer) to get customer tax exemption status => then,  if proceeding, customer country
+												- match customer country to a shipping zone
+												- TODO: if don't ship to that country, abort? or check if item is digital?
+												- get customer country page then get country tax rates and tax overrides: check which apply to this product TODO: means we get product categories in order to see if any override applies -> TODO: might delay overrides feature for first release
+												TODO: also need to know if PRICES INCLUDE/EXCLUDE TAX! - CHECK GENERAL SETTINGS?!!!
+												templates: 'pwcommerce-country' + get its children if it has territories
+												fields: 'pwcommerce_tax_overrides', 'pwcommerce_tax_rates', ''
+												*/
+		// TODO! IS THIS IN USE????
+		// $taxable = $productSettings['taxable'];
+		// TODO: get from country + state if applicable
+		// @note, for now, if applicable, just save as csv! e.g. 'GST, PST' => we store the short name
+		$taxName = 'not taxable';
+		// TODO
+		$taxPercentage = 0;
+		// TODO: calculate if taxable
+		$taxAmountTotal = 0;
+
+		// TODO
+		$calculatedTaxes = [
+			'tax_name' => $taxName,
+			'tax_percentage' => $taxPercentage,
+			'tax_amount_total' => $taxAmountTotal,
+		];
+		return $calculatedTaxes;
+	}
+
+	private function getAdjustedUnitPrices($orderLineItem) {
+		// TODO
+
+		$unitPrice = $orderLineItem->unitPrice;
+		// TODO: confirm ok like this!!! OR NEED TAX PERCENTAGE!
+		$taxAmountTotal = $orderLineItem->taxAmountTotal;
+		//TODO ok?
+		$discountAmount = $orderLineItem->discountAmount;
+
+		// TODO calculate these!
+		$unitPriceWithTax = 0;
+		$unitPriceDiscounted = 0;
+		$unitPriceDiscountedWithTax = 0;
+
+		$adjustedUnitPrices = [
+			'unit_price_with_tax' => $unitPriceWithTax,
+			'unit_price_discounted' => $unitPriceDiscounted,
+			'unit_price_discounted_with_tax' => $unitPriceDiscountedWithTax,
+		];
+		return $adjustedUnitPrices;
+	}
+
+	// TODO DELETE IF NOT IN USE
+	private function getCalculatedTotalPriceValues($orderLineItem) {
+
+		$unitPrice = $orderLineItem->unitPrice;
+		$discountAmount = $orderLineItem->discountAmount;
+		// TODO!!!
+		$unitTax = $orderLineItem->taxAmountTotal;
+		//--------------
+
+		$totalPrice = 0;
+		$totalPriceWithTax = 0;
+		$totalPriceDiscounted = 0;
+		$totalPriceDiscountedWithTax = 0;
+		$totalDiscounts = 0;
+
+		// TODO
+		$totalPriceValues = [
+			'total_price' => $totalPrice,
+			'total_price_with_tax' => $totalPriceWithTax,
+			'total_price_discounted' => $totalPriceDiscounted,
+			'total_price_discounted_with_tax' => $totalPriceDiscountedWithTax,
+			'total_discounts' => $totalDiscounts,
+		];
+		return $totalPriceValues;
+	}
+
+	// order line items configuration values to send to client-side for JavaScript
+
+	/**
+	 * This helper method prepares subset of values that will be send as JavaScript configuraton values to client.
+	 *
+	 * @return void
+	 */
+	public function getOrderLineItemsConfigValuesForClient($orderLineItemsValues) {
+
+		// TODO: revisit list below!
+		// we only need a subset of the values
+		// the below may only be needed in the frontend, either for syntatic sugar or otherwise
+		$remove = [
+			'deliveredDate',
+			'discount',
+			'lineItemIsVariant',
+			'lineItemPaymentStatus',
+			'lineItemProductID',
+			'lineItemProductSKU',
+			'lineItemProductTitle',
+			'lineItemQuantity',
+			'lineItemFulfilmentStatus',
+			'lineItemStatus',
+			'lineItemTaxIsOverride',
+			'lineItemTotalDiscounts',
+			'lineItemTotalPrice',
+			'lineItemTotalPriceDiscounted',
+			'lineItemTotalPriceDiscountedWithTax',
+			'lineItemTotalPriceWithTax',
+			'lineItemUnitPrice',
+			'lineItemUnitPriceDiscounted',
+			'lineItemUnitPriceDiscountedWithTax',
+			'lineItemUnitPriceWithTax',
+			'orderItemIsVariant',
+			'orderItemPaymentStatus',
+			'orderItemProductID',
+			'orderItemProductSKU',
+			'orderItemProductTitle',
+			'orderItemQuantity',
+			'orderItemPaymentStatus',
+			'orderItemFulfilmentStatus',
+			'orderItemStatus',
+			'orderItemTaxIsOverride',
+			'orderItemTotalDiscounts',
+			'orderItemTotalPrice',
+			'orderItemTotalPriceDiscounted',
+			'orderItemTotalPriceDiscountedWithTax',
+			'orderItemTotalPriceWithTax',
+			'orderItemUnitPrice',
+			'orderItemUnitPriceDiscounted',
+			'orderItemUnitPriceDiscountedWithTax',
+			'orderItemUnitPriceWithTax',
+			'productQuantity',
+			'status',
+			'tax',
+			'taxAmountTotal',
+			'taxName',
+			'taxPercentage',
+			'totalDiscounts',
+			// 'totalPriceDiscounted',// we need this for 'NET' price on load!
+			'totalPriceDiscountedWithTax',
+			'totalPriceWithTax',
+			'unitPriceDiscounted',
+			'unitPriceDiscountedWithTax',
+			'unitPriceWithTax',
+		];
+
+		//-------
+		// GET THE array values from the WireData that we want to KEEP
+		// @note: we loop since this is a multidimensional array of order line items!
+		$keepArray = [];
+
+		foreach ($orderLineItemsValues as $orderLineItemsValue) {
+
+			/** @var array $orderLineItemsValue */
+			$orderLineItemsValue['is_generic_no_image_found'] = $this->pwcommerce->isGenericNoImageFound($orderLineItemsValue['productThumbURL']);
+			$orderLineItemsValue = $this->setLocaleValues($orderLineItemsValue);
+
+			// @note: prepare decimal values
+			// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+			$orderLineItemsValue = $this->setLocaleValues($orderLineItemsValue);
+
+			// ============
+			$keepArray[] = array_diff_key($orderLineItemsValue, array_flip($remove));
+		}
+
+		return $keepArray;
+	}
+
+	// ##############
+
+	/**
+	 * Server-side locale-aware value converted to properly render in HTML5 input of type number.
+	 *
+	 * @param array $orderLineItemsValues Order line item values from which to convert decimal values.
+	 * @return array $orderLineItemsValues Order line item values with converted decimals.
+	 */
+	private function setLocaleValues(array $orderLineItemsValues) {
+		// line item properties that need decimal conversions
+		// @note: only 'discountValue' is used in an input
+		// but we do the rest of the decimals anyway
+		$decimalVariables =
+			[
+				'discountValue',
+				'discountAmount',
+				'unitPrice',
+				'totalPrice',
+				'totalPriceDiscounted'
+			];
+		foreach ($decimalVariables as $property) {
+			$orderLineItemsValues[$property] = $this->pwcommerce->localeConvertValue($orderLineItemsValues[$property]);
+		}
+		//  ------
+		return $orderLineItemsValues;
+	}
+
+	//#################
+
+	/**
+	 * Make a string value to represent these values that can be used for comparison purposes.
+	 *
+	 * @note We only compare three mutable values with respect to editing an order line item.
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 *
+	 * @access private
+	 * @param integer $editedQuantity The quantity of this line item.
+	 * @param string $editedDiscountType One of 'none|percentage|fixed_applied_once|fixed_applied_per_item' representing discount type.
+	 * @param float $editedDiscountValue Discount value, e.g. 1.5% or €4.99
+	 * @return bool Whether above values are different from their counterpart saved values
+	 *
+	 */
+	private function isChangedOrderLineItem($editedQuantity, $editedDiscountType, $editedDiscountValue, $orderLineItem) {
+		//$orderLineItem = $this->attr('value');
+		$editedString = (string) "$editedQuantity: $editedDiscountType: $editedDiscountValue";
+		$savedString = (string) "$orderLineItem->quantity: $orderLineItem->discountType: $orderLineItem->discountValue";
+
+		return $editedString !== $savedString;
+	}
+
+	// TODO: DELETE IF NOT IN USE!
+	/**
+	 * Make a string value to represent these values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($item) {
+		$string = (string) "$item->productID: $item->productTitle: $item->sku: $item->quantity: $item->isVariant: $item->discountType: $item->discountValue: $item->discountAmount: $item->taxName: $item->taxPercentage: $item->taxAmountTotal: $item->unitPrice: $item->unitPriceWithTax: $item->unitPriceDiscounted: $item->unitPriceDiscountedWithTax: $item->totalPrice: $item->totalPriceWithTax: $item->totalPriceDiscounted: $item->totalPriceDiscountedWithTax: $item->totalDiscounts: $item->deliveredDate: $item->status";
+		return $string;
+	}
+}

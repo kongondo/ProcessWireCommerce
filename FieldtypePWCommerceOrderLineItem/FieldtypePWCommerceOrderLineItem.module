@@ -1,0 +1,872 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * FieldtypePWCommerceOrderLineItem for ProcessWire.
+ *
+ * This Fieldtype stores values for a PWCommerce order single line item.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceOrderLineItem for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+class FieldtypePWCommerceOrderLineItem extends Fieldtype
+{
+
+	// =============
+	// TRAITS
+
+	public static function getModuleInfo() {
+		return [
+			'title' => 'PWCommerce Order Line Item: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce order single line item values.',
+			'installs' => 'InputfieldPWCommerceOrderLineItem',
+		];
+	}
+
+	/**
+	 * We keep a copy of the $page that owns these tax rates so that we can follow
+	 * its outputFormatting state and change our output per that state
+	 *
+	 */
+	// @for use in InputfieldPWCommerceOrderLineItem
+	protected $page;
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceOrderLineItem");
+		// our inputfield requires a Page and Field
+		// @note: these two are methods in InputfieldPWCommerceOrderLineItem
+		$inputfield->setPage($page);
+		$inputfield->setField($field);
+		return $inputfield;
+	}
+
+	/**
+	 * Get a blank value of this field, i.e. return a blank WireData ready-to-populate.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireData, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	// @credits: borrowed from ProcessWire FieldtypeDatetime.module
+	/**
+	 * Sanitize a value assumed to be either a timestamp or in strtotime() compatible format
+	 *
+	 * @param string|int|\DateTime
+	 * @return int|string Returns unix timestamp integer or blank string if empty or invalid value
+	 *
+	 */
+	protected function _sanitizeValue($value) {
+		if (empty($value)) {
+			// empty value
+			$value = '';
+		} elseif (is_int($value)) {
+			// value okay as-is
+		} elseif ($value instanceof \DateTime) {
+			// instance of DateTime
+			$value = $value->getTimestamp();
+		} elseif (ctype_digit(ltrim("$value", '-'))) {
+			// already a timestamp
+			$value = (int) $value;
+		} else {
+			// convert date string to time
+			$value = strtotime($value);
+			if ($value === false) {
+				$value = '';
+			}
+		}
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO: NOT NEEDED?
+		return $value;
+	}
+
+	private function getOrderLineItemProductThumbURL($originalProductID) {
+
+		$originalProduct = $this->wire('pages')->get($originalProductID);
+
+		$productThumbURL = null;
+		if ($originalProduct->id && $originalProduct->pwcommerce_images) {
+			$firstImage = $originalProduct->pwcommerce_images->first();
+			if ($firstImage) {
+
+				$thumb = $firstImage->height(260);
+				$productThumbURL = $thumb->url;
+			} else {
+				// get generic image
+				// GET UTILITIES CLASS
+
+
+				// return generic no-image-found
+				$assetsURL = $this->pwcommerce->getAssetsURL();
+				$productThumbURL = $assetsURL . "icons/no-image-found.svg";
+			}
+		}
+		return $productThumbURL;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array $value
+	 * @return string|int|array|object $value
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// TODO BELOW, DELETE IF NO LONGER USING ALIASES
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireData
+		if (empty($value) || !is_array($value)) {
+			return $record;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// 1. PRODUCT
+
+		// ** product id **
+		// note we are converting 'data' to 'record->id'
+		$productID = (int) $value['data'];
+		$record->productID = $productID;
+		// aliases
+		$record->lineItemProductID = $productID;
+		$record->orderItemProductID = $productID;
+
+		// ** title **
+		$productTitle = $sanitizer->text($value['product_title']);
+		$record->productTitle = $productTitle;
+		// aliases
+		// $record->lineItemProductTitle = $productTitle;
+		// $record->orderItemProductTitle = $productTitle;
+
+		// ** sku **
+		$productSKU = $sanitizer->text($value['sku']);
+		$record->productSKU = $productSKU;
+		// aliases
+		// $record->lineItemProductSKU = $productSKU;
+		// $record->orderItemProductSKU = $productSKU;
+
+		// ** quantity **
+		$quantity = (int) $value['quantity'];
+		$record->quantity = $quantity;
+		// aliases
+		// $record->lineItemQuantity = $quantity;
+		// $record->orderItemQuantity = $quantity;
+		// $record->productQuantity = $quantity;
+
+		// ** is this order line item product a variant **
+		$isVariant = (int) $value['is_variant'];
+		$record->isVariant = $isVariant;
+		// aliases
+		// $record->lineItemIsVariant = $isVariant;
+		// $record->orderItemIsVariant = $isVariant;
+
+		//----------------
+
+		// 2. DISCOUNTS
+		// TODO NOVEMBER 2023. CHANGE THIS! ONE, NO LONGER NEEDED IN SCHEMA FOR PWCOMMERCE 009+ AND TWO, WE NEED TO ADD A PROPERTY $record->discounts WHOSE VALUE IS A WIREARRAY. THE WIREARRAY WILL CONTAIN WIREDATA ITEMS EACH OF WHICH IS AN APPLIED DISCOUNT; EACH WILL HAVE ITS OWN DISCOUNT VALUES; THAT MATCH THE FIELD PWCOMMERCEORDERDISCOUNTS; HENCE JUST GRAB THAT FIELD FOR USE HERE!
+		/** @var WireArray $discounts */
+		$discounts = $page->get(PwCommerce::ORDER_DISCOUNTS_FIELD_NAME);
+		$record->discounts = $discounts;
+
+		// ** type **
+		$record->discountType = $sanitizer->pageName($value['discount_type']);
+
+		// ** value **
+		$record->discountValue = (float) $value['discount_value'];
+
+		// ** amount **
+		$discountAmount = (float) $value['discount_amount'];
+		$record->discountAmount = $discountAmount;
+		// aliases
+		$record->discount = $discountAmount;
+
+		//----------------
+
+		// 3. TAXES
+
+		// ** name **
+		$record->taxName = $sanitizer->text($value['tax_name']);
+
+		// ** percentage **
+		$record->taxPercentage = (float) $value['tax_percentage'];
+
+		// ** total **
+		$taxAmountTotal = (float) $value['tax_amount_total'];
+		$record->taxAmountTotal = $taxAmountTotal;
+		// aliases
+		// $record->tax = $taxAmountTotal;
+
+		// ** is this tax an (category) override (i.e., vs country standard tax) **
+		$isTaxOverride = (int) $value['is_tax_override'];
+		$record->isTaxOverride = $isTaxOverride;
+		// aliases
+		// $record->lineItemTaxIsOverride = $isTaxOverride;
+		// $record->orderItemTaxIsOverride = $isTaxOverride;
+
+		//----------------
+
+		// 4. UNITS
+
+		// ** price **
+
+		$unitPrice = (float) $value['unit_price'];
+		$record->unitPrice = $unitPrice;
+		// aliases
+		// $record->lineItemUnitPrice = $unitPrice;
+		// $record->orderItemUnitPrice = $unitPrice;
+
+		// ** price + tax **
+		$unitPriceWithTax = (float) $value['unit_price_with_tax'];
+		$record->unitPriceWithTax = $unitPriceWithTax;
+		// aliases
+		// $record->lineItemUnitPriceWithTax = $unitPriceWithTax;
+		// $record->orderItemUnitPriceWithTax = $unitPriceWithTax;
+
+		// ** price + discount **
+		$unitPriceDiscounted = (float) $value['unit_price_discounted'];
+		$record->unitPriceDiscounted = $unitPriceDiscounted;
+		// aliases
+		// $record->lineItemUnitPriceDiscounted = $unitPriceDiscounted;
+		// $record->orderItemUnitPriceDiscounted = $unitPriceDiscounted;
+
+		// ** price + discount + tax **
+		$unitPriceDiscountedWithTax = (float) $value['unit_price_discounted_with_tax'];
+		$record->unitPriceDiscountedWithTax = $unitPriceDiscountedWithTax;
+		// aliases
+		// $record->lineItemUnitPriceDiscountedWithTax = $unitPriceDiscountedWithTax;
+		// $record->orderItemUnitPriceDiscountedWithTax = $unitPriceDiscountedWithTax;
+
+		//----------------
+
+		// 5. TOTALS
+
+		// ** total price **
+
+		$totalPrice = (float) $value['total_price'];
+		$record->totalPrice = $totalPrice;
+		// aliases
+		// $record->lineItemTotalPrice = $totalPrice;
+		// $record->orderItemTotalPrice = $totalPrice;
+
+		// ** total price + tax **
+		$totalPriceWithTax = (float) $value['total_price_with_tax'];
+		$record->totalPriceWithTax = $totalPriceWithTax;
+		// aliases
+		// $record->lineItemTotalPriceWithTax = $totalPriceWithTax;
+		// $record->orderItemTotalPriceWithTax = $totalPriceWithTax;
+
+		// ** total price + discount **
+		$totalPriceDiscounted = (float) $value['total_price_discounted'];
+		$record->totalPriceDiscounted = $totalPriceDiscounted;
+		// aliases
+		// $record->lineItemTotalPriceDiscounted = $totalPriceDiscounted;
+		// $record->orderItemTotalPriceDiscounted = $totalPriceDiscounted;
+
+		// ** total price + discount + tax **
+		$totalPriceDiscountedWithTax = (float) $value['total_price_discounted_with_tax'];
+		$record->totalPriceDiscountedWithTax = $totalPriceDiscountedWithTax;
+		// aliases
+		// $record->lineItemTotalPriceDiscountedWithTax = $totalPriceDiscountedWithTax;
+		// $record->orderItemTotalPriceDiscountedWithTax = $totalPriceDiscountedWithTax;
+
+		// ** total discounts **
+		// $totalDiscounts = (float) $value['total_discounts'];
+		$totalDiscounts = (int) $value['total_discounts'];
+		$record->totalDiscounts = $totalDiscounts;
+		// aliases
+		// $record->lineItemTotalDiscounts = $totalDiscounts;
+		// $record->orderItemTotalDiscounts = $totalDiscounts;
+
+		//----------------
+
+		// 6. SHIPMENT
+
+		// ** delivery date **
+		// TODO: UNSURE IF TO RETURN TIMESTAMP OR TIME STRING! MAYBE EXTRA VARIABLE FOR THIS?
+		// TODO: NEED A GENERIC DATE HERE FOR DEFAULT?-> FOR NEW ITEMS OR DO WE SET NULL?
+		// @note: for now we use empty date as default, i.e. '2016-04-08 05:10:00'
+		$deliveredDate = $value['delivered_date'];
+		if (empty($deliveredDate)) {
+			$deliveredDate = '';
+		} else {
+			$deliveredDate = strtotime($deliveredDate);
+			if ($deliveredDate === false) {
+				$deliveredDate = '';
+			}
+		}
+		$record->deliveredDate = $deliveredDate;
+
+		// 7. STATUSES
+		$status = (int) $value['status'];
+		// $record->status = $status;
+		$record->lineItemOrderStatus = $status;
+		// aliases
+		// $record->lineItemStatus = $status;
+		// $record->orderItemStatus = $status;
+
+		$fulfilmentStatus = (int) $value['fulfilment_status'];
+		// $record->fulfilmentStatus = $fulfilmentStatus;
+		$record->lineItemFulfilmentStatus = $fulfilmentStatus;
+		// aliases
+		// $record->lineItemFulfilmentStatus = $fulfilmentStatus;
+		// $record->orderItemFulfilmentStatus = $fulfilmentStatus;
+
+		$paymentStatus = (int) $value['payment_status'];
+		// $record->paymentStatus = $paymentStatus;
+		$record->lineItemPaymentStatus = $paymentStatus;
+		// aliases
+		// $record->lineItemPaymentStatus = $paymentStatus;
+		// $record->orderItemPaymentStatus = $paymentStatus;
+
+		//----------------
+
+		// TODO: RUNTIME STATUS VALUES? E.G. WHAT DOES STATUS 8090 MEAN!!! - TODO WILL LOOKUP IN THE CUSTOM EXTERNAL STATUSES TABLE! ALSO, GOOD TO ADD THE VERBOSE DESCRIPTIONS OF STATUSES TO RUNTIME
+
+		// OTHER RUN TIME
+		// set the line item ID to be the line item page id (for convenience)
+		$record->id = $page->id;
+		// if it still exists, the product thumb URL (260 width)
+		$record->productThumbURL = $this->getOrderLineItemProductThumbURL($productID);
+
+		//+++++++++++++++
+		// tell it to start tracking changes from this point forward
+		$record->resetTrackChanges();
+
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array|object $value
+	 * @return string|int
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// @note: we only allow these discount types
+		$allowedDiscountTypeValues = ['none', 'multiple', 'percentage', 'fixed_applied_once', 'fixed_applied_per_item'];
+		$discountType = $sanitizer->option($value->discountType, $allowedDiscountTypeValues);
+		// default to 'none' if sanitizer returns null
+		if (empty($discountType)) {
+			$discountType = 'none';
+		}
+
+		//---------------------
+
+		// convert record to an array within sleepValue
+		$sleepValue = [
+
+			/*
+																					 KEY:
+																					 ***: IMMUTABLE
+																					 +++: CALCULATED BUT NOT EDITABLE
+																					 ^^^: EDITABLE
+																					 --- @notes ---
+																					 *** IMMUTABLE! VALUES SET ONCE WHEN ORDER LINE ITEM IS CREATED. They are true fixed/permanent records of the concerned value at the time the order was placed. For manual orders, placement starts when the manual order is created.
+																					 */
+
+			// 1. PRODUCT
+			// note: value->productID is becoming data which is a required column in a Fieldtype
+			'data' => (int) $value->productID,
+			// ***
+			'product_title' => $sanitizer->text($value->productTitle),
+			// ***
+			'sku' => $sanitizer->text($value->productSKU),
+			// ***
+			'quantity' => (int) $value->quantity,
+			// ^^^
+			'is_variant' => (int) $value->isVariant,
+			// ***
+
+			// 2. DISCOUNTS
+			'discount_type' => $discountType,
+			// ^^^
+			'discount_value' => (float) $value->discountValue,
+			// ^^^
+			// @note: calculated based on discount type and value, unit price and quantity
+			'discount_amount' => (float) $value->discountAmount,
+			// +++
+
+			// 3. TAXES
+			'tax_name' => $sanitizer->text($value->taxName),
+			// +++
+			'tax_percentage' => (float) $value->taxPercentage,
+			// +++
+			'tax_amount_total' => (float) $value->taxAmountTotal,
+			// +++
+			'is_tax_override' => (int) $value->isTaxOverride,
+			// +++
+
+			// 4. UNITS
+			// @note: at the time the line item is created, we set the TRUE price of the product which takes into account whether the price 'is inclusive or exclusive of taxes'
+			'unit_price' => (float) $value->unitPrice,
+			// ***
+			'unit_price_with_tax' => (float) $value->unitPriceWithTax,
+			// +++
+			// TODO: MIGHT NOT MAKE SINCE IN CASE OF FIXED DISCOUNT APPLIED ONE! - DIVIDE?
+			'unit_price_discounted' => (float) $value->unitPriceDiscounted,
+			// +++
+			'unit_price_discounted_with_tax' => (float) $value->unitPriceDiscountedWithTax,
+			// +++
+
+			// 5. TOTALS
+			'total_price' => (float) $value->totalPrice,
+			// +++
+			'total_price_with_tax' => (float) $value->totalPriceWithTax,
+			// +++
+			'total_price_discounted' => (float) $value->totalPriceDiscounted,
+			// +++
+			'total_price_discounted_with_tax' => (float) $value->totalPriceDiscountedWithTax,
+			// +++
+			// @note: this sums the line item's discount and the whole order discount @UPDATE: NO; THIS IS THE NUMBER OF DISCOUNTS APPLIED TO THIS LINE ITEM!
+			// 'total_discounts' => (float) $value->totalDiscounts,
+			'total_discounts' => (int) $value->totalDiscounts,
+			// +++
+
+			// 6. SHIPMENT
+			'delivered_date' => date('Y-m-d H:i:s', (int) $this->_sanitizeValue($value->deliveredDate)),
+			// +++
+
+			// 7. STATUSES
+			'status' => (int) $value->status,
+			// +++
+			'fulfilment_status' => (int) $value->fulfilmentStatus,
+			// +++
+			'payment_status' => (int) $value->paymentStatus,
+			// +++
+
+		];
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Return the database schema that defines a product property item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+		$schema = parent::getDatabaseSchema($field);
+
+		// TODO: @UPDATE BELOW AS NEEDED
+
+		// ****************
+		// 1. PRODUCT
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->productID' field (column in db)
+		// we reuse this required field/column (data) for item->productID
+		// @note: this refers to the ID of the product that this line item represents
+		// @note: we use it internally to reference this line item
+		// @note: we don't use it for the purposes of getting the same product in the future since that product could have been deleted/discontinued since this order was created
+		$schema['data'] = 'INT UNSIGNED NOT NULL'; // 'product_id'
+		$schema['product_title'] = 'TEXT NOT NULL';
+		$schema['sku'] = 'VARCHAR(250) NOT NULL';
+		$schema['quantity'] = 'INT UNSIGNED NOT NULL';
+		$schema['is_variant'] = 'TINYINT(1) UNSIGNED NOT NULL';
+
+		// ****************
+		// 2. DISCOUNTS
+
+		// discount_amount (currency; calculated from discount_value)
+		// @note: NOT to be confused with discounts applied to whole order!
+		// @UPDATE: WHOLE ORDER DISCOUNTS NOW ALSO APPLIED TO ITEMS! THIS IS DONE PROPORTIONATELY
+		// @UPDATE: HERE JUST FOR AUDIT TRAIL! DISCOUNTS NOW TRACKED IN SEPARATE FIELD FOR DISCOUNTS!
+		// none | percentage | fixed_applied_once | fixed_applied_per_item | whole_order_percentage | whole_order_fixed
+		$schema['discount_type'] = 'CHAR(25) NOT NULL';
+		// discount_value (e.g. 2% or 1.35 fixed_applied_once or 1.35 fixed_applied_per_item)
+		$schema['discount_value'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// 'discount_amount' is calculated from application of discount_value, i.e. in cash terms (currency)
+		$schema['discount_amount'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+
+		// ****************
+		// 3. TAXES
+
+		// tax_name TODO: what if mulitple? csv? querying!!!??
+		$schema['tax_name'] = 'VARCHAR(250) NOT NULL'; // e.g. VAT, GST, PST, etc
+		// tax_percentage
+		$schema['tax_percentage'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// tax_amount_total <= total tax paid (cash terms {currency})
+		$schema['tax_amount_total'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// is_tax_override: is the tax applied from a category tax override?
+		$schema['is_tax_override'] = 'TINYINT(1) UNSIGNED NOT NULL';
+
+		// ****************
+		// 4. UNITS (single product item - can be a variant or product itself if not variant)
+
+		// unit_price (price of single item without taxes or discounts when order was placed)
+		$schema['unit_price'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// unit_price_with_tax {unit_price + tax}
+		$schema['unit_price_with_tax'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// unit_price_discounted {unit_price - discount_amount}
+		$schema['unit_price_discounted'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// unit_price_discounted_with_tax {unit_price_discounted + tax}
+		$schema['unit_price_discounted_with_tax'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+
+		// ****************
+		// 5. TOTALS [all in cash terms {currency}]
+
+		// total_price {unit_price * quantity} => gross price b4 tax
+		$schema['total_price'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// total_price_with_tax {unit_price_with_tax * quantity} => gross price + tax
+		$schema['total_price_with_tax'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// total_price_discounted {unit_price_discounted * quantity} => net price b4 tax
+		$schema['total_price_discounted'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// total_price_discounted_with_tax {unit_price_discounted_with_tax * quantity} => net price + tax
+		$schema['total_price_discounted_with_tax'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// total_discounts
+		$schema['total_discounts'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+
+		// ****************
+		// 6. SHIPMENT
+
+		// @note: delivery date unique to this item as might be different from other items
+		// $schema['delivered_date'] = 'DATETIME NOT NULL';
+		// @note TODO: needs to be nullable, e.g. for status 'pending' [non-delivered!]
+		// TODO @note: does not seem to work! now using '2016-04-08 05:10:00' to denote default value
+		$schema['delivered_date'] = 'DATETIME NULL';
+
+		// ****************
+		// 7. STATUSES
+		// @note: we use SMALLINTs FLAGs for statuses
+		// @see file with statuses TODO!
+		// @note: we use custom external table to store statuses, their names and descriptions TODO!
+
+		// order line item status itself: e.g. complete, cancelled, pending, refunded, part-refunded, etc
+		$schema['status'] = 'SMALLINT UNSIGNED NOT NULL';
+		// order line item fulfilment status (including shipment status): e.g. shipped, delayed, refused, damaged, lost, etc
+		$schema['fulfilment_status'] = 'SMALLINT UNSIGNED NOT NULL';
+		// order line item payment status: e.g. paid, part-paid, invoiced, re-invoiced, etc
+		$schema['payment_status'] = 'SMALLINT UNSIGNED NOT NULL';
+
+		//++++++++++++++++++++++++++++++++++++++++++++++++
+		// +++ INDEXING +++
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		// 1. PRODUCT
+		// for 'product_id'
+		$schema['keys']['data'] = 'KEY data (data)'; // for 'product_id' / 'id'
+		$schema['keys']['product_title'] = 'FULLTEXT KEY product_title (product_title)';
+		$schema['keys']['sku'] = 'FULLTEXT KEY sku (sku)';
+		$schema['keys']['quantity'] = 'KEY quantity(quantity)';
+		$schema['keys']['is_variant'] = 'KEY is_variant(is_variant)';
+
+		// 2. DISCOUNTS
+		$schema['keys']['discount_type'] = 'FULLTEXT KEY discount_type (discount_type)';
+		$schema['keys']['discount_value'] = 'KEY discount_value(discount_value)';
+		$schema['keys']['discount_amount'] = 'KEY discount_amount(discount_amount)';
+
+		// 3. TAXES
+		$schema['keys']['tax_name'] = 'FULLTEXT KEY tax_name (tax_name)';
+		$schema['keys']['tax_percentage'] = 'KEY tax_percentage(tax_percentage)';
+		$schema['keys']['tax_amount_total'] = 'KEY tax_amount_total(tax_amount_total)';
+		$schema['keys']['is_tax_override'] = 'KEY is_tax_override(is_tax_override)';
+
+		// 4. UNITS
+		$schema['keys']['unit_price'] = 'KEY unit_price(unit_price)';
+		$schema['keys']['unit_price_with_tax'] = 'KEY unit_price_with_tax(unit_price_with_tax)';
+		$schema['keys']['unit_price_discounted'] = 'KEY unit_price_discounted(unit_price_discounted)';
+		$schema['keys']['unit_price_discounted_with_tax'] = 'KEY unit_price_discounted_with_tax(unit_price_discounted_with_tax)';
+
+		// 5. TOTALS
+		$schema['keys']['total_price'] = 'KEY total_price(total_price)';
+		$schema['keys']['total_price_with_tax'] = 'KEY total_price_with_tax(total_price_with_tax)';
+		$schema['keys']['total_price_discounted'] = 'KEY total_price_discounted(total_price_discounted)';
+		$schema['keys']['total_price_discounted_with_tax'] = 'KEY total_price_discounted_with_tax(total_price_discounted_with_tax)';
+		$schema['keys']['total_discounts'] = 'KEY total_discounts(total_discounts)';
+
+		// 6. SHIPMENT
+		$schema['keys']['delivered_date'] = 'KEY delivered_date (delivered_date)';
+
+		// 7. STATUSES
+		// TODO - in future, connect to the statuses definitions table rather than return integer flags only?
+		$schema['keys']['status'] = 'KEY status (status)';
+		$schema['keys']['fulfilment_status'] = 'KEY fulfilment_status (fulfilment_status)';
+		$schema['keys']['payment_status'] = 'KEY payment_status (payment_status)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// 1.PRODUCT
+
+		// ** product id **
+		// if searching 'product_id' (or its aliases) then assume our default (data) field
+		if (in_array($subfield, ['productID', 'lineItemProductID', 'orderItemProductID', 'product_id', 'line_item_product_id', 'order_item_product_id'])) {
+			$subfield = 'data';
+		}
+		// ** title **
+		elseif (in_array($subfield, ['productTitle', 'lineItemProductTitle', 'orderItemProductTitle', 'line_item_product_title', 'order_item_product_title'])) {
+			$subfield = 'product_title';
+		}
+		// ** sku **
+		elseif (in_array($subfield, ['productSKU', 'lineItemProductSKU', 'orderItemProductSKU', 'product_sku', 'line_item_product_sku', 'order_item_product_sku'])) {
+			$subfield = 'sku';
+		}
+		// ** quantity **
+		elseif (in_array($subfield, ['lineItemQuantity', 'orderItemQuantity', 'productQuantity', 'line_item_quantity', 'order_item_quantity', 'product_quantity'])) {
+			$subfield = 'quantity';
+		}
+		// ** is line item product a variant? **
+		elseif (in_array($subfield, ['lineItemIsVariant', 'orderItemIsVariant', 'isVariant', 'line_item_is_variant', 'order_item_is_variant'])) {
+			$subfield = 'is_variant';
+		}
+
+		//----------------
+		// 2. DISCOUNTS
+		// ** type **
+		elseif (in_array($subfield, ['discountType'])) {
+			$subfield = 'discount_type';
+		}
+		// ** value **
+		elseif (in_array($subfield, ['discountValue'])) {
+			$subfield = 'discount_value';
+		}
+		// ** amount **
+		elseif (in_array($subfield, ['discountAmount', 'discount'])) {
+			$subfield = 'discount_amount';
+		}
+
+		//----------------
+		// 3. TAXES
+		// ** name **
+		elseif (in_array($subfield, ['taxName'])) {
+			$subfield = 'tax_name';
+		}
+		// ** percentage **
+		elseif (in_array($subfield, ['taxPercentage'])) {
+			$subfield = 'tax_percentage';
+		}
+		// ** total **
+		elseif (in_array($subfield, ['taxAmountTotal', 'tax'])) {
+			$subfield = 'tax_amount_total';
+		}
+		// ** is this tax an (category) override? (i.e., vs country standard tax) **
+		elseif (in_array($subfield, ['lineItemTaxIsOverride', 'orderItemTaxIsOverride', 'isTaxOverride', 'line_item_tax_is_override', 'order_item_tax_is_override'])) {
+			$subfield = 'is_tax_override';
+		}
+
+		//----------------
+		// 4. UNITS
+		// ** price **
+		elseif (in_array($subfield, ['unitPrice', 'lineItemUnitPrice', 'orderItemUnitPrice', 'line_item_unit_price', 'order_item_unit_price'])) {
+			$subfield = 'unit_price';
+		}
+		// ** price + tax **
+		elseif (in_array($subfield, ['unitPriceWithTax', 'lineItemUnitPriceWithTax', 'orderItemUnitPriceWithTax', 'line_item_unit_price_with_tax', 'order_item_unit_price_with_tax'])) {
+			$subfield = 'unit_price_with_tax';
+		}
+		// ** price + discount **
+		elseif (in_array($subfield, ['unitPriceDiscounted', 'lineItemUnitPriceDiscounted', 'orderItemUnitPriceDiscounted', 'line_item_unit_price_discounted', 'order_item_unit_price_discounted'])) {
+			$subfield = 'unit_price_discounted';
+		}
+		// ** price + discount + tax **
+		elseif (in_array($subfield, ['unitPriceDiscountedWithTax', 'lineItemUnitPriceDiscountedWithTax', 'orderItemUnitPriceDiscountedWithTax', 'line_item_unit_price_discounted_with_tax', 'order_item_unit_price_discounted_with_tax'])) {
+			$subfield = 'unit_price_discounted_with_tax';
+		}
+
+		//----------------
+		// 5. TOTALS
+		// ** total price **
+		elseif (in_array($subfield, ['totalPrice', 'lineItemTotalPrice', 'orderItemTotalPrice', 'line_item_total_price', 'order_item_total_price'])) {
+			$subfield = 'total_price';
+		}
+		// ** total price + tax **
+		elseif (in_array($subfield, ['totalPriceWithTax', 'lineItemTotalPriceWithTax', 'orderItemTotalPriceWithTax', 'line_item_total_price_with_tax', 'order_item_total_price_with_tax'])) {
+			$subfield = 'total_price_with_tax';
+		}
+		// ** total price + discount **
+		elseif (in_array($subfield, ['totalPriceDiscounted', 'lineItemTotalPriceDiscounted', 'orderItemTotalPriceDiscounted', 'line_item_total_price_discounted', 'order_item_total_price_discounted'])) {
+			$subfield = 'total_price_discounted';
+		}
+		// ** total price + discount + tax **
+		elseif (in_array($subfield, ['totalPriceDiscountedWithTax', 'lineItemTotalPriceDiscountedWithTax', 'orderItemTotalPriceDiscountedWithTax', 'line_item_total_price_discounted_with_tax', 'order_item_total_price_discounted_with_tax'])) {
+			$subfield = 'total_price_discounted_with_tax';
+		}
+		// ** total discounts **
+		elseif (in_array($subfield, ['totalDiscounts', 'lineItemTotalDiscounts', 'orderItemTotalDiscounts', 'line_item_total_discounts', 'order_item_total_discounts'])) {
+			$subfield = 'total_discounts';
+		}
+
+		//----------------
+		// 6. SHIPMENT
+		// ** delivery date **
+		elseif ($subfield === 'deliveredDate') {
+			// TODO: WORK MORE ON THIS @SEE FIELDTYPEDATIME!
+			$subfield = 'delivered_date';
+			return $this->getMatchQueryDatetime($query, $table, $subfield, $operator, $value);
+		}
+		//----------------
+		// 7. STATUSES
+
+		// ** item status **
+		elseif (in_array($subfield, ['status', 'lineItemStatus', 'orderItemStatus'])) {
+			$subfield = 'status';
+		}
+		// ** shipment status **
+		elseif (in_array($subfield, ['fulfilmentStatus', 'lineItemFulfilmentStatus', 'orderItemFulfilmentStatus'])) {
+			$subfield = 'fulfilment_status';
+		}
+		// ** payment status **
+		elseif (in_array($subfield, ['paymentStatus', 'lineItemPaymentStatus', 'orderItemPaymentStatus'])) {
+			$subfield = 'payment_status';
+		}
+
+		//++++++++++++++++++++++++++++
+
+		/*
+																							- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+																							- the latter allow for finer, fulltext search
+																							*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+
+	// @credits: borrowed from FieldtypeDatetime::getMatchQuery
+	/**
+	 * Match a date/time value in the database, as used by PageFinder
+	 *
+	 * @param PageFinderDatabaseQuerySelect $query
+	 * @param string $table
+	 * @param string $subfield
+	 * @param string $operator
+	 * @param int|string $value
+	 * @return DatabaseQuerySelect
+	 * @throws WireException if given invalid operator
+	 *
+	 */
+	public function getMatchQueryDatetime($query, $table, $subfield, $operator, $value) {
+		$database = $this->wire()->database;
+		$intValue = $this->_sanitizeValue($value);
+		$table = $database->escapeTable($table);
+		$subfield = $subfield ? $database->escapeCol($subfield) : 'data';
+		$minDT = '1000-01-01 00:00:00'; // $maxDT = '9999-12-31 23:59:59';
+
+		if (is_string($value) && in_array($operator, ['%=', '^='])) {
+			// partial date string match
+			if (!ctype_digit($value)) {
+				$value = str_replace(['/', '.'], '-', trim($value));
+			}
+			if (!ctype_digit(str_replace(['-', ' '], '', $value))) {
+				throw new WireException("Invalid partial date string '$value' (numbers, hyphens and space only)");
+			}
+			$value = str_replace(['%', '_'], '', $value);
+			$value = $operator === '^=' ? "$value%" : "%$value%";
+			$query->where("$table.$subfield LIKE ?", $value);
+		} elseif (!$database->isOperator($operator)) {
+			// invalid operator
+			throw new WireException("$this invalid date operator: $operator");
+		} elseif (is_int($intValue)) {
+			// matching a populated value that successfully converted to unix timestamp
+			$dateString = date('Y-m-d H:i:s', $intValue);
+			if ($dateString !== false) {
+				$query->where("$table.$subfield$operator?", $dateString);
+			}
+		} else {
+			// matching an empty value
+			if (in_array($operator, ['!=', '>', '>='])) {
+				// match NOT empty (!=0, >0)
+				$query->where("$table.$subfield>=?", $minDT);
+			} elseif (in_array($operator, ['=', '<', '<='])) {
+				// match empty (=0, <0, <=0): match null or value below unix timestamp range
+				// this includes 0000-00-00 when present and used by MySQL version
+				$query->where("$table.$subfield IS NULL OR $table.$subfield<?", $minDT);
+			} else {
+				// unsupported operator
+				throw new WireException("$this operator cannot be used here: $operator");
+			}
+		}
+
+		return $query;
+	}
+}

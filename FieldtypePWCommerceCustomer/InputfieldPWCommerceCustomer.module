@@ -1,0 +1,348 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceCustomer
+ *
+ * Inputfield for FieldtypePWCommerceCustomer, the field that stores and outputs the basic values of a PWCommerce customer.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceCustomer for PWCommerce
+ * Copyright (C) 2024 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceCustomer extends Inputfield
+{
+
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Customer: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce customer values.',
+			'requires' => 'FieldtypePWCommerceCustomer',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for customer
+	 *
+	 */
+	public function ___render() {
+		$buildFormWrapper = $this->buildForm();
+		$out =
+			"<div id='pwcommerce_customer_wrapper{$this->page->id}' class='pwcommerce_customers_wrapper'>" . $buildFormWrapper->render() . "</div>";
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+
+
+	/**
+	 * Build the form for customer inputs.
+	 *
+	 * @access private
+	 * @return InputfieldWrapper $wrapper The inputfield wrapper with the form objects.
+	 */
+	private function buildForm() {
+		// GET WRAPPER FOR ALL INPUTFIELDS HERE
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		// MAIN DETAILS
+		$wrapper = $this->buildFormCustomerMainDetails($wrapper);
+		//~~~~~~~~~~~~~~
+		return $wrapper;
+	}
+
+	private function buildFormCustomerMainDetails(InputfieldWrapper $wrapper) {
+
+		/** @var WireData $value */
+		$value = $this->attr('value');
+		$columnWidth = 50;
+
+		//------------------- first_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_first_name",
+			'name' => "pwcommerce_customer_first_name",
+			'required' => true,
+			'label' => $this->_('First Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->firstName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->firstName)) {
+			$field->error($this->_('First name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- middle_names (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_customer_middle_name",
+			'name' => "pwcommerce_customer_middle_name",
+			'label' => $this->_('Middle Name(s)'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->middleName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- last_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_last_name",
+			'name' => "pwcommerce_customer_last_name",
+			'required' => true,
+			'label' => $this->_('Last Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->lastName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->lastName)) {
+			$field->error($this->_('Last name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- email (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_customer_email",
+			'name' => "pwcommerce_customer_email",
+			'type' => 'email',
+			'notes' => $this->getNoteForCustomerRegisteredStatus(),
+			'required' => true,
+			'label' => $this->_('Email'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->email,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->email)) {
+			$field->error($this->_('An email  is required'));
+		}
+
+		$wrapper->add($field);
+
+		//------------------- is_tax_exempt (getInputfieldCheckbox)
+
+		$notes = $this->_("If checked, this customer will not be charged taxes on purchases.");
+
+		$options = [
+			'id' => "pwcommerce_customer_is_tax_exempt",
+			'name' => "pwcommerce_customer_is_tax_exempt",
+			// 'label' => $this->_('Customer is tax exempt'),
+			'label' => ' ',
+			// @note: empty string just to hide label but keeping label2
+			'label2' => $this->_('Customer is tax exempt'),
+			'notes' => $notes,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'checked' => empty($value->isTaxExempt) ? false : true,
+			// 'value' => 1
+		];
+
+		$field = $this->pwcommerce->getInputfieldCheckbox($options);
+		$wrapper->add($field);
+
+		//------------------- track saved customer user id. Will be zero if unregistered customer, else the ProcessWire user ID (InputfieldHidden)
+		$options = [
+			'id' => "pwcommerce_customer_user_id",
+			'name' => 'pwcommerce_customer_user_id',
+			'value' => $value->userID,
+		];
+		$field = $this->pwcommerce->getInputfieldHidden($options);
+		$wrapper->add($field);
+
+		return $wrapper;
+
+	}
+
+	private function getNoteForCustomerRegisteredStatus() {
+		/** @var WireData $customer */
+		$customer = $this->attr('value');
+		$registeredCustomer = $this->_('Customer with account.');
+		$guestCustomer = $this->_('Customer does not have an account.');
+		$customerType = empty($customer->userID) ? $guestCustomer : $registeredCustomer;
+		// ------
+		return $customerType;
+	}
+
+	// ~~~~~~~~~~~~
+	/**
+	 * Check if required customer form values have been filled.
+	 *
+	 * @access private
+	 * @param WireInputData $input The customer POST input.
+	 * @return array $errors Empty or populated array if errors found.
+	 *
+	 */
+	public function checkErrors(WireInputData $input) {
+
+		$errors = [];
+
+		$requiredFields = [
+			'pwcommerce_customer_first_name' => $this->_('First Name'),
+			'pwcommerce_customer_last_name' => $this->_('Last Name'),
+			'pwcommerce_customer_email' => $this->_('Email'),
+		];
+
+		// check for missing required shipping values
+		foreach ($requiredFields as $inputName => $label) {
+			if (empty($input->get($inputName))) {
+				$errors[] = $label;
+			}
+		}
+
+		// -----------
+		return $errors;
+	}
+
+	/**
+	 * Process input for the values sent for the customer (basic info) for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		$customer = $this->field->type->getBlankValue($this->page, $this->field);
+
+		// -------
+		// temporary for error checking
+		$customer->errors = null;
+
+		// check for missing required values
+		$errors = $this->checkErrors($input);
+		if (count($errors)) {
+			// abort if errrors
+			// @note: this will return the previous saved values. Ideally, need to return the form in submitted state!
+			$customer->errors = $errors;
+			return $customer;
+		}
+
+		## GOOD TO GO ##
+
+		//-----------------
+		// PROCESS VALUES
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// MAIN DETAILS
+		$customer->firstName = $sanitizer->text($input->pwcommerce_customer_first_name);
+		$customer->middleName = $sanitizer->text($input->pwcommerce_customer_middle_name);
+		$customer->lastName = $sanitizer->text($input->pwcommerce_customer_last_name);
+		$customer->email = $sanitizer->email($input->pwcommerce_customer_email);
+		$customer->isTaxExempt = (int) $input->pwcommerce_customer_is_tax_exempt;
+		$customer->userID = (int) $input->pwcommerce_customer_user_id;
+
+		$currentEmailAddress = $this->value->email;
+		if ($currentEmailAddress !== $customer->email) {
+			// NOTE @SEE PWCommerceHooks::hookUpdateCustomerUserAssociation - NO INFINITE LOOP!
+			// this is because below will save user, hence trigger above hook, but saving in the hook does not trigger this customer page to be saved again. This is because the hook is on Users::saved
+			// update associated user email if customer email has changed
+			$this->updateCustomerUserEmail($customer);
+		}
+
+		// ----------
+		if ($this->toStringInhouse($customer) !== $this->toStringInhouse($this->value)) {
+			$this->attr('value', $customer);
+			$this->trackChange('value');
+		}
+
+
+		# @note: the two methods below are in 'TraitPWCommerceActionsCustomer'
+
+		// TODO NO LONGER IN USE - DELETE! this is because this will prevent devs setting custom user names, e.g. 'firstname_second_name', etc. So, we only do this once when user is created. Subsequent changes are up to dev to handle if they wishi
+		// NOTE: FOR FIRST TIME SAVE, WE ALSO CHANGE THE NAME OF THE PROCESSWIRE USER ASSOCIATED WITH THIS CUSTOMER TO MATCH THE CUSTOMER NAMES! (FIRST AND LAST - IF NOT EMPTY!) OR IF CUSTOMER NAMES AMENDED (Otherwise user gets a generic 'untitled-123456789' name from PW)
+		// @note: only applies to registered customers!
+		// note: call this before below since it relies on checking title change
+		// $this->updateCustomerUserName($customer, $this->page);
+
+		// NOTE: FOR FIRST TIME SAVE, WE ALSO CHANGE THE TITLE OF THE CUSTOMER PAGE (AND NAME) TO MATCH THE CUSTOMER NAMES! (FIRST AND LAST - IF NOT EMPTY!) OR IF CUSTOMER NAMES AMENDED
+		$this->pwcommerce->updateCustomerTitle($customer, $this->page);
+
+
+
+	}
+
+
+	/**
+	 * Make a string value to represent the customer values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($item) {
+		$string = (string) "$item->firstName: $item->middleName: $item->lastName: $item->email: $item->isTaxExempt: $item->userID";
+		return $string;
+	}
+
+	private function updateCustomerUserEmail($customer) {
+		if (empty($customer->userID)) {
+			return;
+		}
+		// get the user associated with this customer
+		$user = $this->wire('users')->get($customer->userID);
+		if ($user instanceof NullPage) {
+			return;
+		}
+		// GOOD TO GO
+		$user->email = $customer->email;
+		$user->save();
+	}
+
+
+}

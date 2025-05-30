@@ -1,0 +1,480 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceOrderCustomer
+ *
+ * Fieldtype that stores and outputs values of a PWCommerce order customer.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceOrderCustomer for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceOrderCustomer extends Fieldtype
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Order Customer: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce order customer values.',
+			'installs' => 'InputfieldPWCommerceOrderCustomer',
+		);
+	}
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type.
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceOrderCustomer");
+		// our inputfield requires a Page and Field
+		// @note: easier to set this way than using set() since we will then have to check keys
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceProductSettings
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceProductSettings
+		// $inputfield->set('page', $page);
+		// $inputfield->set('field', $field);
+		return $inputfield;
+	}
+
+	/**
+	 * Return a blank ready-to-populate version of a field of this type.
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * Set the config option fields for this Field.
+	 *
+	 * These appear in the 'Details' Tab when editing an instance of this Field.
+	 *
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on.
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireData, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	private function getCountry($countryTitle) {
+		$countryID = 0;
+		if (!empty($countryTitle)) {
+			$countryID = (int) $this->wire('pages')->getRaw("title={$countryTitle}", 'id');
+			// @note: if nothing found will return false; typecasting will hence return 0
+		}
+		return $countryID;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+		// if for some reason we already got a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return getBlankValue
+		if (empty($value) || !is_array($value)) {
+
+			return $record;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// ORDER CUSTOMER MAIN DETAILS
+
+		// first name
+		// note: 'data' is becoming record->firstName. 'data' is a required column in a Fieldtype
+		$record->firstName = $sanitizer->text($value['data']);
+		// middle name(s)
+		$record->middleName = $sanitizer->text($value['middle_name']);
+		// last name
+		$record->lastName = $sanitizer->text($value['last_name']);
+		// email
+		$record->email = $sanitizer->text($value['email']);
+		// tax exempt
+		$record->isTaxExempt = (int) $value['is_tax_exempt'];
+
+		// ORDER CUSTOMER SHIPPING / PRIMARY ADDRESS
+
+		// shipping first name
+		$record->shippingAddressFirstName = $sanitizer->text($value['shipping_address_first_name']);
+		// shipping middle name(s)
+		$record->shippingAddressMiddleName = $sanitizer->text($value['shipping_address_middle_name']);
+		// shipping last name
+		$record->shippingAddressLastName = $sanitizer->text($value['shipping_address_last_name']);
+		// shipping phone
+		$record->shippingAddressPhone = $sanitizer->text($value['shipping_address_phone']);
+		// shipping company
+		$record->shippingAddressCompany = $sanitizer->text($value['shipping_address_company']);
+		// shipping first line of address
+		$record->shippingAddressLineOne = $sanitizer->text($value['shipping_address_line_one']);
+		// shipping second line of address
+		$record->shippingAddressLineTwo = $sanitizer->text($value['shipping_address_line_two']);
+		// shipping city
+		$record->shippingAddressCity = $sanitizer->text($value['shipping_address_city']);
+		// shipping region
+		$record->shippingAddressRegion = $sanitizer->text($value['shipping_address_region']);
+		// shipping country
+		$record->shippingAddressCountry = $sanitizer->text($value['shipping_address_country']);
+		// ~~ shipping country ID [RUNTIME] ~~
+		$record->shippingAddressCountryID = $this->getCountry($record->shippingAddressCountry);
+		// shipping postal code / zip
+		$record->shippingAddressPostalCode = $sanitizer->text($value['shipping_address_postal_code']);
+
+		// ORDER CUSTOMER BILLING ADDRESS
+
+		// use_billing_address
+		$record->useBillingAddress = (int) $value['use_billing_address'];
+
+		// billing first name
+		$record->billingAddressFirstName = $sanitizer->text($value['billing_address_first_name']);
+		// billing middle name(s)
+		$record->billingAddressMiddleName = $sanitizer->text($value['billing_address_middle_name']);
+		// billing last name
+		$record->billingAddressLastName = $sanitizer->text($value['billing_address_last_name']);
+		// billing phone
+		$record->billingAddressPhone = $sanitizer->text($value['billing_address_phone']);
+		// billing company
+		$record->billingAddressCompany = $sanitizer->text($value['billing_address_company']);
+		// billing first line of address
+		$record->billingAddressLineOne = $sanitizer->text($value['billing_address_line_one']);
+		// billing second line of address
+		$record->billingAddressLineTwo = $sanitizer->text($value['billing_address_line_two']);
+		// billing city
+		$record->billingAddressCity = $sanitizer->text($value['billing_address_city']);
+		// billing region
+		$record->billingAddressRegion = $sanitizer->text($value['billing_address_region']);
+		// billing country
+		$record->billingAddressCountry = $sanitizer->text($value['billing_address_country']);
+		// ~~ billing country ID [RUNTIME] ~~
+		$record->billingAddressCountryID = $this->getCountry($record->billingAddressCountry);
+		// billing postal code / zip
+		$record->billingAddressPostalCode = $sanitizer->text($value['billing_address_postal_code']);
+
+		// ORDER CUSTOMER OTHER DETAILS
+
+		// ip address (logged for automatic orders)
+		$record->ipAddress = $sanitizer->text($value['ip_address']);
+		// user_id logged for automatic orders if logged in
+		$record->userID = (int) $value['user_id'];
+
+		//-------------------
+
+
+		$record->setTrackChanges(true); // track changes for the product record TODO? reset instead?
+
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// convert records to an array within sleepValue
+		$sleepValue = [
+			// note: record->firstName is becoming data which is a required column in a Fieldtype
+			'data' => $sanitizer->text($value->firstName),
+			'middle_name' => $sanitizer->text($value->middleName),
+			'last_name' => $sanitizer->text($value->lastName),
+			'email' => $sanitizer->text($value->email),
+			'is_tax_exempt' => (int) $value->isTaxExempt,
+
+			// PRIMARY ADDRESS
+			'shipping_address_first_name' => $sanitizer->text($value->shippingAddressFirstName),
+			'shipping_address_middle_name' => $sanitizer->text($value->shippingAddressMiddleName),
+			'shipping_address_last_name' => $sanitizer->text($value->shippingAddressLastName),
+			'shipping_address_phone' => $sanitizer->text($value->shippingAddressPhone),
+			'shipping_address_company' => $sanitizer->text($value->shippingAddressCompany),
+			'shipping_address_line_one' => $sanitizer->text($value->shippingAddressLineOne),
+			'shipping_address_line_two' => $sanitizer->text($value->shippingAddressLineTwo),
+			'shipping_address_city' => $sanitizer->text($value->shippingAddressCity),
+			'shipping_address_region' => $sanitizer->text($value->shippingAddressRegion),
+			'shipping_address_country' => $sanitizer->text($value->shippingAddressCountry),
+			// @note: 'zip code'
+			'shipping_address_postal_code' => $sanitizer->text($value->shippingAddressPostalCode),
+
+			// BILLING ADDRESS
+			'use_billing_address' => (int) $value->useBillingAddress,
+			'billing_address_first_name' => $sanitizer->text($value->billingAddressFirstName),
+			'billing_address_middle_name' => $sanitizer->text($value->billingAddressMiddleName),
+			'billing_address_last_name' => $sanitizer->text($value->billingAddressLastName),
+			'billing_address_phone' => $sanitizer->text($value->billingAddressPhone),
+			'billing_address_company' => $sanitizer->text($value->billingAddressCompany),
+			'billing_address_line_one' => $sanitizer->text($value->billingAddressLineOne),
+			'billing_address_line_two' => $sanitizer->text($value->billingAddressLineTwo),
+			'billing_address_city' => $sanitizer->text($value->billingAddressCity),
+			'billing_address_region' => $sanitizer->text($value->billingAddressRegion),
+			'billing_address_country' => $sanitizer->text($value->billingAddressCountry),
+			// @note: 'zip code'
+			'billing_address_postal_code' => $sanitizer->text($value->billingAddressPostalCode),
+
+			// OTHER DATA
+			'ip_address' => $sanitizer->text($value->ipAddress),
+			'user_id' => (int) $value->userID,
+		];
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Return the database schema that defines an Order Customer item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+		$schema = parent::getDatabaseSchema($field);
+
+		// MAIN DETAILS
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our // 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->firstName' field (column in db)
+		$schema['data'] = 'VARCHAR(250) NOT NULL'; // 'first_name'
+		$schema['middle_name'] = 'VARCHAR(250)';
+		$schema['last_name'] = 'VARCHAR(250) NOT NULL';
+		$schema['email'] = 'VARCHAR(250) NOT NULL';
+		// TODO: not null?
+		$schema['is_tax_exempt'] = 'TINYINT(1) UNSIGNED NOT NULL';
+
+		// PRIMARY ADDRESS
+		$schema['shipping_address_first_name'] = 'VARCHAR(250) NOT NULL';
+		$schema['shipping_address_middle_name'] = 'VARCHAR(250)';
+		$schema['shipping_address_last_name'] = 'VARCHAR(250) NOT NULL';
+		// TODO: make sure nullable!
+		// TODO: limit with char or tricky?
+		$schema['shipping_address_phone'] = 'VARCHAR(250)';
+		$schema['shipping_address_company'] = 'VARCHAR(250)';
+		$schema['shipping_address_line_one'] = 'VARCHAR(250)';
+		$schema['shipping_address_line_two'] = 'VARCHAR(250)';
+		$schema['shipping_address_city'] = 'VARCHAR(250)';
+		$schema['shipping_address_region'] = 'VARCHAR(250)';
+		$schema['shipping_address_country'] = 'VARCHAR(250)';
+		// @note: 'zip code'
+		$schema['shipping_address_postal_code'] = 'VARCHAR(250)';
+
+		// BILLING ADDRESS
+		// TODO: not null?
+		$schema['use_billing_address'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		$schema['billing_address_first_name'] = 'VARCHAR(250) NOT NULL';
+		$schema['billing_address_middle_name'] = 'VARCHAR(250)';
+		$schema['billing_address_last_name'] = 'VARCHAR(250) NOT NULL';
+		// TODO: make sure nullable!
+		// TODO: limit with char or tricky?
+		$schema['billing_address_phone'] = 'VARCHAR(250)';
+		$schema['billing_address_company'] = 'VARCHAR(250)';
+		$schema['billing_address_line_one'] = 'VARCHAR(250)';
+		$schema['billing_address_line_two'] = 'VARCHAR(250)';
+		$schema['billing_address_city'] = 'VARCHAR(250)';
+		$schema['billing_address_region'] = 'VARCHAR(250)';
+		$schema['billing_address_country'] = 'VARCHAR(250)';
+		// @note: 'zip code'
+		$schema['billing_address_postal_code'] = 'VARCHAR(250)';
+
+		// OTHER DATA
+		$schema['ip_address'] = 'VARCHAR(250)';
+		$schema['user_id'] = 'INT UNSIGNED';
+
+		//----------------------------
+		// ~~~ INDEXES ~~~
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		// MAIN DETAILS
+		$schema['keys']['data'] = 'FULLTEXT data (data)'; // for 'first_name'
+		$schema['keys']['middle_name'] = 'FULLTEXT KEY middle_name (middle_name)';
+		$schema['keys']['last_name'] = 'FULLTEXT KEY last_name (last_name)';
+		$schema['keys']['email'] = 'FULLTEXT KEY email (email)';
+		$schema['keys']['is_tax_exempt'] = 'KEY is_tax_exempt(is_tax_exempt)';
+
+		// SHIPPING/PRIMARY ADDRESS
+		$schema['keys']['shipping_address_first_name'] = 'FULLTEXT KEY shipping_address_first_name (shipping_address_first_name)';
+		$schema['keys']['shipping_address_middle_name'] = 'FULLTEXT KEY shipping_address_middle_name (shipping_address_middle_name)';
+		$schema['keys']['shipping_address_last_name'] = 'FULLTEXT KEY shipping_address_last_name (shipping_address_last_name)';
+		$schema['keys']['shipping_address_phone'] = 'FULLTEXT KEY shipping_address_phone (shipping_address_phone)';
+		$schema['keys']['shipping_address_company'] = 'FULLTEXT KEY shipping_address_company (shipping_address_company)';
+		$schema['keys']['shipping_address_line_one'] = 'FULLTEXT KEY shipping_address_line_one (shipping_address_line_one)';
+		$schema['keys']['shipping_address_line_two'] = 'FULLTEXT KEY shipping_address_line_two (shipping_address_line_two)';
+		$schema['keys']['shipping_address_city'] = 'FULLTEXT KEY shipping_address_city (shipping_address_city)';
+		$schema['keys']['shipping_address_region'] = 'FULLTEXT KEY shipping_address_region (shipping_address_region)';
+		$schema['keys']['shipping_address_country'] = 'FULLTEXT KEY shipping_address_country (shipping_address_country)';
+		$schema['keys']['shipping_address_postal_code'] = 'FULLTEXT KEY shipping_address_postal_code (shipping_address_postal_code)';
+
+		// BILLING ADDRESS
+		$schema['keys']['use_billing_address'] = 'KEY use_billing_address(use_billing_address)';
+		$schema['keys']['billing_address_first_name'] = 'FULLTEXT KEY billing_address_first_name (billing_address_first_name)';
+		$schema['keys']['billing_address_middle_name'] = 'FULLTEXT KEY billing_address_middle_name (billing_address_middle_name)';
+		$schema['keys']['billing_address_last_name'] = 'FULLTEXT KEY billing_address_last_name (billing_address_last_name)';
+		$schema['keys']['billing_address_phone'] = 'FULLTEXT KEY billing_address_phone (billing_address_phone)';
+		$schema['keys']['billing_address_company'] = 'FULLTEXT KEY billing_address_company (billing_address_company)';
+		$schema['keys']['billing_address_line_one'] = 'FULLTEXT KEY billing_address_line_one (billing_address_line_one)';
+		$schema['keys']['billing_address_line_two'] = 'FULLTEXT KEY billing_address_line_two (billing_address_line_two)';
+		$schema['keys']['billing_address_city'] = 'FULLTEXT KEY billing_address_city (billing_address_city)';
+		$schema['keys']['billing_address_region'] = 'FULLTEXT KEY billing_address_region (billing_address_region)';
+		$schema['keys']['billing_address_country'] = 'FULLTEXT KEY billing_address_country (billing_address_country)';
+		$schema['keys']['billing_address_postal_code'] = 'FULLTEXT KEY billing_address_postal_code (billing_address_postal_code)';
+
+		// OTHER DATA
+		$schema['keys']['ip_address'] = 'FULLTEXT KEY ip_address (ip_address)';
+		$schema['keys']['user_id'] = 'KEY user_id(user_id)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// match properties/subfields to model subfields/columns
+		if (in_array($subfield, ['firstName', 'first_name'])) {
+			$subfield = 'data';
+		} else if (in_array($subfield, ['middleName'])) {
+			$subfield = 'middle_name';
+		} else if (in_array($subfield, ['lastName'])) {
+			$subfield = 'last_name';
+		} else if (in_array($subfield, ['isTaxExempt'])) {
+			$subfield = 'is_tax_exempt';
+		} else if (in_array($subfield, ['shippingAddressFirstName'])) {
+			$subfield = 'shipping_address_first_name';
+		} else if (in_array($subfield, ['shippingAddressMiddleName'])) {
+			$subfield = 'shipping_address_middle_name';
+		} else if (in_array($subfield, ['shippingAddressLastName'])) {
+			$subfield = 'shipping_address_last_name';
+		} else if (in_array($subfield, ['shippingAddressPhone'])) {
+			$subfield = 'shipping_address_phone';
+		} else if (in_array($subfield, ['shippingAddressCompany'])) {
+			$subfield = 'shipping_address_company';
+		} else if (in_array($subfield, ['shippingAddressLineOne'])) {
+			$subfield = 'shipping_address_line_one';
+		} else if (in_array($subfield, ['shippingAddressLineTwo'])) {
+			$subfield = 'shipping_address_line_two';
+		} else if (in_array($subfield, ['shippingAddressCity'])) {
+			$subfield = 'shipping_address_city';
+		} else if (in_array($subfield, ['shippingAddressRegion'])) {
+			$subfield = 'shipping_address_region';
+		} else if (in_array($subfield, ['shippingAddressCountry'])) {
+			$subfield = 'shipping_address_country';
+		} else if (in_array($subfield, ['shippingAddressPostalCode'])) {
+			$subfield = 'shipping_address_postal_code';
+		} else if (in_array($subfield, ['useBillingAddress'])) {
+			$subfield = 'use_billing_address';
+		} else if (in_array($subfield, ['billingAddressFirstName'])) {
+			$subfield = 'billing_address_first_name';
+		} else if (in_array($subfield, ['billingAddressMiddleName'])) {
+			$subfield = 'billing_address_middle_name';
+		} else if (in_array($subfield, ['billingAddressLastName'])) {
+			$subfield = 'billing_address_last_name';
+		} else if (in_array($subfield, ['billingAddressPhone'])) {
+			$subfield = 'billing_address_phone';
+		} else if (in_array($subfield, ['billingAddressCompany'])) {
+			$subfield = 'billing_address_company';
+		} else if (in_array($subfield, ['billingAddressLineOne'])) {
+			$subfield = 'billing_address_line_one';
+		} else if (in_array($subfield, ['billingAddressLineTwo'])) {
+			$subfield = 'billing_address_line_two';
+		} else if (in_array($subfield, ['billingAddressCity'])) {
+			$subfield = 'billing_address_city';
+		} else if (in_array($subfield, ['billingAddressRegion'])) {
+			$subfield = 'billing_address_region';
+		} else if (in_array($subfield, ['billingAddressCountry'])) {
+			$subfield = 'billing_address_country';
+		} else if (in_array($subfield, ['billingAddressPostalCode'])) {
+			$subfield = 'billing_address_postal_code';
+		} else if (in_array($subfield, ['ipAddress', 'ip_address'])) {
+			$subfield = 'ip_address';
+			// if searching the PW user by their name
+			// @note: we currently don't support searching the PW user by their email
+			if (!ctype_digit("$value") && strlen($value)) {
+				// TODO: SHOULD WE SUPPORT PARTIAL MATCHES HERE? ie. %=, etc not sure if name supports these operators though!
+				// first get the user by name, then grab their ID
+				$recordID = $this->wire('users')->getRaw('template=user,name=' . $this->sanitizer->pageName($value, true), "id");
+				if ($recordID > 0) {
+					$value = $recordID;
+				}
+			}
+		} else if (in_array($subfield, ['userID'])) {
+			$subfield = 'user_id';
+		}
+		//---------
+
+		/*
+										- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+										- the latter allow for finer, fulltext search
+										*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

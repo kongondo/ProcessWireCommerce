@@ -1,0 +1,867 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceOrder
+ *
+ * Inputfield for FieldtypePWCommerceOrder, the field that stores and outputs values of a PWCommerce order.
+ * @note: Order line items, customer and notes are modelled separately and respectively have a separate GUI.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceOrder for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+
+class InputfieldPWCommerceOrder extends Inputfield
+{
+
+
+
+
+	public static function getModuleInfo() {
+		return [
+			'title' => 'PWCommerce Order: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce order values.',
+			'requires' => 'FieldtypePWCommerceOrder',
+		];
+	}
+	// =============
+	protected $page;
+	protected $field;
+
+
+	// ----------
+	private $inputfieldPWCommerceOrderRenderAddProducts;
+	private $inputfieldPWCommerceOrderRenderLineItems;
+	private $inputfieldPWCommerceOrderRenderDiscounts;
+	private $inputfieldPWCommerceOrderRenderCustomer;
+	private $inputfieldPWCommerceOrderRenderShipping;
+	private $inputfieldPWCommerceOrderRenderTotals;
+	private $inputfieldPWCommerceOrderProcessManualOrder;
+	// ----------
+	private $ajaxPostURL;
+	private $xstoreOrder; // the alpinejs store used by this inputfield.
+	private $xstore; // the full prefix to the alpine store used by
+	// ----------
+	// temporary to store if multiple shipping rates were matched for current shipping and taxes calculation
+	private $isMatchedMultipleShippingRates;
+	// temporary to store the first of  matched multiple shipping rate (convenience)
+	private $firstRateOfMultipleMatchedShippingRates;
+	// temporary to store the single matched shipping rate (convenience)
+	private $singleMatchedShippingRate;
+
+	// ----------
+	private $shippingCountry;
+	private $isCustomerTaxExempt;
+	private $isChargeTaxesManualExemption;
+	private $isProcessTruePrice;
+	private $isLiveCalculateOnly;
+	private $liveOrderLineItemsIDs;
+	private $liveOrderLineItemsProductsIDs;
+	private $existingOrderLineItemsIDs;
+
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+
+		// GET UTILITIES CLASS
+
+
+
+		// ==================
+		$this->xstoreOrder = 'InputfieldPWCommerceOrderStore';
+		// i.e., '$store.InputfieldPWCommerceOrderStore'
+		$this->xstore = "\$store.{$this->xstoreOrder}";
+		// i.e., '$store.InputfieldPWCommerceOrderStore'
+		// @note: even client-only data lives under 'order_whole_data'
+		$this->ajaxPostURL = $this->wire('config')->urls->admin . PwCommerce::PWCOMMERCE_SHOP_PAGE_IN_ADMIN_NAME . '/ajax/';
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	private function getRequiredClasses($requiredClasses = []) {
+		$allRequiredClasses = [
+			// InputfieldPWCommerceOrderRenderAddProducts.php
+			// for add products to order markup
+			[
+				'class_name' => 'InputfieldPWCommerceOrderRenderAddProducts',
+				'class_property' => 'inputfieldPWCommerceOrderRenderAddProducts'
+			],
+			// InputfieldPWCommerceOrderRenderLineItems.php
+			// for order line items markup
+			[
+				'class_name' => 'InputfieldPWCommerceOrderRenderLineItems',
+				'class_property' => 'inputfieldPWCommerceOrderRenderLineItems'
+			],
+			// InputfieldPWCommerceOrderRenderDiscounts.php
+			// for discounts markup
+			[
+				'class_name' => 'InputfieldPWCommerceOrderRenderDiscounts',
+				'class_property' => 'inputfieldPWCommerceOrderRenderDiscounts'
+			],
+			// InputfieldPWCommerceOrderRenderCustomer.php
+			// for customer markup
+			[
+				'class_name' => 'InputfieldPWCommerceOrderRenderCustomer',
+				'class_property' => 'inputfieldPWCommerceOrderRenderCustomer'
+			],
+			// InputfieldPWCommerceOrderRenderShipping.php
+			// for shipping and handling markup
+			[
+				'class_name' => 'InputfieldPWCommerceOrderRenderShipping',
+				'class_property' => 'inputfieldPWCommerceOrderRenderShipping'
+			],
+			// InputfieldPWCommerceOrderRenderTotals.php
+			// for order taxes and totals markup
+			[
+				'class_name' => 'InputfieldPWCommerceOrderRenderTotals',
+				'class_property' => 'inputfieldPWCommerceOrderRenderTotals'
+			],
+			// InputfieldPWCommerceOrderProcessManualOrder.php
+			// for procssing inputs/values for manual order
+			[
+				'class_name' => 'InputfieldPWCommerceOrderProcessManualOrder',
+				'class_property' => 'inputfieldPWCommerceOrderProcessManualOrder'
+			],
+		];
+
+		$classesToLoad = null;
+		if (empty($requiredClasses)) {
+			$classesToLoad = $allRequiredClasses;
+		} else {
+			foreach ($allRequiredClasses as $requiredClass) {
+				if (!in_array($requiredClass['class_name'], $requiredClasses)) {
+					continue;
+				}
+				// add class to load
+				$classesToLoad[] = $requiredClass;
+			}
+		}
+
+		// ------
+		return $classesToLoad;
+	}
+
+	private function loadRequiredClasses(array $requiredClasses) {
+
+		if (!empty($requiredClasses)) {
+			foreach ($requiredClasses as $requiredClass) {
+				$className = $requiredClass['class_name'];
+				$classProperty = $requiredClass['class_property'];
+				// --------
+				require_once __DIR__ . "/{$className}.php";
+
+				// SET TO CLASS PROPERTY if needed
+				if (!empty($classProperty)) {
+					$class = "\ProcessWire\\" . $className;
+					$this->$classProperty = new $class($this->page);
+
+				}
+			}
+		}
+	}
+
+	/**
+	 * Render the entire input area for order
+	 *
+	 */
+	public function ___render() {
+
+
+		// TODO: THAT MEANS MODAL HERE THEN? HMMM...HOVER, TARGET IS ORDERLINE ITEM!! SO, SEE HOW TO INTERACT WITH THAT BY TARGETTING THE FIELD AND HTML SWAP APPROPRIATELY LIKE WE DID WITH ADD NEW TAX RATE WITHOUT ACTUALLY ADDING A NEW PAGE
+
+		// IF ADD NEW ITEM/RECORD - AJAX
+		$input = $this->wire('input');
+		$ajax = $this->wire('config')->ajax;
+
+
+		if ($ajax && $input->get('field') == $this->attr('name')) {
+			// TODO MOVE TO InputfieldPWCommerceOrderRenderAddProducts CLASS
+			// $out = $this->renderProductsSearchResults();
+			$out = $this->inputfieldPWCommerceOrderRenderAddProducts->renderProductsSearchResults();
+			echo $out;
+			die();
+		}
+
+		$xstore = $this->xstore;
+
+		//+++++++++++++++
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		// @note the @pwcommerce....window Event listeners. These are custom Events we dispatch from htmx after certain events to tell alpine.js to step in.
+		$recalculateShippingAndTaxesNotice1 =
+			$this->_("Changes you have made to the order require you to recalculate shipping and taxes. Please click on 'Calculate shipping and taxes' button below to do this.");
+		$recalculateShippingAndTaxesNotice2 =
+			$this->_("Changes you have made to the order require you to recalculate shipping and taxes. Please click on 'Calculate shipping and taxes' button above to do this.");
+		$out =
+			"<div id='pwcommerce_order_wrapper' x-data='InputfieldPWCommerceOrderData' x-init='initOrderData' @pwcommerceordercustomercountrychange.window='handleOrderCustomerCountryChange' @pwcommerceisorderpublishable.window='handleConfirmIsDraftOrderPublishable' @pwcommerceisordersaveable.window='handleConfirmIsDraftOrderSaveable' @pwcommercecalculatedordershipping.window='handleEditOrderShippingAfterCalculateShippingAndTaxes'>" .
+			// -------
+			// recalculate notice: top
+			"<p id='pwcommerce_order_recalculate_shipping_and_taxes_notice_top' class='text-sm hidden' :class='{hidden: !{$xstore}.is_need_to_recalculate_shipping_and_taxes}'>" . $recalculateShippingAndTaxesNotice1 . "</p>" .
+			// ---------
+			$this->buildForm()->render() .
+			// ----------
+			// modal for order not saveable
+			$this->getModalMarkupForDraftOrderIsNotSaveable() .
+			// modal for order not publishable
+			$this->getModalMarkupForDraftOrderIsNotPublishable() .
+			// ---------
+			// recalculate notice: bottom
+			"<p id='pwcommerce_order_recalculate_shipping_and_taxes_notice_bottom' class='text-sm hidden' :class='{hidden: !{$xstore}.is_need_to_recalculate_shipping_and_taxes}'>" . $recalculateShippingAndTaxesNotice2 . "</p>" .
+			"</div>";
+
+
+		// ---
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$this->preloadInputfieldAssets();
+		// #####################
+		// load helper classes for InputfieldPWCommerceOrder
+		$classesToLoad = $this->getRequiredClasses();
+		$this->loadRequiredClasses($classesToLoad);
+
+		// #####################
+		// ==============
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	/**
+	 * Simple utility method to return a markup divider.
+	 *
+	 * Optionally apply CSS classes to the divider.
+	 *
+	 * @access private
+	 * @param string $classes
+	 * @return string $out Markup for divider.
+	 */
+	private function renderMarkupDivider($classes = '') {
+		if (!empty($classes)) {
+			$out = "<hr class='{$classes}'>";
+		} else {
+			$out = "<hr>";
+		}
+		// ------
+		return $out;
+	}
+
+	// ~~~~~~~~~~~~~~~~
+
+
+	/**
+	 * Build GUI for form in Main tab for Order
+	 *
+	 * @access private
+	 * @return InputfieldWrapper $wrapper Inputfield wrapper with markup.
+	 */
+	private function buildForm() {
+
+
+
+		// @note: running a custom render with only one inputfield
+
+		// TODO - @UPDATE FRIDAY 11 MARCH 2022 - THIS NOW CHANGES! WE NOW USE ONE LONG SECTION THAT HOUSES LINE ITEMS, DISCOUNTS, CUSTOMER, SHIPPING AND TOTALS (includes taxes)
+
+		// GET MAIN WRAPPER FOR ORDER GUI
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		// TODO: ALSO ADD ORDER DATE!??
+
+		// 1. ORDER: LINE ITEMS MARKUP (including add products to order)
+		// build the section headline
+		$out = "<h3>" . $this->_('Items') . "</h3>";
+		// add the 'add products to order' markup
+		$out .= $this->inputfieldPWCommerceOrderRenderAddProducts->render($this->name);
+		// get the markup for the order line items themselves
+		$out .= $this->inputfieldPWCommerceOrderRenderLineItems->render();
+
+		# >>>>>>>>>> divider <<<<<<<<<<
+		$out .= $this->renderMarkupDivider();
+		# >>>>>>>>>>>
+
+		// 2. ORDER: DISCOUNTS SUMMARY MARKUP
+		// build the section headline
+		$out .= "<h3>" . $this->_('Discounts') . "</h3>";
+		$out .= $this->inputfieldPWCommerceOrderRenderDiscounts->render($this->attr('value'));
+
+		# >>>>>>>>>> divider <<<<<<<<<<
+		$out .= $this->renderMarkupDivider();
+		# >>>>>>>>>>>
+
+		// 3. ORDER: CUSTOMER MARKUP
+		$out .= "<h3>" . $this->_('Customer') . "</h3>";
+		$out .= $this->inputfieldPWCommerceOrderRenderCustomer->render();
+
+		# >>>>>>>>>> divider <<<<<<<<<<
+		$out .= $this->renderMarkupDivider();
+		# >>>>>>>>>>>
+
+		// 4. ORDER: SHIPPING & HANDLING MARKUP
+		$out .= "<h3>" . $this->_('Shipping and Handling') . "</h3>";
+		$out .= $this->inputfieldPWCommerceOrderRenderShipping->render($this->attr('value'));
+
+		# >>>>>>>>>> divider <<<<<<<<<<
+		$out .= $this->renderMarkupDivider();
+		# >>>>>>>>>>>
+
+		// 4. ORDER: TAXES + TOTALS MARKUP
+		$out .= "<h3>" . $this->_('Taxes and Totals') . "</h3>";
+		$out .= $this->inputfieldPWCommerceOrderRenderTotals->render($this->attr('value'));
+
+		################
+		// ** CONFIG SCRIPT **
+		$out .= $this->buildOrderConfigJSForClient();
+
+		// -------------------------
+		######### FINAL ORDER GUI MARKUP #########
+
+		// ADD MARKUP TO FINAL INPUTFIELDMARKUP FOR RENDERING INSIDE INPUTFIELDWRAPPER
+		// @NOTE: the markup contains alpine js attributes so that alpine can enhance our DOM.
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_order',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $out,
+		];
+
+		// we only need one markup field as alpine will loop through our template markup to create list/rows of interactive order line items
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		// add markup field to wrapper
+		$wrapper->add($field);
+
+		// ------------
+
+		return $wrapper;
+	}
+
+	private function getModalMarkupForDraftOrderIsNotPublishable() {
+		$modalOptions = [
+			'header_text' => $this->_('Order not publishable'),
+			'body_text_notice' => $this->_('This draft order is not publishable until the following error is resolved.'),
+			'x_property' => 'is_order_publishable_modal_open',
+			'reset_handler' => 'resetIsOrderPublishableAndClose'
+		];
+		return $this->getModalMarkupForDraftOrderIsNotPublishableORSaveable($modalOptions);
+	}
+
+	private function getModalMarkupForDraftOrderIsNotSaveable() {
+		$modalOptions = [
+			'header_text' => $this->_('Order not saveable'),
+			'body_text_notice' => $this->_('This draft order is not saveable until the following error is resolved.'),
+			'x_property' => 'is_order_saveable_modal_open',
+			'reset_handler' => 'resetIsOrderSaveableAndClose'
+		];
+		return $this->getModalMarkupForDraftOrderIsNotPublishableORSaveable($modalOptions);
+	}
+
+	private function getModalMarkupForDraftOrderIsNotPublishableORSaveable($modalOptions) {
+		$xstore = $this->xstore;
+		$resetHandler = $modalOptions['reset_handler'];
+		$headerText = $modalOptions['header_text'];
+		$bodyTextNotice = $modalOptions['body_text_notice'];
+		$bodyText = "<p>" . $bodyTextNotice . "</p>";
+		$bodyText .= "<p class='pwcommerce_error' x-text='{$xstore}.error_current_order_error'></p>";
+		//--------------
+		$header = "<span>{$headerText} </span>";
+		$body = $bodyText;
+		$cancelButton = $this->pwcommerce->getModalActionButton(['x-on:click' => $resetHandler], 'cancel');
+		$footer = "<div class='ui-dialog-buttonset'>{$cancelButton}</div>";
+		$xproperty = $modalOptions['x_property'];
+		$size = '2x-large';
+		// wrap content in modal for order not publishable notice
+		// modal options
+		$options = [
+			// $header The modal title pane markup.
+			'header' => $header,
+			// $body The main content markup.
+			'body' => $body,
+			// $footer The footer markup.
+			'footer' => $footer,
+			// $xstore The alpinejs store with the property that will be modelled to show/hide the modal.
+			'xstore' => $this->xstoreOrder,
+			// $xproperty The alpinejs property that will be modelled to show/hide the modal.
+			'xproperty' => $xproperty,
+			// $size The size of the modal requested.
+			'size' => $size,
+		];
+		$out = $this->pwcommerce->getModalMarkup($options);
+		return $out;
+	}
+
+	// build script string to send to client with order configuration values
+	private function buildOrderConfigJSForClient() {
+
+		$pageID = $this->page->id;
+		$name = $this->name;
+		// TODO: add parameter to denote shipping and taxes (re)calculate?
+		$adminEdit = $this->wire('config')->urls->admin . "page/edit/?id=" . $pageID . "&field=" . $name;
+		$ajaxPostURL = $this->ajaxPostURL;
+
+		$requiredCustomerFields = $this->inputfieldPWCommerceOrderRenderCustomer->getOrderCustomerRequiredFields();
+
+		$orderErrorsStrings = $this->getOrderErrorsStringsForJavaScript();
+		//---------
+		// PREPARE ORDER & SHOP DATA VALUES TO SEND TO BROWSER FOR USE BY ALPINE JS
+		$data = [
+			'order_whole_data' => $this->getOrderConfigValuesForJavaScript(),
+			'order_line_items' => $this->inputfieldPWCommerceOrderRenderLineItems->getOrderLineItemsConfigValuesForClient(),
+			'extras' => [
+				'admin_order_edit' => $adminEdit,
+				'ajax_post_url' => $ajaxPostURL,
+				'order_required_customer_fields' => $requiredCustomerFields,
+				'order_errors_strings' => $orderErrorsStrings
+			],
+			'shop_currency_data' => $this->pwcommerce->getShopCurrencyData(),
+		];
+		// ------------
+		$script = "<script>ProcessWire.config.InputfieldPWCommerceOrder = " . json_encode($data) . ';</script>';
+		return $script;
+	}
+
+	// ~~~~~~~~~~~~
+
+
+	// order configuration values to send to client-side for JavaScript
+	private function getOrderConfigValuesForJavaScript() {
+		$value = $this->attr('value');
+		// we only need a subset of the values
+		$remove = [
+			'discount',
+			'handling',
+			// 'handlingFee',
+			'handlingValue',
+			'paid',
+			'payment',
+			'shipping',
+			'shippingAmount',
+			// 'totalPrice' // TODO: keeping this instead, ok? if not, comment out below
+			'total',
+		];
+
+		//-------
+		// GET THE array values from the WireData that we want to KEEP
+		$keepArray = array_diff_key($value->getArray(), array_flip($remove));
+		// ---------
+		// add temporary 'subtotalPrice' for JavaScript use
+		$keepArray['subtotalPrice'] = 0;
+
+		// =============
+		// @note: prepare decimal values
+		// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+		$keepArray = $this->setLocaleValues($keepArray);
+
+		// ---------
+		return $keepArray;
+	}
+
+	/**
+	 * Server-side locale-aware value converted to properly render in HTML5 input of type number.
+	 *
+	 * @param array $orderValues Order values from which to convert decimal values.
+	 * @return array $orderValues Order values with converted decimals.
+	 */
+	private function setLocaleValues(array $orderValues) {
+
+		// order properties that need decimal conversions
+		// @note: only 'discountValue' is used in an input
+		// but we do the rest of the decimals anyway
+		$decimalVariables = [
+			'discountValue',
+			'discountAmount',
+			'handlingFeeValue',
+			// 'handlingFeeAmount', @NOTE > 'handlingFee'
+			'handlingFee',
+			'shippingFee',
+			'totalPrice',
+			'orderTaxAmountTotal',
+			'orderShippingFeePlusHandlingFeeAmountTotal'
+		];
+		foreach ($decimalVariables as $property) {
+			$orderValues[$property] = $this->pwcommerce->localeConvertValue($orderValues[$property]);
+		}
+		// --------
+		return $orderValues;
+	}
+
+	/**
+	 * Build translatable strings for order errors messages for use in JavaScript.
+	 *
+	 * @return array with translatable strings.
+	 */
+	private function getOrderErrorsStringsForJavaScript() {
+		return [
+
+			'error_no_line_items_added' => $this->_('At least one product item needs to be added to this order.'),
+			// ------
+			'error_need_to_recalculate_shipping_and_taxes' => $this->_("You have made changes that require you to recalculate shipping and taxes on this order. Please do this first by clicking on the button to Calculate shipping and taxes."),
+			############
+			// customer-related errors
+			// @note: keys are the IDs ofthe inputs
+			'pwcommerce_order_customer_first_name' => $this->_('Customer first name is missing.'),
+			'pwcommerce_order_customer_last_name' => $this->_('Customer last name is missing.'),
+			'pwcommerce_order_customer_email' => $this->_('Customer email is empty.'),
+			'pwcommerce_order_customer_shipping_address_first_name' => $this->_('Shipping address first name is missing.'),
+			'pwcommerce_order_customer_shipping_address_last_name' => $this->_('Shipping address last name is missing.'),
+			'pwcommerce_order_customer_shipping_address_line_one' => $this->_('First line of shipping address is empty.'),
+			'pwcommerce_order_customer_shipping_address_city' => $this->_('Shipping address city is empty.'),
+			'pwcommerce_order_customer_shipping_address_postal_code' => $this->_('Shipping address post/zip code is empty.'),
+			'pwcommerce_order_customer_shipping_address_country_id' => $this->_('Shipping country is missing.'),
+			// @note: will only be shown if billing address is in use
+			'pwcommerce_order_customer_billing_address_first_name' => $this->_('Billing address first name is missing.'),
+			'pwcommerce_order_customer_billing_address_last_name' => $this->_('Billing address last name is missing.'),
+			'pwcommerce_order_customer_billing_address_line_one' => $this->_('First line of billing address is empty.'),
+			'pwcommerce_order_customer_billing_address_city' => $this->_('Billing address city is empty.'),
+			'pwcommerce_order_customer_billing_address_postal_code' => $this->_('Billing address post/zip code is empty.'),
+			'pwcommerce_order_customer_billing_address_country_id' => $this->_('Billing country is missing.'),
+		];
+	}
+
+	// TODO: DELETE IF NOT IN USE
+	private function preloadInputfieldAssets() {
+		// FieldtypePWCommerceOrderCustomer\InputfieldPWCommerceOrderCustomer.js
+		// we need some functions from InputfieldPWCommerceOrderCustomer.js
+		$url = $this->wire('config')->urls->FieldtypePWCommerceOrderCustomer;
+		// add InputfieldPWCommerceOrderCustomer.js
+		$inputfieldPWCommerceOrderCustomer = "{$url}InputfieldPWCommerceOrderCustomer.js";
+		$this->wire->config->scripts->add($inputfieldPWCommerceOrderCustomer);
+	}
+
+	// ~~~~~~~~~~~~~ LIVE ORDER CALCULATIONS
+
+	// live order calculations whose results to send back to htmx
+	// called via: ProcessPwCommerce::processCalculateOrderTaxesAndShipping
+	public function processCalculateOrderTaxesAndShipping($input) {
+
+
+		// TODO: for now just use ProcessWire's id? yes, since without it the page edit wouldn't work anyway
+		// $orderPageID = (int) $input->pwcommerce_order_parent_page_id;
+		$orderPageID = (int) $input->get('id');
+		$page = $this->wire('pages')->get($orderPageID);
+
+
+		// TODO IF NO PAGE?!!!
+		// TODO delete this note as now we have dedicated method for live calculations processing
+		// @note: tell $inputfieldPWCommerceOrder we only want calculated values WITHOUT SAVING
+		// $isLiveCalculateOnly = true;
+		$order = $this->processNonSaveLiveOrder($input, $page);
+
+		// TODO: BETTER ERROR HANDLING HERE, E.G. SHIPPING COUNTRY NOT YET SPECIFIED!
+		// TODO: here or in Inputfield?
+		if (empty($order)) {
+			$order = new WireData();
+		}
+		// $out = "<small>" . $this->_('Calculate shipping') . "</small>";
+		// GET MARKUP FOR MATCHED SHIPPING RATES
+		$out = $this->getOrderMatchedShippingRatesMarkup($order);
+		return $out;
+	}
+
+
+	// MARKUP FOR htmx FOR LIVE ORDER CALCULATE SHIPPING & TAXES
+	// @note: called in $this->processCalculateOrderTaxesAndShipping() BUT that method via ProcessPwCommerce::processCalculateOrderTaxesAndShipping
+	private function getOrderMatchedShippingRatesMarkup(WireData $order) {
+
+		/** @var WireArray $matchedShippingRates */
+		$matchedShippingRates = $order->matchedShippingRates;
+		// ==================
+
+
+		$out = "";
+
+		// ----------------
+		// @note: htmx-oob
+		$out .=
+			"<div id='pwcommerce_order_matched_shipping_rates' hx-swap-oob='true'>";
+		if (!empty($matchedShippingRates)) {
+			// FOUND AT LEAST ONE MATCHED SHIPPING RATE
+
+			$out .= "<h4>" . $this->_('Matched Shipping Rates') . "</h4>";
+			if ($matchedShippingRates->count() > 1) {
+				$this->isMatchedMultipleShippingRates = true;
+
+				// multiple rates matched
+				$out .= $this->getOrderMatchedShippingRatesMultipleMarkup($order);
+			} else {
+
+				// only one rate matched
+				$out .= $this->getOrderMatchedShippingRatesSingleMarkup($order);
+			}
+		} else {
+			// NO SHIPPING RATES MATCHED/FOUND
+
+			$out .=
+				// no rates found!
+				" <span class='pwcommerce_error'>" . $this->_('No matching shipping rates found!') . "</span>";
+		}
+		// check if order error
+		if ($order->isOrderError) {
+			// @note: this message is already translated in PWCommerceUtilities
+			$out .= "<div><p id='pwcommerce_order_shipping_rates_calculation_error' class='pwcommerce_error pt-2.5'>{$order->isOrderErrorMessage}</p></div>";
+		}
+
+
+		// ---------------
+		// append hidden markup for sending back JSON handlingFeeAmount, subtotalPrice and totalPrice, etc (but these three the main ones)
+		$out .= $this->getOrderHiddenMarkupForOtherCalculatedAmounts($order);
+		// -----------------
+
+
+		$out .= "</div>";
+		// --------------
+		return $out;
+	}
+
+	// markup if more than one shipping rate was matched
+	private function getOrderMatchedShippingRatesMultipleMarkup(WireData $order) {
+		/** @var WireArray $matchedShippingRates */
+		$matchedShippingRates = $order->matchedShippingRates;
+		// $xstore = $this->xstore;
+		// $xstoreOrderWholeData = "{$this->xstore}.order_whole_data";
+		$out = "";
+		// --------
+		// notice that matched multiple shipping rates in the shipping zone
+		$notice = sprintf(__("Multiple matched shipping rates have been found in the shipping zone %s. Please select one shipping rate to apply to the order."), $order->matchedShippingZoneName);
+
+		// ---------
+		$out .= "<p>" . $notice . "</p>";
+		// TODO CHANGE MARKUP! IF MULTIPLE USE RADIOS, ELSE USE PARAGRAPH, ETC
+		// TODO -IF RADIOS, NEED TO SELECT ONE BY DEFAULT; FIRST? MOST EXPENSIVE? LEAST EXPENSIVE? FOR NOW, FIRST!
+		/** @var WireData $this->firstRateOfMultipleMatchedShippingRates */
+		$this->firstRateOfMultipleMatchedShippingRates = $matchedShippingRates->first();
+		$selectedMatchedShippingRateID = $this->firstRateOfMultipleMatchedShippingRates->shippingRateID;
+
+
+		// ====================
+		// @note: we were not able to add a handler directly on InputfieldRadios!
+		// instead, we add our alpine handler on the labels that wrap the inputs
+		// we also pass the selected rate id directly to the handler
+		// this means we cannot use inputfieldsHelpers in this case.
+		$field = $this->modules->get('InputfieldRadios');
+		// TODO USE THIS OR BELOW?
+		// $field->attr('id+name', 'pwcommerce_order_matched_shipping_rates_choices');
+		$field->attr('id+name', 'pwcommerce_order_selected_matched_shipping_rate');
+		$field->addClass('pwcommerce_radio_outside_inputfield pwcommerce_order_matched_shipping_rates_choices');
+		// --------------
+		foreach ($matchedShippingRates as $matchedRate) {
+
+			$shippingRateCriteriaTypeString = $this->getMatchedShippingRatesCriteriaString($matchedRate->shippingRateCriteriaType);
+			$label = $matchedRate->shippingRateName . " " . $matchedRate->shippingRate . " (" . $shippingRateCriteriaTypeString . ")";
+			// ------
+			$field->addOption(
+				$matchedRate->shippingRateID,
+				$label,
+				[
+					// @note: ProcessWire sets this to the label of the radio button and not radio itself!
+					// hence, we listen to 'change' (click works as well) on the label
+					'x-on:change' => "handleSelectedMatchedShippingRateChange",
+					// 'x-on:click' => "handleSelectedMatchedShippingRateChange",
+					// this is also set to the label. We will access it using event.target.parentNode
+					'data-shipping-fee' => $matchedRate->shippingRate
+				]
+			);
+		}
+		$field->value = $selectedMatchedShippingRateID;
+		// ---------------
+		$out .= $field->render();
+		// add notes about taxes
+		$notes = $this->_("If your shop charges taxes on shipping, taxes will be applied after you save the order.");
+		$out .= "<p class='notes'>" . $notes . "</p>";
+
+		// -------
+		return $out;
+	}
+
+	// markup if only one shipping rate was matched
+	private function getOrderMatchedShippingRatesSingleMarkup(WireData $order) {
+
+
+		/* ############ checks #########
+																										- if no shipping rates were matched because shipping is not applicable
+																										- we will not have a first() above
+																										- hence, create empty WireData() with dummy values
+																										*/
+		if ($order->noticeTypeText === 'shipping_not_applicable') {
+			$matchedShippingRate = new WireData();
+			$matchedShippingRate->shippingRate = 0;
+			$matchedShippingRate->shippingRateID = 0;
+		} else {
+			/** @var WireArray $matchedShippingRates */
+			$matchedShippingRates = $order->matchedShippingRates;
+			// @note: this is a WireArray hence the first()!
+			/** @var WireData $matchedShippingRate */
+			$matchedShippingRate = $this->singleMatchedShippingRate = $matchedShippingRates->first();
+
+		}
+
+
+		######################
+		// --------------
+		$out = "";
+		// notice that SINGLE shipping rate in the shipping zone
+		$shippingRateFormattedAsCurrency = $this->pwcommerce->getValueFormattedAsCurrencyForShop($matchedShippingRate->shippingRate);
+		$notice = sprintf(__('One matched shipping rate has been found in the shipping zone %1$s. This rate of %2$s will be applied to this order.'), $order->matchedShippingZoneName, $shippingRateFormattedAsCurrency);
+		// ---------
+		$out .=
+			"<p>" . $notice . "</p>" .
+			"<input name='pwcommerce_order_selected_matched_shipping_rate' type='hidden' value='{$matchedShippingRate->shippingRateID}'>";
+		// TODO: HERE NEED A HIDDEN INPUT WITH JSON FOR OTHER VALUES, I.E. HANDLING FEE, SHIPPING FEE (first one if multiple) TAXES, ETC!?? AT LEAST THE HANDLING! -> then can use afterSettle in htmx to signal alpine.js to collect from the hidden input and apply to its store!
+		// -------
+		return $out;
+	}
+
+
+	// @note: for translation's sake
+	private function getMatchedShippingRatesCriteriaString($criteria) {
+		$string = "";
+		if ($criteria === 'none') {
+			$string = $this->_('flat');
+		} elseif ($criteria === 'weight') {
+			$string = $this->_('weight');
+		} elseif ($criteria === 'price') {
+			$string = $this->_('price');
+		} elseif ($criteria === 'quantity') {
+			$string = $this->_('quantity');
+		}
+		// ---------------
+		return $string;
+	}
+
+	private function getOrderHiddenMarkupForOtherCalculatedAmounts(WireData $order) {
+		/** @var float $orderTotalPrice */
+
+
+
+		$shippingRate = 0;
+		// if only a single shipping rate was matched
+		if (empty($this->isMatchedMultipleShippingRates)) {
+			// get the single matched shipping rate IF ONE IS AVAILABLE
+			// we will add its amount to the order totalPrice
+			if (!empty($this->singleMatchedShippingRate->shippingRate)) {
+				/** @var float $shippingRate */
+				$shippingRate = $this->singleMatchedShippingRate->shippingRate;
+			}
+		} else {
+			// USE FIRST RATE IN MULTIPLE MATCHED RATES AS DEFAULT RATE
+			$shippingRate = $this->firstRateOfMultipleMatchedShippingRates->shippingRate;
+		}
+
+		// ---------------
+		$otherCalculatedOrderValues = [
+			'handlingFeeType' => $order->handlingFeeType,
+			'handlingFeeValue' => $order->handlingFeeValue,
+			'handlingFeeAmount' => $order->handlingFeeAmount,
+			'shippingFee' => $shippingRate,
+			'subtotalPrice' => $order->subtotalPrice,
+			'totalPrice' => $order->totalPrice,
+			// ----------
+			'isPricesIncludeTaxes' => $order->isPricesIncludeTaxes,
+			'isOrderError' => $order->isOrderError,
+			'isOrderErrorMessage' => $order->isOrderErrorMessage
+		];
+		$otherCalculatedOrderValuesJSON = json_encode($otherCalculatedOrderValues);
+		$out = "<input type='hidden' id='pwcommerce_order_live_calculated_values_other_values' value='{$otherCalculatedOrderValuesJSON}'>";
+
+
+		// ------
+		return $out;
+	}
+
+	// ~~~~~~~~~~~
+
+	// TODO MAYBE ALSO MOVE PROCESSING TO EXTERNAL FILE?
+
+
+
+
+	/**
+	 * Process input for the values sent for manual order editing.
+	 *
+	 * @note: we handle values for other pages and fields including line items and customer.
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// TODO - @UPDATE FRIDAY 11 MARCH 2022 - WE HAVE CHANGED THIS INPUTFIELD! WE NOW SAVE LINE ITEMS + SHIPPING + ORDER AND TAXES RIGHT HERE!
+
+		$classesToLoad = $this->getRequiredClasses(['InputfieldPWCommerceOrderProcessManualOrder']);
+		$this->loadRequiredClasses($classesToLoad);
+		// TODO: WON'T SAVE MAYBE SINCE CALLED EXTERNALY? @CHANGED TO processOrderCustomerForSaving
+		// $inputfield->processInput($input);
+		// --------
+		// 1. FIRST CHECK IF CUSTOMER DETAILS REQUIRING RECALCULATION OF ORDER LINE ITEMS TOOK PLACE
+		$isCustomerValuesForProcessCalculableValuesChanged = $this->isCustomerValuesForProcessCalculableValuesChanged($input);
+		// ---------
+		// 2. SECOND, SAVE ORDER CUSTOMER
+		$this->inputfieldPWCommerceOrderProcessManualOrder->processOrderCustomerForSaving($input);
+		// ---------
+		// 3. THIRD, SAVE OTHER ORDER VALUES -> line items, discounts, shipping and taxes
+		$this->inputfieldPWCommerceOrderProcessManualOrder->processOrderForSaving($input, $isCustomerValuesForProcessCalculableValuesChanged);
+
+		//------------
+
+		// TODO OK COMMENTED OUT?
+		// return;
+
+
+	}
+
+	// TODO RENAME THIS!
+	// public function processInputPostProcessAfterSave(WireInputData $input, Page $orderPage, $isLiveCalculateOnly = false) {
+	public function processNonSaveLiveOrder(WireInputData $input, Page $orderPage) {
+
+
+
+
+		$classesToLoad = $this->getRequiredClasses(['InputfieldPWCommerceOrderProcessManualOrder']);
+		$this->loadRequiredClasses($classesToLoad);
+		// TODO: WON'T SAVE MAYBE SINCE CALLED EXTERNALY? @CHANGED TO processOrderCustomerForSaving
+		// $inputfield->processInput($input);
+		// TODO RENAME THIS METHOD AND HERE TOO!
+		// TODO DELETE WHEN DONE!
+		// return $this->inputfieldPWCommerceOrderProcessManualOrder->processInputPostProcessAfterSave($input, $orderPage, $isLiveCalculateOnly);
+		return $this->inputfieldPWCommerceOrderProcessManualOrder->processNonSaveLiveOrder($input, $orderPage);
+	}
+
+	// ----------------
+	private function isCustomerValuesForProcessCalculableValuesChanged(WireInputData $input) {
+		$incomingCustomerIsTaxExemptValue = (int) $this->input->pwcommerce_order_customer_is_tax_exempt;
+		$incomingShippingAddressCountryID =
+			(int) $this->input->pwcommerce_order_customer_shipping_address_country_id[0];
+		$orderCustomer = $this->page->get(PwCommerce::ORDER_CUSTOMER_FIELD_NAME);
+		$savedCustomerIsTaxExemptValue = (int) $orderCustomer->isTaxExempt;
+		$savedShippingAddressCountryID = (int) $orderCustomer->shippingAddressCountryID;
+		$isCustomerValuesForProcessCalculableValuesChanged = ($incomingCustomerIsTaxExemptValue !== $savedCustomerIsTaxExemptValue) || ($incomingShippingAddressCountryID !== $savedShippingAddressCountryID);
+		// ------------
+		return $isCustomerValuesForProcessCalculableValuesChanged;
+	}
+}

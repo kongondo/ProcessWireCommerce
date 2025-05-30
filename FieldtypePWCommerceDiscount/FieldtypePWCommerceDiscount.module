@@ -1,0 +1,613 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceDiscount
+ *
+ * Fieldtype that stores and outputs values of a PWCommerce discount values.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceDiscount for PWCommerce
+ * Copyright (C) 2023 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceDiscount extends Fieldtype
+{
+
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Discount: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce discount values.',
+			'installs' => 'InputfieldPWCommerceDiscount',
+		);
+	}
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type.
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		// $inputfield = $this->modules->get("InputfieldPWCommerceDiscount");
+		$inputfield = $this->wire('modules')->get("InputfieldPWCommerceDiscount");
+		// our inputfield requires a Page and Field
+		// @note: easier to set this way than using set() since we will then have to check keys
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceDiscount
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceDiscount
+		// $inputfield->set('page', $page);
+		// $inputfield->set('field', $field);
+		return $inputfield;
+	}
+
+	/**
+	 * Return a blank ready-to-populate version of a field of this type.
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * Set the config option fields for this Field.
+	 *
+	 * These appear in the 'Details' Tab when editing an instance of this Field.
+	 *
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on.
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireData, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	// @credits: borrowed from ProcessWire FieldtypeDatetime.module
+	/**
+	 * Sanitize a value assumed to be either a timestamp or in strtotime() compatible format
+	 *
+	 * @param string|int|\DateTime
+	 * @return int|string Returns unix timestamp integer or blank string if empty or invalid value
+	 *
+	 */
+	protected function _sanitizeValue($value) {
+		if (empty($value)) {
+			// empty value
+			$value = '';
+		} elseif (is_int($value)) {
+			// value okay as-is
+		} elseif ($value instanceof \DateTime) {
+			// instance of DateTime
+			$value = $value->getTimestamp();
+		} elseif (ctype_digit(ltrim("$value", '-'))) {
+			// already a timestamp
+			$value = (int) $value;
+		} else {
+			// convert date string to time
+			$value = strtotime($value);
+			if ($value === false) {
+				$value = '';
+			}
+		}
+		return $value;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// if for some reason we already got a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return getBlankValue
+		if (empty($value) || !is_array($value)) {
+			return $record;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		# +++++++++
+		# BASICS
+
+		// note we are converting 'data' to 'record->isAutomaticDiscount'
+		// IS DISCOUNT AUTOMATIC?
+		$isAutomaticDiscount = !empty((int) ($value['data']));
+		$record->isAutomaticDiscount = $isAutomaticDiscount;
+		// aliases
+		$record->isAutomatic = $isAutomaticDiscount;
+
+		//--------
+		// DISCOUNT CODE
+		$code = $sanitizer->text($value['code']);
+
+		$record->code = $code;
+		// aliases
+		$record->discountCode = $code;
+
+		//--------
+		// DISCOUNT TYPE
+		$type = $sanitizer->fieldName($value['discount_type']);
+		$record->discountType = $type;
+		// aliases
+		$record->type = $type;
+
+		//--------
+		// DISCOUNT VALUE
+		$discountValue = (float) $value['discount_value'];
+		$record->discountValue = $discountValue;
+		// aliases
+		$record->value = $discountValue;
+
+		//--------
+		// DISCOUNT APLLIES TO TYPE
+		// TODO? @NOTE: NO LONGER IN USE; WE NOW GET FROM 'DISCOUNT TYPE'
+		// $appliesToType = $sanitizer->fieldName($value['applies_to_type']);
+		// $record->discountAppliesToType = $appliesToType;
+		// // aliases
+		// $record->discountAppliesTo = $appliesToType;
+
+		# +++++++++
+		# REQUIREMENTS
+
+		//--------
+		// DISCOUNT MINIMUM REQUIREMENT TYPE
+		$minimumRequirementType = $sanitizer->fieldName($value['minimum_requirement_type']);
+		$record->discountMinimumRequirementType = $minimumRequirementType;
+		// aliases
+		$record->minimumRequirementType = $minimumRequirementType;
+
+		//--------
+		// DISCOUNT MINIMUM REQUIREMENT AMOUNT
+		$minimumRequirementAmount = (float) $value['minimum_requirement_amount'];
+		$record->discountMinimumRequirementAmount = $minimumRequirementAmount;
+		// aliases
+		$record->discountMinimumRequirementValue = $minimumRequirementAmount;
+		$record->minimumRequirementAmount = $minimumRequirementAmount;
+		$record->minimumRequirementValue = $minimumRequirementAmount;
+		$record->minimumAmount = $minimumRequirementAmount;
+		$record->minimumValue = $minimumRequirementAmount;
+		$record->minimum = $minimumRequirementAmount;
+
+		# +++++++++
+		# LIMITS
+
+		//--------
+		// DISCOUNT LIMIT TOTAL
+		$discountLimitTotal = (int) $value['limit_total'];
+		$record->discountLimitTotal = $discountLimitTotal;
+		// aliases
+		$record->limitTotal = $discountLimitTotal;
+
+		//--------
+		// DISCOUNT PER LIMIT PER CUSTOMER TOTAL
+		$discountLimitPerCustomer = (int) $value['limit_per_customer'];
+		$record->discountLimitPerCustomer = $discountLimitPerCustomer;
+		// aliases
+		$record->limitPerCustomer = $discountLimitPerCustomer;
+
+		//--------
+		// DISCOUNT GLOBAL USAGE (TOTAL)
+		// @NOTE: this value is set dynamically whenever this discount is used!
+		// we use it to track the discount usage
+		// It is not editable via the inputfield GUI!
+		$discountGlobalUsage = (int) $value['global_usage'];
+		$record->discountGlobalUsage = $discountGlobalUsage;
+		// aliases
+		$record->globalUsage = $discountGlobalUsage;
+
+		# +++++++++
+		# ACTIVE DATES
+
+		//--------
+		// DISCOUNT START DATE
+		// TODO: UNSURE IF TO RETURN TIMESTAMP OR TIME STRING! MAYBE EXTRA VARIABLE FOR THIS?
+		$startDate = $value['active_from'];
+		if (empty($startDate)) {
+			$startDate = '';
+		} else {
+			$startDate = strtotime($startDate);
+			if ($startDate === false) {
+				$startDate = '';
+			}
+		}
+		// TODO: NEED TO RETURN A DATE, USING OME DATE FORMAT!
+
+		$record->discountStartDate = $startDate;
+		// aliases
+		$record->startDate = $startDate;
+		$record->discountStart = $startDate;
+		$record->start = $startDate;
+		$record->activeFrom = $startDate;
+
+		//--------
+		// DISCOUNT END DATE
+		// TODO: UNSURE IF TO RETURN TIMESTAMP OR TIME STRING! MAYBE EXTRA VARIABLE FOR THIS?
+		$endDate = $value['active_to'];
+		if (empty($endDate)) {
+			$endDate = '';
+		} else {
+			$endDate = strtotime($endDate);
+			if ($endDate === false) {
+				$endDate = '';
+			}
+		}
+
+		$record->discountEndDate = $endDate;
+		// aliases
+		$record->endDate = $endDate;
+		$record->discountEnd = $endDate;
+		$record->end = $endDate;
+		$record->activeTo = $endDate;
+
+		# +++++++++
+		# META
+
+		//--------
+		// DISCOUNT META DATA
+		$metaData = $sanitizer->text($value['meta_data']);
+		$record->discountMetaData = $metaData;
+		// aliases
+		$record->discountMeta = $metaData;
+		$record->metaData = $metaData;
+
+		# +++++++++
+		# RUNTIME
+
+		if (in_array($record->discountType, ['categories_get_y', 'products_get_y'])) {
+			// BOGO
+			$metaDataArray = json_decode($record->discountMetaData, true);
+			if (!empty($metaDataArray)) {
+				$record->getYDiscountedItemsAmount = $metaDataArray['get_y_discounted_items_amount'];
+				// @note: in the GUI a 'GET Y FOR FREE' equates to 100%! Hence, both Free and % can be expressed as percentage
+				// TODO what is this about????? isn't this the discount value? NO; THIS IS FOR HELPING SELECT THE RADIO FOR % VS FREE. BUT WE CAN DEDUCE FROM IT! E.G. IF DISCOUNT VALUE IS 100, IT MEANS THAT IS 100%, HENCE FREE. ELSE, IT IS NOT FREE.
+				// $record->getYDiscountPercent = (float) $metaDataArray['get_y_discount_percent'];
+				// TODO
+				if (isset($metaDataArray['maximum_usage_per_order'])) {
+					$record->maximumUsagePerOrder = (int) $metaDataArray['maximum_usage_per_order'];
+				}
+
+			}
+		} elseif ($record->discountType === 'free_shipping') {
+			// FREE SHIPPING
+			$metaDataArray = json_decode($record->discountMetaData, true);
+			if (!empty($metaDataArray['exclude_shipping_amount_over'])) {
+				$record->excludeShippingAmountOver = (float) $metaDataArray['exclude_shipping_amount_over'];
+			}
+		}
+
+		// customer eligibility type
+		// @NOTE: just for convenience for order, products and shipping discounts. This is because, these can have multiple values but with the same customer type in the table 'pwcommerce_discounts_eligibility' (FieldtypePWCommerceDiscountsEligibility). It is just easier to store the value once here.
+		// For BOGO discount, it is not just about convenience. This is because, for BOGO, 'pwcommerce_discounts_eligibility' stores values for both customers and BUY X!
+		// TODO ALTERNATIVELY, WE CAN GET THE FIRST ITEM WHOSE itemType contains the word 'customer'!
+		if (!empty($metaDataArray['customer_eligibility_type'])) {
+			// 'specific_customers', 'all_customers', 'customer_groups'
+			$record->customerEligibilityType = $metaDataArray['customer_eligibility_type'];
+		}
+
+		# ~~~~~~~~~~~~~~~
+
+		$record->setTrackChanges(true); // track changes for the product record TODO? reset instead?
+
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$pwcommerce = $this->pwcommerce;
+
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		$allowedDiscountTypes = $pwcommerce->getAllowedDiscountTypes();
+		$discountType = $sanitizer->option($value->discountType, $allowedDiscountTypes);
+
+		// TODO IF DISCOUNT TYPE IS of 'percentage' type, we ensure its value IS NOT > 100
+		$discountValue = (float) $value->discountValue;
+		$isPercentageDiscount = $pwcommerce->isPercentageDiscount($discountType);
+		if (!empty($isPercentageDiscount) && $discountValue > 100) {
+			$discountValue = 100;
+		}
+
+		// TODO? @NOTE: NO LONGER IN USE; WE NOW GET FROM 'DISCOUNT TYPE'
+		// $allowedAppliesToTypes = ['order', 'products', 'categories'];
+		// $discountAppliesToType = $sanitizer->option($value->discountAppliesToType, $allowedAppliesToTypes);
+
+		// $allowedMinimumRequirementType = ['none', 'purchase', 'quantity'];
+		$allowedMinimumRequirementTypes = $pwcommerce->getAllowedMinimumRequirementTypes();
+		$minimumRequirementType = $sanitizer->option($value->discountMinimumRequirementType, $allowedMinimumRequirementTypes);
+
+		// START DATE
+		if (!empty($value->discountStartDate)) {
+			$startDate = date('Y-m-d H:i:s', $this->_sanitizeValue($value->discountStartDate));
+		} else {
+			// default to now
+			$startDate = date('Y-m-d H:i:s');
+		}
+		// END DATE
+		// TODO @UPDATE: WE DEFAULT TO NULL; i.e., no expiration date!
+		if (!empty($value->discountEndDate)) {
+			$endDate = date('Y-m-d H:i:s', $this->_sanitizeValue($value->discountEndDate));
+		} else {
+			// default to null
+			$endDate = NULL;
+		}
+
+		// convert records to an array within sleepValue
+		$sleepValue = [
+
+			# +++++++++
+			# BASICS
+
+			// note: record->isAutomaticDiscount is becoming data which is a required column in a Fieldtype
+			'data' => (int) $value->isAutomaticDiscount,
+			// 'is_automatic_discount' => (int) $value->isAutomaticDiscount,
+			'code' => $sanitizer->text($value->code),
+			'discount_type ' => $discountType,
+			'discount_value' => $discountValue,
+			// 'applies_to_type ' => $discountAppliesToType,
+
+			# +++++++++
+			# REQUIREMENTS
+
+			'minimum_requirement_type ' => $minimumRequirementType,
+			'minimum_requirement_amount' => (float) $value->discountMinimumRequirementAmount,
+
+			# +++++++++
+			# LIMITS
+
+			'limit_total' => (int) $value->discountLimitTotal,
+			'limit_per_customer' => (int) $value->discountLimitPerCustomer,
+
+			# +++++++++
+			# USAGE
+
+			// @NOTE: this value is set dynamically whenever this discount is used!
+			// we use it to track the discount usage
+			// It is not editable via the inputfield GUI!
+			'global_usage' => (int) $value->discountGlobalUsage,
+
+			# +++++++++
+			# ACTIVE DATES
+
+			'active_from' => $startDate,
+			'active_to' => $endDate,
+
+			# +++++++++
+			# META @note: JSON or empty
+			'meta_data' => $sanitizer->text($value->discountMetaData),
+
+		];
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Return the database schema that defines a Shipping Rate item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		# +++++++++
+		// 'data' is a required field for any Fieldtype,
+		// and we're using it to represent our 'item->isAutomaticDiscount' field (column in db)
+
+		# +++++++++
+		# BASICS
+		$schema['data'] = 'TINYINT(1) UNSIGNED NOT NULL'; // 'is_automatic_discount'
+		// $schema['is_automatic_discount'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		$schema['code'] = 'VARCHAR(255) NOT NULL';
+		$schema['discount_type'] = 'CHAR(30) NOT NULL'; // @see list in sleepValue()
+		$schema['discount_value'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// TODO? @NOTE: NO LONGER IN USE; WE NOW GET FROM 'DISCOUNT TYPE'
+		// $schema['applies_to_type'] = 'CHAR(20) NOT NULL'; //order | products | categories
+
+		# +++++++++
+		# REQUIREMENTS
+		$schema['minimum_requirement_type'] = 'CHAR(20) NOT NULL'; //none | purchase | quantity
+		$schema['minimum_requirement_amount'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+
+		# +++++++++
+		# LIMITS
+		// $schema['limit_total'] = 'INT(10) UNSIGNED NOT NULL';
+		// TODO CONFIRM NULL OK?
+		$schema['limit_total'] = 'INT(10) UNSIGNED';
+		$schema['limit_per_customer'] = 'INT(10) UNSIGNED';
+
+		# +++++++++
+		# USAGE
+
+		// @NOTE: this value is set dynamically whenever this discount is used!
+		// we use it to track the discount usage
+		// It is not editable via the inputfield GUI!
+		$schema['global_usage'] = 'INT(10) UNSIGNED';
+
+		# +++++++++
+		# ACTIVE DATES
+		$schema['active_from'] = 'DATETIME DEFAULT CURRENT_TIMESTAMP';
+		$schema['active_to'] = 'DATETIME NULL';
+
+		# +++++++++
+		# META
+		// @note: META included the 'discount applies to 4 items of y' in a BOGO and the 'customer gets this discount [free/%] on these items'. We get the values as properties during runtime as well
+		$schema['meta_data'] = 'VARCHAR(255)';
+
+		//----------------------------
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+
+		# +++++++++
+		# BASICS
+		$schema['keys']['data'] = 'KEY data (data)'; // for 'is_automatic_discount'
+		// $schema['keys']['is_automatic_discount'] = 'KEY is_automatic_discount (is_automatic_discount)';
+		$schema['keys']['code'] = 'FULLTEXT KEY code (code)';
+		$schema['keys']['discount_type'] = 'FULLTEXT KEY discount_type (discount_type)';
+		$schema['keys']['discount_value'] = 'KEY discount_value (discount_value)';
+		// $schema['keys']['applies_to_type'] = 'FULLTEXT KEY applies_to_type (applies_to_type)';
+
+		# +++++++++
+		# REQUIREMENTS
+		$schema['keys']['minimum_requirement_type'] = 'FULLTEXT KEY minimum_requirement_type (minimum_requirement_type)';
+		$schema['keys']['minimum_requirement_amount'] = 'KEY minimum_requirement_amount (minimum_requirement_amount)';
+
+		# +++++++++
+		# LIMITS
+		$schema['keys']['limit_total'] = 'KEY limit_total (limit_total)';
+		$schema['keys']['limit_per_customer'] = 'KEY limit_per_customer (limit_per_customer)';
+
+		# +++++++++
+		# USAGE
+		$schema['keys']['global_usage'] = 'KEY global_usage (global_usage)';
+
+		# +++++++++
+		# ACTIVE DATES
+		$schema['keys']['active_from'] = 'KEY active_from(active_from)';
+		$schema['keys']['active_to'] = 'KEY active_to(active_to)';
+
+		# +++++++++
+		# META
+		$schema['keys']['meta_data'] = 'FULLTEXT KEY meta_data (meta_data)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// match properties/subfields to model subfields/columns
+		// if searching by aliases
+		if (in_array($subfield, ['isAutomaticDiscount', 'isAutomatic', 'is_automatic_discount', 'is_automatic'])) {
+			$subfield = 'data';
+		} else if (in_array($subfield, ['discountCode', 'discount_code'])) {
+			$subfield = 'code';
+		} else if (in_array($subfield, ['discountType', 'type '])) {
+			$subfield = 'discount_type';
+		} else if (in_array($subfield, ['discountValue', 'value'])) {
+			$subfield = 'discount_value';
+		} /*else if (in_array($subfield, ['discountAppliesTo', 'discount_applies_to', 'discountAppliesToType', 'discount_applies_to_type', 'applies_to'])) {
+																																											$subfield = 'applies_to_type';
+																																										} */ else if (
+			in_array($subfield, [
+				'discountMinimumRequirementType',
+				'discount_minimum_requirement_type',
+			])
+		) {
+			$subfield = 'minimum_requirement_type';
+		} else if (
+			in_array($subfield, [
+				'discountMinimumRequirementAmount',
+				'discount_minimum_requirement_amount',
+				'discountMinimumRequirementValue',
+				'discount_minimum_requirement_value',
+				'discountMinimumRequirement',
+				'discount_minimum_requirement',
+				'discountMinimumAmount',
+				'discount_minimum_amount',
+				'discountMinimumValue',
+				'discount_minimum_value',
+				'discountMinimum',
+				'discount_minimum',
+				'minimum'
+			])
+		) {
+			$subfield = 'minimum_requirement_amount';
+		} else if (in_array($subfield, ['discountLimitTotal', 'discount_limit_total', 'limitTotal',])) {
+			$subfield = 'limit_total';
+		} else if (in_array($subfield, ['discountLimitPerCustomer', 'discount_limit_per_customer', 'limitPerCustomer',])) {
+			$subfield = 'limit_per_customer';
+		} else if (in_array($subfield, ['discountGlobalUsage', 'discount_global_usage', 'globalUsage',])) {
+			$subfield = 'global_usage';
+		} else if (in_array($subfield, ['discountStartDate', 'discount_start_date', 'discountStart', 'discount_start', 'startDate', 'start_date', 'start', 'activeFrom'])) {
+			$subfield = 'active_from';
+		} else if (in_array($subfield, ['discountEndDate', 'discount_end_date', 'discountEnd', 'discount_end', 'endDate', 'end_date', 'end', 'activeTo'])) {
+			$subfield = 'active_to';
+		} else if (in_array($subfield, ['discountMetaData', 'discount_meta_data', 'discountMeta', 'discount_meta', 'metaData', 'meta'])) {
+			$subfield = 'meta_data';
+		}
+		//---------
+
+		/*
+																																																																																																																																																																																									- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+																																																																																																																																																																																									- the latter allow for finer, fulltext search
+																																																																																																																																																																																									*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

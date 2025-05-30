@@ -1,0 +1,64 @@
+/* override inputfieldmarkup description padding bottom */
+li.Inputfield.pwcommerce_shipping_rate_delivery_times_header div.InputfieldContent,
+li.Inputfield.pwcommerce_shipping_rate_criteria_header div.InputfieldContent {
+	padding-bottom: 0;
+}
+
+li.Inputfield.pwcommerce_shipping_rate_delete {
+	position: relative;
+}
+
+/* @TODO: NEED TO RESET/REMOVE VALUES ON SMALLEST SCREENS! */
+li.Inputfield.pwcommerce_shipping_rate_delete div.InputfieldContent {
+	position: absolute;
+	top: 60%;
+	/*@TODO: REVISIT*/
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+div.pwcommerce_shipping_rate_row_wrapper {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+div.pwcommerce_shipping_rate_row_wrapper:not(:last-child) {
+	/* @todo: remove border-bottom from last child */
+	border-bottom: 1px solid #d9e1ea;
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.pwcommerce_trash {
+	cursor: pointer;
+}
+
+/* @TODO: DELETE THIS ONCE THE TAILWIND CLASSES ARE SHARED - will be 'hidden' */
+.pwcommerce_hide {
+	display: none;
+}
+
+/* @TODO: EDIT! */
+/* for fieldsets listing country territories shippinges */
+.Inputfields .InputfieldPWCommerceGiftCards .Inputfields .InputfieldPWCommerceGiftCardsItem>.InputfieldHeader {
+	border: none;
+	background: #3eb998;
+	color: #fff;
+	outline: 1px solid #d9e1ea;
+	outline-color: #3eb998;
+	line-height: 1em;
+	padding: 0.5em 0 0.5em 0.4em;
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+}
+
+.Inputfields .InputfieldPWCommerceGiftCards .Inputfields .InputfieldPWCommerceGiftCardsItem:not(:last-child) {
+	margin: 4px 0;
+}
+
+.Inputfields .InputfieldPWCommerceGiftCards .Inputfields .InputfieldPWCommerceGiftCardsItem>.InputfieldContent {
+	outline: 1px solid #d9e1ea;
+	padding: 0;
+	background: #f0f3f7;
+}

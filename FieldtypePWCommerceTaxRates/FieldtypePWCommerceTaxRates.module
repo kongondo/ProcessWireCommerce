@@ -1,0 +1,342 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * FieldtypePWCommerceTaxRates for ProcessWire.
+ *
+ * This Fieldtype stores values for a PWCommerce tax rates.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceTaxRates for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+
+class FieldtypePWCommerceTaxRates extends FieldtypeMulti
+{
+
+
+
+
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Tax Rates: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce tax rates values.',
+			'installs' => 'InputfieldPWCommerceTaxRates',
+		);
+	}
+
+	/**
+	 * We keep a copy of the $page that owns these tax rates so that we can follow
+	 * its outputFormatting state and change our output per that state
+	 *
+	 */
+	// @for use in InputfieldPWCommerceTaxRates
+	protected $page;
+
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceTaxRates");
+		// our inputfield requires a Page and Field
+		// @note: these will be set as properties in InputfieldPWCommerceTaxRates at runtime via set() method there.
+		$inputfield->set('page', $page);
+		$inputfield->set('field', $field);
+		$inputfield->set('isCountryStandardTax', $this->getIsCountryStandardTax($page));
+		return $inputfield;
+	}
+
+	/**
+	 * A country can have only one standard/base tax.
+	 *
+	 * Any exceptions need to be saved as overrides.
+	 * Here we check whether this field is in use by a country or a country territory.
+	 * A territory (TODO???) can have multiple taxes.
+	 *
+	 * @access private
+	 * @param Page $page
+	 * @return bool Whether this field is being used by a country or a country territory.
+	 */
+	private function getIsCountryStandardTax($page) {
+		return $page->id && $page->template->name === PwCommerce::COUNTRY_TEMPLATE_NAME;
+	}
+
+	/**
+	 * Get a blank value of this type, i.e. return a blank WireArray
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireArray
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$wireArray = new WireArray();
+		$wireArray->setTrackChanges(true);
+		return $wireArray;
+	}
+
+	/**
+	 * Get a blank single item value of this type, i.e. return a blank WireData
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankRecord() {
+		return new WireData();
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array $value
+	 * @return string|int|array|object $value
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireArray) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$records = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireArray
+		if (empty($value) || !is_array($value)) {
+			return $records;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// create new WireData objects from each item in the array
+		foreach ($value as $v) {
+
+			$record = $this->getBlankRecord();
+
+			// TAX (SHORT) NAME
+			// note we are converting 'data' to 'record->taxName'
+			$taxName = $sanitizer->text($v['data']);
+			$record->taxName = $taxName;
+			// aliases
+			$record->tax = $taxName;
+			$record->taxAbbreviation = $taxName;
+			$record->name = $taxName;
+
+			//--------
+			// TAX FULL NAME
+			$taxFullName = $sanitizer->text($v['tax_full_name']);
+			$record->taxFullName = $taxFullName;
+
+			//--------
+			// TAX RATE
+			$taxRate = (float) $v['tax_rate'];
+			$record->taxRate = $taxRate;
+			// aliases
+			$record->rate = $taxRate;
+
+			//--------
+			// TAX APPLICATION
+			$taxApplication = $sanitizer->pageName($v['tax_application']);
+			$record->taxApplication = $taxApplication;
+			// aliases
+			$record->application = $taxApplication;
+
+			//--------
+			// TAX LOCATION/GEOGRAPHICAL CODE
+			// TODO: NEED TO ADD THIS AS HIDDEN INPUT!
+			$taxLocationCode = $sanitizer->text($v['tax_location_code']);
+			$record->taxLocationCode = $taxLocationCode;
+			// aliases
+			$record->locationCode = $taxLocationCode;
+			$record->code = $taxLocationCode;
+			$record->geoCode = $taxLocationCode;
+
+			//--------
+			// TAX LOCATION LABEL + ID
+			// @note: this is just the title of the page with this field
+			// TODO: check if multilingua aware
+			$record->taxLocation = $page->title;
+			$record->taxLocationID = $page->id;
+
+			//----------------
+			$record->resetTrackChanges();
+			$records->add($record); // add to records
+
+		} // end foreach $value as $v
+
+		// tell it to start tracking changes from this point forward
+		$records->resetTrackChanges(); // reset track changes for all records
+
+		return $records;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array|object $value
+	 * @return string|int
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than an WireArray,
+		// then just return a blank array
+		if (!$value instanceof WireArray) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// convert each record to an array within sleepValue
+		foreach ($value as $record) {
+
+			$sleepValue[] = array(
+				// note: record->tax is becoming data which is a required column in a Fieldtype
+				'data' => $sanitizer->text($record->taxName),
+				'tax_full_name' => $sanitizer->text($record->taxFullName),
+				'tax_rate' => (float) $record->taxRate,
+				'tax_application' => $sanitizer->pageName($record->taxApplication),
+				// TODO: UNSURE ABOUT THIS! CREATE ONCE ON CREATION OF PAGE THEN NO EDIT?
+				'tax_location_code' => $sanitizer->text($record->taxLocationCode),
+
+			);
+		}
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 *
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireArray) {
+			throw new WireException("Value set to field '$field->name' must be a WireArray");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO: NOT NEEDED?
+		return $value;
+	}
+
+	/**
+	 * Return the database schema that defines a product property item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->tax' field (column in db)
+		// we reuse this required field/column (data) for item->tax
+		$schema['data'] = 'CHAR(10) NOT NULL'; // 'tax_abbreviation' e.g. VAT, GST
+		$schema['tax_full_name'] = 'VARCHAR(255) NOT NULL'; //  e.g. Value Added Tax, Goods and Services Tax
+		$schema['tax_rate'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		//  none | add | replace (instead) | compound
+		// @note: none in case country tax, in which case, we allow only one base country tax
+		$schema['tax_application'] = 'CHAR(10) NOT NULL';
+		$schema['tax_location_code'] = 'CHAR(10) NOT NULL'; // for both country and territory codes, e.g. AL, AB, CA, GB, KE
+		//----------------------------
+		// location id:
+		// @note: not needed as this is same as the current page->id {since we only store the page's taxes here}
+		//   $schema['location_id'] = 'INT UNSIGNED NOT NULL';
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		// for 'tax_abbreviation'
+		$schema['keys']['data'] = 'FULLTEXT KEY data (data)';
+		$schema['keys']['tax_full_name'] = 'FULLTEXT KEY tax_full_name (tax_full_name)';
+		$schema['keys']['tax_rate'] = 'KEY tax_rate(tax_rate)';
+		$schema['keys']['tax_application'] = 'FULLTEXT KEY tax_application (tax_application)';
+		$schema['keys']['tax_location_code'] = 'FULLTEXT KEY tax_location_code (tax_location_code)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// if searching 'tax' (or its aliases) then assume our default (data) field
+		if (in_array($subfield, ['taxName', 'tax', 'tax_name', 'tax_abbreviation', 'tax_short_name', 'taxAbbreviation', 'name'])) {
+			$subfield = 'data';
+		}
+		// else if searching for tax name (full name) using aliases
+		else if ($subfield == 'taxFullName') {
+			$subfield = 'tax_full_name';
+		}
+		// else if searching for tax rate using aliases
+		else if (in_array($subfield, ['taxRate', 'rate'])) {
+			$subfield = 'tax_rate';
+		}
+		// else if searching for tax application using aliases
+		else if (in_array($subfield, ['taxApplication', 'application'])) {
+			$subfield = 'tax_application';
+		}
+		// else if searching for tax location code using aliases
+		else if (in_array($subfield, ['taxLocationCode', 'locationCode', 'code', 'geoCode'])) {
+			$subfield = 'tax_location_code';
+		}
+
+		/*
+									- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+									- the latter allow for finer, fulltext search
+									 */
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

@@ -1,0 +1,296 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * FieldtypePWCommerceDiscountsApplyTo for ProcessWire.
+ *
+ * This Fieldtype stores values for PWCommerce discount applies to values.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceDiscountsApplyTo for PWCommerce
+ * Copyright (C) 2023 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Discounts Apply To: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'Field that stores PWCommerce discounts apply to.',
+			# TODO EXPERIMENTING NOT HAVING AN INPUT FIELD
+			# @note: we also hide this in field settings (input > visibility)
+			// 'installs' => 'InputfieldPWCommerceDiscountsApplyTo',
+		);
+	}
+
+	/**
+	 * We keep a copy of the $page that owns these notes so that we can follow
+	 * its outputFormatting state and change our output per that state
+	 *
+	 */
+	// @for use in InputfieldPWCommerceDiscountsApplyTo
+	protected $page;
+
+	# TODO EXPERIMENTING NOT HAVING AN INPUT FIELD
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	// public function getInputfield(Page $page, Field $field) {
+	// 	$inputfield = $this->wire('modules')->get("InputfieldPWCommerceDiscountsApplyTo");
+	// 	// our inputfield requires a Page and Field
+	// 	// @note: these two are methods in InputfieldPWCommerceDiscountsApplyTo
+	// 	$inputfield->setPage($page);
+	// 	$inputfield->setField($field);
+	// 	return $inputfield;
+	// }
+
+	/**
+	 * Get a blank value of this type, i.e. return a blank WireArray
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireArray
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$wireArray = new WireArray();
+		$wireArray->setTrackChanges(true);
+		return $wireArray;
+	}
+
+	/**
+	 * Get a blank single item value of this type, i.e. return a blank WireData
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankRecord() {
+		return new WireData();
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array $value
+	 * @return string|int|array|object $value
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireArray) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$records = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireArray
+		if (empty($value) || !is_array($value)) {
+			return $records;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+		$cnt = 1; // @note: for temporary runtime ID
+
+		// create new WireData objects from each item in the array
+		foreach ($value as $v) {
+
+			$record = $this->getBlankRecord();
+
+			// DISCOUNT ID
+			// @NOTE: not needed since we get from pages_id
+
+			//--------
+			// ITEM ID
+			// this is the page ID of the product/category/country that the discount applies to
+			// @note: if '0', it means either 'whole_order' or 'all_countries'
+			// @note: hence confirm with item_type
+			// @note: for BOGO, this applies to the 'GET Y' PORTION! For 'BUY X', @see FieldtypePaloperDiscountsEligibility
+			$itemID = (int) $v['data']; // 'item_id'
+			$record->itemID = $itemID;
+			// aliases
+			$record->discountAppliesToItemID = $itemID;
+
+			//--------
+			// ITEM TYPE
+			// this is item type in relation to above ITEM ID
+			$itemType = $sanitizer->fieldName($v['item_type']);
+			$record->itemType = $itemType;
+			// aliases
+			$record->discountAppliesToItemType = $itemType;
+
+			// ============= RUNTIME VALUES
+			$record->id = $cnt;
+
+			//---------
+			$cnt++;
+
+			//----------------
+			$record->resetTrackChanges();
+
+			$records->add($record); // add to records
+
+		} // end foreach $value as $v
+
+		// tell it to start tracking changes from this point forward
+		$records->resetTrackChanges(); // reset track changes for all records
+
+		return $records;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array|object $value
+	 * @return array
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than an WireArray,
+		// then just return a blank array
+		if (!$value instanceof WireArray) {
+			return $sleepValue;
+		}
+
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// @note: the 'discount applies to XX items of y' in a BOGO and the 'customer gets this discount [free/%] on these items' is saved in the meta of FieldtypePWCommerceDiscount. We get the values as properties during runtime as well
+		$allowedAppliesToItemTypes = $this->pwcommerce->getAllowedAppliesToItemTypes();
+
+		// convert each record to an array within sleepValue
+		foreach ($value as $record) {
+			$discountAppliesToItemType = $sanitizer->option($record->itemType, $allowedAppliesToItemTypes);
+
+			if (empty($discountAppliesToItemType)) {
+				continue;
+			}
+			// =======
+			// make the applies items to sort by record->itemID
+			$value->sort('itemID');
+			//--------------
+			$sleepValue[] = [
+				// note: record->discountID is becoming data which is a required column in a Fieldtype
+				// 'data' => (int) $record->discountID,// @NOTE: not needed since we get from pages_id
+				// note: record->itemID is becoming data which is a required column in a Fieldtype
+				'data' => (int) $record->itemID,
+				// 'item_id'
+				'item_type' => $discountAppliesToItemType,
+			];
+		}
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 *
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireArray) {
+			throw new WireException("Value set to field '$field->name' must be a WireArray");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO: NOT NEEDED?
+		return $value;
+	}
+
+	/**
+	 * Return the database schema that defines a product property item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// we reuse this required field/column (data) for item->itemID
+		$schema['data'] = 'INT(10) UNSIGNED NOT NULL'; // 'item_id'
+		// $schema['item_id'] = 'INT(10) UNSIGNED NOT NULL';
+		// @see list in sleepValue()
+		$schema['item_type'] = 'CHAR(30) NOT NULL';
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		//--------------
+		// for 'item_id'
+		$schema['keys']['data'] = 'KEY data(data)'; // 'item_id'
+		// $schema['keys']['item_id'] = 'KEY item_id(item_id)';
+		$schema['keys']['item_type'] = 'FULLTEXT KEY item_type (item_type)';
+
+		// TODO CHECK IF PW WILL AUTO CREATE A COMPOSITE ID FOR ABOVE?
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		if (in_array($subfield, ['itemID', 'discountAppliesToItemID', 'discount_applies_to_item_id', 'item'])) {
+			// if searching 'itemID' (or its aliases) then assume our default (data) field
+			$subfield = 'data';
+		} else if (in_array($subfield, ['itemType', 'discountAppliesToItemtype', 'discount_applies_to_item_type', 'item_type'])) {
+			// else if searching for 'item_type' using aliases
+			$subfield = 'item_type';
+		}
+
+		/*- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+																																												- the latter allow for finer, fulltext search
+																																										*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

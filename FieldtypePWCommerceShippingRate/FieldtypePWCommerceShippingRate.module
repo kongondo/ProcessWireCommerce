@@ -1,0 +1,268 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceShippingRate
+ *
+ * Fieldtype that stores and outputs values of a PWCommerce shipping rate values.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceShippingRate for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceShippingRate extends Fieldtype
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Product Shipping Rate: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce shipping rate values.',
+			'installs' => 'InputfieldPWCommerceShippingRate',
+		);
+	}
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type.
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		// $inputfield = $this->modules->get("InputfieldPWCommerceShippingRate");
+		$inputfield = $this->wire('modules')->get("InputfieldPWCommerceShippingRate");
+		// our inputfield requires a Page and Field
+		// @note: easier to set this way than using set() since we will then have to check keys
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceShippingRate
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceShippingRate
+		// $inputfield->set('page', $page);
+		// $inputfield->set('field', $field);
+		return $inputfield;
+	}
+
+	/**
+	 * Return a blank ready-to-populate version of a field of this type.
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * Set the config option fields for this Field.
+	 *
+	 * These appear in the 'Details' Tab when editing an instance of this Field.
+	 *
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on.
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireData, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+		// if for some reason we already got a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return getBlankValue
+		if (empty($value) || !is_array($value)) {
+
+			return $record;
+		}
+
+		// SHIPPING RATE (PRICE/COST/CHARGE)
+		// note we are converting 'data' to 'record->shippingRate'
+		$shippingRate = (float) $value['data'];
+
+		$record->shippingRate = $shippingRate;
+
+		//--------
+		// SHIPPING RATE CRITERIA TYPE
+		$shippingRateCriteriaType = $this->wire('sanitizer')->pageName($value['shipping_rate_criteria_type']);
+		$record->shippingRateCriteriaType = $shippingRateCriteriaType;
+
+		//--------
+		// SHIPPING RATE CRITERIA MINIMUM
+		$shippingRateCriteriaMinimum = $shippingRateCriteriaType === 'quantity' ? (int) $value['shipping_rate_criteria_minimum'] : (float) $value['shipping_rate_criteria_minimum'];
+		$record->shippingRateCriteriaMinimum = $shippingRateCriteriaMinimum;
+
+		//--------
+		// SHIPPING RATE CRITERIA MAXIMUM
+		$shippingRateCriteriaMaximum = $shippingRateCriteriaType === 'quantity' ? (int) $value['shipping_rate_criteria_maximum'] : (float) $value['shipping_rate_criteria_maximum'];
+		$record->shippingRateCriteriaMaximum = $shippingRateCriteriaMaximum;
+
+		//--------
+		// SHIPPING RATE DELIVERY TIME MINIMUM
+		$shippingRateDeliveryTimeMinimumDays = (int) $value['shipping_rate_delivery_time_minimum_days'];
+		$record->shippingRateDeliveryTimeMinimumDays = $shippingRateDeliveryTimeMinimumDays;
+
+		//--------
+		// SHIPPING RATE DELIVERY TIME MAXIMUM
+		$shippingRateDeliveryTimeMaximumDays = (int) $value['shipping_rate_delivery_time_maximum_days'];
+		$record->shippingRateDeliveryTimeMaximumDays = $shippingRateDeliveryTimeMaximumDays;
+
+		//--------
+		// RUNTIME
+		$record->shippingRateID = $page->id;
+		$record->shippingRateName = $page->title;
+
+
+
+		$record->setTrackChanges(true); // track changes for the product record TODO? reset instead?
+
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		// convert records to an array within sleepValue
+		$sleepValue = [
+			// note: record->shippingRate is becoming data which is a required column in a Fieldtype
+			'data' => (float) $value->shippingRate,
+			'shipping_rate_criteria_type' => $this->wire('sanitizer')->pageName($value->shippingRateCriteriaType),
+			'shipping_rate_criteria_minimum' => (float) $value->shippingRateCriteriaMinimum,
+			'shipping_rate_criteria_maximum' => (float) $value->shippingRateCriteriaMaximum,
+			'shipping_rate_delivery_time_minimum_days' => (int) $value->shippingRateDeliveryTimeMinimumDays,
+			'shipping_rate_delivery_time_maximum_days' => (int) $value->shippingRateDeliveryTimeMaximumDays,
+		];
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Return the database schema that defines a Shipping Rate item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our // 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->shippingRate' field (column in db)
+		// we reuse this required field/column (data) for item->shippingRate
+		$schema['data'] = 'DECIMAL(12,2) UNSIGNED NOT NULL'; // 'shipping_rate'
+		$schema['shipping_rate_criteria_type'] = 'CHAR(10) NOT NULL'; // none | weight | price | quantity
+		$schema['shipping_rate_criteria_minimum'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		$schema['shipping_rate_criteria_maximum'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		$schema['shipping_rate_delivery_time_minimum_days'] = 'SMALLINT UNSIGNED NOT NULL';
+		$schema['shipping_rate_delivery_time_maximum_days'] = 'SMALLINT UNSIGNED NOT NULL';
+
+		//----------------------------
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		$schema['keys']['data'] = 'KEY data (data)'; // for 'shipping_rate'
+		$schema['keys']['shipping_rate_criteria_type'] = 'FULLTEXT KEY shipping_rate_criteria_type (shipping_rate_criteria_type)';
+		$schema['keys']['shipping_rate_criteria_minimum'] = 'KEY shipping_rate_criteria_minimum(shipping_rate_criteria_minimum)';
+		$schema['keys']['shipping_rate_criteria_maximum'] = 'KEY shipping_rate_criteria_maximum(shipping_rate_criteria_maximum)';
+		$schema['keys']['shipping_rate_delivery_time_minimum_days'] = 'KEY shipping_rate_delivery_time_minimum_days (shipping_rate_delivery_time_minimum_days)';
+		$schema['keys']['shipping_rate_delivery_time_maximum_days'] = 'KEY shipping_rate_delivery_time_maximum_days (shipping_rate_delivery_time_maximum_days)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// match properties/subfields to model subfields/columns
+		if (in_array($subfield, ['shippingRate', 'rate', 'charge', 'cost', 'price'])) {
+			$subfield = 'data';
+		} else if (in_array($subfield, ['shippingRateCriteriaType', 'rateType', 'type', 'condition'])) {
+			$subfield = 'shipping_rate_criteria_type';
+		} else if (in_array($subfield, ['shippingRateCriteriaMinimum', 'rateMinimum', 'conditionMinimum'])) {
+			$subfield = 'shipping_rate_criteria_minimum';
+		} else if (in_array($subfield, ['shippingRateCriteriaMaximum', 'rateMaximum', 'conditionMaximum'])) {
+			$subfield = 'shipping_rate_criteria_maximum';
+		} else if (in_array($subfield, ['shippingRateDeliveryTimeMinimumDays', 'rateDaysMinimum'])) {
+			$subfield = 'shipping_rate_delivery_time_minimum_days';
+		} else if (in_array($subfield, ['shippingRateDeliveryTimeMaximumDays', 'rateDaysMaximum'])) {
+			$subfield = 'shipping_rate_delivery_time_maximum_days';
+		}
+		//---------
+
+		/*
+									- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+									- the latter allow for finer, fulltext search
+									*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

@@ -1,0 +1,224 @@
+body .pw-panel-container a.pwcommerce_menu_panel_tab.pw-panel-button {
+	background-color: #1c2836;
+	/* overriding the padding-top:5px and padding-bottom:15px */
+	/* @todo: revisit this. still not right */
+	/* padding: 1px 12px 3px 5px !important; */
+}
+
+/* the pwcommerce panel menu shop cart icon */
+body .pw-panel-container a.pwcommerce_menu_panel_tab.pw-panel-button i.fa {
+	/* @todo: unsure of color here */
+	color: #8d939e;
+	color: #e83561;
+	transform: rotate(90deg);
+}
+
+#pwcommerce_shop_menu div.InputfieldContent {
+	padding-left: 0;
+}
+
+/* @todo revisit this margin! */
+h3#pwcommerce_bulk_edit_custom_lister_pagination_string {
+	margin-top: 10px;
+}
+
+/* add margin right for checkboxes rendered outside inputfield */
+input.pwcommerce_checkbox_outside_inputfield {
+	margin-right: 0.5em;
+}
+
+/* add margin right for radios rendered outside inputfield */
+input.pwcommerce_radio_outside_inputfield {
+	margin-right: 0.5em;
+}
+
+/* matched shipping rates in modal */
+div#pwcommerce_order_matched_shipping_rates li {
+	list-style-type: none;
+	margin-bottom: 5px;
+}
+
+/* calculate shipping, taxes and totals in order */
+/* @TODO DELETE IF NOT IN USE */
+/* div#pwcommerce_order_calculate_shipping_wrapper {
+	border-bottom: 1px solid #d9e1ea;
+} */
+a#pwcommerce_order_calculate_shipping {
+	background-color: crimson;
+	color: white;
+}
+
+span#pwcommerce_order_calculate_shipping_inactive {
+	/* background-color: #d9e1ea; */
+	background-color: #e2e9ef;
+}
+
+/* FIND ANYTHING */
+ul#pwcommerce_find_anything_results {
+	background: #fff;
+	border: 1px solid #d9e1ea;
+}
+
+li.pwcommerce_find_anything_results_header {
+	color: #597ea2;
+}
+
+ul#pwcommerce_find_anything_results>li.pwcommerce_find_anything_result_item:hover {
+	/* @note: to match ProcessWire find anything */
+	background-color: #e2e9ef;
+}
+
+li.pwcommerce_find_anything_result_item>a {
+	/* @note: to match ProcessWire find anything */
+	color: #354b60;
+	text-decoration: none;
+}
+
+/* QUICK FILTER */
+a.pwcommerce_selected_quick_filter {
+	background-color: #e2e9ef;
+}
+
+/* TODO temp until tailwind! */
+div#pwcommerce_quick_filter_wrapper a {
+	/* @note: to match ProcessWire find anything */
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+div#pwcommerce_quick_filter_wrapper a:hover {
+	/* @note: to match ProcessWire find anything */
+	background-color: #e2e9ef;
+}
+
+
+/* CUSTOM EMULATION OF TAILWIND SINCE WE DISABLED PREFLIGHT */
+.border {
+	border: 1px solid;
+	border-color: rgba(229, 231, 235);
+}
+
+/* SIDEMENU/PANEL */
+
+#pwcommerce_menu_panel {
+	background: #e2e9ef;
+	padding: 0;
+	box-shadow: 0 4px 7px rgba(0, 0, 0, 0.175);
+	border-right: 1px solid #c1d0dd;
+}
+
+#pwcommerce_panel_menu_wrapper,
+#pwcommerce_panel_menu_wrapper ul a {
+	color: #354b60;
+}
+
+#pwcommerce_panel_menu_wrapper li>a:hover,
+#pwcommerce_panel_menu_wrapper li.pwcommerce_parent_menu_item_open>a,
+#pwcommerce_panel_menu_wrapper a.pwcommerce_menu_active {
+	color: #e83561;
+}
+
+#pwcommerce_panel_menu_wrapper li {
+	border-top: 1px solid #d5dfe8;
+}
+
+#pwcommerce_panel_menu>ul>li:first-child {
+	border-top: none;
+}
+
+#pwcommerce_panel_menu_wrapper li>ul>li {
+	border-top: 1px solid #d5dfe8;
+	border-color: #e2e9ef;
+}
+
+#pwcommerce_panel_menu_wrapper li.pwcommerce_parent_menu_item_open {
+	padding-bottom: 0;
+	background: #ecf0f4;
+}
+
+.pwcommerce_menu_active {
+	font-weight: bolder;
+}
+
+/* borrowed from processwire sidepanel menu */
+/* parent menu caret: closed */
+.pwcommerce_parent_menu_item>a::after {
+	content: "";
+	width: 1.5em;
+	height: 1.5em;
+	float: right;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolyline%20fill%3D%22none%22%20stroke%3D%22%23bbcbd9%22%20stroke-width%3D%221.1%22%20points%3D%2210%201%204%207%2010%2013%22%20%2F%3E%0A%3C%2Fsvg%3E");
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+}
+
+/* parent menu caret: open */
+.pwcommerce_parent_menu_item_open>a::after {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolyline%20fill%3D%22none%22%20stroke%3D%22%23bbcbd9%22%20stroke-width%3D%221.1%22%20points%3D%221%204%207%2010%2013%204%22%20%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+/* ***** */
+
+/* for accordion in sidemenu */
+.max-h-0 {
+	max-height: 0;
+}
+
+/* CONFIGURE INSTALL AND REMOVAL */
+
+div.pwcommerce_configure_install_optional_feature>label {
+	cursor: pointer;
+}
+
+#pwcommerce_modify_install_confirm_action,
+span#pwcommerce_modify_install_warning,
+div#pwcommerce_complete_removal_warning_wrapper {
+	color: crimson;
+}
+
+/* overriding processwire button display which has overriden our hidden class! */
+div.pwcommerce-custom-ui-dialog-buttonpane button.hidden {
+	display: none;
+	opacity: 0;
+}
+
+/* override 'smaller font' for span for label */
+li.pwcommerce_configure_install_is_pages_outside_admin_root div>label>span {
+	font-size: initial;
+}
+
+/* REPORTS */
+
+/* override processwire large padding left on  label.InputfieldHeader */
+#main .pwcommerce_report_options>.InputfieldContent,
+#main .pwcommerce_report_options>.InputfieldHeader {
+	padding-left: 0;
+}
+
+#main .pwcommerce_report_start_date>.InputfieldHeader {
+	padding-right: 20px;
+}
+
+#pwcommerce_reports_table tfoot {
+	font-weight: bold;
+	background-color: #f0f3f7;
+}
+
+#pwcommerce_reports_table tfoot tr td:nth-child(2) {
+	text-align: right;
+}
+
+#pwcommerce_reports_table caption {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+/* OTHER / GENERIC */
+/* override processwire large padding top on  label.InputfieldHeader */
+#main .pwcommerce_no_padding_top>.InputfieldHeader {
+	padding-top: 0;
+}
+
+.pwcommerce_error {
+	color: crimson;
+}

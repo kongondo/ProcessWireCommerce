@@ -1,0 +1,238 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceProductSettings
+ *
+ * Fieldtype that stores settings of a PWCommerce product.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceProductStock for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceProductSettings extends Fieldtype
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Product Settings: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce product settings.',
+			'installs' => 'InputfieldPWCommerceProductSettings',
+		);
+	}
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceProductSettings");
+		// our inputfield requires a Page and Field (most Inputfields don't)
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceProductSettings
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceProductSettings
+		return $inputfield;
+	}
+
+	/**
+	 * Return a blank ready-to-populate version of a field of this type.
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+		// if for some reason we already got a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return getBlankValue
+		if (empty($value) || !is_array($value)) {
+
+
+			return $record;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// @note we are converting 'data' to 'record->shippingType'
+		// 'physical' | 'physical_no_shipping' | 'digital' | 'service'
+		$record->shippingType = $sanitizer->text($value['data']);
+		//--------
+		$record->taxable = (int) $value['taxable'];
+		$record->trackInventory = (int) $value['track_inventory'];
+		$record->useVariants = (int) $value['use_variants'];
+		$record->colour = $sanitizer->text($value['colour']);
+		// for our friends across the pond :-)
+		$record->color = $record->colour;
+
+
+
+
+		$record->setTrackChanges(true); // track changes for the product record TODO? reset instead?
+		//  $record->resetTrackChanges();
+
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// convert records to an array within sleepValue
+		$sleepValue = [
+
+			// note: record->shippingType is becoming data which is a required column in a Fieldtype
+			// 'physical' | 'physical_no_shipping' | 'digital' | 'service'
+			'data' => $sanitizer->text($value->shippingType),
+			//-----
+			'taxable' => (int) $value->taxable,
+			'track_inventory' => (int) $value->trackInventory,
+			'use_variants' => (int) $value->useVariants,
+			'colour' => $sanitizer->text($value->colour),
+		];
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Return the database schema that defines a Product Settings item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our 'record->shippingType' field (column in db)
+		// we reuse this required field/column (data) for record->shippingType
+		// 'physical' | 'physical_no_shipping' | 'digital' | 'service'
+		$schema['data'] = 'CHAR(20) NOT NULL';
+		$schema['taxable'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		$schema['track_inventory'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		$schema['use_variants'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		$schema['colour'] = 'CHAR(25) NOT NULL';
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		$schema['keys']['data'] = 'FULLTEXT KEY data (data)';
+		$schema['keys']['taxable'] = 'KEY taxable(taxable)';
+		$schema['keys']['track_inventory'] = 'KEY track_inventory(track_inventory)';
+		$schema['keys']['use_variants'] = 'KEY use_variants(use_variants)';
+		$schema['keys']['colour'] = 'FULLTEXT KEY colour (colour)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// if searching 'shippingType' or 'shipping' or 'shipping_type' then assume our default (data) field
+		if (in_array($subfield, ['shippingType', 'shipping_type', 'shipping'])) {
+			$subfield = 'data';
+		} else if ($subfield == 'trackInventory') {
+			$subfield = 'track_inventory';
+		} else if ($subfield == 'useVariants') {
+			$subfield = 'use_variants';
+		} else if ($subfield == 'color') {
+			$subfield = 'colour';
+		}
+		//---------
+
+		/*
+					- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+					- the latter allow for finer, fulltext search
+					 */
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

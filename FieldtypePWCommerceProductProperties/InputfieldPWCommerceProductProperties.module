@@ -1,0 +1,382 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * InputfieldPWCommerceProductProperties for ProcessWire.
+ *
+ * This Inputfield is a GUI for FieldtypePWCommerceProductProperties.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceProductProperties for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceProductProperties extends Inputfield
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Product Properties: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce product properties values.',
+			'requires' => 'FieldtypePWCommerceProductProperties',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+		// get helper for rendering inputfields
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for product properties
+	 *
+	 */
+	public function ___render() {
+
+		// IF ADD NEW BLANK PROPERTY ITEM/RECORD - AJAX
+		$input = $this->wire('input');
+		$ajax = $this->wire('config')->ajax;
+		if ($ajax && $input->get('field') == $this->attr('name')) {
+			$newItem = $this->field->type->getBlankRecord();
+			$uniqueCount = str_replace('.', '-', microtime(true));
+			// send back just the new row
+			$out = $this->buildRow($newItem, $uniqueCount, 'pwcommerce_product_property_new')->render();
+			echo $out;
+			die();
+			return $out;
+		}
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		// @note: we render colour property 'input' here but will be saved in and by pwcommerce_product_settings
+		$out =
+			"<div id='pwcommerce_product_properties_wrapper'>" . $this->renderColourProperty() . $this->buildForm() . "</div>" .
+			"<div id='pwcommerce_product_properties_add_new_wrapper'>" . $this->renderFooter() . "</div>";
+
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$this->preloadInputfieldAssets();
+		// $scripts = $this->config->js($this->id, $options);
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	private function renderAddNewLink() {
+		$name = $this->attr('name');
+		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
+		$adminEdit = "{$adminEditURL}?id={$this->page->id}&field={$name}";
+		$out =
+			"<div>" .
+			"<a id='pwcommerce_product_property_add_new' class='pwcommerce_run_request_indicators_operations' href='#' hx-get='{$adminEdit}' hx-target='#pwcommerce_product_properties_wrapper' hx-swap='beforeend' hx-indicator='#pwcommerce_add_new_property_spinner_indicator'>" .
+			"<i id='pwcommerce_add_new_property_spinner_indicator' class='pwcommerce_spinner_indicator fa fa-fw fa-plus-circle'></i>" .
+			$this->_("Add new property") .
+			"</a>" .
+			"</div>";
+		return $out;
+	}
+
+	private function renderFooter() {
+
+		//------------------- add new property (InputfieldMarkup)
+		// @note: SINGLE ADD NEW IN FOOTER OF WRAPPER - CAN ONLY HAVE ONE!
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_product_property_add_new',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $this->renderAddNewLink(),
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		$wrapper->add($field);
+		return $wrapper->render();
+	}
+
+	// @note: special input for colour selection
+	// note, however, that we only output the input in this module
+	// the processing and saving is done in the module InputfieldPWCommerceProductSettings
+	private function renderColourProperty() {
+
+		// TODO @note: might make this configurable, hence hidden if not enabled
+
+		$colour = $this->page->pwcommerce_product_settings ? $this->page->pwcommerce_product_settings->colour : '';
+
+		$options = [
+			'id' => "pwcommerce_product_settings_colour",
+			'name' => 'pwcommerce_product_settings_colour',
+			'value' => $colour, // @note: value is saved as HEX including the #, ready to go!
+		];
+
+		$field = $this->pwcommerce->getInputfieldHidden($options);
+
+		$style = '';
+		$hasColourClass = '';
+		$notes = $this->_('Click to select a colour');
+		// if colour selected, preview it
+		if (!empty($colour)) {
+			$style = " style='background-color:{$colour};'";
+			$hasColourClass = " class='pwcommerce_product_property_selected_colour_show_preview'";
+			$notes = $this->_('Click to change colour');
+		}
+
+		$colourInput =
+			"<div id='pwcommerce_product_property_selected_colour_wrapper'>
+            <div id='pwcommerce_product_property_selected_colour_preview'{$style}{$hasColourClass}></div>
+            <p class='notes'>{$notes}</p>
+            {$field->render()}
+            </div>
+            <hr>";
+
+		//------------------- select product colour (InputfieldMarkup)
+		// @note: SINGLE SELECT PRODUCT COLOUR MARKUP - CAN ONLY HAVE ONE!
+		$options = [
+			//'skipLabel' => Inputfield::skipLabelHeader,
+			'label' => $this->_('Colour'),
+			'collapsed' => Inputfield::collapsedNever,
+			'description' => $this->_('Use this for the main product colour or instead of specifying colours using variants.'),
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_product_property_select_colour',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $colourInput,
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		$wrapper->add($field);
+		return $wrapper->render();
+	}
+
+	private function preloadInputfieldAssets() {
+		// colour picker
+		// $this->wire->config->scripts->add("https://unpkg.com/vanilla-picker@2");
+		$url = $this->wire('config')->urls->ProcessPWCommerce;
+		// add vanillapicker
+		$vanillapicker = "{$url}vendors/scripts/vanillapicker/vanilla-picker.2.12.1.min.js";
+		$this->wire->config->scripts->add($vanillapicker);
+	}
+
+	private function buildForm() {
+
+		/** @var WireArray $value */
+		$value = $this->attr('value');
+
+		// GET MAIN WRAPPER
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		foreach ($value as $n => $property) {
+			/** @var InputfieldWrapper $row */
+			$row = $this->buildRow($property, $n);
+			$wrapper->add($row);
+		}
+		// FINAL WRAPPER MARKUP
+		return $wrapper->render();
+	}
+
+	/**
+	 * Build a row of inputs representing a single product property.
+	 *
+	 * @access private
+	 * @return InputfieldWrapper
+	 */
+	private function buildRow(WireData $property, $n, $newClass = '') {
+		// GET WRAPPER FOR ROW
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		//------------------- property (InputfieldPageAutocomplete)
+
+		$pagesSelector = "template=pwcommerce-property,limit=50, status<" . Page::statusTrash;
+
+		$optionsPageAutoComplete = [
+			'id' => "pwcommerce_product_property_{$n}",
+			'name' => 'pwcommerce_product_property',
+			// @note: InputfieldPageAutocomplete will set [] suffix
+			'pagesSelector' => $pagesSelector,
+			'maxSelectedItems' => 1,
+			'notes' => $this->_('Start typing to search.'),
+			'label' => $this->_('Property'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => 30,
+			'wrapClass' => true,
+			// @note: $newClass to target in JS to init PageAutocompletes on newly added property (using HTMX)
+			'wrapper_classes' => 'pwcommerce_no_outline' . ($newClass ? " {$newClass}" : ''),
+			'value' => $property->propertyID,
+		];
+
+		$field = $this->pwcommerce->getInputfieldPageAutocomplete($optionsPageAutoComplete);
+		$wrapper->add($field);
+
+		//------------------- value (InputfieldText)
+
+		$options = [
+			'id' => "pwcommerce_product_property_value_{$n}",
+			'name' => 'pwcommerce_product_property_value[]',
+			'label' => $this->_('Value'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => 30,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $property->value,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- dimension (InputfieldPageAutocomplete)
+
+		// page autocomplete to find dimension to add to product at this input/row
+		$pagesSelector = "template=pwcommerce-dimension,limit=50, status<" . Page::statusTrash;
+		// @note: amend and reuse $optionsPageAutoComplete from 'property'
+
+		$optionsPageAutoComplete['id'] = "pwcommerce_product_property_dimension_{$n}";
+		$optionsPageAutoComplete['name'] = 'pwcommerce_product_property_dimension';
+		$optionsPageAutoComplete['pagesSelector'] = $pagesSelector;
+		$optionsPageAutoComplete['label'] = $this->_('Dimension');
+		$optionsPageAutoComplete['value'] = $property->dimensionID;
+
+		$field = $this->pwcommerce->getInputfieldPageAutocomplete($optionsPageAutoComplete);
+		$wrapper->add($field);
+
+		//------------------- trash (InputfieldMarkup)
+
+		$removeTitle = $this->_('Click to delete this property, or double-click to delete all');
+		$trashMarkup =
+			"<span class='fa fa-trash pwcommerce_product_property_delete pwcommerce_trash' title='{$removeTitle}'></span>" .
+			"<input type='hidden' name=pwcommerce_product_property_delete[] value='0' class='pwcommerce_trash'>";
+
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => 10,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_product_property_delete',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $trashMarkup,
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper->add($field);
+
+		//--------------
+		return $wrapper;
+	}
+
+	/**
+	 * Process input for the values sent from the product properties for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// no properties added yet, return early
+		if (empty($input->pwcommerce_product_property)) {
+			return;
+		}
+
+		//------------------
+
+		$properties = $this->field->type->getBlankValue($this->page, $this->field);
+		$numDeleted = 0;
+		$inUsePropertyIDs = [];
+
+		// loop through and process values
+		foreach ($input->pwcommerce_product_property as $n => $propertyID) {
+			// a property is required
+			if (!$propertyID) {
+				continue;
+			}
+
+			//--------------
+			// check if the item is being deleted
+			if ($input->pwcommerce_product_property_delete[$n]) {
+				// if being deleted, then we simply skip over it
+				$numDeleted++;
+				continue;
+			}
+
+			//-----------
+			// check for duplicate properties. product cannot have duplicate properties, e.g. 2 heights - TODO - ok?
+			if (in_array((int) $propertyID, $inUsePropertyIDs)) {
+				continue;
+			}
+
+			// create property and add to properties
+			$property = $this->field->type->getBlankRecord();
+			$property->propertyID = (int) $propertyID;
+			$property->dimensionID = (int) $input->pwcommerce_product_property_dimension[$n];
+			// $property->value = (float) $input->pwcommerce_product_property_value[$n];
+			$property->value = $input->pwcommerce_product_property_value[$n];
+			$properties->add($property);
+
+			// track used propertyIDs for duplication
+			$inUsePropertyIDs[] = (int) $propertyID;
+		} // end loop
+
+		// if the string values of the processed properties are different from the previous,
+		// or if any properties have been deleted, then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+		// if ("$properties" !== "$this->value" || $numDeleted) {
+		if ($this->toStringInhouse($properties) !== $this->toStringInhouse($this->value) || $numDeleted) {
+
+
+
+			$this->attr('value', $properties);
+			$this->trackChange('value');
+		}
+		// TODO: DELETE WHEN DONE
+		else {
+
+
+		}
+	}
+
+	/**
+	 * Make a string value to represent these values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($items) {
+		$a = [];
+		foreach ($items as $item) {
+			$a[] = "$item->propertyID: $item->value: $item->dimensionID";
+		}
+		return implode("\n", $a);
+	}
+}

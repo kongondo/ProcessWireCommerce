@@ -1,0 +1,503 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * InputfieldPWCommerceTaxRates for ProcessWire.
+ *
+ * This Inputfield is a GUI for FieldtypePWCommerceTaxRates.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceTaxRates for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+class InputfieldPWCommerceTaxRates extends Inputfield
+{
+
+
+
+
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Tax Rates: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce tax rates values.',
+			'requires' => 'FieldtypePWCommerceTaxRates',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+	private $isCountryStandardTax;
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+		// get helper for rendering inputfields
+
+	}
+
+	/**
+	 * Override the default set() to capture the required variables for runtime items.
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * @return Inputfield|InputfieldPWCommerceRuntimeMarkup
+	 *
+	 */
+	public function set($key, $value) {
+		if ($key == 'page') {
+			$this->page = $value;
+			// set the current page using this field
+		} elseif ($key == 'field') {
+			// set the current field using this Inputfield
+			$this->field = $value;
+		} elseif ($key == 'isCountryStandardTax') {
+			// set property to check if editing a country OR a country territory tax rate
+			// @note: needed to enforce a 'country can have only one standard tax rate'
+			$this->isCountryStandardTax = $value;
+		} else {
+			// continue as usual
+			return parent::set($key, $value);
+		}
+		//-------------
+		return $this;
+	}
+
+	/**
+	 * Render the entire input area for tax rates
+	 *
+	 */
+	public function ___render() {
+		// IF ADD NEW BLANK RATE ITEM/RECORD - AJAX
+		$input = $this->wire('input');
+		$ajax = $this->wire('config')->ajax;
+
+		if ($ajax && $input->get('field') == $this->attr('name')) {
+			$newItem = $this->field->type->getBlankRecord();
+			// @note: since we know the page that has requested a new item, we can add the property taxLocationID on the fly here, just to help with processing of new items in the correct pages.
+			$newItem->taxLocationID = $this->page->id;
+			$uniqueCount = str_replace('.', '-', microtime(true));
+			// send back just the new row
+			$out = $this->buildRow($newItem, $uniqueCount, true)->render();
+			echo $out;
+			die();
+			return $out;
+		}
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		// @note: we use classes for shared styles but unique ID for htmx here since this field will be used multiple times on the same page in case a country has territories.
+		$out =
+			"<div id='pwcommerce_tax_rates_wrapper{$this->page->id}' class='pwcommerce_tax_rates_wrapper'>" . $this->buildForm() . "</div>" .
+			"<div id='pwcommerce_tax_rate_add_new_wrapper{$this->page->id}' class='pwcommerce_tax_rate_add_new_wrapper'>" . $this->renderFooter() . "</div>";
+
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		//---------------------
+		$this->preloadInputfieldAssets();
+		// $scripts = $this->config->js($this->id, $options);
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	private function renderAddNewLink() {
+
+
+
+
+		// @note: in case being used in InputfieldPWCommerceRuntimeMarkup
+		// we strip the '_repeater' off
+		$name = $this->attr('name');
+		$name = preg_replace('/_repeater\d+$/', '', $name);
+		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
+		$adminEdit = "{$adminEditURL}?id={$this->page->id}&field={$name}";
+
+		$out =
+			"<div>" .
+			"<a class='pwcommerce_tax_rate_add_new pwcommerce_run_after_settle_operations pwcommerce_focus_input_in_newly_created_inputfield pwcommerce_run_request_indicators_operations' href='#' hx-get='{$adminEdit}' hx-target='#pwcommerce_tax_rates_wrapper{$this->page->id}' hx-swap='beforeend' hx-indicator='#pwcommerce_add_new_tax_rate_spinner_indicator{$this->page->id}'>" .
+			"<i id='pwcommerce_add_new_tax_rate_spinner_indicator{$this->page->id}' class='pwcommerce_add_new_tax_rate_spinner_indicator pwcommerce_spinner_indicator fa fa-fw fa-plus-circle'></i>" .
+			$this->_("Add new tax rate") .
+			"</a>" .
+			"</div>";
+		return $out;
+	}
+
+	private function renderFooter() {
+
+		//------------------- add new tax rate (InputfieldMarkup)
+		// @note: a country can only have one standard/base tax!
+		// @note: SO, NO ADD NEW IN FOOTER OF WRAPPER
+		// for countries, we will always have ONE blank row ready to input tax or if saved, display saved country tax values!
+		$out = "";
+		if ($this->page->template->name === PwCommerce::COUNTRY_TEMPLATE_NAME) {
+			return $out;
+		}
+
+		//----------------
+
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'classes' => 'pwcommerce_tax_rate_add_new',
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $this->renderAddNewLink(),
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		$wrapper->add($field);
+		$out = $wrapper->render();
+
+		//------------
+		return $out;
+	}
+
+	// TODO delete if not in use
+	private function preloadInputfieldAssets() {
+	}
+
+	private function buildForm() {
+
+		/** @var WireArray $value */
+		$value = $this->attr('value');
+
+
+
+		// TODO: IF COUNTRY, WE NEED TO HAVE A BLANK RATE READY TO POPULATE IF WE DON'T HAVE ANY SAVED YET. WE ALSO NEED TO HAVE A MAXIMUM OF 1 COUNTRY TAX RATE (ONLY ONE STANDARD/BASE TAX FOR COUNTRY!)
+
+		// *************
+		// @NOTE: if country, force display edit country standard tax form if none saved yet
+		// GET MAIN WRAPPER
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+
+		if ($this->isCountryStandardTax && empty($value->count())) {
+			$blankCountryStandardTaxRate = $this->field->type->getBlankRecord();
+			// @note: since we know the page that has requested a new item, we can add the property taxLocationID on the fly here, just to help with processing of new items in the correct pages.
+			$blankCountryStandardTaxRate->taxLocationID = $this->page->id;
+
+
+			// add to current value TODO OK?
+			// TODO: WORKS IN ADDING BUT NOT SAVING!
+			$value->add($blankCountryStandardTaxRate);
+		}
+		foreach ($value as $n => $rate) {
+			/** @var InputfieldWrapper $row */
+			$row = $this->buildRow($rate, $n);
+			// TODO: IF COUNTRY, WE ENFORCE MAXIMUM ONE TAX RATE!
+			$wrapper->add($row);
+			// if country tax, enforce only one
+			if ($this->isCountryStandardTax) {
+				break;
+			}
+		}
+		// FINAL WRAPPER MARKUP
+		return $wrapper->render();
+	}
+
+	/**
+	 * Build a row of inputs representing a single tax rate.
+	 *
+	 * @access private
+	 * @return InputfieldWrapper
+	 */
+	private function buildRow(WireData $rate, $n, $isNew = false) {
+
+		//-----------------------
+
+		// @note:for new items, this property will be added on the fly to the new WireData
+		// for saved ones, it will come via Field::___wakeupValue()
+		$taxLocationID = $rate->taxLocationID;
+
+		// GET WRAPPER
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		$columnWidth = $this->isCountryStandardTax ? 33 : 22;
+
+		//------------------- tax_name (short/abbreviated name) (InputfieldText)
+		$taxRateNameWrapperClasses = "pwcommerce_no_outline";
+		// to focus input if new tax rate added via ajax
+		if ($isNew) {
+			$taxRateNameWrapperClasses .= " pwcommerce_is_new_item";
+		}
+
+		$options = [
+			'id' => "pwcommerce_tax_rate_name{$taxLocationID}_{$n}",
+			'name' => "pwcommerce_tax_rate_name{$taxLocationID}[]",
+			// 'label' => $this->_('Name'),// TODO: delete if not in use
+			'label' => $this->_('Abbreviation'),
+			'description' => $this->_('Tax short name.'),
+			// 'notes' => $this->_('E.g., VAT'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'classes' => 'pwcommerce_tax_rate_name',
+			'wrapClass' => true,
+			// 'wrapper_classes' => 'pwcommerce_no_outline',
+			'wrapper_classes' => $taxRateNameWrapperClasses,
+			'value' => $rate->taxName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- tax_full_name (InputfieldText)
+
+		$options = [
+			'id' => "pwcommerce_tax_rate_full_name{$taxLocationID}_{$n}",
+			'name' => "pwcommerce_tax_rate_full_name{$taxLocationID}[]",
+			'label' => $this->_('Full Name'),
+			'description' => $this->_('Full name of the tax.'),
+			//    'notes' => $this->_('E.g., Value Added Tax'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $rate->taxFullName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		$countryTaxRateDescription = $this->_('Country base tax rate');
+		$territoryTaxRateDescription =
+			$this->_('Territory base tax rate');
+		$description = !$this->isCountryStandardTax ? $territoryTaxRateDescription : $countryTaxRateDescription;
+
+		//------------------- tax_rate (InputfieldText)
+
+		// append % symbol
+		$description .= ' (%).';
+		$options = [
+			'id' => "pwcommerce_tax_rate_tax_rate{$taxLocationID}_{$n}",
+			'name' => "pwcommerce_tax_rate_tax_rate{$taxLocationID}[]",
+			'type' => 'number',
+			'step' => '0.01',
+			'min' => 0,
+			'label' => $this->_('Rate'),
+			'description' => $description,
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			// 'value' => $rate->taxRate,
+			// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+			'value' => $this->pwcommerce->localeConvertValue($rate->taxRate)
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		// ====================== ONLY SHOWN FOR TERRITORIES ====================
+		// @note: a country can have only ONE STANDARD/BASE TAX RATE!
+		// however, exceptions can be saved as overrides, e.g. 5% tax on agricultural goods instead of usual 20%
+
+		// @note: country STANDARD tax itself has no application type
+		//------------------- tax_application (InputfieldSelect)
+
+		if (!$this->isCountryStandardTax) {
+
+			// TODO: FOR FUTURE, SHOW BASE TAX HERE DYNAMICALLY AS WELL
+			$selectOptionsTaxApplication = [
+				'add' => __('Add to base tax'),
+				'replace' => __('Instead of base tax'),
+				'compound' => __('Compounded on to base tax'),
+			];
+
+			$options = [
+				'id' => "pwcommerce_tax_rate_tax_application{$taxLocationID}_{$n}",
+				'name' => "pwcommerce_tax_rate_tax_application{$taxLocationID}[]",
+				'label' => $this->_('Application'),
+				'description' => $this->_('Territory tax application.'),
+				'collapsed' => Inputfield::collapsedNever,
+				'columnWidth' => $columnWidth,
+				'select_options' => $selectOptionsTaxApplication,
+				'wrapClass' => true,
+				'wrapper_classes' => 'pwcommerce_no_outline',
+				'value' => empty($rate->taxApplication) ? 'add' : $rate->taxApplication,
+			];
+
+			$field = $this->pwcommerce->getInputfieldSelect($options);
+			$wrapper->add($field);
+
+			// @note: country STANDARD tax itself cannot be deleted/removed
+			//------------------- trash (InputfieldMarkup)
+
+			$location = !empty($rate->taxLocation) ? $rate->taxLocation : $this->_('this territory');
+			$removeTitle = sprintf(__("Click to delete this tax rate, or double-click to delete all tax rates for %s"), $location);
+			$trashMarkup =
+				"<span class='fa fa-trash pwcommerce_tax_rate_delete pwcommerce_trash' title='{$removeTitle}'></span>" .
+				"<input type='hidden' name=pwcommerce_tax_rate_delete{$taxLocationID}[] value='0' class='pwcommerce_trash'>";
+
+			$options = [
+				'skipLabel' => Inputfield::skipLabelHeader,
+				'collapsed' => Inputfield::collapsedNever,
+				'columnWidth' => 10,
+				'wrapClass' => true,
+				'classes' => 'pwcommerce_tax_rate_delete',
+				'wrapper_classes' => 'pwcommerce_no_outline',
+				'value' => $trashMarkup,
+			];
+
+			$field = $this->pwcommerce->getInputfieldMarkup($options);
+			$wrapper->add($field);
+		}
+
+		// ====================== END: ONLY SHOWN FOR TERRITORIES ====================
+
+		//--------------
+		return $wrapper;
+	}
+
+	// extra content to be added as assets to InputfieldPWCommerceRuntimeMarkup with respect to this field
+	// @note: TODO: we MIGHT still handle any JS interactions here!
+	// TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
+	public function getPreloadAssetsContent() {
+		// TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE HTMX ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
+		// TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
+		return;
+		$url = $this->wire('config')->urls->ProcessPWCommerce;
+		return [
+			['source' => "{$url}vendors/scripts/htmx/htmx.1.7.0.min.js"],
+		];
+	}
+
+	// ~~~~~~~~~~~~~~
+
+	/**
+	 * Process input for the values sent from the tax rates for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+		$pageID = $this->page->id;
+
+		//------------------
+		$sanitizer = $this->wire('sanitizer');
+		$rates = $this->field->type->getBlankValue($this->page, $this->field);
+		$numDeleted = 0;
+		$inUseTaxName = [];
+
+		// rate names empty for page, leave early
+		if (empty($input->{"pwcommerce_tax_rate_name{$pageID}"})) {
+			return;
+		}
+
+		$value = $this->attr('value');
+
+
+		// @note: we get from first()! This is because $this->attr('value') is a WireArray
+		// however, countries themselves can only have one standard tax, hence first()
+		// @note: only do for countries! Not territories!
+		$taxLocationCode = !empty($value->count()) ? $value->first()->taxLocationCode : '';
+
+
+		// TODO: TAX LOCATION CODE IS GETTING OVERWRITTEN!!!
+
+		// loop through and process values
+		foreach ($input->{"pwcommerce_tax_rate_name{$pageID}"} as $n => $taxName) {
+			// a tax (short) name
+			$taxName = $sanitizer->text($taxName);
+			if (!$taxName) {
+				continue;
+			}
+
+			//--------------
+			// check if the item is being deleted
+			// @note: CANNOT DELETE COUNTRY STANDARD TAX
+			// so, we don't check that
+			if (!$this->isCountryStandardTax) {
+				if ($input->{"pwcommerce_tax_rate_delete{$pageID}"}[$n]) {
+					// if being deleted, then we simply skip over it
+					$numDeleted++;
+					continue;
+				}
+			}
+
+			//--------------
+			// check for duplicate tax (short) names. cannot have duplicate tax, e.g. 2 VATs
+			if (in_array($sanitizer->pageName($taxName), $inUseTaxName)) {
+				continue;
+			}
+
+			// GOOD TO GO
+
+			// create tax rate and add to tax rates
+			$rate = $this->field->type->getBlankRecord();
+			$rate->taxName = $taxName; // @note: already sanitized above
+			$rate->taxFullName = $sanitizer->text($input->{"pwcommerce_tax_rate_full_name{$pageID}"}[$n]);
+			$rate->taxRate = (float) $input->{"pwcommerce_tax_rate_tax_rate{$pageID}"}[$n];
+			//---------------------
+			// @note: DOES NOT APPLY TO COUNTRY STANDARD TAX
+			// so, we don't check that
+			if (!$this->isCountryStandardTax) {
+				$rate->taxApplication = $sanitizer->pageName($input->{"pwcommerce_tax_rate_tax_application{$pageID}"}[$n]);
+			}
+			//-----------------
+
+			// @note: we reuse tax_location_code as it is not editable
+			// it is created once when the country/territory is created
+			// but we need to resave it here otherwise will get overwritten
+			// we just get it from existing value although TODO: could also create a hidden input with the value? TODO: UNSURE ABOUT THIS SINCE THIS IS A VALUE THAT DOES NOT CHANGE
+			// @note: we get from first()! This is because $this->attr('value') is a WireArray
+			// however, countries themselves can only have one standard tax, hence first()
+			// TODO: WHAT ABOUT TERRITORIES? HOW/WHAT TO SAVE?!!!
+			if ($this->isCountryStandardTax) {
+				$rate->taxLocationCode = $taxLocationCode;
+			}
+
+			// -------------
+			$rates->add($rate);
+
+			// track used tax (short) names for duplication
+			// @note: using pageName but not for storage - just comparison
+			$inUseTaxName[] = $sanitizer->pageName($taxName);
+		} // end loop
+
+		// if the string values of the processed rates are different from the previous,
+		// or if any rates have been deleted, then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+		if ($this->toStringInhouse($rates) !== $this->toStringInhouse($this->value) || $numDeleted) {
+			$this->attr('value', $rates);
+			$this->trackChange('value');
+		}
+	}
+
+	/**
+	 * Make a string value to represent these values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($items) {
+		$a = [];
+		// TODO: KEEP AN EYE ON 'taxLocationCode' as still unsure if to use!
+		foreach ($items as $item) {
+			$a[] = "$item->taxName: $item->taxFullName: $item->taxRate: $item->taxApplication: $item->taxLocationCode";
+		}
+		return implode("\n", $a);
+	}
+}

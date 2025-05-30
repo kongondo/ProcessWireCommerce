@@ -1,0 +1,215 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceProductSettings
+ *
+ * Inputfield for FieldtypePWCommerceProductSettings, the field that stores and outputs values of a PWCommerce product settings.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceProductSettings for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceProductSettings extends Inputfield
+{
+
+  public static function getModuleInfo() {
+    return array(
+      'title' => 'PWCommerce Product Settings: Inputfield',
+      'author' => 'Francis Otieno (Kongondo)',
+      'version' => "100",
+      'href' => 'https://kongondo.com',
+      'summary' => 'GUI for the field that stores a PWCommerce product settings.',
+      'requires' => 'FieldtypePWCommerceProductSettings',
+    );
+  }
+
+  protected $page;
+  protected $field;
+  private $inputfieldsHelpers;
+
+
+  public function init() {
+    parent::init();
+    // if we want this modules css and js classes to be autoloaded
+    // Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+
+
+
+  }
+
+  public function setPage(Page $page) {
+    $this->page = $page;
+  }
+
+  public function setField(Field $field) {
+    $this->field = $field;
+  }
+
+  /**
+   * Render the entire input area for product properties
+   *
+   */
+  public function ___render() {
+
+    // TODO: @NOTE: THE INPUT FOR COLOUR IS INSERTED DYNAMICALLY UNDER THE PROPERTIES TAB - JUST FOR CONSISTENCY; HOWEVER, WE PROCESS ITS $input VALUES HERE IN processInput
+
+    $out = "<div id='pwcommerce_product_settings_wrapper'>" . $this->buildForm() . "</div>";
+
+    return $out;
+  }
+
+  /**
+   * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+   *
+   * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+   * @param bool $renderValueMode Whether renderValueMode will be used.
+   * @return bool
+   *
+   */
+  public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+    return parent::renderReady($parent, $renderValueMode);
+  }
+
+  private function buildForm() {
+
+    /** @var WireData $value */
+    $value = $this->attr('value');
+
+    // shared boolean/dichotomous radio responses
+    $radioOptionsBoolean = [
+      1 => __('Yes'),
+      0 => __('No'),
+    ];
+
+    // GET WRAPPER FOR ALL INPUTFIELDS HERE
+    $wrapper = $this->pwcommerce->getInputfieldWrapper();
+    //------------------- taxable (getInputfieldRadios)
+
+    $options = [
+      'id' => "pwcommerce_product_settings_taxable",
+      'name' => 'pwcommerce_product_settings_taxable',
+      'label' => $this->_('Charge Taxes on this Product'),
+      'radio_options' => $radioOptionsBoolean,
+      // TODO: OK HERE LIKE THIS? DEFAULT TO YES, CHARGE TAXES...NOT SURE IF WILL ALWAYS BE NULL IF NOT SET?
+      'value' => is_null($value->taxable) ? 1 : $value->taxable,
+    ];
+
+    $field = $this->pwcommerce->getInputfieldRadios($options);
+    $wrapper->add($field);
+
+    //------------------- shipping_type (getInputfieldRadios)
+
+    $radioOptionsShipping = [
+      'physical' => __('Physical product requiring shipping'),
+      'physical_no_shipping' => __('Physical product not requiring shipping'),
+      'digital' => __('Digital product'),
+      'service' => __('Product is a service or event'),
+    ];
+
+    $options = [
+      'id' => "pwcommerce_product_settings_shipping_type",
+      'name' => 'pwcommerce_product_settings_shipping_type',
+      'label' => $this->_('Shipping'),
+      'radio_options' => $radioOptionsShipping,
+      'value' => empty($value->shippingType) ? 'physical' : $value->shippingType,
+    ];
+
+    $field = $this->pwcommerce->getInputfieldRadios($options);
+    $wrapper->add($field);
+
+    //------------------- track_inventory (getInputfieldRadios)
+
+    $options = [
+      'id' => "pwcommerce_product_settings_track_inventory",
+      'name' => 'pwcommerce_product_settings_track_inventory',
+      'label' => $this->_('Track Inventory'),
+      'radio_options' => $radioOptionsBoolean,
+      'value' => is_null($value->trackInventory) ? 1 : $value->trackInventory,
+    ];
+
+    $field = $this->pwcommerce->getInputfieldRadios($options);
+    $wrapper->add($field);
+
+    //------------------- use_variants (getInputfieldRadios)
+    // @note: only if optional feature 'attributes' is currently installed
+    if (!empty($this->pwcommerce->isVariantsInUse())) {
+      $options = [
+        'id' => "pwcommerce_product_settings_use_variants",
+        'name' => 'pwcommerce_product_settings_use_variants',
+        'label' => $this->_('Enable Product Variants'),
+        'radio_options' => $radioOptionsBoolean,
+        'value' => is_null($value->useVariants) ? 0 : $value->useVariants,
+      ];
+
+      $field = $this->pwcommerce->getInputfieldRadios($options);
+      $wrapper->add($field);
+    }
+
+    // ------
+    // @note: Colour 'input' is inserted via a hook and placed in Properties Tab - but we process it in processInput()
+
+    //----------------------
+
+    $out = $wrapper->render();
+
+    return $out;
+  }
+
+  /**
+   * Process input for the values sent from the product properties for this page
+   *
+   */
+  public function ___processInput(WireInputData $input) {
+
+    // TODO: @NOTE: THE INPUT FOR COLOUR IS INSERTED DYNAMICALLY UNDER THE PROPERTIES TAB - JUST FOR CONSISTENCY; HOWEVER, WE PROCESS ITS $input VALUES HERE IN processInput
+    $sanitizer = $this->wire('sanitizer');
+    $settings = $this->field->type->getBlankValue($this->page, $this->field);
+
+
+
+
+    // process values
+
+    $settings->shippingType = $sanitizer->text($input->pwcommerce_product_settings_shipping_type);
+    $settings->taxable = (int) $input->pwcommerce_product_settings_taxable;
+    $settings->trackInventory = (int) $input->pwcommerce_product_settings_track_inventory;
+    $settings->useVariants = (int) $input->pwcommerce_product_settings_use_variants;
+    $settings->colour = $sanitizer->text($input->pwcommerce_product_settings_colour);
+
+    // if the string values of the processed properties are different from the previous,
+    // then flag this Inputfield as changed
+    // so that it will be automatically saved with the page
+    // @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+    if ($this->toStringInhouse($settings) !== $this->toStringInhouse($this->value)) {
+
+
+
+
+      $this->attr('value', $settings);
+      $this->trackChange('value');
+    }
+  }
+
+  /**
+   * Make a string value to represent these settings that can be used for comparison purposes.
+   *
+   * @note: this is only for internal use since we don't have a __toString() method.
+   * @return string
+   *
+   */
+  private function toStringInhouse($item) {
+    $string = (string) "$item->shippingType: $item->taxable: $item->trackInventory: $item->useVariants: $item->colour";
+
+    return $string;
+  }
+}

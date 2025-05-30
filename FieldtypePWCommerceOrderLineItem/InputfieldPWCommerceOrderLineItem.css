@@ -1,0 +1,17 @@
+/* @TODO: WILL MOVE SHARED STYLES TO SHARED STYLE FILE */
+
+#main .pwcommerce_no_outline,
+li.InputfieldPWCommerceRuntimeMarkup li.InputfieldPWCommerceOrderLineItem {
+	outline: none;
+}
+
+/* border after each line item row */
+li.InputfieldPWCommerceRuntimeMarkup .InputfieldPWCommerceOrderLineItem {
+	border-bottom: 1px solid #d9e1ea;
+}
+
+/* @TODO DELETE IF NOT IN USE */
+/* border top before line items rows start / after add products to order button  */
+/* div#add_products_to_order {
+	border-top: 1px solid #d9e1ea;
+} */

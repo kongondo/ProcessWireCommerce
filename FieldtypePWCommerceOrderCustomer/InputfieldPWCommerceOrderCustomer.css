@@ -1,0 +1,8 @@
+#wrap_pwcommerce_order_customer_use_billing_address>.InputfieldHeader {
+	padding-top: 0;
+}
+
+/* orveride the padding on the div.InputfieldContent for the inserted calculated taxes markup */
+#pwcommerce_order_calculated_taxes>.InputfieldContent {
+	padding: 0;
+}

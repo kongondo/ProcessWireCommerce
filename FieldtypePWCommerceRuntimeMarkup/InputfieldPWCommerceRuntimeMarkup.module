@@ -1,0 +1,1745 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceRuntimeMarkup
+ *
+ * Inputfield for FieldtypePWCommerceRuntimeMarkup. Repeats fields for children of specific pwcommerce templates, e.g. pwcommerce-product, pwcommerce-shipping-zone, etc. Provides the input for FieldtypePWCommerceRuntimeMarkup.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceRuntimeMarkup for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+
+class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements InputfieldItemList
+{
+	public static function getModuleInfo() {
+		return [
+			'title' => 'PWCommerce Runtime Markup: Inputfield',
+			'summary' => 'GUI for the runtime only field that facilitates the output and processng of edit forms for embedded PWCommerce pages.',
+			'version' => "100",
+			'requires' => 'FieldtypePWCommerceRuntimeMarkup',
+		];
+	}
+
+
+
+
+
+	/*
+													 ***** IMPORTANT NOTES *****
+													 - InputfieldPWCommerceRuntimeMarkup is very similar to InputfieldRepeater.
+													 - It is based off of it.
+													 - Repeaters are a special ProcessWire 'construct'
+													 - Various fields and ProcessWire classes are repeater-aware AND have implemented code to handle them
+													 - Some of these are hookable, some are not.
+													 - Some of the logic is also in .js files
+													 - For instance, ProcessPageEditImageSelect.js
+													 - Saving CROPS or RESIZED PWCommerce Product Variants' images are affected by this in 'Save As Copy' mode
+													 - ProcessPageEdit::ajaxSave handles the replacement of 'repeater' in the HTTP_X_FIELDNAME variable
+													 - ProcessPageEditImageSelect::init also handles the suffix.
+													 - Above makes it hard to get away from the suffix '_repeater'
+													 - For now, we use the suffix just to get around the issues
+													 - For more information @see the following:
+													 FieldtypeRepeater::hookProcessPageEditAjaxSave
+													 ProcessPageEdit::ajaxSave
+													 ProcessPageEditImageSelect::init
+													 - We don't want to depend on FieldtypeRepeater::hookProcessPageEditAjaxSave
+													 - We implement custom solution in PWCommerceHooks
+													 - Only run if !isNormalEdit
+													 */
+	const REPEATER_SUFFIX = '_repeater';
+
+	/**
+	 * Array of InputfieldWrapper objects indexed by repeater page ID
+	 *
+	 */
+	protected $wrappers = [];
+
+	/**
+	 * The page that the repeaters field lives on, set by FieldtypePWCommerceRuntimeMarkup::getInputfield
+	 *
+	 * @var Page
+	 *
+	 */
+	protected $page;
+
+	/**
+	 * The field this InputfieldPWCommerceRuntimeMarkup is serving, set by FieldtypePWCommerceRuntimeMarkup::getInputfield
+	 *
+	 * @var Field
+	 *
+	 */
+	protected $field;
+
+	/**
+	 * Cached form containing the repeaters
+	 *
+	 * @var InputfieldWrapper
+	 *
+	 */
+	protected $form;
+
+	/**
+	 * All Inputfield classes (strings) used by the Inputfield
+	 *
+	 * @var array
+	 *
+	 */
+	protected $inputfieldClasses = [];
+
+	/**
+	 * Are we currently in render value mode? (i.e. render values, but not inputs)
+	 *
+	 * @var bool
+	 *
+	 */
+	protected $renderValueMode = false;
+
+	// @kongondo TODO
+	private $runtimeContext;
+	private $runtimeContextPrependContentInputfields;
+	private $runtimeContextAppendContentInputfields;
+	// 	// TODO @NOTE: NOT IN USE FOR NOW
+	// private $runtimeContextBuildCustomFormInputfields;
+	private $runtimeContextBuildBlankItemInputfield;
+	private $runtimeContextLimitInputfields;
+	private $runtimeContextDynamicallyManageInputfields;
+	private $runtimeContextVirtualProcessInputInputfield;
+
+	private $runtimeContextPreloadInlineAssets;
+	private $runtimeContextPreloadAssets;
+	private $runtimeContextJavaScriptConfigurations;
+	private $runtimeContextIsDeleteableItems;
+	private $runtimeContextIsPostProcessingAfterSave;
+	private $isDynamicallyLoadedContent;
+
+
+	private $createdItemsTimestamp;
+
+
+	// -----------
+
+	/**
+	 * Initialize the runtimemarkup inputfield
+	 *
+	 */
+	public function init() {
+		// @KONGONDO TODO: DO WE NEED THIS? WHY?
+		parent::init();
+		if (is_null($this->page)) {
+			$this->page = $this->wire('pages')->newNullPage();
+		}
+
+
+		// TODO: IS THIS OK?
+		$this->attr('value', $this->wire('pages')->newPageArray());
+
+
+
+	}
+
+	/**
+	 * Render the repeater items
+	 *
+	 * @return string
+	 *
+	 */
+	public function ___render() {
+
+
+
+		// IF DYNAMIC CONTENT REQUESTED FOR A RUNTIME CONTEXT
+		// e.g. 'add new shipping rate' in shipping-zone context
+		$input = $this->wire('input');
+		$ajax = $this->wire('config')->ajax;
+
+
+		if ($ajax && $input->get('field') == $this->attr('name')) {
+
+
+			$out = $this->processAjaxRequest($input);
+			//----------------
+			// RETURN RESPONSE AND EXIT
+			echo $out;
+			die();
+		}
+
+
+		//------------------------ NON-AJAX RESPONSE ------------------
+		// TODO - @SEE NOTES ABOVE ABOUT MANY VARIANTS ISSUE! + IDEAS OF ON-DEMAND HTMX LOADING OF VARIANTS
+		/** @var PageArray $value */
+		$value = $this->attr('value');
+		$form = $this->buildForm($value);
+		$out = '';
+
+		//----------
+		// PREPEND any extra content required by the runtime context, e.g. an 'add new link',  etc
+		$prependRuntimeContent = $this->renderRuntimeContextPrependContent();
+		if (!empty($prependRuntimeContent)) {
+			$out .= $prependRuntimeContent->render();
+		}
+		//----------
+		// MAIN render content
+		$out .= $form->render();
+		//----------
+		// APPEND any extra content required by the runtime context, e.g. an 'add new link', 'footer', etc
+		$appendRuntimeContent = $this->renderRuntimeContextAppendContent();
+		if (!empty($appendRuntimeContent)) {
+			$out .= $appendRuntimeContent->render();
+		}
+		//----------
+		// preload any INLINE ASSETS required by the runtime context, e.g. external library that needs 'defer' such as alpinejs
+		$preloadInlineAssets = $this->renderRuntimeContextPreloadInlineAssets();
+		if (!empty($preloadInlineAssets)) {
+			$out .= $preloadInlineAssets;
+		}
+
+		//----------
+		// APPEND any configs for this Inputfield that might be needed by JavaScript
+		// E.G. translated strings.
+		$out .= $this->renderJavaScriptConfigs();
+
+		//-------------
+		return $out;
+	}
+
+	/**
+	 * Render value (no inputs)
+	 *
+	 * @return string
+	 *
+	 */
+	public function ___renderValue() {
+		// @KONGONDO TODO - DO WE NEED THIS? IF YES, AMEND AS NEEDED
+		$flags = $this->getSetting('renderValueFlags');
+		if ($flags & Inputfield::renderValueMinimal) {
+			$out = parent::___renderValue();
+		} else {
+			$this->renderValueMode = true;
+			$out = $this->render();
+			$this->renderValueMode = false;
+		}
+		return $out;
+	}
+
+	private function renderJavaScriptConfigs() {
+		$data = [
+			'translations' => $this->getTranslatedStrings()
+		];
+		$script = "<script>ProcessWire.config.InputfieldPWCommerceRuntimeMarkup = " . json_encode($data) . ';</script>';
+		return $script;
+	}
+
+	/**
+	 * Render the repeater label
+	 *
+	 * @param string $label Default label
+	 * @param int $cnt Item index (1-based)
+	 * @param Page $page Repeater item
+	 * @return string
+	 *
+	 */
+
+	// @KONGONDO TODO - DO WE NEED THIS? IF YES, AMEND AS NEEDED
+	/**
+	 * Preload all assets used by Inputfields of this type
+	 *
+	 * This ensures all required JS/CSS files are loaded in the original/non-ajax request.
+	 * This should be called only when needed, like if there are 0 items in the repeater
+	 * when ajax-add support enabled.
+	 *
+	 * @param array $fieldIDs Optionally specify the IDs of the Field objects you want to limit preload to.
+	 *
+	 */
+	protected function preloadInputfieldAssets($fieldIDs = []) {
+
+
+		// load any context specific assets if applicable
+		if ($this->hasRuntimeContextPreloadAssets()) {
+			$this->getRuntimeContextPreloadAssets();
+		}
+
+		//-------------
+		// TODO: MIGHT EVENTUALLY MOVE TO PROCESSMODULE!
+		// LOAD COMMON SHARED STYLES (tailwind, modals, etc)
+		// TODO: change path if needed! (harcoded for now)
+		$sharedStyles = $this->config->urls->{PwCommerce::PWCOMMERCE_PROCESS_MODULE} . 'common/PWCommerceCommonStyles.css';
+		$this->wire->config->styles->add($sharedStyles);
+		$sharedTailwindStyles = $this->config->urls->{PwCommerce::PWCOMMERCE_PROCESS_MODULE} . 'common/PWCommerceTailwindStyles.css';
+		$this->wire->config->styles->add($sharedTailwindStyles);
+
+		//-------------
+
+		if ($this->runtimeContext === 'order') {
+
+			// @note: FORCE DOWNLOAD OF ORDERLINE ITEMS JS
+			$field = $this->wire('fields')->get('pwcommerce_order_line_item');
+			if ($field) {
+				try {
+					// the following forces assets to be loaded
+					$inputfield = $field->getInputfield($this->page);
+					if ($inputfield) {
+						$inputfield->renderReady(null, false);
+					}
+				} catch (\Exception $e) {
+					$this->warning("Order Line Item '$this->name' preload '$field': " . $e->getMessage(), Notice::debug);
+				}
+			}
+		}
+
+		// @KONGONDO TODO - DO WE NEED THIS? IF YES, AMEND AS NEEDED
+		// @KONGONDO TODO: WE RETURN FOR NOW
+		return [];
+		if (empty($fieldIDs)) {
+			$fieldIDs = $this->field->get('repeaterFields');
+		}
+
+		if (!is_array($fieldIDs)) {
+			return;
+		}
+
+		foreach ($fieldIDs as $fieldID) {
+			$field = $this->wire('fields')->get($fieldID);
+			if ($field) {
+				try {
+					// the following forces assets to be loaded
+					$inputfield = $field->getInputfield($this->page);
+					if ($inputfield) {
+						$inputfield->renderReady(null, false);
+					}
+				} catch (\Exception $e) {
+					$this->warning("Repeater '$this->name' preload '$field': " . $e->getMessage(), Notice::debug);
+				}
+			}
+		}
+	}
+
+	// +++++++++++++++++++++
+
+	// @KONGONDO TODO: AMEND AS REQUIRED
+
+	/**
+	 * Build the form containing the runtime items
+	 *
+	 * @param PageArray $pages Build form for these items.
+	 * @return InputfieldWrapper
+	 * @throws WireException if $this->page or $this->field are set incorrectly
+	 *
+	 */
+	protected function buildForm($pages, $isNew = false, $cnt = 0) {
+
+
+
+		// TODO: KONGONDO: SORT THIS OUT! NEEDED?
+		// if it's already been built, then return the cached version
+		if (!is_null($this->form)) {
+			return $this->form;
+		}
+
+		// if required fields don't exist then exit
+		if (!$this->field || !$this->field->type instanceof FieldtypePWCommerceRuntimeMarkup) {
+			throw new WireException("You must set a 'field' (type Field) property to {$this->className} of FieldtypePWCommerceRuntimeMarkup");
+		}
+		if (!$this->page || !$this->page->id) {
+			throw new WireException("You must set a 'page' (type Page) property to {$this->className} with runtime item field '$this->name'");
+		}
+
+		////////////////////////
+		// BUILD THE FORM
+
+		/** @var InputfieldWrapper $form */
+		$form = $this->wire(new InputfieldWrapper());
+		$form->name = 'pwcommerce_runtime_markup_form_' . $this->name;
+
+		/** @var PageArray $value */
+		// $value = $this->attr('value');
+
+		$isNewWrapClasses = "pwcommerce_is_new_item InputfieldStateWasCollapsed";
+		if (!empty($this->createdItemsTimestamp)) {
+			$isNewWrapClasses .= " pwcommerce_created_items_timestamp_" . $this->createdItemsTimestamp;
+		}
+		// ##################
+		// TODO: THIS $cnt HAS TO CATER FOR NEWLY ADDED ITEMS, E.G. NEW VARIANTS!
+		// TODO FIND OUT HOW REPEATERS DOES COUNTS IN AJAX MODE/ADD!
+		$cnt = $cnt ? $cnt : 1;
+		$isPost = $this->wire('input')->requestMethod('POST');
+
+		// for use if in ajax dynamic loading mode
+		// TODO - CONDITIONAL?
+		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
+
+
+
+		// ---------------
+		// create field for each runtime markup page iteration
+		foreach ($pages as $page) {
+
+			/** @var Page $page */
+			// TODO; DELETE IF NOT NEEDED
+			// $isUnpublished = $page->isUnpublished();
+			// $isHidden = $page->isHidden();
+
+
+
+
+
+			// get the inputfields for the runtime markup page
+			// @note: for new items, they don't have 'real' fields yet but page is new Page() [unsaved] so ok
+
+			// ##########################
+			/** @var InputfieldFieldset $wrap */
+			$wrap = $this->wire('modules')->get('InputfieldFieldset');
+
+			$pageEditUrl = $adminEditURL . "?id={$page->id}";
+
+
+			/** @var InputfieldWrapper $inputfields */
+			// @NOTE => HTMX-LOADING OF INPUTFIELDS ON DEMAND
+			// e.g. load product variants on demand via ajax
+			// CHECK IF RENDERING FIELDSET THAT WILL BE DYNAMICALLY LOADED VIA htmx/ajax
+			if ($this->isDynamicallyLoadedContent) {
+
+
+				// -------------
+				$adminEdit = "{$adminEditURL}?id={$this->page->id}&field=pwcommerce_runtime_markup&context=dynamic_loading&dynamic_loading_content_id={$page->id}";
+				$inputfields = new InputfieldWrapper();
+				// htmx trigger -> trigger via a JS event
+				// $wrap->wrapAttr(
+				//   'hx-trigger',
+				//   'pwcommerceproductvariantdynamicloading'
+				// );
+				// htmx get
+				$wrap->wrapAttr(
+					'hx-get',
+					$adminEdit,
+				);
+				// target
+				$wrap->wrapAttr(
+					'hx-target',
+					"find #Inputfield_pwcommerce_runtime_markup_item_{$page->id} > div.InputfieldContent > ul.Inputfields"
+				);
+				// swap
+				$wrap->wrapAttr(
+					'hx-swap',
+					'beforeend'
+				);
+				// TODO IT DOES NOT WORK! INSTEAD, USE MANUALLY TRIGGERED CLICK EVEN ON FIELDSET?
+				// disable hx inheritance on child nodes
+				// $wrap->wrapAttr(
+				//   'hx-disinherit',
+				//   '*'
+				// );
+				// --------
+				// add class needed for Inputfields reload
+				$wrap->addClass('pwcommerce_reload_inputfield_runtimemarkup_list pwcommerce_dynamic_loading');
+				// --
+
+			} else {
+				/** @var InputfieldWrapper $inputfields */
+				$inputfields = $this->getRuntimeItemInputfields($page);
+
+				# TODO FOR SOME SPECIAL FIELDS SUCH AS GCPV, WE NEED TO REMOVE SOME FIELDS IN SOME CASES
+				# E.G. REMOVE IMAGE FIELD IF NEW ITEM; AND REMOVE (OR HIDE TITLE) FIELDS
+				# INSTEAD OF HARDCODING HERE; ADD A FIELD RM SETTING SET TO TRUE; AND IF SO, GET 'REFINED' FIELDS FROM THAT CONTEXT BY PASSING THIS INPUTFIELDS
+				# TODO testing removing images AND HIDING TITLE
+
+
+				// $wrap->wrapAttr('data-editUrl', $page->editUrl()); // if needed by any Inputfields within like InputfieldFile/InputfieldImage
+			}
+
+			$wrap->wrapAttr('data-editUrl', $pageEditUrl); // if needed by any Inputfields within like InputfieldFile/InputfieldImage
+
+			// #############
+
+			$inputfields->set('useDependencies', false);
+			// @kongondo @note: important to access the runtime item page's inputfields for processing
+			// by items we mean the 'repeater-like' items and not the page hosting runtime markup!
+			// TODO - DELETE WHEN DONE; NOW DONE DIRECTLY IN processInput()
+			// $this->wrappers[$page->id] = $inputfields;
+
+			// TODO: SUPPORTED IN FUTURE RELEASE?
+			// TODO: UPDATE! NEEDED FOR SAVING! @see ___processInput()
+			$sort = $this->wire('modules')->get('InputfieldHidden');
+			$sort->attr('id+name', "sort_pwcommerce_runtime{$page->id}");
+			$sort->class = 'InputfieldPWCommerceRuntimeMarkupSort';
+			$sort->label = $this->_('Sort');
+			$sort->attr('value', $cnt);
+
+			// @kongondo TODO?
+			$label = $page->title;
+			// TODO DELETE IF NOT IN USE
+			$wrapLabel = sprintf(__('%1$s: %2$s.'), $this->getRuntimeMarkupItemWrapperLabel(), $label);
+
+			// $wrap = $this->wire('modules')->get('InputfieldFieldset');
+			// @note @kongondo: we need this class 'InputfieldRepeaterItem' so InputfieldImage.js will read the ajax postUrl from our data-editUrl here
+			$wrap->addClass('InputfieldPWCommerceRuntimeMarkupItem InputfieldNoFocus InputfieldRepeaterItem');
+			// TODO: TESTING - DELETE IF NOT IN USE
+
+			if ($isNew) {
+				// @note: important class to find this fieldset in JS to reload inputfields! e.g. langTabs, CKEditor, Image fields, autocomplete, etc!
+				// @note: we need the class 'InputfieldStateWasCollapsed' so that the item can be closed again after opening via JavaScript for situations whereby we open the fieldset after adding a new item. E.g. on add new shipping rate.
+				//$wrap->addClass('pwcommerce_is_new_runtime_markup_item InputfieldStateWasCollapsed');
+
+				$wrap->addClass($isNewWrapClasses);
+				// TODO: RENAME TO MAKE GENERIC? OR CAN GET STRING FROM CONTEXT? WILL GENERIC NAME LED TO SAVINGS IN DIFFERENT INPUTFIELDS THAT ALL LISTEN TO NEW? Maybe not since can only be in one context at a time!
+				$options = [
+					'id' => "pwcommerce_is_new_item{$page->id}",
+					'name' => "pwcommerce_is_new_item[]",
+					'value' => $page->id, // store the temporary ID of the new Page()
+				];
+
+				$field = $this->pwcommerce->getInputfieldHidden($options);
+				$wrap->add($field);
+			}
+
+			// @note: we use alpine js to handle deletions
+			//@note: this is really only for runtime items which currently are all pages!
+			// @note: this configurable for the context since not all allow delete!
+			// @note: @click.stop (stopPropagation) => otherwise will open the inputfieldset!
+			// @note:double click to trash all is also implemented
+			$trashMarkup = '';
+
+
+			if ($this->isRuntimeContextDeleteableItems()) {
+				// @note: not sure about the context here, e.g. the 'repeater-item-action', TODO: not in use for now
+				// $removeTitle =  $this->_x('Click to delete this item, or double-click to delete all', 'repeater-item-action');
+				$removeTitle = $this->_('Click to delete this item, or double-click to delete all');
+				$trashMarkup =
+					"<span class='pwcommerce_runtime_item_delete pwcommerce_trash' x-data='InputfieldPWCommerceRuntimeMarkupData'>
+				<i class='fa fa-trash pwcommerce_runtime_item_delete' @mouseenter ='handleDeleteIntent' @mouseleave='handleDeleteIntent' @click.stop='toggleMarkItemForDeletion(\$event,{$page->id})' @dblclick.stop='handleDoubleClickToggleMarkItemsForDeletion' data-item-id='{$page->id}' title='{$removeTitle}'></i></span>";
+			}
+
+			if (!$isPost) {
+				$wrap->entityEncodeLabel = false;
+				$wrap->label =
+					"<span class='InputfieldPWCommerceRuntimeMarkupItemLabel'>" .
+					$page->title . " #" . $cnt++ .
+					"</span>" . $trashMarkup;
+			} else {
+				$wrap->label = "$label " . (++$cnt);
+			}
+
+			$wrap->name = "pwcommerce_runtime_markup_item_{$page->id}";
+			// ################# IMPORTANT ##############
+			// @see the notes at the top of this fiel why we need this suffix '_repeater'!
+			// @kongondo: important for cropping/resizing saving to work for variants - otherwise we get js error
+			// needed by Inputfields::InputfieldReloadEvent() in Inputfields.js
+			// i.e. _repeater$page->id
+			$wrap->wrapAttr('data-fnsx', PwCommerce::REPEATER_SUFFIX . "$page->id"); // fnsx=field name suffix
+			// needed by Inputfields::InputfieldReloadEvent() in Inputfields.js to get the pageID of the 'repeaterItem' to build the url for reload
+			$wrap->wrapAttr('data-page', $page->id);
+			// @kongondo: important for our strategy as well of not using form action for images!
+			// $wrap->wrapAttr('data-editUrl', $page->editUrl()); // if needed by any Inputfields within like InputfieldFile/InputfieldImage
+			// ################# IMPORTANT ##############
+			$wrap->set('useDependencies', false);
+
+			// @KONGONDO TODO - DELETE WHEN DONE IF NOT IN USE
+			// if ($delete && $page->get('_pwcommerce_runtime_delete')) {
+			//   // something indicates it should already show delete state in editor
+			//   $delete->attr('checked', 'checked');
+			//   $wrap->addClass('InputfieldPWCommerceRuntimeMarkupDeletePending');
+			//   $wrap->addClass('ui-state-error', 'headerClass');
+			// }
+
+			// @KONGONDO TODO: EDIT:
+			$wrap->collapsed = Inputfield::collapsedYes;
+
+			$hasErrors = count($inputfields->getErrors()) > 0;
+			if ($hasErrors) {
+				$wrap->icon = 'warning';
+			}
+
+			// add a hidden field that will be populated with a positive value for all visible repeater items
+			// this is so that processInput can see this item should be a published item
+			$f = $this->wire('modules')->get('InputfieldHidden');
+			$f->attr('name', "publish_pwcommerce_runtime{$page->id}");
+			$f->attr('class', 'InputfieldPWCommerceRuntimeMarkupPublish');
+
+			$wrap->add($f);
+
+			// @kongondo: important: this is where we add the inputfields from getRuntimeItemInputfields()
+			$wrap->add($inputfields);
+			//----------------------
+			// $wrap->prepend($delete);// TODO: DELETE IF NOT USING
+			$wrap->prepend($sort);
+
+			//----------
+			$form->add($wrap);
+		}
+		// end of loop
+
+		// ---------------------------
+		// add hidden input
+		// ITEMS TO DELETE INPUT
+		// TODO: THIS SHOULD NOT BE REINSERTED IF IS NEW! WE ARE GETTING IT IN TRIPLICATE!??
+		// TODO: ALSO GETTING STRANGE CLASS NAMES HERE! LIKE SO: pwcommerce_is_delete_item[]
+		if (!$isNew) {
+			// TODO: CONFIRM WORKS!
+			$options = [
+				'id' => "pwcommerce_is_delete_item",
+				'name' => "pwcommerce_is_delete_item[]",
+			];
+
+			$field = $this->pwcommerce->getInputfieldHidden($options);
+			$field->attr([
+				// 'x-model' => "xxxx",
+				'x-data' => 'InputfieldPWCommerceRuntimeMarkupData',
+				'x-bind:value' => '$store.InputfieldPWCommerceRuntimeMarkupStore.items_to_delete',
+			]);
+			$form->add($field);
+		}
+
+		// cache
+		$this->form = $form;
+
+		return $form;
+	}
+
+	private function processAjaxRequest($input) {
+
+
+		$sanitizer = $this->wire('sanitizer');
+		$context = $sanitizer->fieldName($input->get('context'));
+
+
+		$out = "<p>" . $this->_('Sorry, we could not process that request.') . "</p>";
+		if (!empty($context)) {
+			// determine context
+			//--------------
+			// REQUEST: NEW BLANK ITEM
+			if ($context === 'new_item') {
+				// get single blank item (WireData)
+				$blankItem = $this->getRuntimeContextBlankItem();
+
+				// TODO: maybe here check if we got a blank item?
+				// get its markup to return as htmx response
+				$out = $this->renderRuntimeContextBlankItem($blankItem);
+			} else if ($context === 'refresh') {
+				// REQUEST: RE-RENDER MARKUP (e.g. after create new variants  using api in InputfieldPWCommerceProductStock)
+				//
+
+				// @note: the name 'pwcommerce_created_items_ids' is generic so can be used by any context that needs it!
+				$newItemsIDsCSV = $input->pwcommerce_created_items_ids;
+
+				// clean them up and later implode into pipe-separated IDs for selector
+				$newItemsIDsArray = $sanitizer->intArray($newItemsIDsCSV);
+
+				// GOOD TO GO: get the newly created items!
+				if (!empty($newItemsIDsArray)) {
+					// implode into pipe-separated IDs for selector
+					$newItemsIDs = implode('|', $newItemsIDsArray);
+
+					//-------------
+					// >>>>>>>>>>>>>
+					/*
+																																																																			 TODO -> WORKING ON DEMAND AJAX LOAD OF PAGES USING HTMX; THIS WOULD HAVE TO CHANGE!
+																																																																			 - this would need returning titles and ids only
+																																																																			 - test if saving is OK, i.e. unloaded pages should not disappear!
+																																																																			 - test if getting all pages is the issue versus loading their inputfields (i.e., getRuntimeItemInputfields called in buildForm())
+																																																																			 - TODO: move the pages grabbing to a different method + see if can do findRaw with object return?
+																																																																			 - needed page variables in the loop in buildForm() are:
+																																																																			 * $page->id
+																																																																			 * $page->title
+																																																																			 * $page->editUrl()
+																																																																			 *
+																																																																			 $page->editUrl() <- this is the important one! would it be an issue if we used findRaw() could we build it by getting the prefix only, e.g. '/processwire/page/edit/?id=3090' and just add the ID? we can do that in init here, by checking the one for the parent page! i.e. $this->page? could even create a method for it
+																																																																			 >>> SOME RESULTS <<<
+																																																																			 - testing with 204 variants
+																																																																			 - if loading fields via $this->getRuntimeItemInputfield(), i.e. $page->template->fieldgroup->getPageInputfields($page, PwCommerce::REPEATER_SUFFIX . "{$page->id}", $options);, it takes about 15 - 18 seconds to load the page
+																																																																			 - if passing empty InputfieldWrapper to $wrapper in buildForm(), instead of above, it takes about 4 seconds
+																																																																			 */
+
+
+
+					$pages = $this->wire('pages')->find("parent={$this->page->id}, id={$newItemsIDs}");
+
+					// get and set the timestamp for the newly created items
+					// will be appended as a class to fieldsets for new items in buildForm()
+					// for use in JavaScript to distinguish various newly created new items via ajax, so that the last newly created items can be targetted, e.g. for reload of their inputfields (instead of reloading all 'new' fieldsets)
+					// for use when new items have been added several times via ajax without a page reload in between
+					$this->createdItemsTimestamp = (int) $input->pwcommerce_created_items_timestamp;
+
+					//------------------
+					$form = $this->buildForm($pages, true);
+					$out = '';
+					//----------
+					// MAIN render content
+					// @note: we don't need the pre or post render output
+					$out .= $form->render();
+				}
+			} else if ($context === 'dynamic_loading') {
+				// fetch content to load dynamically
+				$dynamicLoadingContentID = (int) $input->get('dynamic_loading_content_id');
+				// -------
+				$out = $this->renderDynamicLoadingContent($dynamicLoadingContentID);
+			} /*else if ($context === 'dynamically_manage_inputfields') {
+																												 @NOTE: SEE METHOD ITSELF; NOT IN US FOR NOW
+																												 $out = "<p>WORKING ON DYNAMICALLY MANAGE INPUTFIELDS to handle its ajax request</p>";
+																												 // TODO IN FUTURE MIGHT NEED $context?
+																												 $response = $this->processDynamicallyManageInputfieldsAjaxRequest($input);
+																												 if (!empty($response)) {
+																												 $out = $response;
+																												 }
+																												 }*/
+		}
+
+		// return $out;
+
+		// -----
+		return $out;
+	}
+
+	// TODO @NOTE: NOT IN USE FOR NOW
+	// @NOTE: WOULD REQUIRE input->get AS WELL since input->post in inputfield will be intercepted by processwire
+	// private function processDynamicallyManageInputfieldsAjaxRequest($input) {
+	// 	// TODO IN FUTURE MIGHT NEED $context?
+	// 	$response = '';
+	// 	if ($this->isRuntimeContextDynamicallyManageInputfields()) {
+	// 		$inputfieldName = $this->runtimeContextDynamicallyManageInputfields[$this->runtimeContext];
+	//
+	// 		if ($inputfieldName) {
+	// 			// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+	// 			$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+	//
+	// 			if ($inputfield) {
+	// 				// GET the Ajax Request Respose for this context that dynamically manages its inputfields
+	// 				$response = $inputfield->processAjaxRequest($input, $this->page);
+	// 			}
+	// 		}
+	// 	}
+
+	//
+	// 	// ---
+	// 	return $response;
+	// }
+
+	private function getRuntimeMarkupItemWrapperLabel() {
+		$wrapperLabels = [
+			'product' => $this->_('Variant'),
+			'shipping-zone' => $this->_('Rate'),
+			'country' => $this->_('Territory'),
+			// TODO: contextual?
+			'order' => $this->_('Order Items'),
+		];
+		$generic = $this->_('Item');
+
+		return isset($wrapperLabels[$this->runtimeContext]) ? $wrapperLabels[$this->runtimeContext] : $generic;
+	}
+
+	// @KONGONDO TODO AMEND AS REQUIRED + SKIP TITLE FIELD!
+
+	/**
+	 * Get Inputfields for the given repeater item
+	 *
+	 * @param Page $page
+	 * @return InputfieldWrapper
+	 *
+	 */
+	protected function getRuntimeItemInputfields(Page $page) {
+
+		// @note: IF NEED TO LOAD ONLY SPECIFIC FIELDS,PASS AN ARRAY TO getPageInputfields as a 3rd parameter
+		// @note: we need this _repeater prefix for image uploads. without it images do not upload
+		// i.e. _repeater$page->id
+		// return $page->template->fieldgroup->getPageInputfields($page, PwCommerce::REPEATER_SUFFIX . "{$page->id}", $options);
+		// @note: some contexts will need only specific fields rendered in runtime markup - we get these via $options.
+		$options = $this->getOptionsForLimitFields();
+
+		$runtimeInputfields = $page->template->fieldgroup->getPageInputfields($page, PwCommerce::REPEATER_SUFFIX . "{$page->id}", $options);
+
+		# =====
+
+		# CHECK IF RUNTIME CONTEXT DYNAMICALLY MANAGES ITS INPUTFIELDS
+		if ($this->isRuntimeContextDynamicallyManageInputfields()) {
+			$inputfieldName = $this->runtimeContextDynamicallyManageInputfields[$this->runtimeContext];
+
+
+			if ($inputfieldName) {
+				// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+				$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+
+				if ($inputfield) {
+					// DYNAMICALLY MANAGE THIS CONTEXT'S INPUTFIELDS!
+					$runtimeInputfields = $inputfield->getDynamicallyManagedInputfields($runtimeInputfields, $page);
+				}
+			}
+		}
+
+
+
+		return $runtimeInputfields;
+	}
+
+	private function getOptionsForLimitFields() {
+		// @note: some contexts will need only specific fields rendered in runtime markup - we get these via $options.
+		$optionsForLimitFields = $this->isRuntimeContextLimitInputfields() ? $this->runtimeContextLimitInputfields[$this->runtimeContext] : [];
+
+
+		return $optionsForLimitFields;
+	}
+
+	private function getRuntimeContextPrependContent() {
+		// GET WRAPPER FOR ALL INPUTFIELDS HERE
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		// loop through the inputfields that will provide the extra prepend content
+		// these should return an unrendered content that is addable to an inputfield wrapper!
+		/** @var array $contextInputfields */
+		$contextInputfields = $this->runtimeContextPrependContentInputfields[$this->runtimeContext];
+
+		foreach ($contextInputfields as $inputfieldName) {
+			// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+			$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+
+			if ($inputfield) {
+				$field = $inputfield->getPrependContent($this->page, $this->field->name);
+				// @note: for some contexts, e.g. products, if the product does not have variants they will return null here; so check!
+				if (!empty($field)) {
+					$wrapper->add($field);
+				}
+			}
+		}
+		return $wrapper;
+	}
+
+	private function getRuntimeContextAppendContent() {
+		// GET WRAPPER FOR ALL INPUTFIELDS HERE
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		// loop through the inputfields that will provide the extra append content
+		// these should return an unrendered content that is addable to an inputfield wrapper!
+		/** @var array $contextInputfields */
+		$contextInputfields = $this->runtimeContextAppendContentInputfields[$this->runtimeContext];
+
+
+
+		foreach ($contextInputfields as $inputfieldName) {
+			// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+			$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+
+			//-----------------
+			if ($inputfield) {
+				$field = $inputfield->getAppendContent($this->page, $this->field->name);
+				// @note: some contexts might return null here; so check!
+				if (!empty($field)) {
+					$wrapper->add($field);
+				}
+			}
+		}
+		return $wrapper;
+	}
+
+	// get inline assets sources and flags for this context if available
+	private function getRuntimeContextPreloadInlineAssets() {
+		$out = "";
+		// loop through the inputfields that will provide the extra inline assets content
+		// these should return an array with assets sources and defer flag if applicable
+		/** @var array $contextInputfields */
+		$contextInputfields = $this->runtimeContextPreloadInlineAssets[$this->runtimeContext];
+		foreach ($contextInputfields as $inputfieldName) {
+			$inputfield = $this->wire('modules')->get($inputfieldName);
+			if ($inputfield) {
+				$assets = $inputfield->getPreloadInlineAssetsContent($this->page);
+				if (!is_array($assets) || empty($assets)) {
+					continue;
+				}
+				//------
+				// good to go
+				foreach ($assets as $asset) {
+					$source = $asset['source'];
+					$defer = !empty($asset['defer']) ? " defer" : '';
+					$out .= "<script src='{$source}'{$defer}></script>\n";
+				}
+			}
+		}
+		return $out;
+	}
+
+	// get assets sources and for this context if available
+	private function getRuntimeContextPreloadAssets() {
+		// loop through the inputfields that will provide the extra assets content
+		// these should return an array with assets sources
+		/** @var array $contextInputfields */
+		$contextInputfields = $this->runtimeContextPreloadAssets[$this->runtimeContext];
+
+		foreach ($contextInputfields as $inputfieldName) {
+			// $inputfield = $this->wire('modules')->get($inputfieldName);
+			// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+			$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+
+
+			if ($inputfield) {
+				/** @var array $assets */
+				$assets = $inputfield->getPreloadAssetsContent();
+
+				if (!is_array($assets) || empty($assets)) {
+					continue;
+				}
+				//------
+				// good to go
+				// @NOTE TODO: ONLY JS ASSETS FOR NOW
+				foreach ($assets as $asset) {
+					$source = $asset['source'];
+
+
+					$this->wire->config->scripts->add($source);
+				}
+			}
+		}
+	}
+
+	// get javascript configuration values for this context if available for given $data.
+	private function getRuntimeContextJavaScriptConfigurations($data) {
+		$script = "";
+		// loop through the inputfields that will provide the extra inline assets content
+		// these should return an array with inputfields sources and defer flag if applicable
+		/** @var array $contextInputfields */
+		$contextInputfields = $this->runtimeContextJavaScriptConfigurations[$this->runtimeContext];
+		foreach ($contextInputfields as $inputfieldName) {
+			$inputfield = $this->wire('modules')->get($inputfieldName);
+			if ($inputfield) {
+				# TODO NEEDS REVISITING! THIS IS JUST OVERWRITING $script!!!
+				$script = $inputfield->getJavaScriptConfigurationsContent($data);
+			}
+		}
+		return $script;
+	}
+
+	private function getRuntimeContextInputfield($inputfieldName) {
+
+		if (strpos($inputfieldName, 'Virtual') !== false) {
+
+			// VIRTUAL Inputfield for runtime context
+			$inputfield = $this->getVirtualInputfield($inputfieldName);
+		} else {
+			// REAL ProcessWire Inputfield
+
+			$inputfield = $this->wire('modules')->get($inputfieldName);
+		}
+		return $inputfield;
+	}
+
+	// Get blank item for this context to send back as htmx response in buildForm()
+	private function getRuntimeContextBlankItem() {
+		if ($this->isRuntimeContextBuildBlankItem()) {
+			// @note SHOULD BE STRING!
+			$inputfieldName = $this->runtimeContextBuildBlankItemInputfield[$this->runtimeContext];
+
+			if ($inputfieldName) {
+				// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+				$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+			}
+			// ==============
+			if ($inputfield) {
+				$blankItem = $inputfield->getBlankItem();
+				// @note: some contexts might return null here; so check!
+				if (!empty($blankItem)) {
+					// good to go
+					//------------------------
+					return $blankItem;
+
+					// TODO: DELETE BELOW WHEN DONE! WE NOW RETURN THE SINGLE (WIREDATA) BLANK ITEM - this is so that we can use this methods for other needs
+					//$newCount = $this->value;
+					//$value = $this->value;// @note: also works
+					// $value = $this->attr('value');
+					// $newCount = $value->count + 1;
+					// buildForm needs a PageArray(). create one here
+					// $newPageArray = new PageArray();
+					// $newPageArray->add($blankItem);
+					//---------------
+					// return $this->buildForm($newPageArray, true, $newCount)->render();
+					// TODO: DELETE ABOVE WHEN DONE! WE NOW RETURN THE SINGLE (WIREDATA) BLANK ITEM
+				}
+			}
+		}
+	}
+
+	/**
+	 * Fetches and instantiates a virtual Inputfield based on given name.
+	 *
+	 * Used by runtimeContexts that need to process some inputs but don't have own installed Inputfields to do this.
+	 * For instance, in the context 'attribute', new attribute options have to be created and existing ones deleted.
+	 *
+	 * @access private
+	 * @param [type] $virtualInputfieldName
+	 * @return Object|Null $inputfield Instance of virtual inputfield if found, else null.
+	 */
+	private function getVirtualInputfield($virtualInputfieldName) {
+
+		$inputfield = null;
+		// @note: for differentiation, $virtualInputfieldName are prefixed with 'Virtual'
+		// we remove this to remain with the real name.
+		$className = str_replace("Virtual", "", $virtualInputfieldName);
+
+
+		if ($className) {
+			// @NOTE: they are in sub-directories named after the class name
+			$inputfield = $this->pwcommerce->getPWCommerceClassByName($className);
+		}
+
+		return $inputfield;
+	}
+
+	public function getUniqueItemName() {
+		// @KONGONDO TODO: DELETE IF NOT IN USE; OTHERWISE RENAME
+		static $cnt = 0;
+		return str_replace('.', '-', microtime(true)) . '-' . (++$cnt);
+	}
+
+	private function hasRuntimeContextPrependContent() {
+		return isset($this->runtimeContextPrependContentInputfields[$this->runtimeContext]);
+	}
+
+	private function hasRuntimeContextAppendContent() {
+		return isset($this->runtimeContextAppendContentInputfields[$this->runtimeContext]);
+	}
+
+	// if context limits the inputfields to be returned in buildForm()
+	private function isRuntimeContextLimitInputfields() {
+		return isset($this->runtimeContextLimitInputfields[$this->runtimeContext]);
+	}
+
+	// if context dynamically manages the inputfields to be returned in buildForm()
+	private function isRuntimeContextDynamicallyManageInputfields() {
+		return isset($this->runtimeContextDynamicallyManageInputfields[$this->runtimeContext]);
+	}
+
+	// if context has INLINE assets that need preloading in their inputfields
+	private function hasRuntimeContextPreloadInlineAssets() {
+		return isset($this->runtimeContextPreloadInlineAssets[$this->runtimeContext]);
+	}
+
+	// if context has assets that need preloading in their inputfields
+	private function hasRuntimeContextPreloadAssets() {
+		return isset($this->runtimeContextPreloadAssets[$this->runtimeContext]);
+	}
+
+	// if context has javascript configurations values that need sending to client
+	private function hasRuntimeContextJavaScriptConfigurations() {
+		return isset($this->runtimeContextJavaScriptConfigurations[$this->runtimeContext]);
+	}
+	// if context builds own blank item as ajax (htmx) response to 'add new item'
+	// @note: each context should only return a single Inputfield!
+	private function isRuntimeContextBuildBlankItem() {
+		return isset($this->runtimeContextBuildBlankItemInputfield[$this->runtimeContext]);
+	}
+
+	// if context will process $input in a 'virtual inputfield'
+	// e.g. InputfieldPWCommerceAttributeOptions is a virtual field that processes new or deleted options
+	private function hasRuntimeContextVirtualProcessInput() {
+		return isset($this->runtimeContextVirtualProcessInputInputfield[$this->runtimeContext]);
+	}
+
+	// if context allows deletion of runtime items
+	private function isRuntimeContextDeleteableItems() {
+		return isset($this->runtimeContextIsDeleteableItems[$this->runtimeContext]);
+	}
+
+	// if context run post-processing after processing of its items (e.g. after saving).
+	private function isRuntimeContextPostProcessingAfterSave() {
+		return isset($this->runtimeContextIsPostProcessingAfterSave[$this->runtimeContext]);
+	}
+
+	// @KONGONDO TODO - DO WE NEED THIS? IF YES, AMEND AS NEEDED
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		// @KONGONDO TODO - DO WE NEED THIS? IF YES, AMEND AS NEEDED
+
+		// TODO: DELETE IF NOT IN USE
+		/** @var User $user */
+		$user = $this->wire('user');
+		// TODO: DELETE IF NOT IN USE
+		$this->wire('modules')->get('JqueryCore')->use('cookie');
+		// TODO: USING THIS OR LEAVE TO INPUTFIELDS THAT WANT IT, E.G. SHIPPINGRATE?
+		// TODO: DELETE IF NOT IN USE
+		$this->wire('modules')->get('JqueryUI')->use('vex');
+
+		//#########
+		$this->preloadInputfieldAssets();
+
+		// TODO: DELETE IF NOT IN USE
+		$this->wrapAttr('data-page', $this->page->id);
+		// TODO: DELETE IF NOT IN USE
+		// // list($editorUrl, $queryString) = explode('?', $this->page->editUrl());
+		// if ($queryString) {
+		// }
+		// TODO: DELETE IF NOT IN USE
+		// $name = $this->attr('name');
+
+
+
+		// $adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
+		// $adminEdit = "{$adminEditURL}?id={$this->page->id}&field={$name}&context=refresh";
+		// $this->wire('config')->js('InputfieldPWCommerceRuntimeMarkup', [
+		// TODO: DELETE IF NOT IN USE! OR DELETE UNUSED PROPERTIES
+		//  'editorUrl' => $editorUrl,
+		//  'labels' => [
+		//   'remove' => $this->_x('Click to delete this item, or double-click to delete all', 'repeater-item-action'),
+		//   'removeAll' => $this->_x('Delete all items?', 'repeater-item-action'),
+		//   'toggle' => $this->_x('Click to turn item on/off, or double-click to open/collapse all items', 'repeater-item-action'),
+		//   'clone' => $this->_x('Clone this item?', 'repeater-item-action'),
+		//   'settings' => $this->_x('Show settings?', 'repeater-item-action'),
+		//   'openAll' => $this->_x('Open all items?', 'repeater-item-action'),
+		//   'collapseAll' => $this->_x('Collapse all items?', 'repeater-item-action'),
+		//   'disabledMinMax' => $this->_('This action is disabled per min and/or max item settings.'),
+		//  ],
+		// ]);
+
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	// any extra content from inputfields that should be PREPENDED to the final markup
+	private function renderRuntimeContextPrependContent() {
+		$prependContent = null;
+		if ($this->hasRuntimeContextPrependContent()) {
+			$prependContent = $this->getRuntimeContextPrependContent();
+		}
+		return $prependContent;
+	}
+
+	// any extra content from inputfields that should be APPENDED to the final markup
+	private function renderRuntimeContextAppendContent() {
+		$appendContent = null;
+		if ($this->hasRuntimeContextAppendContent()) {
+			$appendContent = $this->getRuntimeContextAppendContent();
+		}
+		return $appendContent;
+	}
+
+	// any INLINE assets content from inputfields that should be added to the final markup
+	private function renderRuntimeContextPreloadInlineAssets() {
+		$preloadInlineAssets = null;
+		if ($this->hasRuntimeContextPreloadInlineAssets()) {
+			$preloadInlineAssets = $this->getRuntimeContextPreloadInlineAssets();
+		}
+		return $preloadInlineAssets;
+	}
+
+	private function renderRuntimeContextBlankItem($blankItem) {
+
+		// $value = $this->value;// @note: also works
+		$value = $this->attr('value');
+		// incrementing numbering of item for client display
+		$newCount = $value->count + 1;
+		// $this->buildForm needs a PageArray(). create one here
+		$newPageArray = new PageArray();
+		$newPageArray->add($blankItem);
+		//---------------
+		return $this->buildForm($newPageArray, true, $newCount)->render();
+	}
+
+	private function renderDynamicLoadingContent($dynamicLoadingContentID) {
+
+		// get the page that is being dynamically loaded
+		$page = $this->wire('pages')->get($dynamicLoadingContentID);
+		// TODO: ERROR IF PAGE NOT FOUND?!
+
+
+
+		/** @var InputfieldWrapper $inputfields */
+		$inputfields = $this->getRuntimeItemInputfields($page);
+
+		// $this->wrappers[$page->id] = $inputfields;
+		// REQUEST: DYNAMIC LOAD/AJAX OF PRODUCT VARIANT SINCE LOT OF VARIANTS
+		// HIDDEN INPUT TO TRACK DYNAMICALLY LOADED CONTENT IDs
+		//------------------- pwcommerce_dynamic_loading_content_ids (getInputfieldHidden)
+		$options = [
+			'id' => "pwcommerce_dynamic_loading_content_id_{$page->id}",
+			// @note: array!
+			'name' => 'pwcommerce_dynamic_loading_content_ids[]',
+			// 'columnWidth' => 10,
+			// track the id of the page that is being dynamically loaded
+			'value' => $page->id,
+		];
+
+		$field = $this->pwcommerce->getInputfieldHidden($options);
+
+		// add the $field to the InputfieldWrapper
+		$inputfields->add($field);
+
+		// ####################
+		// $out = $inputfields->render() . $field->render();
+		$out = $inputfields->render();
+		// ---------
+		return $out;
+	}
+
+	// +++++++++++++++++++++
+
+	// @KONGONDO TODO: AMEND AS REQUIRED FOR PWCOMMERCE VARIANTS
+
+
+
+	private function getOriginalFieldNameMinusSuffix($name) {
+		// i.e. _repeater$page->id
+		// return preg_replace('/_repeater\d+$/', '', $name);
+		return preg_replace('/' . PwCommerce::REPEATER_SUFFIX . '\d+$/', '', $name);
+	}
+
+	private function getTranslatedStrings() {
+		return [
+			'enter_title' => $this->_('please enter a title')
+		];
+	}
+
+	// +++++++++++++++++++++
+
+	// @KONGONDO TODO: AMEND AS REQUIRED FOR PWCOMMERCE RUNTIME ITEMS
+
+	/**
+	 * Process the input from a submitted repeaters field
+	 *
+	 * @param WireInputData $input
+	 * @return $this
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		$dynamicallyLoadedContentIDs = $this->wire('sanitizer')->intArrayVal($input->pwcommerce_dynamic_loading_content_ids);
+
+		// $isProcessingDynamicallyLoadedProductVariants = !empty($this->isDynamicallyLoadedContent) && !empty($dynamicallyLoadedContentIDs);
+		// $isProcessingDynamicallyLoadedProductVariants = !empty($this->isDynamicallyLoadedContent);
+
+
+		// TODO - REFACTOR NEWITEMS AND DELETEITEMS TO CALL CONTEXT INPUTFIELD HANDLER ONLY ONCE! - $inputfield = $this->getRuntimeContextInputfield($inputfieldName); - BUT MIGHT NEED TO LOOK INTO NEXT LOOP OF EXISTING ITEM TO PROCESS CHANGES? OK?
+		//
+		// if ($this->isRuntimeContextBuildBlankItem()) {
+		// // @note SHOULD BE STRING!
+		// $inputfieldName = $this->runtimeContextIsDeleteableItems[$this->runtimeContext];
+		//
+
+		// ############################
+		// PROCESS RUNTIME CONTEXT NEW ITEMS
+		$newItems = $input->pwcommerce_is_new_item;
+		$createdPagesIDs = [];
+		if (!empty($newItems)) {
+			$createdPagesIDs = $this->processInputContextCreateNewItems($input);
+
+		}
+
+		// ############################
+
+		// ############################
+		// PROCESS RUNTIME CONTEXT DELETE ITEMS
+		// if we have delete items
+		if (!empty($input->pwcommerce_is_delete_item)) {
+			// @note: hidden input array, IDs saved at index 0, so we get that
+			$deleteItems = $input->pwcommerce_is_delete_item[0];
+			if (!empty($deleteItems)) {
+				$this->processInputContextDeleteItems($input);
+			}
+		}
+		// ############################
+
+		// ############################
+		// PROCESS RUNTIME CONTEXT THAT DYNAMICALLY MANAGES ITS INPUTFIELDS
+		if ($this->isRuntimeContextDynamicallyManageInputfields()) {
+			$this->processInputContextAmendExistingItems($input, $createdPagesIDs);
+			// TODO STILL TESTING; WITH THIS; IMAGES NOT GETTING SAVED
+			// return;
+		}
+
+		// ############################
+
+		// TODO! WIP
+		// TODO: DELETE IF NOT IN USE
+		$pageID = $this->page->id;
+
+		// @KONGONDO TODO: AMEND AS REQUIRED FOR PWCOMMERCE RUNTIME ITEMS
+
+		$isSingle = $this->singleMode;
+
+
+
+		// *************************************
+		// @kongondo addition:
+		// for runtime contexts that need to virtually process $input
+		// e.g. for newly added items where the context does not have a real inputfield to process items
+		// e.g. for use by InputfieldPWCommerceAttributeOptions, newly added options or deleted ones need to be processed
+
+		// @note: @kongondo addition
+		if ($this->hasRuntimeContextVirtualProcessInput()) {
+
+			# TODO DELETE IF NO LONGER IN USE BY THE VIRTUAL INPUTFIELDS! e.g. 'includes\inputfield\InputfieldPWCommerceAttributeOptions.php' no longer using this!
+			$this->runVirtualProcessInput($input);
+		}
+
+		/** @var PageArray $value */
+		$value = $this->attr('value');
+		// TODO DELETE IF NOT IN USE
+		// $loadedIDs = [];
+
+		// *************************************
+
+		// *************************************
+		// @kongondo addition:
+		//
+		// - $value IS EMPTY BUT we have NEW ITEMS, we need to have those items processed IF THEY WERE NOT PROCESSED VIRTUALLY above ($this->hasRuntimeContextVirtualProcessInput())
+		// - this is so that contexts like shipping-zone can have new shipping rates processed
+		// - this is because if a shipping zone does not yet have shipping rates, $value will be empty
+		// - hence, buildForm() will NOT populate $this->wrappers
+		// - also, since $value is empty, the loop below ($pages as $page) will not run
+		// - MORE IMPORTANTLY, this means that $wrapper->processInput($input) (called inside the loop) WILL NOT BE INVOKED!
+		// - hence, the corresponding inputfields inside will not be processed!
+		// - it is easier here to let the inputfields handle their respective inputs
+		// - so, rather than call the inputfield directly to create new pages, we populate $value with the new Blank Items, giving them the IDs in $input->pwcommerce_is_new_item. When buildForm() is invoked again, it will populate $this->wrappers since $value will no longer be empty!
+		// - this also means inputfields outside our control, e.g. new items titles, descriptions, etc will be processed by their own Inputfields as usual
+		//
+
+		if ($this->isModifyValueForProcessInputNewItems($input)) {
+			$value = $this->modifyValueForProcessInputNewItems($input);
+		}
+
+		// *************************************/
+
+		// TODO DELETE IF NOT IN USE!
+		// determine which runtime pages have data posted in this request
+		// foreach ($value as $key => $page) {
+		//     $loadedName = "loaded_pwcommerce_runtime$page->id";
+		//     if ($isSingle || ((int) $input->$loadedName) > 0) {
+		//         $loadedIDs[$page->id] = $page->id;
+		//     }
+		// }
+
+
+		// TODO DELETE IF NOT IN USE
+
+		//-----------------------
+		// @note/@kongondo: calling buildForm() again
+		//   $this->buildForm(0, $loadedIDs);// TODO: delete when done (from original -> InputfieldRepeaters)
+		// TODO REFACTOR AS IT SEEMS THE ONLY THING WE NEED HERE IS SETTING $this->wrappers[$page->id] = $inputfields;!!!
+		// $this->buildForm($value);
+		// $this->processWrappers($value);
+		//-----------------------
+
+		$numChanges = 0;
+		$sortChanged = false;
+		$value->setTrackChanges(true);
+		$pageIDs = [];
+		$_openIDs = $this->wire('session')->getFor($this, 'openIDs');
+		if (!is_array($_openIDs)) {
+			$_openIDs = [];
+		}
+
+
+
+		// TODO: DELETE IF NOT IN USE
+		$openIDs = $_openIDs; // these two are compared with each other at the end
+
+		$this->getErrors(true);
+
+
+		/* TODO: THIS IS WHY NEW SHIPPING RATES NOT GETTING SAVED!
+																											- in the loop below, we call this:
+																											$wrapper = $this->wrappers[$page->id];
+																											$wrapper->processInput($input);
+																											- if empty values, it means we don't go through loop, hence above is not called, so no input is processed for that inputfield!
+																											- secondly, new values will not have an id; we need to use their temporaryIDAsSuffix or somehow add then to this->wrappers or process differently if new, e.g. hand over to context inputfield directly, like we do for virtual fields!
+																											*/
+
+
+		// existing items
+		foreach ($value as $key => $page) {
+
+
+
+
+
+
+			// TODO OK? TEST THOROUGHLY! -> WITH AND WITHOUT VARIANTS
+			// CHECK IF PROCESSING DYNAMICALLY LOADED CONTENT
+			// e.g. product variants
+			if ($this->isDynamicallyLoadedContent && !in_array($page->id, $dynamicallyLoadedContentIDs)) {
+				// if processing dynamically loaded content and this page's content was not loaded, skip it
+				// otherwise we will get errors as no inputs sent
+
+
+				continue;
+			}
+
+
+			// ###############
+
+			/** @var Page $page */
+			$pageIDs[] = $page->id;
+
+			$isHidden = $page->isHidden();
+			$isUnpublished = $page->isUnpublished();
+			$isOn = $page->hasStatus(Page::statusOn);
+
+			if ($isSingle) {
+				$publishName = '';
+			} else {
+				$deleteName = "delete_pwcommerce_runtime{$page->id}";
+				$sortName = "sort_pwcommerce_runtime{$page->id}";
+				$publishName = "publish_pwcommerce_runtime{$page->id}";
+				$depthName = "depth_pwcommerce_runtime{$page->id}";
+
+				if ($input->$deleteName == $page->id) {
+					// TODO add check to Fieldgroups::isFieldNotRemoveable() before attempting remove
+					$value->remove($page);
+					$numChanges++;
+					continue;
+				}
+
+				$sort = $input->$sortName;
+				// skip pages that don't appear in the POST data (most likely ready pages)
+				if (is_null($sort)) {
+					continue;
+				}
+
+				$page->sort = (int) $sort;
+				if ($page->isChanged('sort')) {
+					// $this->message("Sort changed for field {$this->field} page {$page->id}", Notice::debug);
+					$sortChanged = true;
+				}
+
+				if ($this->repeaterDepth > 0) {
+					$depth = (int) $input->$depthName;
+					if ($page->getDepth() != $depth) {
+						$page->setDepth($depth);
+						$numChanges++;
+					}
+				}
+			}
+
+			/** @var InputfieldWrapper $wrapper */
+			// TODO DELETE WHEN DONE; NO LONGER NEEDED AS WE DIRECTLY ACCESS THE INPUTFIELDS HERES
+			// $wrapper = $this->wrappers[$page->id];
+			$wrapper = $this->getRuntimeItemInputfields($page);
+			// $this->wrappers[$page->id] = $wrapper;
+
+
+			$wrapper->resetTrackChanges(true);
+			$wrapper->getErrors(true); // clear out any errors
+
+			// ########################################
+			// ***** SUPER IMPORTANT *****
+			// @kongondo: $wrapper->processInput($input): this is key! this is how the fields of the repeaters are saved!
+			// @kongondo: the wrapper contains the inputfields within the repeater! e.g. InputfieldText, InputfieldImage, etc.
+			// @kongondo: Here, we invoke their processInput. They, individually, have access to $input! So, they can get and process changed values!
+			// @kongondo: @see: InputfieldWrapper::processInput() -> Process input for all children
+			//  @see: https: //processwire.com/api/ref/inputfield-wrapper/process-input/
+			// TODO: FOR ORDER LINE ITEMS, WE MIGHT NEED TO SAVE DIFFERENTLY AS DON'T USE WRAPPERS LIKE THIS!
+			// TODO: MAYBE VIRTUAL LIKE InputfieldPWCommerceAttributeOptions?
+			// PROCESS PAGE INPUTFIELDS
+			$wrapper->processInput($input);
+
+			// ########################################
+
+			//---------------
+			$numErrors = count($wrapper->getErrors());
+			$page->setQuietly('_pwcommerce_runtime_errors', $numErrors); // signal to FieldtypePWCommerceRuntimeMarkup::savePageField() that page has errors
+			$page->setQuietly('_pwcommerce_runtime_processed', true); // signal to FieldtypePWCommerceRuntimeMarkup::savePageField() that page had input processed
+			$this->formToPage($wrapper, $page);
+			$publish = $isSingle ? 0 : $input->$publishName;
+
+
+
+			if ($publish !== null) {
+				$publish = (int) $publish;
+				if ($publish > 0 && ($isHidden || $isUnpublished)) {
+					// publish requested (publish=1)
+					if ($isHidden) {
+						$page->removeStatus(Page::statusHidden);
+					}
+
+					if (!$numErrors && $isUnpublished) {
+						$page->removeStatus(Page::statusUnpublished);
+					}
+
+					if (!$isOn) {
+						$page->addStatus(Page::statusOn);
+					}
+				} elseif ($publish < 0) {
+					// unpublish requested (publish=-1)
+					if ($isOn) {
+						$page->removeStatus(Page::statusOn);
+					}
+
+					if ($isHidden) {
+						$page->removeStatus(Page::statusHidden);
+					}
+
+					if (!$isUnpublished) {
+						$page->addStatus(Page::statusUnpublished);
+					}
+				} elseif (!$isOn) {
+					// no publish change requested, just ensure page is on
+					$page->addStatus(Page::statusOn);
+				}
+			}
+
+			if ($numErrors) {
+				$this->error(sprintf($this->_('Errors in “%s” item %d'), $this->label, $key + 1));
+				$openIDs[$page->id] = $page->id; // force item with error to be open on next request
+			} elseif (isset($openIDs[$page->id])) {
+				unset($openIDs[$page->id]);
+			}
+
+			if ($page->isChanged() && $this->page->id) {
+				$numChanges++;
+			}
+		}
+
+		// TODO: CONFIRM WORKS!
+
+		// ########################################
+		// RUN POST-PROCESSING IF CONTEXT NEEDS IT
+		// @note: @kongondo addition
+		// if context needs to run post-processing after its items have been processed above
+		// e.g., orders need to post-process after their line items have been saved
+		if ($this->isRuntimeContextPostProcessingAfterSave()) {
+			$this->processInputContextPostProcessAfterSave($input);
+		}
+		// ########################################
+
+		// if the sort changed, then tell the PageArray to sort by _pwcommerce_runtime_sort
+		if ($sortChanged) {
+			$this->value->sort('sort');
+			$numChanges++;
+		}
+
+		// if changes occurred, then tell $this->page and the PageArray $value
+		if ($numChanges) {
+			$this->page->trackChange($this->attr('name'));
+			$this->trackChange('value');
+		}
+
+		// if openIDs value changed, update the session variable
+		if ($_openIDs !== $openIDs) {
+			$this->wire('session')->setFor($this, 'openIDs', $openIDs);
+		}
+
+		// if (!empty($newItems)) {
+		// 	$createdPagesIDs = $this->processInputContextCreateNewItems($input);
+		//
+		// }
+
+
+		return $this;
+	}
+
+	private function runVirtualProcessInput(WireInputData $input) {
+		// @note SHOULD BE STRING!
+		$inputfieldName = $this->runtimeContextVirtualProcessInputInputfield[$this->runtimeContext];
+
+		if ($inputfieldName) {
+			// TODO: ADD CHECK HERE IF VIRTUAL VS REAL INPUTFIELD!
+			if (strpos($inputfieldName, 'Virtual') !== false) {
+				$inputfield = $this->getVirtualInputfield($inputfieldName);
+			}
+		}
+		// ==============
+		if ($inputfield) {
+			// RUN VIRTUAL INPUTFIELD PROCESSINPUT!
+			$inputfield->processInput($input);
+		}
+
+		//---------------
+	}
+
+	private function processInputContextCreateNewItems(WireInputData $input) {
+		// $newItems = $input->pwcommerce_is_new_item;
+		// TODO: look into this! seems this comes up empty in situations where we create a product variant and delete it immediately on first save after apply product variants generation.
+		if (empty($this->runtimeContextBuildBlankItemInputfield[$this->runtimeContext])) {
+			return;
+		}
+		$createdPagesIDs = [];
+		$inputfieldName = $this->runtimeContextBuildBlankItemInputfield[$this->runtimeContext];
+		// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+		$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+		//-----------------
+		if ($inputfield) {
+			$createdPagesIDs = $inputfield->processInputCreateNewItems($input);
+		}
+
+		// ========
+		return $createdPagesIDs;
+	}
+
+	private function processInputContextDeleteItems(WireInputData $input) {
+		if (!empty($this->runtimeContextIsDeleteableItems[$this->runtimeContext])) {
+			$inputfieldName = $this->runtimeContextIsDeleteableItems[$this->runtimeContext];
+			$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+			//-----------------
+			if ($inputfield) {
+				$inputfield->processInputDeleteItems($input);
+			}
+		}
+	}
+
+	private function processInputContextAmendExistingItems(WireInputData $input, array $createdPagesIDs = []) {
+
+		// TODO: look into this! with respect to the product variants issue, i.e., seems it comes up empty in situations where we create a product variant and delete it immediately on first save after apply product variants generation.
+		if (empty($this->runtimeContextDynamicallyManageInputfields[$this->runtimeContext])) {
+			return;
+		}
+
+		$inputfieldName = $this->runtimeContextDynamicallyManageInputfields[$this->runtimeContext];
+		// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+		$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+		//-----------------
+		if ($inputfield) {
+			$inputfield->processInputAmendExistingItems($input, $createdPagesIDs);
+		}
+	}
+
+	private function processInputContextPostProcessAfterSave(WireInputData $input) {
+		$inputfieldName = $this->runtimeContextIsPostProcessingAfterSave[$this->runtimeContext];
+		// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
+		$inputfield = $this->getRuntimeContextInputfield($inputfieldName);
+		//-----------------
+		if ($inputfield) {
+
+			$inputfield->processInputPostProcessAfterSave($input, $this->page);
+		}
+	}
+
+	private function isModifyValueForProcessInputNewItems(WireInputData $input) {
+		$value = $this->attr('value');
+		return empty($value->count()) && !empty($input->pwcommerce_is_new_item);
+	}
+
+	private function modifyValueForProcessInputNewItems(WireInputData $input) {
+		$value = $this->attr('value');
+		//---------------
+
+		$newItems = $input->pwcommerce_is_new_item;
+		foreach ($newItems as $temporaryIDAsSuffix) {
+			// $value->add($this->getRuntimeContextBlankItem());
+			$blankItem = $this->getRuntimeContextBlankItem();
+			// @note: above, due to fast processing speed, might all come back with identical IDs!
+			// here, we change the IDs so that we will have unique values in $this->wrappers when populated by this->buildForm()
+			// plus also good to be consistent! and it doesn't work if we don't change the ID anyway!
+			$blankItem->id = (int) $temporaryIDAsSuffix;
+			$value->add($blankItem);
+		}
+		// TODO: MODIFY THIS VALUE USING NEW BLANK ITEMS!
+		//-----------------
+		return $value;
+	}
+
+	// +++++++++++++++++++++++++++++
+
+	// @KONGONDO TODO: AMEND AS REQUIRED FOR PWCOMMERCE VARIANTS
+
+	/**
+	 * Take a form (InputfieldWrapper) and map the data to a Page that has the same fields
+	 *
+	 * TODO potentially convert this to it's own FormToPage class to avoid duplication between this as ProcessPageEdit
+	 *
+	 * @param InputfieldWrapper $wrapper
+	 * @param Page $page
+	 * @param int $level
+	 *
+	 */
+	protected function formToPage(InputfieldWrapper $wrapper, Page $page, $level = 0) {
+
+		// @KONGONDO TODO: AMEND AS REQUIRED FOR PWCOMMERCE VARIANTS
+
+		// @kongondo: seems we need this for some inputfields to be saved; doesn't affect images but does affect inputfieldtext
+		$languages = $this->wire('languages');
+		foreach ($wrapper as $inputfield) {
+			$name = $inputfield->attr('name');
+			// @note: prefix was set in getRuntimeItemInputfields(). for images, it seems the prefix must be _repeater, otherwise images don't upload TODO?
+
+			$name = $this->getOriginalFieldNameMinusSuffix($name);
+
+			if ($name && $inputfield->isChanged()) {
+				if ($languages && $inputfield->getSetting('useLanguages')) {
+					$value = $page->get($name);
+					if (is_object($value)) {
+						// @KONGONDO @NOTE: THIS IS IMPORTANT AS WELL; IT SETS THE NEW VALUE!
+						$value->setFromInputfield($inputfield);
+						$page->set($name, $value);
+					}
+				} else {
+					$value = $inputfield->attr('value');
+					// @KONGONDO @NOTE: THIS IS IMPORTANT AS WELL; IT SETS THE NEW VALUE!
+					$page->set($name, $value);
+				}
+
+				if ($page->isChanged($name)) {
+					// if a 'ready' page was changed, then we may now consider it a regular repeater page
+					if ($page->hasStatus(Page::statusHidden)) {
+						$page->removeStatus(Page::statusHidden);
+					}
+				}
+			}
+
+			if ($inputfield instanceof InputfieldWrapper && count($inputfield->getChildren())) {
+				$this->formToPage($inputfield, $page, $level + 1);
+			}
+		}
+	}
+
+	/**
+	 * Override the default set() to capture the required variables for runtime items.
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * @return Inputfield|InputfieldPWCommerceRuntimeMarkup
+	 *
+	 */
+	public function set($key, $value) {
+		if ($key == 'page') {
+			$this->page = $value;
+		} elseif ($key == 'field') {
+			$this->field = $value;
+		} elseif ($key == 'runtimeContext') {
+			$this->runtimeContext = $value;
+		} elseif ($key == 'runtimeContextPrependContentInputfields') {
+			$this->runtimeContextPrependContentInputfields = $value;
+		} elseif ($key == 'runtimeContextAppendContentInputfields') {
+			$this->runtimeContextAppendContentInputfields = $value;
+		} elseif ($key == 'runtimeContextLimitInputfields') {
+			$this->runtimeContextLimitInputfields = $value;
+		} elseif ($key == 'runtimeContextDynamicallyManageInputfields') {
+			$this->runtimeContextDynamicallyManageInputfields = $value;
+		} elseif ($key == 'runtimeContextBuildBlankItemInputfield') {
+			$this->runtimeContextBuildBlankItemInputfield = $value;
+		} elseif ($key == 'runtimeContextVirtualProcessInputInputfield') {
+			$this->runtimeContextVirtualProcessInputInputfield = $value;
+		} elseif ($key == 'runtimeContextPreloadInlineAssets') {
+			$this->runtimeContextPreloadInlineAssets = $value;
+		} elseif ($key == 'runtimeContextPreloadAssets') {
+			$this->runtimeContextPreloadAssets = $value;
+		} elseif ($key == 'runtimeContextJavaScriptConfigurations') {
+			$this->runtimeContextJavaScriptConfigurations = $value;
+		} elseif ($key == 'runtimeContextIsDeleteableItems') {
+			$this->runtimeContextIsDeleteableItems = $value;
+		} elseif ($key == 'runtimeContextIsPostProcessingAfterSave') {
+			$this->runtimeContextIsPostProcessingAfterSave = $value;
+		} elseif ($key == 'isDynamicallyLoadedContent') {
+			$this->isDynamicallyLoadedContent = $value;
+		} else {
+			return parent::set($key, $value);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return InputfieldWrapper
+	 *
+	 */
+	public function ___getConfigInputfields() {
+		$inputfields = parent::___getConfigInputfields();
+		return $inputfields;
+	}
+}

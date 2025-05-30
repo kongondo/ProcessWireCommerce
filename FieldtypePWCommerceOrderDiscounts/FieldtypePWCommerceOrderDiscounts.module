@@ -1,0 +1,370 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * FieldtypePWCommerceOrderDiscounts for ProcessWire.
+ *
+ * Fieldtype that stores and outputs values of discounts applied to a PWCommerce order.
+ * Stores discounts for both whole order and order line item discounts.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceOrderDiscounts for PWCommerce
+ * Copyright (C) 2023 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceOrderDiscounts extends FieldtypeMulti
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Order Discounts: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'Field that stores PWCommerce order discounts.',
+			# TODO EXPERIMENTING NOT HAVING AN INPUT FIELD
+			// TODO ADD THE 'HOOK' TO HIDE PROGRAMMTICALLY ON FIELD ADDED AND SAVE + CHECK TYPE!
+			# @note: we also hide this in field settings (input > visibility)
+			// 'installs' => 'InputfieldPWCommerceOrderDiscounts',
+		);
+	}
+
+	/**
+	 * We keep a copy of the $page that owns these notes so that we can follow
+	 * its outputFormatting state and change our output per that state
+	 *
+	 */
+	// @for use in InputfieldPWCommerceDiscountsEligibility
+	protected $page;
+
+	# TODO EXPERIMENTING NOT HAVING AN INPUT FIELD
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	// public function getInputfield(Page $page, Field $field) {
+	// 	$inputfield = $this->wire('modules')->get("InputfieldPWCommerceDiscountsEligibility");
+	// 	// our inputfield requires a Page and Field
+	// 	// @note: these two are methods in InputfieldPWCommerceDiscountsEligibility
+	// 	$inputfield->setPage($page);
+	// 	$inputfield->setField($field);
+	// 	return $inputfield;
+	// }
+
+	/**
+	 * Get a blank value of this type, i.e. return a blank WireArray
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireArray
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$wireArray = new WireArray();
+		$wireArray->setTrackChanges(true);
+		return $wireArray;
+	}
+
+	/**
+	 * Get a blank single item value of this type, i.e. return a blank WireData
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankRecord() {
+		return new WireData();
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array $value
+	 * @return string|int|array|object $value
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// TODO WIP
+
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireArray) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$records = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireArray
+		if (empty($value) || !is_array($value)) {
+			return $records;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+		$cnt = 1; // @note: for temporary runtime ID
+
+		// create new WireData objects from each item in the array
+		foreach ($value as $v) {
+
+			$record = $this->getBlankRecord();
+
+			//--------
+			// note we are converting 'data' to 'record->discountCode'
+			// DISCOUNT CODE
+			$code = $sanitizer->text($v['data']);
+			$record->code = $code;
+			// aliases
+			$record->discountCode = $code;
+			$record->discount = $code;
+
+			//--------
+			// DISCOUNT ID
+			// this is the PAGE ID of the DISCOUNT PAGE
+			$record->discountID = (int) $v['discount_id'];
+
+			//--------
+			// DISCOUNT APPLIES TO
+			// this is the category/product/shipping country/all shipping countries/order ID that this discount was applied to
+			// all shipping countries and whole order discounts have ID of '0'
+			// the rest have page IDs of the ORDER LINE ITEM CORRESPONDING TO THE PRODUCT/CATEGORY THAT MADE THE DISCOUNT POSSIBLE
+			// , e.g. "Men's category 9856", 'Some Blazer 1458', etc category/product PAGE IDs WILL NOT BE SAVED BUT WE WILL SAVE THE ORDER LINE ITEM THEY REPRESENT, E.G. 2345
+			// @note: product includes variants!
+			$discountAppliesTo = (int) $v['discount_applies_to'];
+			$record->discountAppliesTo = $discountAppliesTo;
+			// aliases
+			$record->appliesTo = $discountAppliesTo;
+
+			//--------
+			// DISCOUNT VALUE
+			$discountValue = (float) $v['discount_value'];
+			$record->discountValue = $discountValue;
+			// aliases
+			$record->value = $discountValue;
+
+			//--------
+			// DISCOUNT APPLIED AMOUNT
+			// $discountAppliedAmount = (float) $v['discount_applied_amount'];
+			// $record->discountAppliedAmount = $discountAppliedAmount;
+			$discountAmount = (float) $v['discount_amount'];
+			$record->discountAmount = $discountAmount;
+			// aliases
+			$record->amount = $discountAmount;
+
+			// IS DISCOUNT AUTOMATIC?
+			$isAutomaticDiscount = !empty((int) ($v['is_automatic_discount']));
+			$record->isAutomaticDiscount = $isAutomaticDiscount;
+			// aliases
+			$record->isAutomatic = $isAutomaticDiscount;
+
+			//--------
+			// DISCOUNT TYPE
+			$type = $sanitizer->fieldName($v['discount_type']);
+			$record->discountType = $type;
+			// aliases
+			$record->type = $type;
+
+			// ============= RUNTIME VALUES
+			$record->id = $cnt;
+
+			//---------
+			$cnt++;
+
+			//----------------
+			$record->resetTrackChanges();
+
+			$records->add($record); // add to records
+
+		} // end foreach $value as $v
+
+		// tell it to start tracking changes from this point forward
+		$records->resetTrackChanges(); // reset track changes for all records
+
+		return $records;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array|object $value
+	 * @return string|int
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		// TODO WIP
+
+		$sleepValue = [];
+
+		// if we are given something other than an WireArray,
+		// then just return a blank array
+		if (!$value instanceof WireArray) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// convert each record to an array within sleepValue
+		foreach ($value as $record) {
+
+			$discountValue = $record->discountValue;
+			$isPercentageDiscount = $this->pwcommerce->isPercentageDiscount($record->discountType);
+			// @note IF DISCOUNT TYPE IS of type 'percentage' we ensure its value IS NOT > 100
+			if (!empty($isPercentageDiscount) && $discountValue > 100) {
+				// cap percentage discount to 100%
+				$discountValue = 100;
+			}
+
+			// =======
+			// make the eligibility items to sort by record->itemID TODO? ok?
+			$value->sort('itemID');
+			//--------------
+			$sleepValue[] = array(
+				// note: record->discountCode is becoming data which is a required column in a Fieldtype
+				// 'code'
+				'data' => $sanitizer->text($record->code),
+				'discount_id' => (int) $record->discountID,
+				'discount_applies_to' => (int) $record->discountAppliesTo,
+				// 'discount_value' => (float) $record->discountValue,
+				'discount_value' => (float) $discountValue,
+				// 'discount_applied_amount' => (float) $record->discountAppliedAmount,
+				'discount_amount' => (float) $record->discountAmount,
+				'is_automatic_discount' => (int) $record->isAutomaticDiscount,
+				'discount_type' => $sanitizer->fieldName($record->discountType),
+			);
+		}
+		return $sleepValue;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 *
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireArray) {
+			throw new WireException("Value set to field '$field->name' must be a WireArray");
+		}
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO: NOT NEEDED?
+		return $value;
+	}
+
+	/**
+	 * Return the database schema that defines an order discount item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// we reuse this required field/column (data) for item->code
+		$schema['data'] = 'VARCHAR(255) NOT NULL'; // 'code'
+		$schema['discount_id'] = 'INT(10) UNSIGNED NOT NULL';
+		// 0 if 'whole_order' OR 'all_countries', else the ID of the order line item page
+		$schema['discount_applies_to'] = 'INT(10) UNSIGNED NOT NULL';
+		// discount_value (e.g. 2% or 1.35 categories_fixed_per_order (ONCE) or 1.35 	products_fixed_per_item)
+		$schema['discount_value'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		// @note: this is the computed final amount applied
+		// 'discount_amount' is calculated from application of discount_value, i.e. in cash terms (currency)
+		// $schema['discount_applied_amount'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		$schema['discount_amount'] = 'DECIMAL(12,2) UNSIGNED NOT NULL';
+		$schema['is_automatic_discount'] = 'TINYINT(1) UNSIGNED NOT NULL';
+		// either 'discount' OR 'gift_card' OR THE DISCOUNT TYPE FROM THE DISCOUNT ITSELF! I.E. the list in PWCommerceDiscounts::getAllowedDiscountTypes! products_fixed_per_item, free_shipping, etc
+		$schema['discount_type'] = 'CHAR(30) NOT NULL';
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		//--------------
+		// for 'code'
+		$schema['keys']['data'] = 'FULLTEXT KEY data (data)'; // 'code'
+		$schema['keys']['discount_id'] = 'KEY discount_id(discount_id)';
+		$schema['keys']['discount_applies_to'] = 'KEY discount_applies_to(discount_applies_to)';
+		$schema['keys']['discount_value'] = 'KEY discount_value(discount_value)';
+		// $schema['keys']['discount_applied_amount'] = 'KEY discount_applied_amount(discount_applied_amount)';
+		$schema['keys']['discount_amount'] = 'KEY discount_amount(discount_amount)';
+		$schema['keys']['is_automatic_discount'] = 'KEY is_automatic_discount(is_automatic_discount)';
+		$schema['keys']['discount_type'] = 'FULLTEXT KEY discount_type (discount_type)'; // 'products_fixed_per_item', 'whole_order_percentage' ETC
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// match properties/subfields to model subfields/columns
+		// if searching by aliases
+		if (in_array($subfield, ['code', 'discountCode', 'discount'])) {
+			// if searching for 'discount code' using aliases
+			$subfield = 'data';
+		} else if (in_array($subfield, ['discountID'])) {
+			// else if searching for 'discount_id' using aliases
+			$subfield = 'discount_id';
+		} else if (in_array($subfield, ['discountAppliesTo', 'appliesTo', 'applies_to'])) {
+			// else if searching for 'discount_applies_to' using aliases
+			$subfield = 'discount_applies_to';
+		} else if (in_array($subfield, ['discountValue', 'value'])) {
+			// else if searching for 'discount_value' using aliases
+			$subfield = 'discount_value';
+		}
+		// else if (in_array($subfield, ['discountAppliedAmount', 'appliedAmount', 'applied_amount'])) {
+		// 	// else if searching for 'discount_applied_amount' using aliases
+		// 	$subfield = 'discount_applied_amount';
+		// }
+		else if (in_array($subfield, ['discountAmount', 'amount'])) {
+			// else if searching for 'discount_amount' using aliases
+			$subfield = 'discount_amount';
+		} else if (in_array($subfield, ['isAutomaticDiscount', 'isAutomatic', 'is_automatic'])) {
+			// else if searching for 'is_automatic_discount' using aliases
+			$subfield = 'is_automatic_discount';
+		} else if (in_array($subfield, ['discountType', 'type'])) {
+			// else if searching for 'discount_type' using aliases
+			$subfield = 'discount_type';
+		}
+
+		/*- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+																																																																																																																			- the latter allow for finer, fulltext search
+																																																																																																																	*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

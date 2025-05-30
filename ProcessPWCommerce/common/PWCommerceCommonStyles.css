@@ -1,0 +1,274 @@
+/* @todo: bring pwcommerce_no_outline here! */
+
+#main .pwcommerce_no_outline {
+	outline: none;
+}
+
+.pwcommerce_trash {
+	cursor: pointer;
+}
+
+/* @todo: replace with hidden from tw below */
+.pwcommerce_hide {
+	display: none;
+}
+
+/* override processwire large padding top on label.InputfieldHeader & InputfieldContent */
+#main .pwcommerce_override_processwire_inputfield_header_padding_top>.InputfieldHeader,
+#main .pwcommerce_override_processwire_inputfield_content_padding_top>.InputfieldContent {
+	padding-top: 0;
+}
+
+/* override processwire large padding bottom on label.InputfieldHeader & InputfieldContent */
+#main .pwcommerce_override_processwire_inputfield_header_padding_bottom>.InputfieldHeader,
+#main .pwcommerce_override_processwire_inputfield_content_padding_bottom>.InputfieldContent {
+	padding-bottom: 0;
+}
+
+/* override processwire large padding left on label.InputfieldHeader & InputfieldContent */
+#main .pwcommerce_override_processwire_inputfield_header_padding_left>.InputfieldHeader,
+#main .pwcommerce_override_processwire_inputfield_content_padding_left>.InputfieldContent {
+	padding-left: 0;
+}
+
+/*  @note: this one is very specific so cannot combine to above!! */
+li.Inputfield.pwcommerce_gift_card_product_variant_no_child div.InputfieldContent {
+	padding-bottom: 0;
+}
+
+.pwcommerce_light_gray {
+	color: lightslategray;
+}
+
+/* override processwire large marging-top on headings [h4, etc] */
+#main .pwcommerce_override_processwire_heading_margin_top {
+	margin-top: 0;
+}
+
+/* override processwire large marging-bottom on headings, hr [h4, etc] */
+#main .pwcommerce_override_processwire_heading_margin_bottom {
+	margin-bottom: 0;
+}
+
+/* CUSTOM TABS */
+
+#pwcommerce_product_variants_build_tab_wrapper>nav>.active {
+	font-weight: bold;
+}
+
+/* ---------------- */
+
+.htmx-indicator-custom {
+	opacity: 0;
+	transition: opacity 500ms ease-in;
+}
+
+.htmx-request .htmx-indicator-custom {
+	opacity: 1;
+}
+
+.htmx-request.htmx-indicator-custom {
+	opacity: 1;
+}
+
+/* ~~~~~~~~~~~~~~ */
+
+/* for modal buttons */
+/* cannot use .ui-dialog-buttonpane as it throws an error in jquery about initiliasition
+here we do what the css for the style would do
+from uikit.pw.css
+*/
+.pwcommerce-custom-ui-dialog-buttonpane {
+	background: #f0f3f7;
+	border: none;
+	padding: 1px 8px 1px 8px;
+	text-align: left;
+	margin-top: 0.5em;
+}
+
+.ui-dialog .pwcommerce-custom-ui-dialog-buttonpane button {
+	margin: 0.5em 0.4em 0.5em 0;
+	cursor: pointer;
+}
+
+/* ~~~~~~~~~~~~~~~ */
+/* FOR RUNTIME MARKUP */
+/* add new links */
+
+#main div.pwcommerce_add_new_wrapper {
+	margin-top: 20px;
+}
+
+/* mark trashabled items for deletion (e.g. tax rates) */
+li.InputfieldWrapper.pwcommerce_selected_for_deletion>ul li label {
+	color: #bc283d;
+	text-decoration: line-through;
+}
+
+/* mark their .fa-trash as well */
+li.pwcommerce_selected_for_deletion .fa-trash {
+	color: #bc283d;
+}
+
+/* ~~~~~~~~~~~~~~ */
+
+/* GENERATE VARIANTS PREVIEW */
+/* custom labels */
+#pwcommerce_product_generated_variants_preview_wrapper .InputfieldHeader {
+	padding-top: 0;
+	padding-bottom: 3px;
+	/* to align with input's left edge */
+	padding-left: 0;
+}
+
+/* ~~~~~~~~~~~~~~ */
+
+/* ACCORDION */
+
+.rotate {
+	-moz-transition: all 0.3s linear;
+	-webkit-transition: all 0.3s linear;
+	transition: all 0.3s linear;
+}
+
+.rotate.down {
+	-moz-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
+	transform: rotate(90deg);
+}
+
+/* ~~~~~~~~~~~~~~ */
+
+/* MODAL */
+
+.modal {
+	/* This way it could be display flex or grid or whatever also. */
+	display: block;
+
+	/* Probably need media queries here */
+	/* width: 600px; */
+	/* width: 98vw; */
+	max-width: 100%;
+	/* height: 400px; */
+	/* max-height: 100%; */
+	position: fixed;
+	z-index: 100;
+	left: 50%;
+	top: 50%;
+	/* Use this for centering if unknown width/height */
+	transform: translate(-50%, -50%);
+
+	/* If known, negative margins are probably better (less chance of blurry text). */
+	/* margin: -200px 0 0 -200px; */
+}
+
+/* MODAL OVERLAY */
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 50;
+
+	background: rgba(0, 0, 0, 0.6);
+}
+
+/* @TODO: REVISIT BELOW STYLES, ESPECIALLY THE HEIGHTS! */
+/* @kongondo */
+
+/* 25 x-small
+
+  40 - small
+
+  55 - regular
+
+  70 - large
+
+  85 x-large
+
+  100 full */
+/* #modal-body-wrapper { */
+/* max-height: 80vh; */
+/* max-height: 98vh; */
+/* width: 98vw; */
+/* height: 24rem; */
+/* } */
+
+/*x- small modal */
+#modal-body-wrapper.pwcommerce-modal-x-small {
+	max-height: 21vh;
+	width: 25vw;
+}
+
+/*small modal */
+#modal-body-wrapper.pwcommerce-modal-small {
+	max-height: 25vh;
+	width: 29vw;
+}
+
+/* medium modal */
+#modal-body-wrapper.pwcommerce-modal-medium {
+	max-height: 29vh;
+	width: 33vw;
+}
+
+/* large modal */
+#modal-body-wrapper.pwcommerce-modal-large {
+	max-height: 33vh;
+	width: 37vw;
+}
+
+/* x-large modal */
+#modal-body-wrapper.pwcommerce-modal-x-large {
+	max-height: 37vh;
+	width: 41vw;
+}
+
+/* 2-xlarge modal */
+#modal-body-wrapper.pwcommerce-modal-2x-large {
+	max-height: 41vh;
+	width: 47vw;
+}
+
+/* 3-xlarge modal */
+#modal-body-wrapper.pwcommerce-modal-3x-large {
+	max-height: 47vh;
+	width: 53vw;
+}
+
+/* 4-xlarge modal */
+#modal-body-wrapper.pwcommerce-modal-4x-large {
+	max-height: 53vh;
+	width: 61vw;
+}
+
+/* 5-xlarge modal */
+#modal-body-wrapper.pwcommerce-modal-5x-large {
+	max-height: 61vh;
+	width: 69vw;
+}
+
+/* 6-xlarge modal */
+#modal-body-wrapper.pwcommerce-modal-6x-large {
+	max-height: 69vh;
+	width: 77vw;
+}
+
+/* 7-xlarge modal */
+#modal-body-wrapper.pwcommerce-modal-7x-large {
+	max-height: 77vh;
+	width: 85vw;
+}
+
+/* full modal */
+#modal-body-wrapper.pwcommerce-modal-full {
+	/* @TODO: NOT WORKING PROPERLY; NOT SAT OK! */
+	max-height: 95vh;
+	width: 98vw;
+}
+
+/* overrides to pw */
+#modal-body-wrapper.ui-dialog {
+	position: relative;
+}

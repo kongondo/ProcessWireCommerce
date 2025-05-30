@@ -1,0 +1,32 @@
+li.Inputfield.pwcommerce_tax_override_delete {
+	position: relative;
+}
+
+/* @TODO: NEED TO RESET/REMOVE VALUES ON SMALLEST SCREENS! */
+li.Inputfield.pwcommerce_tax_override_delete div.InputfieldContent {
+	position: absolute;
+	top: 60%;
+	/*@TODO: REVISIT*/
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+div.pwcommerce_tax_override_row_wrapper {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+div.pwcommerce_tax_override_row_wrapper:not(:last-child) {
+	/* @todo: remove border-bottom from last child */
+	border-bottom: 1px solid #d9e1ea;
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.pwcommerce_trash {
+	cursor: pointer;
+}
+
+.pwcommerce_hide {
+	display: none;
+}

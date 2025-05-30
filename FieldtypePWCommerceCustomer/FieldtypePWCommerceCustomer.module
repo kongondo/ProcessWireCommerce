@@ -1,0 +1,260 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceCustomer
+ *
+ * Fieldtype that stores and outputs the basic values of a PWCommerce customer.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceCustomer for PWCommerce
+ * Copyright (C) 2024 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceCustomer extends Fieldtype
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Customer: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce customer values.',
+			'installs' => 'InputfieldPWCommerceCustomer',
+		);
+	}
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type.
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceCustomer");
+		// our inputfield requires a Page and Field
+		// @note: easier to set this way than using set() since we will then have to check keys
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceProductSettings
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceProductSettings
+		// $inputfield->set('page', $page);
+		// $inputfield->set('field', $field);
+		return $inputfield;
+	}
+
+	/**
+	 * Return a blank ready-to-populate version of a field of this type.
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$record = new WireData();
+		$record->setTrackChanges(true);
+		return $record;
+	}
+
+	/**
+	 * Set the config option fields for this Field.
+	 *
+	 * These appear in the 'Details' Tab when editing an instance of this Field.
+	 *
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on.
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireData, throw an error
+		if (!$value instanceof WireData) {
+			throw new WireException("Value set to field '$field->name' must be a WireData");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+		// if for some reason we already got a valid value, then just return it
+		if ($value instanceof WireData) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$record = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return getBlankValue
+		if (empty($value) || !is_array($value)) {
+
+			return $record;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// CUSTOMER MAIN DETAILS
+
+		// first name
+		// note: record->firstName is becoming data which is a required column in a Fieldtype
+		$record->firstName = $sanitizer->text($value['data']);
+		// middle name(s)
+		$record->middleName = $sanitizer->text($value['middle_name']);
+		// last name
+		$record->lastName = $sanitizer->text($value['last_name']);
+		// email
+		$record->email = $sanitizer->email($value['email']);
+		// tax exempt
+		$record->isTaxExempt = (int) $value['is_tax_exempt'];
+
+		// OTHER DATA
+		// user_id logged for automatic orders if logged in
+		$record->userID = (int) $value['user_id'];
+
+		//-------------------
+
+
+		$record->setTrackChanges(true); // track changes for the product record TODO? reset instead?
+
+		return $record;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than a WireData,
+		// then just return a blank array
+		if (!$value instanceof WireData) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// convert records to an array within sleepValue
+		$sleepValue = [
+			// note: record->firstName is becoming data which is a required column in a Fieldtype
+			'data' => $sanitizer->text($value->firstName),
+			'middle_name' => $sanitizer->text($value->middleName),
+			'last_name' => $sanitizer->text($value->lastName),
+			'email' => $sanitizer->text($value->email),
+			'is_tax_exempt' => (int) $value->isTaxExempt,
+
+			// OTHER DATA
+			'user_id' => (int) $value->userID,
+		];
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Return the database schema that defines a Customer item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+		$schema = parent::getDatabaseSchema($field);
+
+		// MAIN DETAILS
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our // 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->firstName' field (column in db)
+		$schema['data'] = 'VARCHAR(250) NOT NULL'; // 'first_name'
+		$schema['middle_name'] = 'VARCHAR(250)';
+		$schema['last_name'] = 'VARCHAR(250) NOT NULL';
+		$schema['email'] = 'VARCHAR(250) NOT NULL';
+		// TODO: not null?
+		$schema['is_tax_exempt'] = 'TINYINT(1) UNSIGNED NOT NULL';
+
+		// OTHER DATA
+		$schema['user_id'] = 'INT UNSIGNED';
+
+		//----------------------------
+		// ~~~ INDEXES ~~~
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		// MAIN DETAILS
+		$schema['keys']['data'] = 'FULLTEXT data (data)'; // for 'first_name'
+		$schema['keys']['middle_name'] = 'FULLTEXT KEY middle_name (middle_name)';
+		$schema['keys']['last_name'] = 'FULLTEXT KEY last_name (last_name)';
+		$schema['keys']['email'] = 'FULLTEXT KEY email (email)';
+		$schema['keys']['is_tax_exempt'] = 'KEY is_tax_exempt(is_tax_exempt)';
+
+		// OTHER DATA
+		$schema['keys']['user_id'] = 'KEY user_id(user_id)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// match properties/subfields to model subfields/columns
+		if (in_array($subfield, ['firstName', 'first_name'])) {
+			$subfield = 'data';
+		} else if (in_array($subfield, ['middleName'])) {
+			$subfield = 'middle_name';
+		} else if (in_array($subfield, ['lastName'])) {
+			$subfield = 'last_name';
+		} else if (in_array($subfield, ['isTaxExempt'])) {
+			$subfield = 'is_tax_exempt';
+		} else if (in_array($subfield, ['userID'])) {
+			$subfield = 'user_id';
+		}
+		//---------
+
+		/*
+																								- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+																								- the latter allow for finer, fulltext search
+																								*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

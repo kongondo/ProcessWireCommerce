@@ -1,0 +1,310 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: Module that implements PWCommerce API.
+ *
+ * API to retrieve and manipulate PWCommerce.
+ * Mainly for frontend use.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * PWCommerce Class for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+// =========
+// IMPORT TRAITS FILES
+$traitsFiles = [
+	// THIS WILL LOAD OTHER FIRST CITIZEN TRAIT CLASSES
+	// @SEE: 'traits\pwcommerce\TraitPWCommerce.php'
+	'pwcommerce/TraitPWCommerce'
+];
+
+foreach ($traitsFiles as $traitFileName) {
+	require_once __DIR__ . "/../traits/{$traitFileName}.php";
+}
+
+
+// getting fatal errors here with get() even on load ProcessPWCommerce in the backend or other ProcessWire pages, templates, fields, etc
+// I think issue with it being a variable in WireData?
+// extending Wire seems to solve the issue
+// class PWCommerce extends WireData implements Module {
+class PwCommerce extends Wire implements Module
+{
+
+	// =============
+	// TRAITS
+
+
+	use TraitPWCommerce;
+
+
+	public static function getModuleInfo()
+	{
+		return [
+			'title' => __('ProcessWire Commerce', __FILE__),
+			'summary' => __('API for PWCommerce (ProcessWire ecommerce module)', __FILE__),
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'icon' => 'cogs',
+			'singular' => true,
+			// TODO???
+			'autoload' => true,
+			'requires' => [
+				'ProcessPWCommerce>=0.0.1',
+				'PHP>=8.2.0',
+				'ProcessWire>=3.0.200'
+			],
+		];
+	}
+
+
+
+	// // -----------
+	// // TODO THESE TWO NEED REVISTING TO ASSESS NEED!
+	private $outOfStock;
+	private $productNotFound;
+	private $session_id;
+
+	public function init()
+	{
+		// create a global $pwcommerce variable
+		$this->wire('pwcommerce', $this);
+
+		# ****************************************************
+		# INCLUDE CLASSES NEEDED IN THE FRONTEND AND THE API
+		# ****************************************************
+		// ------------------
+		// LOAD ADDONS INTERFACE CLASS
+		// will be required by addons (core and third-party) as they need to implement Addons Interface!
+		$this->loadPWCommerceClassByName('PWCommerceAddons');
+		// ------------
+		// GET PWCommercePayment ABSTRACT CLASS
+		// NOTE: METHOD isInAdmin() IS IN 'traits\utilities\TraitPWCommerceUtilitiesRuntimeChecks.php'
+		if (empty($this->isInAdmin())) {
+			// >>>>>>>>>> INCLUDE CLASSES NEEDED IN THE FRONTEND <<<<<<<<<<
+			$this->loadPWCommerceClassByName('PWCommercePayment');
+			// ====================
+		}
+
+		// ==========
+
+		# ****************************************************
+		# URL HOOKS
+		# NOTE:  @see: https://processwire.com/blog/posts/pw-3.0.173/
+		# HOOK: add, remove, update, d [download], etc
+		# ****************************************************
+
+		// 'pwcommerce' url hooks
+		$this->addHook("/pwcommerce/(add|ajaxViewCart|remove|updateCart|d)/", $this, 'runPWCommerce');
+		#########
+		// 'payment' url hooks
+		# @note: for PayPal, WE USE: Checkout-PHP-SDK
+		# @see: https://github.com/paypal/Checkout-PHP-SDK
+		// TODO ADD WEBHOOK SEGMENT HERE! FOR PAYMENT GATEWAYS SUCH AS MOLLIE
+		// NOTE TraitPWCommercePayment::runPWCommercePayment
+		// $this->addHook("/payment/(create|capture|webhook)/", $this, 'runPWCommercePayment');
+		// $this->addHook("/payment/(create|capture|webhook/{provider})/", $this, 'runPWCommercePayment');// TODO WORKS TOO
+		// $this->addHook("/payment/(create|capture|webhook/.*)/", $this, 'runPWCommercePayment');
+		$this->addHook("/payment/(create|capture)/", $this, 'runPWCommercePayment');
+		# WEBHOOKS
+		// $this->addHook("/payment/webhook/{provider}/", $this, 'runPWCommercePayment');
+		// $this->addHook("/payment/webhook/({provider})/", $this, 'runPWCommercePayment');
+		// $this->addHook("/payment/webhook-{provider}/", $this, 'handlePWCommerceWebhook');
+		$this->addHook("/pwcommerce/webhook-{provider}/", $this, 'handlePWCommerceWebhook');
+
+		//============================
+
+		# ****************************************************
+		# OTHER HOOKS
+		# ****************************************************
+
+		// TODO DELETE IF NOT IN USE
+		$this->session->addHookAfter('login', $this, 'hookUpdateSessionId');
+		// ----------------
+
+		# ****************************************************
+		# OTHER VARIABLES
+		# ****************************************************
+		// TODO DELETE IF NOT IN USE
+		$this->outOfStock = $this->_("Unfortunately product is out of stock");
+		$this->productNotFound = $this->_("Product not found");
+
+		$this->session_id = session_id();
+
+		// This is a bit bore, but workaround for trashed hook going on twice for some reason
+		unset($_SESSION['alreadyTrashed']);
+
+		#################################
+
+		# ****************************************************
+		#INIT TRAITS 'INIT' METHODS IF APPLICABLE
+		# pseudo __constructor()s
+		# ****************************************************
+		$this->initPWCommerceTraits();
+	}
+
+
+	public function ready()
+	{
+		$requiredClasses = [];
+		if ($this->wire("page")->name === 'shop') {
+			$urlSegment1 = $this->wire('input')->urlSegment1;
+			# ***********************************************************
+			# WE NEED THESE CLASSES FOR PWCOMMERCE ORDERS, PAYMENT PROVIDERS & GIFT CARDS
+			# IN SHOP ADMIN
+			# USUALLY WE ONLY LOAD THEM IF NOT IN THE ADMIN
+			# ***********************************************************
+			if ($urlSegment1 === 'payment-providers') {
+				// PAYMENT PROVIDERS (edit)
+				$requiredClasses = ['PWCommercePayment'];
+			} else if (in_array($urlSegment1, ['gift-cards', 'customers'])) {
+				// GIFT CARDS & CUSTOMERS
+				// we need this so we can use 'getPadTemplate()'
+				// $requiredClasses = ['PWCommerceCartRender'];
+			}
+			// ------------
+			// LOAD REQUIRED CLASSES
+			if (!empty($requiredClasses)) {
+				foreach ($requiredClasses as $requiredClass) {
+					$this->loadPWCommerceClassByName($requiredClass);
+				}
+			}
+		}
+	}
+
+
+	###########################################################
+
+	// TODO WHAT DOES THIS DO? IT IS CALLED IN init() ->     $this->pages->addHookAfter('saveReady', $this, 'hookUpdateSessionId');
+
+	public function hookUpdateSessionId($event)
+	{
+
+		// $session->login returns null if login wasn't success
+		if (is_null($event->return))
+			return;
+		$old_session = $this->session_id;
+		$new_session = session_id();
+		// ====================
+		// TODO: sometimes getting error here about $cart being null
+		// if ($cart) {
+		$this->updateSession($old_session, $new_session);
+		// }
+	}
+
+	// ~~~~~~~~~~~~~~~~~
+
+	public function runPWCommerce($event)
+	{
+
+		$action = $event->arguments(1);
+		switch ($action) {
+
+			// case 'pwcommerce/add/':
+			case 'add':
+				$this->_prepareAdd();
+				// return $this->_prepareAdd();
+				break;
+			// case 'pwcommerce/remove/':
+			case 'remove':
+				$this->_prepareRemove();
+				break;
+
+			// case 'pwcommerce/updateCart/':
+			case 'updateCart':
+				$this->_prepareUpdateCart();
+				break;
+
+			// NOTE: WE USE URL HOOKS
+			case 'd':
+				$this->_download();
+		}
+	}
+
+
+	// ~~~~~~~~~~~~~~~~
+
+
+	private function _redirect($redirect, $params)
+	{
+		// TODO REVISIT THIS TO HANDLE ERRORS BETTER! since $params is sometimes errors!
+
+		// If using ajax, we return HTML or JSON
+		if ($this->config->ajax) {
+			// NOTE: HTMX REQUEST
+			if (!empty($_SERVER['HTTP_HX_REQUEST'])) {
+				// HTML response for htmx
+
+				// TODO NEED TO REVISIT! NEED TO CATCH ERRORS BUT ALSO NEED TO KNOW IF/WHEN TO OUPUT FOR HTMX IN A BETTER WAY!
+				$totalQty = !empty($params['totalQty']) ? $params['totalQty'] : 0;
+				$numberOfTitles = !empty($params['numberOfTitles']) ? $params['numberOfTitles'] : 0;
+				$totalAmount = !empty($params['totalAmount']) ? $params['totalAmount'] : 0;
+				// @note: for htmx response markup, we always use hx-swap-oob='true'
+				// this will allow developers to place their markup independently anywhere they want for the three pieces of information we are sending back (titles, quantity and amount [price])
+				// @note: we don't presume hence don't send strings to accompany above three pieces of information.
+				// i.e., we don't send back the string 'quantity' itself
+				$out =
+					"<span id='numberOfTitles' class='pwcommerce_cart' hx-swap-oob='true'>{$numberOfTitles}</span>" .
+					"<span id='totalQty' class='pwcommerce_cart' hx-swap-oob='true'>{$totalQty}</span>" .
+					"<span id='totalAmount' class='pwcommerce_cart' hx-swap-oob='true'>{$totalAmount}</span>";
+				echo $out;
+			} else {
+				// JSON response
+				header('Content-Type: application/json');
+				echo json_encode($params);
+			}
+			exit();
+		}
+
+		if (is_numeric($redirect)) {
+			$redirectPage = $this->pages->get($redirect);
+			if ($redirectPage->id)
+				$redirect = $redirectPage->httpUrl;
+		}
+
+		$query = http_build_query($params);
+
+		if (!empty($redirect)) {
+			$this->session->redirect($redirect . "?" . $query);
+		}
+
+	}
+
+	# >>>>>>>>>>>>>>>>>>>>>>>>>> IMPORT <<<<<<<<<<<<<<<<<<<<<<<
+
+	public function import(array $items, string $importType, $options = [])
+	{
+		# error: no items
+		if (empty($items)) {
+			throw new WireException("Import items not specified!");
+		}
+		# error: no type
+		if (empty($importType)) {
+			throw new WireException("Import type not specified!");
+		}
+		// ====================
+		// GOOD TO GO
+		// GET IMPORT CLASS
+		$pwcommerceImport = $this->getPWCommerceClassByName('PWCommerceImport', $options);
+		// -----
+		$result = $pwcommerceImport->import($items, $importType);
+		// --------
+		return $result;
+	}
+
+	protected function test()
+	{
+		return time();
+	}
+
+
+
+}

@@ -1,0 +1,948 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceOrderCustomer
+ *
+ * Inputfield for FieldtypePWCommerceOrderCustomer, the field that stores and outputs values of a PWCommerce order customer.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceOrderCustomer for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceOrderCustomer extends Inputfield
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Order Customer: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce order customer values.',
+			'requires' => 'FieldtypePWCommerceOrderCustomer',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for order customer
+	 *
+	 */
+	public function ___render() {
+
+		$buildFormWrapper = $this->buildForm();
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		// @note: we use classes for shared styles but unique ID for htmx here since this field will be used multiple times on the same page since shipping zones can have multiple rates.
+		$out =
+			"<div id='pwcommerce_shipping_rate_wrapper{$this->page->id}' class='pwcommerce_shipping_rates_wrapper'>" . $buildFormWrapper->render() . "</div>";
+		// TODO: THIS SHOULD BE IN RUNTIMEMARKUP OF SHIPPING ZONE! THIS IS BECAUSE EACH IS A CHILD! AND WITH SINGLE RATE FIELD
+		// "<div id='pwcommerce_shipping_rate_add_new_wrapper{$this->page->id}' class='pwcommerce_shipping_rate_add_new_wrapper'>" . $this->renderFooter() . "</div>";
+
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$this->preloadInputfieldAssets();
+		// $scripts = $this->config->js($this->id, $options);
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	private function preloadInputfieldAssets() {
+		// TODO: DELETE WHEN DONE IF NOT IN USE
+	}
+
+	/**
+	 * Build the form for order customer inputs.
+	 *
+	 * @access private
+	 * @return InputfieldWrapper $wrapper The inputfield wrapper with the form objects.
+	 */
+	private function buildForm() {
+
+		// GET WRAPPER FOR ALL INPUTFIELDS HERE
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+		// MAIN DETAILS
+		$wrapper = $this->buildFormCustomerMainDetails($wrapper);
+
+		//~~~~~~~~~~~~~~
+
+		// SHIPPING/PRIMARY ADRESS
+
+		$shippingAddressHeadlineAndCopyFrom =
+			'<h4 class="pwcommerce_order_customer my-1">' . $this->_('Shipping Address') . '</h4>';
+		// add 'copy from main name' link
+		$shippingAddressHeadlineAndCopyFrom .= "<a id='pwcommerce_customer_copy_shipping_names_from_main_names' class='mt-5 block'>" . $this->_('Copy shipping names from above customer names') . "</a>";
+
+		//------------------- shipping address header (InputfieldMarkup)
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $shippingAddressHeadlineAndCopyFrom,
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper->add($field);
+		//~~~~~~~~~~~~~~
+
+		$wrapper = $this->buildFormCustomerShippingAddress($wrapper);
+
+		//~~~~~~~~~~~~~~
+
+		// BILLING ADDRESS
+
+		//------------------- billing address header (InputfieldMarkup)
+		$options = [
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => '<h4 class="pwcommerce_order_customer my-1">' . $this->_('Billing Address') . '</h4>',
+		];
+
+		$field = $this->pwcommerce->getInputfieldMarkup($options);
+		$wrapper->add($field);
+		//~~~~~~~~~~~~~~
+		$wrapper = $this->buildFormCustomerBillingAddress($wrapper);
+
+		//----------------------
+
+		return $wrapper;
+	}
+
+	private function buildFormCustomerMainDetails(InputfieldWrapper $wrapper) {
+
+		/** @var WireData $value */
+		$value = $this->attr('value');
+		$columnWidth = 50;
+
+		//------------------- first_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_first_name",
+			'name' => "pwcommerce_order_customer_first_name",
+			'required' => true,
+			'label' => $this->_('First Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->firstName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->firstName)) {
+			$field->error($this->_('First name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- middle_names (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_middle_name",
+			'name' => "pwcommerce_order_customer_middle_name",
+			'label' => $this->_('Middle Name(s)'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->middleName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- last_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_last_name",
+			'name' => "pwcommerce_order_customer_last_name",
+			'required' => true,
+			'label' => $this->_('Last Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->lastName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->lastName)) {
+			$field->error($this->_('Last name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- email (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_email",
+			'name' => "pwcommerce_order_customer_email",
+			'type' => 'email',
+			'required' => true,
+			'label' => $this->_('Email'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->email,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->email)) {
+			$field->error($this->_('An email  is required'));
+		}
+
+		$wrapper->add($field);
+
+		//------------------- is_tax_exempt (getInputfieldCheckbox)
+		// TODO use label2 here as well?
+
+		$notes = $this->_("If checked, this customer will not be charged taxes on this purchase.");
+
+		$options = [
+			'id' => "pwcommerce_order_customer_is_tax_exempt",
+			'name' => "pwcommerce_order_customer_is_tax_exempt",
+			// 'label' => $this->_('Customer is tax exempt'),
+			'label' => ' ',
+			// @note: empty string just to hide label but keeping label2
+			'label2' => $this->_('Customer is tax exempt'),
+			// TODO: make dynamic for product vs variants
+			'notes' => $notes,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'checked' => empty($value->isTaxExempt) ? false : true,
+			// 'value' => 1
+		];
+
+		$field = $this->pwcommerce->getInputfieldCheckbox($options);
+		$field->attr([
+			// TODO: DELETE IF NOT IN USE
+			// 'x-data' => 'InputfieldPWCommerceOrderData',
+			'x-on:change' => 'handleOrderCustomerTaxExemptChange',
+		]);
+		$wrapper->add($field);
+
+		return $wrapper;
+	}
+
+	private function buildFormCustomerShippingAddress(InputfieldWrapper $wrapper) {
+		/** @var WireData $value */
+		$value = $this->attr('value');
+		$columnWidth = 50;
+
+		//------------------- shipping address first_name (getInputfieldText) [required]
+		// TODO - IN FUTURE CREATE A 'COPY FROM NAME ABOVE' OR SIMILAR!
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_first_name",
+			'name' => "pwcommerce_order_customer_shipping_address_first_name",
+			'required' => true,
+			'label' => $this->_('First Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_manual_order',
+			'value' => $value->shippingAddressFirstName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->shippingAddressFirstName)) {
+			$field->error($this->_('Shipping address first name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- shipping address middle_names (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_middle_name",
+			'name' => "pwcommerce_order_customer_shipping_address_middle_name",
+			'label' => $this->_('Middle Name(s)'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_manual_order',
+			'value' => $value->shippingAddressMiddleName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- shipping address last_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_last_name",
+			'name' => "pwcommerce_order_customer_shipping_address_last_name",
+			'required' => true,
+			'label' => $this->_('Last Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_manual_order',
+			'value' => $value->shippingAddressLastName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->shippingAddressLastName)) {
+			$field->error($this->_('Shipping address last name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- shipping address phone (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_phone",
+			'name' => "pwcommerce_order_customer_shipping_address_phone",
+			'label' => $this->_('Phone'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_manual_order',
+			'value' => $value->shippingAddressPhone,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- shipping address company (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_company",
+			'name' => "pwcommerce_order_customer_shipping_address_company",
+			'label' => $this->_('Company'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->shippingAddressCompany,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- shipping address line one (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_line_one",
+			'name' => "pwcommerce_order_customer_shipping_address_line_one",
+			'required' => true,
+			'label' => $this->_('Address'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->shippingAddressLineOne,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->shippingAddressLineOne)) {
+			$field->error($this->_('Shipping address is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- shipping address line two (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_line_two",
+			'name' => "pwcommerce_order_customer_shipping_address_line_two",
+			// 'label' => $this->_('Address continued (optional)'),
+			'label' => $this->_('Address Line Two'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->shippingAddressLineTwo,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- shipping address city (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_city",
+			'name' => "pwcommerce_order_customer_shipping_address_city",
+			'required' => true,
+			'label' => $this->_('City'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->shippingAddressCity,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->shippingAddressCity)) {
+			$field->error($this->_('Shipping address city is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- shipping address postal/zip code (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_postal_code",
+			'name' => "pwcommerce_order_customer_shipping_address_postal_code",
+			'required' => true,
+			'label' => $this->_('Postal / Zip Code'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->shippingAddressPostalCode,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (empty($value->shippingAddressPostalCode)) {
+			$field->error($this->_('Shipping address postal code is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- shipping address region (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_shipping_address_region",
+			'name' => "pwcommerce_order_customer_shipping_address_region",
+			// 'label' => $this->_('Region (optional)'),
+			'label' => $this->_('Region'),
+			'notes' => $this->_('State. Province, Territory, etc. Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->shippingAddressRegion,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		// TODO HERE NEED TO REMOVE COUNTRIES NOT IN ANY SHIPPING ZONES! can we add page reference to selector?? owner???
+		//------------------- shipping address country (InputfieldPageAutocomplete)
+		$pagesSelector = "template=pwcommerce-country,limit=50, status<" . Page::statusTrash;
+		// TODO DOESN'T WORK
+		// $pagesSelector = "template=pwcommerce-country,limit=50, pwcommerce_shipping_zone_countries.owner.template=pwcommerce-shipping-zone,status<" . Page::statusTrash;
+
+		$notes = $this->_('Start typing to search.');
+		// TODO: ENSURE THIS!!
+		$notes .= " " . $this->_('Only countries you ship to will be selectable.');
+
+		$optionsPageAutoComplete = [
+			'id' => "pwcommerce_order_customer_shipping_address_country_id",
+			'name' => 'pwcommerce_order_customer_shipping_address_country_id',
+			// @note: InputfieldPageAutocomplete will set [] suffix
+			'required' => true,
+			'pagesSelector' => $pagesSelector,
+			'maxSelectedItems' => 1,
+			'notes' => $notes,
+			'label' => $this->_('Country'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			// @note: shippingAddressCountryID is a runtime value!
+			// instead, we save the real country name for posterity ($value->shippingAddressCountry)
+			'value' => $value->shippingAddressCountryID,
+		];
+
+		$field = $this->pwcommerce->getInputfieldPageAutocomplete($optionsPageAutoComplete);
+		if (empty($value->shippingAddressCountryID)) {
+			$field->error($this->_('Shipping address country is required'));
+		}
+		$wrapper->add($field);
+
+		return $wrapper;
+	}
+	private function buildFormCustomerBillingAddress(InputfieldWrapper $wrapper) {
+		/** @var WireData $value */
+		$value = $this->attr('value');
+		$columnWidth = 50;
+
+		//------------------- use_billing_address (getInputfieldCheckbox)
+		// TODO use label2 here as well?
+
+		$description = $this->_("Check to use a billing address (if different from shipping address).");
+		$notes = $this->_("Used for billing if different from shipping address.");
+
+		$options = [
+			'id' => "pwcommerce_order_customer_use_billing_address",
+			'name' => "pwcommerce_order_customer_use_billing_address",
+			// 'label' => $this->_('Add billing address'),
+			'label' => ' ',
+			// @note: empty string just to hide label but keeping label2
+			'label2' => $this->_('Add billing address'),
+			'description' => $description,
+			'notes' => $notes,
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'checked' => empty($value->useBillingAddress) ? false : true,
+		];
+
+		$field = $this->pwcommerce->getInputfieldCheckbox($options);
+		$wrapper->add($field);
+
+		// TODO: SORT OUT SHOW AND REQUIRED IFS BELOW!
+
+		//------------------- billing address first_name (getInputfieldText) [required IF]
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_first_name",
+			'name' => "pwcommerce_order_customer_billing_address_first_name",
+			'required' => true,
+			'label' => $this->_('First Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressFirstName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (!empty($value->useBillingAddress) && empty($value->billingAddressFirstName)) {
+			$field->error($this->_('Billing address first name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- billing address middle_names (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_middle_name",
+			'name' => "pwcommerce_order_customer_billing_address_middle_name",
+			'label' => $this->_('Middle Name(s)'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressMiddleName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- billing address last_name (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_last_name",
+			'name' => "pwcommerce_order_customer_billing_address_last_name",
+			'required' => true,
+			'label' => $this->_('Last Name'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressLastName,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (!empty($value->useBillingAddress) && empty($value->billingAddressLastName)) {
+			$field->error($this->_('Billing address last name is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- billing address phone (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_phone",
+			'name' => "pwcommerce_order_customer_billing_address_phone",
+			'label' => $this->_('Phone'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressPhone,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- billing address company (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_company",
+			'name' => "pwcommerce_order_customer_billing_address_company",
+			'label' => $this->_('Company'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressCompany,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- billing address line one (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_line_one",
+			'name' => "pwcommerce_order_customer_billing_address_line_one",
+			'required' => true,
+			'label' => $this->_('Address'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressLineOne,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (!empty($value->useBillingAddress) && empty($value->billingAddressLineOne)) {
+			$field->error($this->_('Billing address is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- billing address line two (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_line_two",
+			'name' => "pwcommerce_order_customer_billing_address_line_two",
+			// 'label' => $this->_('Address continued (optional)'),
+			'label' => $this->_('Address Line Two'),
+			'notes' => $this->_('Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressLineTwo,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- billing address city (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_city",
+			'name' => "pwcommerce_order_customer_billing_address_city",
+			'required' => true,
+			'label' => $this->_('City'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressCity,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (!empty($value->useBillingAddress) && empty($value->billingAddressCity)) {
+			$field->error($this->_('Billing address city is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- billing address postal/zip code (getInputfieldText) [required]
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_postal_code",
+			'name' => "pwcommerce_order_customer_billing_address_postal_code",
+			'required' => true,
+			'label' => $this->_('Postal / Zip Code'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressPostalCode,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		if (!empty($value->useBillingAddress) && empty($value->billingAddressPostalCode)) {
+			$field->error($this->_('Billing address postal code is required'));
+		}
+		$wrapper->add($field);
+
+		//------------------- billing address region (getInputfieldText)
+		$options = [
+			'id' => "pwcommerce_order_customer_billing_address_region",
+			'name' => "pwcommerce_order_customer_billing_address_region",
+			// 'label' => $this->_('Region (optional)'),
+			'label' => $this->_('Region'),
+			'notes' => $this->_('State, Province, Territory, etc. Optional'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			'value' => $value->billingAddressRegion,
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- billing address country (InputfieldPageAutocomplete)
+		$pagesSelector = "template=pwcommerce-country,limit=50, status<" . Page::statusTrash;
+
+		$notes = $this->_('Start typing to search.');
+		// TODO: ENSURE THIS!!
+		$notes .= " " . $this->_('Only countries you ship to will be selectable.');
+
+		$optionsPageAutoComplete = [
+			'id' => "pwcommerce_order_customer_billing_address_country_id",
+			'name' => 'pwcommerce_order_customer_billing_address_country_id',
+			// @note: InputfieldPageAutocomplete will set [] suffix
+			'required' => true,
+			'pagesSelector' => $pagesSelector,
+			'maxSelectedItems' => 1,
+			'notes' => $notes,
+			'label' => $this->_('Country'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'show_if' => "pwcommerce_order_customer_use_billing_address=1",
+			// @note: billingAddressCountryID is a runtime value!
+			// instead, we save the real country name for posterity ($value->billingAddressCountry)
+			'value' => $value->billingAddressCountryID,
+		];
+
+		$field = $this->pwcommerce->getInputfieldPageAutocomplete($optionsPageAutoComplete);
+		// TODO: testing required if...not sure it's working or we need to process wrapper errors?
+		$field->requiredIf('pwcommerce_order_customer_use_billing_address=1');
+		if (!empty($value->useBillingAddress) && empty($value->billingAddressCountryID)) {
+			$field->error($this->_('Billing address country is required'));
+		}
+		$wrapper->add($field);
+
+		return $wrapper;
+	}
+
+	// ~~~~~~~~~~~~
+	/**
+	 * Check if required customer form values have been filled.
+	 *
+	 * @access private
+	 * @param WireInputData $input The order customer POST input.
+	 * @return array $errors Empty or populated array if errors found.
+	 *
+	 */
+	public function checkErrors(WireInputData $input) {
+
+		$errors = [];
+
+		$requiredFields = [
+			'pwcommerce_order_customer_first_name' => $this->_('First Name'),
+			'pwcommerce_order_customer_last_name' => $this->_('Last Name'),
+			'pwcommerce_order_customer_email' => $this->_('Email'),
+			'pwcommerce_order_customer_shipping_address_first_name' => $this->_('Shipping Address First Name'),
+			'pwcommerce_order_customer_shipping_address_last_name' => $this->_('Shipping Address Last Name'),
+			'pwcommerce_order_customer_shipping_address_line_one' => $this->_('Address'),
+			'pwcommerce_order_customer_shipping_address_city' => $this->_('City'),
+			'pwcommerce_order_customer_shipping_address_postal_code' => $this->_('Postal / Zip Code'),
+			'pwcommerce_order_customer_shipping_address_country_id' => $this->_('Country'),
+		];
+
+		// if $value->useBillingAddress === 1 or not empty
+		$requiredIfBillingAddressInUse = [
+			'pwcommerce_order_customer_billing_address_first_name' => $this->_('Billing Address First Name'),
+			'pwcommerce_order_customer_billing_address_last_name' => $this->_('Billing Address Last Name'),
+			'pwcommerce_order_customer_billing_address_line_one' => $this->_('Billing Address'),
+			'pwcommerce_order_customer_billing_address_city' => $this->_('Billing Address City'),
+			'pwcommerce_order_customer_billing_address_postal_code' => $this->_('Billing Address Postal / Zip Code'),
+			'pwcommerce_order_customer_billing_address_country_id' => $this->_('Billing Address Country'),
+		];
+
+		$isUseBillingAddress = $input->pwcommerce_order_customer_use_billing_address;
+
+		// check for missing required shipping values
+		foreach ($requiredFields as $inputName => $label) {
+			if (empty($input->get($inputName))) {
+				$errors[] = $label;
+			}
+		}
+
+		// check for missing required billing address values if billing address is in use
+		if (!empty($isUseBillingAddress)) {
+			foreach ($requiredIfBillingAddressInUse as $inputName => $label) {
+				if (empty($input->get($inputName))) {
+					$errors[] = $label;
+				}
+			}
+		}
+
+		// -----------
+		return $errors;
+	}
+
+	public function getRequiredOrderCustomerInputs() {
+		$buildFormWrapper = $this->buildForm();
+
+		// TODO CHECK IF CAN GET REQUIRED INPUTS PROGRAMMATICALLY
+		$requiredFields = $buildFormWrapper->find("required=1");
+
+		// --------
+		$requiredFieldsIDs = [];
+		foreach ($requiredFields as $requiredField) {
+			$requiredFieldsIDs[] = $requiredField->id;
+		}
+
+		// ------
+		return $requiredFieldsIDs;
+	}
+
+	/**
+	 * Process input for the values sent from the shipping rate for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// TODO: IF CUSTOMER EMAIL MATCHES AN EXISTING PROCESSWIRE USER, WE GET THAT ID...JUST USE GETRAW -> ID IN USER TEMPLATE TO CHECK!
+
+		// // check for missing required values
+		// $errors = $this->checkErrors($input);
+		// if (count($errors)) {
+		//     $this->error(sprintf(__("There were errors.  Please fill these missing values: %s."), implode(', ', $errors)));
+
+		//     // abort if errrors
+		//     // @note: this will return the previous saved values. Ideally, need to return the form in submitted state!
+		//     return;
+		// }
+
+		// TODO: IF USING BILLING, THEN BILLING COUNTRY MUST BE ENTERED! + other required values => THROW ERROR BUT RETURN VALUES?!
+
+		// ======
+		// get processed order customer values for saving if needed
+		$orderCustomer = $this->processOrderCustomerForSaving($input);
+
+		// check for missing required values
+		if (!empty($orderCustomer->errors)) {
+			$this->error(sprintf(__("There were errors.  Please fill these missing values: %s."), implode(', ', $orderCustomer->errors)));
+			// abort if errrors
+			// @note: this will return the previous saved values. Ideally, need to return the form in submitted state!
+			return;
+		}
+
+		// ~~~~~~~~
+		// CHECK IF VALUES HAVE CHANGED, HENCE NEED SAVING
+
+		// if the string value of the processed order customer is different from the previous,
+		// then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+		// TODO DELETE WHEN DONE
+		// if ($this->toStringInhouse($orderCustomer) !== $this->toStringInhouse($this->value)) {
+		if (!empty($orderCustomer->isNeedSaving)) {
+			$this->attr('value', $orderCustomer);
+			$this->trackChange('value');
+		}
+	}
+
+	public function processOrderCustomerForSaving(WireInputData $input) {
+
+		$orderCustomer = $this->field->type->getBlankValue($this->page, $this->field);
+		// -------
+		// temporary for error checking
+		$orderCustomer->errors = null;
+
+		// check for missing required values
+		$errors = $this->checkErrors($input);
+		if (count($errors)) {
+			// abort if errrors
+			// @note: this will return the previous saved values. Ideally, need to return the form in submitted state!
+			$orderCustomer->errors = $errors;
+			return $orderCustomer;
+		}
+
+		## GOOD TO GO ##
+
+		//-----------------
+		// PROCESS VALUES
+
+		// $orderCustomer = $this->field->type->getBlankValue($this->page, $this->field);
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// MAIN DETAILS
+		$orderCustomer->firstName = $sanitizer->text($input->pwcommerce_order_customer_first_name);
+		$orderCustomer->middleName = $sanitizer->text($input->pwcommerce_order_customer_middle_name);
+		$orderCustomer->lastName = $sanitizer->text($input->pwcommerce_order_customer_last_name);
+		$orderCustomer->email = $sanitizer->text($input->pwcommerce_order_customer_email);
+		$orderCustomer->isTaxExempt = (int) $input->pwcommerce_order_customer_is_tax_exempt;
+
+		// SHIPPING/PRIMARY ADRESS
+		$orderCustomer->shippingAddressFirstName = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_first_name);
+		$orderCustomer->shippingAddressMiddleName = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_middle_name);
+		$orderCustomer->shippingAddressLastName = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_last_name);
+		$orderCustomer->shippingAddressPhone = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_phone);
+		$orderCustomer->shippingAddressCompany = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_company);
+		$orderCustomer->shippingAddressLineOne = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_line_one);
+		$orderCustomer->shippingAddressLineTwo = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_line_two);
+		$orderCustomer->shippingAddressCity = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_city);
+		$orderCustomer->shippingAddressPostalCode = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_postal_code);
+		$orderCustomer->shippingAddressRegion = $sanitizer->text($input->pwcommerce_order_customer_shipping_address_region);
+		// @note: this is an array so need only first value!
+		// TODO: need first value, then need to get the name of the country using a getRaw()! then set its title here as need permanent order records, not reference ones!
+		$shippingCountryID = (int) $input->pwcommerce_order_customer_shipping_address_country_id[0];
+		if (!empty($shippingCountryID)) {
+			$shippingCountryTitle = $this->wire('pages')->getRaw("id={$shippingCountryID}", 'title');
+			if (!empty($shippingCountryTitle)) {
+				$orderCustomer->shippingAddressCountry = $shippingCountryTitle;
+			}
+		}
+
+		// TODO: SHIPPING COUNTRY MUST BE ENTERED! + other required values => THROW ERROR BUT RETURN VALUES?!
+
+		// BILLING ADDRESS
+		$orderCustomer->useBillingAddress = (int) $input->pwcommerce_order_customer_use_billing_address;
+		$orderCustomer->billingAddressFirstName = $sanitizer->text($input->pwcommerce_order_customer_billing_address_first_name);
+		$orderCustomer->billingAddressMiddleName = $sanitizer->text($input->pwcommerce_order_customer_billing_address_middle_name);
+		$orderCustomer->billingAddressLastName = $sanitizer->text($input->pwcommerce_order_customer_billing_address_last_name);
+		$orderCustomer->billingAddressPhone = $sanitizer->text($input->pwcommerce_order_customer_billing_address_phone);
+		$orderCustomer->billingAddressCompany = $sanitizer->text($input->pwcommerce_order_customer_billing_address_company);
+		$orderCustomer->billingAddressLineOne = $sanitizer->text($input->pwcommerce_order_customer_billing_address_line_one);
+		$orderCustomer->billingAddressLineTwo = $sanitizer->text($input->pwcommerce_order_customer_billing_address_line_two);
+		$orderCustomer->billingAddressCity = $sanitizer->text($input->pwcommerce_order_customer_billing_address_city);
+		$orderCustomer->billingAddressPostalCode = $sanitizer->text($input->pwcommerce_order_customer_billing_address_postal_code);
+		$orderCustomer->billingAddressRegion = $sanitizer->text($input->pwcommerce_order_customer_billing_address_region);
+		// @note: this is an array so need only first value!
+		// TODO: need first value, then need to get the name of the country using a getRaw()! then set its title here as need permanent order records, not reference ones!
+		$billingCountryID = (int) $input->pwcommerce_order_customer_billing_address_country_id[0];
+		if (!empty($billingCountryID)) {
+			$billingCountryTitle = $this->wire('pages')->getRaw("id={$billingCountryID}", 'title');
+			if (!empty($billingCountryTitle)) {
+				$orderCustomer->billingAddressCountry = $billingCountryTitle;
+			}
+		}
+
+		// ----------
+		$orderCustomer->isNeedSaving = false;
+		if ($this->toStringInhouse($orderCustomer) !== $this->toStringInhouse($this->value)) {
+			$orderCustomer->isNeedSaving = true;
+		}
+
+		// -------
+		return $orderCustomer;
+	}
+
+	/**
+	 * Make a string value to represent the shipping fee settings values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($item) {
+		$string = (string) "$item->firstName: $item->middleName: $item->lastName: $item->email: $item->isTaxExempt: $item->shippingAddressFirstName: $item->shippingAddressMiddleName: $item->shippingAddressLastName: $item->shippingAddressPhone: $item->shippingAddressCompany: $item->shippingAddressLineOne: $item->shippingAddressLineTwo: $item->shippingAddressCity: $item->shippingAddressPostalCode: $item->shippingAddressRegion: $item->shippingAddressCountry: $item->useBillingAddress: $item->billingAddressFirstName: $item->billingAddressMiddleName: $item->billingAddressLastName: $item->billingAddressPhone: $item->billingAddressCompany: $item->billingAddressLineOne: $item->billingAddressLineTwo: $item->billingAddressCity: $item->billingAddressPostalCode: $item->billingAddressRegion: $item->billingAddressCountry";
+		return $string;
+	}
+}

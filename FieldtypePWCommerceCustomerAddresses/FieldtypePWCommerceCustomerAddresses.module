@@ -1,0 +1,411 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: FieldtypePWCommerceCustomerAddresses
+ *
+ * Fieldtype that stores and outputs values of a PWCommerce customer addresses.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceCustomerAddresses for PWCommerce
+ * Copyright (C) 2024 by Francis Otieno
+ * MIT License
+ *
+ */
+
+
+
+class FieldtypePWCommerceCustomerAddresses extends FieldtypeMulti
+{
+
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Customer Addresses: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'http://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce customer addresses.',
+			'installs' => 'InputfieldPWCommerceCustomerAddresses',
+		);
+	}
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type.
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceCustomerAddresses");
+		// our inputfield requires a Page and Field
+		// @note: easier to set this way than using set() since we will then have to check keys
+		$inputfield->setPage($page); // this is a method in InputfieldPWCommerceProductSettings
+		$inputfield->setField($field); // this is a method in InputfieldPWCommerceProductSettings
+		// $inputfield->set('page', $page);
+		// $inputfield->set('field', $field);
+		return $inputfield;
+	}
+
+	/**
+	 * Get a blank value of this type, i.e. return a blank WireArray
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireArray
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$wireArray = new WireArray();
+		$wireArray->setTrackChanges(true);
+		return $wireArray;
+	}
+
+	/**
+	 * Get a blank single item value of this type, i.e. return a blank WireData
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankRecord() {
+		return new WireData();
+	}
+
+	/**
+	 * Set the config option fields for this Field.
+	 *
+	 * These appear in the 'Details' Tab when editing an instance of this Field.
+	 *
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on.
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO:???
+		return $value;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 * Implementation is required by Fieldtype modules, as this method is abstract.
+	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireArray) {
+			throw new WireException("Value set to field '$field->name' must be a WireArray");
+		}
+
+		return $value;
+	}
+
+	private function getCountry($countryTitle) {
+		$countryID = 0;
+		if (!empty($countryTitle)) {
+			$countryID = (int) $this->wire('pages')->getRaw("title={$countryTitle}", 'id');
+			// @note: if nothing found will return false; typecasting will hence return 0
+		}
+		return $countryID;
+	}
+
+	private function getAllowedCustomerAddressTypes() {
+		return [
+			// shipping
+			'shipping_primary',
+			'shipping',
+			// billing
+			'billing_primary',
+			'billing'
+		];
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array $value.w
+	 * @access public
+	 * @return string|int|array|object $value.
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireArray) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$records = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireArray
+		if (empty($value) || !is_array($value)) {
+			return $records;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// runtime utility value
+		$cnt = 1;
+		// create new WireData objects from each item in the array
+		foreach ($value as $v) {
+
+			$record = $this->getBlankRecord();
+
+			// runtime utility value
+			$record->addressNumber = $cnt;
+
+			// MAIN DETAILS
+
+			// address ID
+			// note: 'data' is becoming record->id. 'data' is a required column in a Fieldtype
+			$record->id = (int) $v['data'];
+			// first name
+			$record->firstName = $sanitizer->text($v['first_name']);
+			// middle name(s)
+			$record->middleName = $sanitizer->text($v['middle_name']);
+			// last name
+			$record->lastName = $sanitizer->text($v['last_name']);
+
+			// CUSTOMER ADDRESSES
+
+			// first line of address
+			$record->addressLineOne = $sanitizer->text($v['line_one']);
+			// second line of address
+			$record->addressLineTwo = $sanitizer->text($v['line_two']);
+			// city
+			$record->city = $sanitizer->text($v['city']);
+			// region
+			$record->region = $sanitizer->text($v['region']);
+			// postal code / zip
+			$record->postalCode = $sanitizer->text($v['postal_code']);
+			// country
+			$record->country = $sanitizer->text($v['country']);
+			// ~~ country ID [RUNTIME] ~~
+			$record->countryID = $this->getCountry($record->country);
+
+			// phone
+			$record->phone = $sanitizer->text($v['phone']);
+			// company
+			$record->company = $sanitizer->text($v['company']);
+			// address type
+			$record->addressType = $sanitizer->fieldName($v['address_type']);
+
+			// $record->setTrackChanges(true); // track changes for individual record
+			$record->resetTrackChanges();
+			$records->add($record); // add to records
+
+			// -----------
+			$cnt++;
+
+		} // end foreach $value as $v
+		// tell it to start tracking changes from this point forward
+		$records->resetTrackChanges(); // reset track changes for all records
+
+		//-------------------
+
+		// $record->setTrackChanges(true); // track changes for the address item/ record TODO? reset instead?
+
+		return $records;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page.
+	 * @param Field $field.
+	 * @param string|int|array|object $value.
+	 * @access public
+	 * @return array $sleepValue.
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// if we are given something other than an WireArray,
+		// then just return a blank array
+		if (!$value instanceof WireArray) {
+			return $sleepValue;
+		}
+
+		$sanitizer = $this->wire('sanitizer');
+		$allowedCustomerAddressTypes = $this->getAllowedCustomerAddressTypes();
+		$isAlreadyProcessedShippingPrimaryAddress = false;
+		$isAlreadyProcessedBillingPrimaryAddress = false;
+
+		// convert each record to an array within sleepValue
+		foreach ($value as $record) {
+
+			$addressType = $sanitizer->option($record->addressType, $allowedCustomerAddressTypes);
+			if (empty($addressType)) {
+				// if address type omitted, assuming it is a shipping address!
+				// TODO OK TO DEAULT TO SHIPPING ADDRESS?
+				$addressType = 'shipping';
+			}
+
+			// ENFORCE SINGLE USE OF SHIPPING & BILLING PRIMARY ADDRESSES!
+			if ($addressType === PwCommerce::CUSTOMER_SHIPPING_PRIMARY_ADDRESS && !empty($isAlreadyProcessedShippingPrimaryAddress)) {
+				$addressType = 'shipping';
+			} elseif ($addressType === PwCommerce::CUSTOMER_BILLING_PRIMARY_ADDRESS && !empty($isAlreadyProcessedBillingPrimaryAddress)) {
+				$addressType = 'billing';
+			}
+
+			# +++++++++++++++
+
+			$sleepValue[] = [
+				// MAIN DETAILS
+				// address ID
+				// note: record->id is becoming 'data' which is a required column in a Fieldtype
+				'data' => (int) $record->id,
+				'first_name' => $sanitizer->text($record->firstName),
+				'middle_name' => $sanitizer->text($record->middleName),
+				'last_name' => $sanitizer->text($record->lastName),
+				// ADDRESS
+				'line_one' => $sanitizer->text($record->addressLineOne),
+				'line_two' => $sanitizer->text($record->addressLineTwo),
+				'city' => $sanitizer->text($record->city),
+				'region' => $sanitizer->text($record->region),
+				// @note: 'zip code'
+				'postal_code' => $sanitizer->text($record->postalCode),
+				'country' => $sanitizer->text($record->country),
+				'phone' => $sanitizer->text($record->phone),
+				'company' => $sanitizer->text($record->company),
+				'address_type' => $addressType,
+
+
+
+			];
+
+			# +++++++++++++++
+
+			// TRACK ENFORCE SINGLE USE OF SHIPPING & BILLING PRIMARY ADDRESSES!
+			if ($addressType === PwCommerce::CUSTOMER_SHIPPING_PRIMARY_ADDRESS) {
+				$isAlreadyProcessedShippingPrimaryAddress = true;
+			} elseif ($addressType === PwCommerce::CUSTOMER_BILLING_PRIMARY_ADDRESS) {
+				$isAlreadyProcessedBillingPrimaryAddress = true;
+			}
+		}
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Return the database schema that defines an Order Customer item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+		$schema = parent::getDatabaseSchema($field);
+
+		// MAIN DETAILS
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->id' field (column in db)
+		$schema['data'] = 'INT UNSIGNED NOT NULL'; // 'id'
+		$schema['first_name'] = 'VARCHAR(250) NOT NULL';
+		$schema['middle_name'] = 'VARCHAR(250)';
+		$schema['last_name'] = 'VARCHAR(250) NOT NULL';
+
+		// ADDRESS
+		$schema['line_one'] = 'VARCHAR(250)';
+		$schema['line_two'] = 'VARCHAR(250)';
+		$schema['city'] = 'VARCHAR(250)';
+		$schema['region'] = 'VARCHAR(250)';
+		// @note: 'zip code'
+		$schema['postal_code'] = 'VARCHAR(250)';
+		$schema['country'] = 'VARCHAR(250)';
+		// TODO: make sure nullable!
+		// TODO: limit with char or tricky?
+		$schema['phone'] = 'VARCHAR(250)';
+		$schema['company'] = 'VARCHAR(250)';
+		$schema['address_type'] = 'CHAR(20) NOT NULL'; // shipping_primary | shipping | billing_primary | billing
+
+		//----------------------------
+		// ~~~ INDEXES ~~~
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+
+		// MAIN DETAILS
+		$schema['keys']['data'] = 'KEY data (data)';// for 'id'
+		$schema['keys']['first_name'] = 'FULLTEXT first_name (first_name)';
+		$schema['keys']['middle_name'] = 'FULLTEXT KEY middle_name (middle_name)';
+		$schema['keys']['last_name'] = 'FULLTEXT KEY last_name (last_name)';
+
+		// ADDRESS
+		$schema['keys']['line_one'] = 'FULLTEXT KEY line_one (line_one)';
+		$schema['keys']['line_two'] = 'FULLTEXT KEY line_two (line_two)';
+		$schema['keys']['city'] = 'FULLTEXT KEY city (city)';
+		$schema['keys']['region'] = 'FULLTEXT KEY region (region)';
+		$schema['keys']['postal_code'] = 'FULLTEXT KEY postal_code (postal_code)';
+		$schema['keys']['country'] = 'FULLTEXT KEY country (country)';
+		$schema['keys']['phone'] = 'FULLTEXT KEY phone (phone)';
+		$schema['keys']['company'] = 'FULLTEXT KEY company (company)';
+		$schema['keys']['address_type'] = 'FULLTEXT address_type (address_type)';
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// match properties/subfields to model subfields/columns
+		if (in_array($subfield, ['id', 'addressID'])) {
+			$subfield = 'data';
+		} else if (in_array($subfield, ['firstName'])) {
+			$subfield = 'first_name';
+		} else if (in_array($subfield, ['middleName'])) {
+			$subfield = 'middle_name';
+		} else if (in_array($subfield, ['lastName'])) {
+			$subfield = 'last_name';
+		} else if (in_array($subfield, ['addressLineOne', 'address_line_one'])) {
+			$subfield = 'line_one';
+		} else if (in_array($subfield, ['addressLineTwo', 'address_line_two'])) {
+			$subfield = 'line_two';
+		} else if (in_array($subfield, ['addressCity', 'address_city'])) {
+			$subfield = 'city';
+		} else if (in_array($subfield, ['addressRegion', 'address_region'])) {
+			$subfield = 'region';
+		} else if (in_array($subfield, ['addressPostalCode', 'address_postal_code'])) {
+			$subfield = 'postal_code';
+		} else if (in_array($subfield, ['addressCountry', 'address_country'])) {
+			$subfield = 'country';
+		} else if (in_array($subfield, ['addressPhone', 'address_phone'])) {
+			$subfield = 'phone';
+		} else if (in_array($subfield, ['addressCompany', 'address_company'])) {
+			$subfield = 'company';
+		} else if (in_array($subfield, ['addressType', 'type'])) {
+			$subfield = 'address_type';
+		}
+
+		//---------
+
+		/*- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+																																																											 the latter allow for finer, fulltext search	*/
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

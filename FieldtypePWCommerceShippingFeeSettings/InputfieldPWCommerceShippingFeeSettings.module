@@ -1,0 +1,230 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceShippingFeeSettings
+ *
+ * Inputfield for FieldtypePWCommerceShippingFeeSettings, the field that stores and outputs values of a PWCommerce shipping fees settings.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceShippingFeeSettings for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceShippingFeeSettings extends Inputfield
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Product Shipping Fee Settings: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce shipping handling fee and maximum shipping values.',
+			'requires' => 'FieldtypePWCommerceShippingFeeSettings',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+	// -----
+	private $shopCurrencySymbolString = "";
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for product properties
+	 *
+	 */
+	public function ___render() {
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		$out = "<div id='pwcommerce_shipping_fee_settings_wrapper'>" . $this->buildForm() . "</div>";
+
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		// if currency locale set..
+		// grab symbol; we use on price fields description
+		$shopCurrencySymbolString = $this->pwcommerce->renderShopCurrencySymbolString();
+		if (strlen($shopCurrencySymbolString)) {
+			$this->shopCurrencySymbolString = " " . $shopCurrencySymbolString;
+		}
+		// -------------
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	private function buildForm() {
+
+		/** @var WireData $value */
+		$value = $this->attr('value');
+
+		// GET WRAPPER FOR ALL INPUTFIELDS HERE
+		$wrapper = $this->pwcommerce->getInputfieldWrapper();
+		// TODO: A BIT FUNNY WITH SHOWIF HERE SINCE HANDLING TYPE SELECT BELOW WILL EXPAND TO FILL GAP IF NO HANDLING FEE IN USE!
+		$columnWidth = 33;
+
+		//------------------- maximum_shipping_fee (InputfieldText)
+		$description = $this->_('Maximum shipping fee to apply on orders');
+		// append currency symbol string if available
+		$description .= $this->shopCurrencySymbolString . '.';
+
+		$options = [
+			'id' => "pwcommerce_shipping_fee_settings_maximum_shipping_fee",
+			'name' => "pwcommerce_shipping_fee_settings_maximum_shipping_fee",
+			'type' => 'number',
+			'step' => '0.01',
+			'min' => 0,
+			'label' => $this->_('Maximum Shipping Fee'),
+			'description' => $description,
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			// 'value' => $value->maximumShippingFee,
+			// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+			'value' => $this->pwcommerce->localeConvertValue($value->maximumShippingFee)
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		$wrapper->add($field);
+
+		//------------------- handling_fee_type (InputfieldSelect)
+
+		// TODO: FOR FUTURE, SHOW BASE TAX HERE DYNAMICALLY AS WELL
+		$selectOptionsHandlingFeeType = [
+			'none' => __('None'),
+			'fixed' => __('Fixed'),
+			'percentage' => __('Percentage'),
+		];
+
+		$options = [
+			'id' => "pwcommerce_shipping_fee_settings_handling_fee_type",
+			'name' => "pwcommerce_shipping_fee_settings_handling_fee_type",
+			'label' => $this->_('Handling Fee Type'),
+			'description' => $this->_('Handling fee type for orders.'),
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'select_options' => $selectOptionsHandlingFeeType,
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => empty($value->handlingFeeType) ? 'none' : $value->handlingFeeType,
+		];
+
+		$field = $this->pwcommerce->getInputfieldSelect($options);
+		$wrapper->add($field);
+
+		//------------------- handling_fee_value (InputfieldText)
+		$description = $this->_('Handling fee value for selected handling type');
+		// -----------
+		// markup to target symbols for toggle show depending on handling fee type
+		// symbols are percentage (%) and currency, e.g. €
+		// toggle classes
+		$handlingFeeValuePercentageClass = $value->handlingFeeType === 'percentage' ? '' :
+			" class='pwcommerce_hide'";
+		$handlingFeeValueCurrencyClass = $value->handlingFeeType === 'fixed' ? '' : " class='pwcommerce_hide'";
+		$description .= "<span id='pwcommerce_shipping_fee_settings_handling_fee_value_percent_symbol'{$handlingFeeValuePercentageClass}> (%)</span>";
+		$description .= "<span id='pwcommerce_shipping_fee_settings_handling_fee_value_currency_symbol'{$handlingFeeValueCurrencyClass}>{$this->shopCurrencySymbolString}</span>";
+		$description .= ".";
+		// ------
+		$options = [
+			'id' => "pwcommerce_shipping_fee_settings_handling_fee_value",
+			'name' => "pwcommerce_shipping_fee_settings_handling_fee_value",
+			'type' => 'number',
+			'step' => '0.01',
+			'min' => 0,
+			'label' => $this->_('Handling Fee Value'),
+			'description' => $description,
+			'collapsed' => Inputfield::collapsedNever,
+			'columnWidth' => $columnWidth,
+			'show_if' => 'pwcommerce_shipping_fee_settings_handling_fee_type=percentage|fixed',
+			'wrapClass' => true,
+			'wrapper_classes' => 'pwcommerce_no_outline',
+			'value' => $value->handlingFeeValue,
+			// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+			'value' => $this->pwcommerce->localeConvertValue($value->handlingFeeValue)
+		];
+
+		$field = $this->pwcommerce->getInputfieldText($options);
+		// allow HTML in description
+		$field->entityEncodeText = false;
+		$wrapper->add($field);
+
+		//----------------------
+
+		$out = $wrapper->render();
+
+		return $out;
+	}
+
+	/**
+	 * Process input for the values sent from the product properties for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// TODO: @NOTE: THE INPUT FOR COLOUR IS INSERTED DYNAMICALLY UNDER THE PROPERTIES TAB - JUST FOR CONSISTENCY; HOWEVER, WE PROCESS ITS $input VALUES HERE IN processInput
+		$settings = $this->field->type->getBlankValue($this->page, $this->field);
+
+		// process values
+		$handlingFeeType = $this->wire('sanitizer')->pageName($input->pwcommerce_shipping_fee_settings_handling_fee_type);
+		$settings->handlingFeeType = $handlingFeeType;
+		// if handling fee type is NONE, reset handling fee value to zero
+		$handlingFeeValue = $handlingFeeType === 'none' ? 0 : (float) $input->pwcommerce_shipping_fee_settings_handling_fee_value;
+		$settings->handlingFeeValue = $handlingFeeValue;
+		$settings->maximumShippingFee = (float) $input->pwcommerce_shipping_fee_settings_maximum_shipping_fee;
+
+		// if the string values of the processed properties are different from the previous,
+		// then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+		if ($this->toStringInhouse($settings) !== $this->toStringInhouse($this->value)) {
+			$this->attr('value', $settings);
+			$this->trackChange('value');
+		}
+	}
+
+	/**
+	 * Make a string value to represent the shipping fee settings values that can be used for comparison purposes.
+	 *
+	 * @note: this is only for internal use since we don't have a __toString() method.
+	 * @return string
+	 *
+	 */
+	private function toStringInhouse($item) {
+		$string = (string) "$item->handlingFeeType: $item->handlingFeeValue: $item->maximumShippingFee";
+		// TODO: DELETE WHEN DONE
+		return $string;
+	}
+}

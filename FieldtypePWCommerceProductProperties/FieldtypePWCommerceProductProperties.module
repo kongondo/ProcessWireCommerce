@@ -1,0 +1,276 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * FieldtypePWCommerceProductProperties for ProcessWire.
+ *
+ * This Fieldtype stores values for a PWCommerce product properties.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * FieldtypePWCommerceProductProperties for PWCommerce
+ * Copyright (C) 2025 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class FieldtypePWCommerceProductProperties extends FieldtypeMulti
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Product Properties: Fieldtype',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'Field that stores a PWCommerce product properties values.',
+			'installs' => 'InputfieldPWCommerceProductProperties',
+		);
+	}
+
+	/**
+	 * We keep a copy of the $page that owns these properties so that we can follow
+	 * its outputFormatting state and change our output per that state
+	 *
+	 */
+	// @for use in InputfieldPWCommerceProductProperties
+	protected $page;
+
+	/**
+	 * Return the required Inputfield used to populate a field of this type
+	 *
+	 */
+	public function getInputfield(Page $page, Field $field) {
+		$inputfield = $this->modules->get("InputfieldPWCommerceProductProperties");
+		// our inputfield requires a Page and Field
+		// @note: these two are methods in InputfieldPWCommerceProductProperties
+		$inputfield->setPage($page);
+		$inputfield->setField($field);
+		return $inputfield;
+	}
+
+	/**
+	 * Get a blank value of this type, i.e. return a blank WireArray
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireArray
+	 *
+	 */
+	public function getBlankValue(Page $page, Field $field) {
+		$wireArray = new WireArray();
+		$wireArray->setTrackChanges(true);
+		return $wireArray;
+	}
+
+	/**
+	 * Get a blank single item value of this type, i.e. return a blank WireData
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return WireData
+	 *
+	 */
+	public function getBlankRecord() {
+		return new WireData();
+	}
+
+	/**
+	 * set the config option fields for this Field
+	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 */
+	public function ___getConfigInputfields(Field $field) {
+		$inputfields = parent::___getConfigInputfields($field);
+		return $inputfields;
+	}
+
+	/**
+	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string|int|array $value
+	 * @return string|int|array|object $value
+	 *
+	 */
+	public function ___wakeupValue(Page $page, Field $field, $value) {
+
+		// if for some reason we already get a valid value, then just return it
+		if ($value instanceof WireArray) {
+			return $value;
+		}
+
+		// start a blank value to be populated
+		$records = $this->getBlankValue($page, $field);
+
+		// if we were given a blank value, then we've got nothing to do: just return a blank WireArray
+		if (empty($value) || !is_array($value)) {
+			return $records;
+		}
+
+		// create new WireData objects from each item in the array
+		foreach ($value as $v) {
+
+			$record = $this->getBlankRecord();
+
+			// the 'value' of the property, e.g. 10.5 => centimeters
+			$record->value = $this->wire('sanitizer')->text($v['data']); // note we are converting 'data' to 'record->value'
+			$propertyID = (int) $v['property_id'];
+			$record->propertyID = $propertyID;
+			$dimensionID = (int) $v['dimension_id'];
+			$record->dimensionID = $dimensionID;
+
+			// TODO - friendly 'labels', i.e. titles
+			// TODO: NOT SURE IF THESE ARE MULTILINGUAL AWARE?
+			// u ser-friendly property title/label
+			$record->property = $this->wire('pages')->getRaw("id={$propertyID}", "title");
+			// user-friendly dimension title/label
+			$record->dimension = $this->wire('pages')->getRaw("id={$dimensionID}", "title");
+			// $record->setTrackChanges(true); // track changes for individual record
+			$record->resetTrackChanges();
+			$records->add($record); // add to records
+
+		} // end foreach $value as $v
+		// tell it to start tracking changes from this point forward
+		$records->resetTrackChanges(); // reset track changes for all records
+
+		return $records;
+	}
+
+	/**
+	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return array
+	 *
+	 */
+	public function ___sleepValue(Page $page, Field $field, $value) {
+
+		$sleepValue = [];
+
+		// TODO: CHANGE? wirearray? this->wire('addclass?)
+		// if we are given something other than an WireArray,
+		// then just return a blank array
+		if (!$value instanceof WireArray) {
+			return $sleepValue;
+		}
+
+		// convert each record to an array within sleepValue
+		foreach ($value as $record) {
+
+			$sleepValue[] = array(
+				// note: record->value is becoming data which is a required column in a Fieldtype
+				'data' => $this->wire('sanitizer')->text($record->value),
+				'property_id' => (int) $record->propertyID,
+				'dimension_id' => (int) $record->dimensionID,
+
+			);
+		}
+
+		return $sleepValue;
+	}
+
+	/**
+	 * Given a value, make it clean for storage within a Page
+	 *
+	 */
+	public function sanitizeValue(Page $page, Field $field, $value) {
+
+		// if given a blank value, return a valid blank value
+		if (empty($value)) {
+			return $this->getBlankValue($page, $field);
+		}
+
+		// if given something other than an WireArray, throw an error
+		if (!$value instanceof WireArray) {
+			throw new WireException("Value set to field '$field->name' must be a WireArray");
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format a value for output, called when a Page's outputFormatting is on
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, $value) {
+		// TODO: NOT NEEDED?
+		return $value;
+	}
+
+	/**
+	 * Return the database schema that defines a product property item
+	 *
+	 */
+	public function getDatabaseSchema(Field $field) {
+
+		$schema = parent::getDatabaseSchema($field);
+
+		// 'data' is a required field for any Fieldtype, and we're using it to represent our 'item->value' field (column in db)
+		// we reuse this required field/column (data) for item->value
+		$schema['data'] = 'VARCHAR(255) NOT NULL';
+		$schema['property_id'] = 'INT UNSIGNED NOT NULL';
+		$schema['dimension_id'] = 'INT UNSIGNED NOT NULL'; // dimension (page_id)
+
+		// indexes, for any fields that need to be searchable from selectors
+		// make all our fields searchable
+		// $schema['keys']['data'] = 'KEY data(data)'; // searchable (=, !=, >, <, >=, <=, etc)
+		$schema['keys']['data'] = 'FULLTEXT KEY data (data)';
+		$schema['keys']['property_id'] = 'KEY property_id(property_id)'; // searchable  = $item->propertyID
+		$schema['keys']['dimension_id'] = 'KEY dimension_id(dimension_id)'; // searchable  = $item->dimensionID id of column or its title as string
+
+		return $schema;
+	}
+
+	/**
+	 * Method called when the field is database-queried from a selector
+	 *
+	 */
+	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
+
+		// if searching 'value' then assume our default (data) field
+		if ($subfield == 'value') {
+			$subfield = 'data';
+		}
+		// if we got a property=selection string OR dimension=selection string, we assume it is a title
+		else if ($subfield == 'property' || $subfield == 'dimension') {
+			// searching using title, e.g. property=height, dimension=centimetre
+			if (!ctype_digit("$value") && strlen($value)) {
+				// TODO: SHOULD WE SUPPORT PARTIAL MATCHES HERE? ie. %=, etc not sure if name supports these operators though!
+				// first get the page by name, then grab their ID
+				$recordID = $this->wire('pages')->getRaw('template=pwcommerce-product,name=' . $this->sanitizer->pageName($value, true), "id");
+				if ($recordID > 0) {
+					$value = $recordID;
+				}
+			}
+			// set subfield
+			$subfield = $subfield == 'property' ? 'property_id' : 'dimension_id';
+		}
+		// searching subfield propertyID
+		else if ($subfield == 'propertyID') {
+			$subfield = 'property_id';
+		}
+		// searching subfield dimensionID
+		else if ($subfield == 'dimensionID') {
+			$subfield = 'dimension_id';
+		}
+
+		/*
+					- MySQL knows what "=" and ">" are, but it doesn't know what "%=", "~=", "^=" OR "$=" are
+					- the latter allow for finer, fulltext search
+					 */
+		// if 'normal' sql operators, do 'normal' query, else do fulltext search
+		if ($this->wire('database')->isOperator($operator)) {
+			return parent::getMatchQuery($query, $table, $subfield, $operator, $value);
+		} else {
+			$ft = new DatabaseQuerySelectFulltext($query);
+			$ft->match($table, $subfield, $operator, $value);
+			return $query;
+		}
+	}
+}

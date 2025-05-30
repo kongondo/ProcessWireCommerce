@@ -1,0 +1,314 @@
+<?php
+
+namespace ProcessWire;
+
+/**
+ * PWCommerce: InputfieldPWCommerceDiscount
+ *
+ * Inputfield for FieldtypePWCommerceDiscount, the field that stores and outputs values of a PWCommerce discount.
+ *
+ * @author Francis Otieno (Kongondo) <kongondo@gmail.com> kongondo.com
+ *
+ *
+ *
+ * InputfieldPWCommerceDiscount for PWCommerce
+ * Copyright (C) 2023 by Francis Otieno
+ * MIT License
+ *
+ */
+
+class InputfieldPWCommerceDiscount extends Inputfield
+{
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'PWCommerce Discount: Inputfield',
+			'author' => 'Francis Otieno (Kongondo)',
+			'version' => "100",
+			'href' => 'https://kongondo.com',
+			'summary' => 'GUI for the field that stores a PWCommerce discount values.',
+			'requires' => 'FieldtypePWCommerceDiscount',
+		);
+	}
+
+	protected $page;
+	protected $field;
+
+	// -----
+	private $shopCurrencySymbolString = "";
+	private $discountType;
+
+	public function init() {
+		parent::init();
+		// if we want this modules css and js classes to be autoloaded
+		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+
+
+	}
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	/**
+	 * Render the entire input area for discount
+	 *
+	 */
+	public function ___render() {
+
+		/** @var WireData $value */
+		$value = $this->attr('value');
+		$this->discountType = $value->discountType;
+
+		// IF ADD NEW ITEM/RECORD - AJAX
+		$input = $this->wire('input');
+		$ajax = $this->wire('config')->ajax;
+
+		if ($ajax && $input->get('field') == $this->attr('name')) {
+
+			// process HTMX ajax request
+			// for now this is only about generate a discount code
+			$out = $this->processAjaxRequest();
+			echo $out;
+			die();
+		}
+
+		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+		// @note: we use classes for shared styles but unique ID for htmx here since this field will be used multiple times on the same page since shipping zones can have multiple rates.
+		$out =
+			"<div id='pwcommerce_discount_wrapper{$this->page->id}' class='pwcommerce_discount_wrapper' x-data='InputfieldPWCommerceDiscountData' @pwcommercediscountradiochangenotification.window='handleDiscountRadioChange'>" .
+			$this->buildForm() .
+			// ------
+			"</div>";
+
+		// =======
+
+		return $out;
+	}
+
+	/**
+	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+	 *
+	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+	 * @param bool $renderValueMode Whether renderValueMode will be used.
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$this->preloadInputfieldAssets();
+		// $scripts = $this->config->js($this->id, $options);
+		// if currency locale set..
+		// grab symbol; we use on price fields description
+		$shopCurrencySymbolString = $this->pwcommerce->renderShopCurrencySymbolString();
+		if (strlen($shopCurrencySymbolString)) {
+			$this->shopCurrencySymbolString = " " . $shopCurrencySymbolString;
+		}
+		// -------------
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	private function preloadInputfieldAssets() {
+		// TODO: DELETE WHEN DONE IF NOT IN USE
+	}
+
+	private function buildForm() {
+		/** @var WireData $value */
+		$value = $this->attr('value');
+
+		// discount GUI markup for the current discount type
+		$out = $this->renderMarkupByDiscountType();
+		return $out;
+	}
+
+	private function renderMarkupByDiscountType() {
+
+		$discountClass = $this->getDiscountTypeClass();
+
+		// @NOTE: WHEN CREATING A DISCOUNT PAGE FROM 	PWCOMMERCE, WE WILL AUTO CREATE THE DISCOUNT BY TYPE. BUT WHEN CREATING A PAGE FROM THE PW GUI, THIS WILL NOT WORK SINCE WE HAVE NO TYPE HENCE CANNOT FETCH THE TYPE CLASS!
+		if (!empty($discountClass)) {
+			$out = $discountClass->render();
+		} else {
+			$out = "<p>CANNOT CREATE A DISCOUNT PAGE DIRECTLY LIKE THIS! USE WITHIN PWCOMMERCE OR WITH THE API!</p>";
+		}
+
+		return $out;
+	}
+
+	private function getDiscountTypeClass() {
+		$discountClass = null;
+		$discountType = $this->discountType;
+
+		$productsAndCategoriesDiscountTypes = [
+			// PRODUCTS
+			'products_percentage',
+			'products_fixed_per_order',
+			'products_fixed_per_item',
+			// CATEGORIES
+			'categories_percentage',
+			'categories_fixed_per_order',
+			'categories_fixed_per_item',
+		];
+		if (in_array($discountType, $productsAndCategoriesDiscountTypes)) {
+			// PRODUCTS & CATEGORIES DISCOUNTS
+			require_once __DIR__ . '/InputfieldPWCommerceDiscountRenderProductsDiscount.php';
+			$discountClass = new InputfieldPWCommerceDiscountRenderProductsDiscount($this->page, $this->field, $this->inputfieldsHelpers);
+		} elseif (
+			in_array($discountType, [
+				'whole_order_percentage',
+				'whole_order_fixed',
+			])
+		) {
+			// WHOLE ORDER DISCOUNTS
+			require_once __DIR__ . '/InputfieldPWCommerceDiscountRenderOrderDiscount.php';
+			$discountClass = new InputfieldPWCommerceDiscountRenderOrderDiscount($this->page, $this->field, $this->inputfieldsHelpers);
+		} elseif (
+			in_array(
+				$discountType,
+				[
+					'categories_get_y',
+					'products_get_y',
+				]
+			)
+		) {
+			// BOGO DISCOUNTS
+			require_once __DIR__ . '/InputfieldPWCommerceDiscountRenderBuyXGetYDiscount.php';
+			$discountClass = new InputfieldPWCommerceDiscountRenderBuyXGetYDiscount($this->page, $this->field, $this->inputfieldsHelpers);
+		} elseif ($discountType === 'free_shipping') {
+			// FREE SHIPPING DISCOUNT
+			require_once __DIR__ . '/InputfieldPWCommerceDiscountRenderShippingDiscount.php';
+			$discountClass = new InputfieldPWCommerceDiscountRenderShippingDiscount($this->page, $this->field, $this->inputfieldsHelpers);
+		}
+
+		// -------
+		return $discountClass;
+
+	}
+
+	private function getDiscountType() {
+		/** @var WireData $value */
+		$value = $this->attr('value');
+
+		// discountAppliesToType ; discountType
+		if ($value->discountType === 'free_shipping') {
+			// FREE SHIPPING
+			$this->discountType = "shipping";
+			$label = $this->_('Free shipping');
+			$description = $this->_('Shipping discount');
+		} else if ($value->discountType === 'buy_x_get_y') {
+			// BUY X GET Y
+			$this->discountType = "buy_x_get_y";
+			$label = $this->_('Buy X Get Y');
+			$description = $this->_('Product discount');
+		} else if ($value->discountAppliesToType === 'order') {
+			// ORDER DISCOUNT
+			$this->discountType = "order";
+			$label = $this->_('Amount off Order');
+			$description = $this->_('Order discount');
+		} else {
+			// PRODUCT DISCOUNT
+			$this->discountType = "products";
+			$label = $this->_('Amount off Products');
+			$description = $this->_('Product discount');
+		}
+
+		$out = "<span class='block'>{$label}</span>" .
+			"<small>{$description}</small>";
+		//--------
+		return $out;
+
+	}
+
+	// extra content to be added as assets to InputfieldPWCommerceRuntimeMarkup with respect to this field
+	// @note: TODO: we MIGHT still handle any JS interactions here!
+	// TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
+	public function getPreloadAssetsContent() {
+		// TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE HTMX ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
+		// TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
+		return;
+		$url = $this->wire('config')->urls->ProcessPWCommerce;
+		return [
+			['source' => "{$url}vendors/scripts/htmx/htmx.1.7.0.min.js"],
+		];
+	}
+
+	// TODO DELETE UNUSED BELOW
+
+	/**
+	 * For InputfieldPWCommerceRuntimeMarkup.
+	 *
+	 * For when new Shipping Rate is requested by a shipping zone in edit.
+	 * Return a new blank page of this type that is ready for editing and saving.
+	 *
+	 * @return Page $newPage The new blank item.
+	 */
+	public function getBlankItem() {
+		$newPage = new Page();
+		$template = $this->wire('templates')->get('pwcommerce-shipping-rate');
+		$newPage->template = $template;
+		$newPage->title = $this->_('New Unsaved Shipping Rate');
+		// @note: add a temporary ID to track new pages for this context (e.g. a new shipping rate)
+		$newPage->id = str_replace('.', '-', microtime(true));
+		return $newPage;
+	}
+
+	// ~~~~~~~~~~~~~~
+
+	private function processAjaxRequest() {
+		$discountClass = $this->getDiscountTypeClass();
+		$out = $discountClass->processAjaxRequest();
+		// -----
+		return $out;
+	}
+
+	/**
+	 * Process input for the values sent from the shipping rate for this page
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		// **** @NOTE: @UPDATE TODO? THIS IS OK SINCE THIS IS A CUSTOM INPUTFIELD FOR A VERY SPECIFIC NEED! PWCOMMERCE! ****
+		// @note: this is now called once from inside InputfieldPWCommerceRuntimeMarkup::processInput!
+		// SAVE NEW ITEMS FIRST
+		// @note: these were added as empty items via ajax
+		// we need to create and save their pages first!
+		// $newItems = $input->pwcommerce_is_new_item;
+		// if (!empty($newItems)) {
+		//   // $this->processInputCreateNewItems($input);
+		// }
+
+		// @note -ditto-
+		// $deleteItems = $input->pwcommerce_is_delete_item;
+		// if (!empty($deleteItems)) {
+		//   $this->processInputDeleteItems($input);
+		// }
+
+		//-----------------
+		// SAVE RATE VALUES FOR EXISTING PAGES
+
+		// $pageID = $this->page->id;
+		/** @var WireData $value */
+		$value = $this->attr('value');
+
+		$sanitizer = $this->wire('sanitizer');
+
+		// TODO @NOTE: WE GET DISCOUNT TYPE FROM THE LAST SAVED VALUE INSTEAD!
+		// this will enable use to get the context since that can never change
+		// for instance, order discounts cannot be changed to product discounts
+		// this means that 'product_fixed_per_item', 'products_percentage', 'categories_fixed_per_order' etc will always be products discounts
+		// otherwise, $input->pwcommerce_discount_value_type can mislead since for products discounts, we shorten values to 'fixed' or 'percentage'. Subsquently, we check 'pwcommerce_discount_applies_to' to deduce whether the value is for products or categories and if percentage or fixed. For fixed, we also look at the checkbox 'pwcommerce_discount_fixed_apply_once_toggle'
+		// if the checkbox value was sent, we apply per order, else per item
+		// $discountType = $sanitizer->fieldName($input->pwcommerce_discount_value_type);
+		$discountType = $sanitizer->fieldName($value->discountType);
+
+		$this->discountType = $discountType;
+		$discountClass = $this->getDiscountTypeClass();
+		return $discountClass->processInput($input);
+
+	}
+
+}
