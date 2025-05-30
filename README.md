@@ -1,6 +1,6 @@
-# PWCommerce
+# ProcessWire Commerce
 
-Mono repo for PWCommerce, the feature-rich native full e-commerce solution for ProcessWire.
+Mono repo for ProcessWire Commerce, the feature-rich native full e-commerce solution for ProcessWire.
 
 ## Version
 
@@ -8,13 +8,15 @@ Mono repo for PWCommerce, the feature-rich native full e-commerce solution for P
 
 ## Demo
 
-https://demo.kongondo.com/
+TBD
 
 ## Starter Sites
 
 https://github.com/kongondo/PWCommerce2Starter
 
 ## Documentation
+
+WIP
 
 https://docs.kongondo.com/
 
