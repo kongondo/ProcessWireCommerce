@@ -26,18 +26,19 @@ trait TraitPWCommerceRender
 	 *
 	 * Returns requested FRONTEND TemplateFile.
 	 * Either customized version from /site/templates/pwcommerce/frontend/
-	 * Or the default one from /site/modules/PWCommerce/templates/frontend/
+	 * Or the default one from /site/modules/ProcessWireCommerce/templates/frontend/
 	 *
 	 * @param string filename of required template
 	 * @return TemplateFile requested
 	 *
 	 */
-	protected function getPWCommerceTemplate($filename) {
+	protected function getPWCommerceTemplate($filename)
+	{
 		$configPaths = $this->config->paths;
 		// $templatePath = __DIR__ . "/templates/" . $filename;
 		// $templatePath = __DIR__ . "/../../templates/" . $filename;
 		// DEFAULT PARTIAL FRONTEND TEMPLATE
-		$templatePath = $configPaths->siteModules . "PWCommerce/templates/frontend/" . $filename;
+		$templatePath = $configPaths->siteModules . "ProcessWireCommerce/templates/frontend/" . $filename;
 
 		if (file_exists($configPaths->templates . "pwcommerce/frontend/" . $filename)) {
 			// CUSTOM PARTIAL FRONTEND TEMPLATE
@@ -57,14 +58,16 @@ trait TraitPWCommerceRender
 	 * @param float $price
 	 * @return string
 	 */
-	protected function ___renderPriceAndCurrency($price) {
+	protected function ___renderPriceAndCurrency($price)
+	{
 		if ($price == "")
 			$price = 0;
 		$priceAndCurrency = $this->getValueFormattedAsCurrencyForShop($price);
 		return $priceAndCurrency;
 	}
 
-	public function renderCartPriceAndCurrency($price) {
+	public function renderCartPriceAndCurrency($price)
+	{
 		// FOR BACKWARDS COMPATIBILITY
 		return $this->renderPriceAndCurrency($price);
 	}
@@ -75,7 +78,8 @@ trait TraitPWCommerceRender
 	 * @param float $price
 	 * @return string
 	 */
-	protected function ___renderPrice($price) {
+	protected function ___renderPrice($price)
+	{
 		// TODO: DELETE; NO LONGER IN USE!
 		$decimals = 2;
 		if (!$this->dec_point)
@@ -90,7 +94,8 @@ trait TraitPWCommerceRender
 	 * @return string html markup
 	 *
 	 */
-	public function viewCart() {
+	public function viewCart()
+	{
 		$t = $this->getPWCommerceTemplate("cart-view.php");
 		return $t->render();
 	}
@@ -101,7 +106,8 @@ trait TraitPWCommerceRender
 	 * @return string html markup
 	 *
 	 */
-	public function editCart() {
+	public function editCart()
+	{
 		// $cartItems = $this->getCart();
 		$t = $this->getPWCommerceTemplate("cart-edit.php");
 		return $t->render();
@@ -109,9 +115,8 @@ trait TraitPWCommerceRender
 
 	# >>>>>>>>>>>>>>>>>>>>>>>>>> DEPRECATED <<<<<<<<<<<<<<<<<<<<<<<
 
-	public function getPadTemplate($file) {
+	public function getPadTemplate($file)
+	{
 		return $this->getPWCommerceTemplate($file);
 	}
-
-
 }

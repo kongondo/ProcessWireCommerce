@@ -74,7 +74,7 @@ namespace ProcessWire;
 			margin-top: 20px;
 		}
 	</style>
-	<link rel="stylesheet" href="<?= $config->urls->siteModules ?>PWCommerce/templates/styles/style.css">
+	<link rel="stylesheet" href="<?= $config->urls->siteModules ?>ProcessWireCommerce/templates/styles/style.css">
 	<link rel="license" href="http://www.opensource.org/licenses/mit-license/">
 </head>
 
