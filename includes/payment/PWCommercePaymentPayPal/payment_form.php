@@ -2,7 +2,7 @@
 
 namespace ProcessWire;
 
-$paymentCustomScriptSrc = $config->urls->siteModules . "PWCommerce/includes/payment/PWCommercePaymentPayPal/PWCommercePaymentPayPal.js";
+$paymentCustomScriptSrc = $config->urls->siteModules . "ProcessWireCommerce/includes/payment/PWCommercePaymentPayPal/PWCommercePaymentPayPal.js";
 
 ?>
 

@@ -2,7 +2,7 @@
 
 namespace ProcessWire;
 
-$paymentCustomScriptSrc = $config->urls->siteModules . "PWCommerce/includes/payment/PWCommercePaymentStripe/PWCommercePaymentStripe.js";
+$paymentCustomScriptSrc = $config->urls->siteModules . "ProcessWireCommerce/includes/payment/PWCommercePaymentStripe/PWCommercePaymentStripe.js";
 // TODO @KONGONDO - WIP
 
 // TODO: PREFILL BELOW WITH CUSTOMER FULL NAME(?) + email so they don't need to enter again
