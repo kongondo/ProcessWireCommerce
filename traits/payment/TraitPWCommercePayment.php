@@ -527,20 +527,13 @@ trait TraitPWCommercePayment {
 	// ~~~~~~~~~~~~~~
 
 	public function runPWCommercePayment($event) {
-		$test = 'RUN PWCOMMERCE PAYMENT CALLED';
-		$log = $this->wire('log');
-		$logName = "trait_pwcommerce_payment";
-		$log->save($logName, $test);
 
 		// $entireURL = $event->arguments(0);
 		$action = $event->arguments(1);
-		$test = "RUN PWCOMMERCE PAYMENT CALLED ACTION: {$action}";
-		$log->save($logName, $test);
+
 
 		// ##############
 		if ($this->config->ajax) {
-			$test = "RUN PWCOMMERCE PAYMENT CALLED ACTION: AJAX";
-			$log->save($logName, $test);
 			switch ($action) {
 
 				case 'create':
@@ -595,7 +588,6 @@ trait TraitPWCommercePayment {
 
 			# 3. check $order itself as well
 			$isOrderPaid = (int) $order->paymentStatus === (int) PwCommerce::PAYMENT_STATUS_PAID;
-
 		}
 
 		if (!empty($isOrderPaid)) {
@@ -604,11 +596,9 @@ trait TraitPWCommercePayment {
 		}
 
 		return $isOrderPaid;
-
 	}
 
 	private function handleOrderIsAlreadyPaid($orderID) {
-		$test = 'TESTING LOST SESSION INCIDENT EMPTY CART';
 
 		// ==============
 		// EMPTY CART AFTER SUCCESSFUL ORDER COMPLETEION

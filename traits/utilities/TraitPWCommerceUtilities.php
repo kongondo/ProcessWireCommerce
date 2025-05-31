@@ -42,8 +42,7 @@ foreach ($traitsFiles as $traitFileName) {
 }
 
 
-trait TraitPWCommerceUtilities
-{
+trait TraitPWCommerceUtilities {
 
 	// =============
 	// TRAITS
@@ -84,8 +83,7 @@ trait TraitPWCommerceUtilities
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~~~
 
 	// public function __construct($options = null) {
-	public function __initUtilities($options = null)
-	{
+	public function __initUtilities($options = null) {
 		// parent::__construct();
 		// TODO????
 		if (is_array($options)) {
@@ -100,13 +98,11 @@ trait TraitPWCommerceUtilities
 		if ($this->isExistPWCommerceCustomTable($pwcommerceOrderStatusesCustomTableName)) {
 			$this->allOrderStatusesDefinitions = $this->getAllOrderStatusDefinitionsFromDatabase();
 		}
-
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DEBUG UTILS ~~~~~~~~~~~~~~~~~~
 
-	public function formattedPrintR($printName, $printValue)
-	{
+	public function formattedPrintR($printName, $printValue) {
 		// FOR USE WHERE WE CAN'T GET TRACYDEBUGGER
 		if ($this->config->ajax) {
 			// DON'T INTERFERE WITH AJAX RESPONSES!
@@ -118,8 +114,7 @@ trait TraitPWCommerceUtilities
 		echo "</pre><hr>";
 	}
 
-	public function formattedVarDump($dumpName, $dumpValue)
-	{
+	public function formattedVarDump($dumpName, $dumpValue) {
 		// FOR USE WHERE WE CAN'T GET TRACYDEBUGGER
 		if ($this->config->ajax) {
 			// DON'T INTERFERE WITH AJAX RESPONSES!
@@ -131,8 +126,7 @@ trait TraitPWCommerceUtilities
 		echo "</pre><hr>";
 	}
 
-	public function pwcommerceLog($logName, $logValue)
-	{
+	public function pwcommerceLog($logName, $logValue) {
 		$log = $this->wire('log');
 		$logNamePrefix = "pwcommerce_log_";
 		$logName = $logNamePrefix . $logName;

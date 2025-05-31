@@ -51,9 +51,6 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	 */
 	protected function createOrder($createOrderValues = null, $debug = false) {
 
-		$test = 'STRIPE CREATE ORDER CALLED';
-		$log = $this->wire('log');
-		$log->save("webhook_payload_stripe", $test);
 		// -----------------
 		// SET STRIPE SECRET API KEY
 		// Set your secret key. Remember to switch to your live secret key in production.
@@ -310,6 +307,7 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		// ----
 		// TODO @kongondo need to catch errors, e..g. empty / missing values!
 		$stripeConfigs = $this->stripeConfigs;
+		$clientWebhookSigningSecret = "";
 		if (!empty($stripeConfigs['is_live'])) {
 			// LIVE/PRODUCTION ENVIRONMENT
 			// @note: the Publishable Key (pk)
@@ -319,7 +317,9 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 			// just using $clientSecret for consitency with our PayPal class
 			$clientSecret = $stripeConfigs['live_secret_key'];
 			// webhook secret (optional)
-			$clientWebhookSigningSecret = $stripeConfigs['live_webhook_signing_secret'];
+			if (!empty($stripeConfigs['live_webhook_signing_secret'])) {
+				$clientWebhookSigningSecret = $stripeConfigs['live_webhook_signing_secret'];
+			}
 		} else {
 			// SANDBOX/TESTING ENVIRONMENT
 			// @note: the Publishable Key (pk)
@@ -329,7 +329,9 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 			// just using $clientSecret for consitency with our PayPal class
 			$clientSecret = $stripeConfigs['test_secret_key'];
 			// webhook secret (optional)
-			$clientWebhookSigningSecret = $stripeConfigs['test_webhook_signing_secret'];
+			if (!empty($stripeConfigs['test_webhook_signing_secret'])) {
+				$clientWebhookSigningSecret = $stripeConfigs['test_webhook_signing_secret'];
+			}
 		}
 
 		// ----------
