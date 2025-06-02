@@ -17,8 +17,7 @@ namespace ProcessWire;
  *
  */
 
-class FieldtypePWCommerceCustomer extends Fieldtype
-{
+class FieldtypePWCommerceCustomer extends Fieldtype {
 
 	public static function getModuleInfo() {
 		return array(
