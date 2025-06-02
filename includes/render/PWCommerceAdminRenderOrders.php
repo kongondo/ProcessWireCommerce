@@ -19,8 +19,7 @@ namespace ProcessWire;
 
 
 
-class PWCommerceAdminRenderOrders extends WireData
-{
+class PWCommerceAdminRenderOrders extends WireData {
 
 	private $adminURL;
 	private $ajaxPostURL;
@@ -60,10 +59,27 @@ class PWCommerceAdminRenderOrders extends WireData
 
 		// ORDER STATUSES
 		$this->allOrderStatusesDefinitions = $this->pwcommerce->getAllOrderStatusDefinitionsFromDatabase();
-
 	}
 
 	protected function renderResults($selector = null) {
+
+		// enforce to string for strpos for PHP 8+
+		$selector = strval($selector);
+
+		// DETERMINE HOW TO RENDER ALLS ORDERS VIEW/DASH
+		// +++++
+		$customPartialTemplate = $this->pwcommerce->getBackendPartialTemplate(PwCommerce::PROCESS_RENDER_ORDERS_PARTIAL_TEMPLATE_NAME);
+		if (!empty($customPartialTemplate)) {
+			// CUSTOM PWCOMMERCE PROCESS RENDER ORDERS BACKEND MARKUP
+			// set selector
+			$customPartialTemplate->set('selector', $selector);
+			# +++++++++++
+			// GET MARKUP
+			$out = $customPartialTemplate->render();
+			return $out;
+		}
+
+
 		$input = $this->wire('input');
 		$isQuickFilter = false;
 
@@ -78,8 +94,7 @@ class PWCommerceAdminRenderOrders extends WireData
 				return $out;
 			}
 		}
-		// enforce to string for strpos for PHP 8+
-		$selector = strval($selector);
+
 
 		//-----------------
 		// FORCE DEFAULT LIMIT IF NO USER LIMIT SET
@@ -826,7 +841,6 @@ class PWCommerceAdminRenderOrders extends WireData
 
 		// =======
 		return $out;
-
 	}
 
 	private function processAjaxGetRequestForOrderStatusAction() {
@@ -939,7 +953,6 @@ class PWCommerceAdminRenderOrders extends WireData
 
 		// --------
 		return $out;
-
 	}
 
 	private function getOrderStatusApplicationNoteTextareaField(): InputfieldTextarea {
@@ -966,7 +979,6 @@ class PWCommerceAdminRenderOrders extends WireData
 		$field = $this->pwcommerce->getInputfieldTextarea($options);
 		$field->addClass('pwcommerce_order_status_action_apply');
 		return $field;
-
 	}
 
 	private function getOrderStatusApplicationNotifyCustomerCheckbox() {
@@ -1298,9 +1310,9 @@ class PWCommerceAdminRenderOrders extends WireData
 			// $out = $this->buildViewOrder();
 			// DETERMINE HOW TO RENDER SINGLE ORDER PAGE VIEW
 			// +++++
-			$customPartialTemplate = $this->pwcommerce->getBackendPartialTemplate(PwCommerce::ORDER_PROCESS_RENDER_ORDERS_PARTIAL_TEMPLATE_NAME);
+			$customPartialTemplate = $this->pwcommerce->getBackendPartialTemplate(PwCommerce::PROCESS_RENDER_SINGLE_ORDER_VIEW_PARTIAL_TEMPLATE_NAME);
 			if (!empty($customPartialTemplate)) {
-				// CUSTOM PWCOMMERCE PROCESS RENDER ORDERS BACKEND MARKUP
+				// CUSTOM PWCOMMERCE PROCESS RENDER SINGLE ORDER VIEW BACKEND MARKUP
 				// set order PAGE
 				$customPartialTemplate->set('orderPage', $this->orderPage);
 				// set ORDER itself
@@ -1918,8 +1930,6 @@ class PWCommerceAdminRenderOrders extends WireData
 					$billingAddressRegion .
 					"<span class='block'>{$country}</span>";
 			}
-
-
 		}
 		// ----------
 		$out .= "</div>";
@@ -2264,13 +2274,11 @@ class PWCommerceAdminRenderOrders extends WireData
 				$discountAmount = $discount->amount * -1;
 				$discountAmountAsCurrency = $this->pwcommerce->getValueFormattedAsCurrencyForShop($discountAmount);
 				$out .= "<small class='block italic'>{$discountAmountAsCurrency} ({$discount->code})</small>";
-
 			}
 			$out .= "</div>";
 		}
 		// -------
 		return $out;
-
 	}
 
 	/**
@@ -2519,5 +2527,4 @@ class PWCommerceAdminRenderOrders extends WireData
 
 		return $selector;
 	}
-
 }
