@@ -16,8 +16,7 @@ namespace ProcessWire;
  *
  */
 
-trait TraitPWCommerceConstants
-{
+trait TraitPWCommerceConstants {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CONSTANTS  ~~~~~~~~~~~~~~~~~~
 
@@ -92,7 +91,8 @@ trait TraitPWCommerceConstants
 	const ORDER_PARENT_TEMPLATE_NAME = 'pwcommerce-orders';
 	const ORDER_PLACEHOLDER_PAID_DATE = '2016-04-08 05:10:00';
 	const ORDER_LOST_SESSION_ORDER_ID_NAME = 'lostSessionOrderID';
-	const ORDER_PROCESS_RENDER_ORDERS_PARTIAL_TEMPLATE_NAME = 'pwcommerce-process-render-orders.php';
+	const PROCESS_RENDER_ORDERS_PARTIAL_TEMPLATE_NAME = 'pwcommerce-process-render-orders.php';
+	const PROCESS_RENDER_SINGLE_ORDER_VIEW_PARTIAL_TEMPLATE_NAME = 'pwcommerce-process-render-single-order-view.php';
 	const ORDER_STATUS_ABANDONED = 1001;
 	const ORDER_STATUS_CANCELLED = 2000;
 	const ORDER_STATUS_COMPLETED = 2999;
@@ -171,8 +171,4 @@ trait TraitPWCommerceConstants
 	const TYPE_TEMPLATE_NAME = 'pwcommerce-type';
 	const MYSQL_DATE_FUNCTIONS_DEFAULT_INTERVAL = 1;
 	const MYSQL_DATE_FUNCTIONS_DEFAULT_INTERVAL_TYPE = 'DAY';
-
-
-
-
 }
