@@ -8,6 +8,12 @@ ProcessWire Commerce is a free, open-source fully featured e-commerce module (pl
 
 100
 
+## Requirements
+
+- PHP>=7.4.0 with BC Math extension
+- ProcessWire>=3.0.184
+- Modern browser (backend only)
+
 ## Demo
 
 TBD
