@@ -22,232 +22,232 @@ namespace ProcessWire;
 class InputfieldPWCommerceProductStock extends Inputfield
 {
 
-	public static function getModuleInfo() {
-		return array(
-			'title' => 'PWCommerce Product Stock: Inputfield',
-			'author' => 'Francis Otieno (Kongondo)',
-			'version' => "100",
-			'href' => 'https://kongondo.com',
-			'summary' => 'GUI for the field that stores a PWCommerce product inventory and pricing values.',
-			'requires' => 'FieldtypePWCommerceProductStock',
-		);
-	}
+  public static function getModuleInfo() {
+    return array(
+      'title' => 'PWCommerce Product Stock: Inputfield',
+      'author' => 'Francis Otieno (Kongondo)',
+      'version' => "100",
+      'href' => 'https://kongondo.com',
+      'summary' => 'GUI for the field that stores a PWCommerce product inventory and pricing values.',
+      'requires' => 'FieldtypePWCommerceProductStock',
+    );
+  }
 
-	protected $page;
-	protected $field;
-
-
-	// price fields approach
-	private $isUseSaleAndNormalPriceFields;
-	private $price;// can be 'price' or 'sale' price
-	private $otherPrice;// can be 'compare' or 'normal' price
-	// --------
-	// is the current page a product variant
-	private $isProductVariant;
-	// is the current page a product AND does it use variants
-	private $useVariants;
-	// does the current page have existing variants
-	private $hasExistingVariants;
-	// ALPINEJS
-	private $xstoreProduct; // the alpinejs store used by this inputfield.
-	private $xstore; // the full prefix to the alpine store used by this inputfield
-	private $xstoreClient; // shortcut to the client object in the alpinejs store in this inputfield.
-	private $ajaxPostURL;
-	// -----
-	private $shopCurrencySymbolString = "";
-
-	public function init() {
-		parent::init();
-		// if we want this modules css and js classes to be autoloaded
-		// Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
-
-		// +++++++++++++
+  protected $page;
+  protected $field;
 
 
+  // price fields approach
+  private $isUseSaleAndNormalPriceFields;
+  private $price;// can be 'price' or 'sale' price
+  private $otherPrice;// can be 'compare' or 'normal' price
+  // --------
+  // is the current page a product variant
+  private $isProductVariant;
+  // is the current page a product AND does it use variants
+  private $useVariants;
+  // does the current page have existing variants
+  private $hasExistingVariants;
+  // ALPINEJS
+  private $xstoreProduct; // the alpinejs store used by this inputfield.
+  private $xstore; // the full prefix to the alpine store used by this inputfield
+  private $xstoreClient; // shortcut to the client object in the alpinejs store in this inputfield.
+  private $ajaxPostURL;
+  // -----
+  private $shopCurrencySymbolString = "";
+
+  public function init() {
+    parent::init();
+    // if we want this modules css and js classes to be autoloaded
+    // Any modules that extend: Inputfield, Process or ModuleJS will auto-load their CSS/JS files if they have the same name as the module and appear in the same directory. However, in order for that to work, their init() method has to be called. So if your module extends one of those, and has an init() method, then make sure to call the parent init() method:
+
+    // +++++++++++++
 
 
 
 
-		// ------------------
-		$this->isUseSaleAndNormalPriceFields = $this->pwcommerce->isUseSaleAndNormalPriceFields();
-		// ------------------
 
-		// TODO:  if possible, only init if product has variants?
-		$this->xstoreProduct = 'InputfieldPWCommerceProductStockStore';
-		// i.e., '$store.InputfieldPWCommerceOrderStore'
-		$this->xstore = "\$store.{$this->xstoreProduct}";
-		$this->xstoreClient = "{$this->xstore}.client";
-		$this->ajaxPostURL = $this->wire('config')->urls->admin . PwCommerce::PWCOMMERCE_SHOP_PAGE_IN_ADMIN_NAME . '/ajax/';
-	}
 
-	public function setPage(Page $page) {
-		$this->page = $page;
-	}
+    // ------------------
+    $this->isUseSaleAndNormalPriceFields = $this->pwcommerce->isUseSaleAndNormalPriceFields();
+    // ------------------
 
-	public function setField(Field $field) {
-		$this->field = $field;
-	}
+    // TODO:  if possible, only init if product has variants?
+    $this->xstoreProduct = 'InputfieldPWCommerceProductStockStore';
+    // i.e., '$store.InputfieldPWCommerceOrderStore'
+    $this->xstore = "\$store.{$this->xstoreProduct}";
+    $this->xstoreClient = "{$this->xstore}.client";
+    $this->ajaxPostURL = $this->wire('config')->urls->admin . PwCommerce::PWCOMMERCE_SHOP_PAGE_IN_ADMIN_NAME . '/ajax/';
+  }
 
-	private function setPriceValues() {
-		// @NOTE: THESE ARE JUST FOR BACKEND DISPLAY PURPOSES! Hence 'wrong' values will be displayed
-		// e.g. if sale price is > normal price!
-		/** @var WireData $value */
-		$value = $this->attr('value');
-		if (!empty($this->isUseSaleAndNormalPriceFields)) {
-			// USING SALES + NORMAL PRICE FIELDS/APPROACH
-			if ($this->isProductVariant) {
-				// VARIANT PRODUCT
-				$this->price = $value->variantSalePrice;
-				$this->otherPrice = $value->variantNormalPrice;
-			} else {
-				// NON-VARIANT
-				$this->price = $value->salePrice;
-				$this->otherPrice = $value->normalPrice;
-			}
+  public function setPage(Page $page) {
+    $this->page = $page;
+  }
 
-		} else {
-			// USING PRICE + COMPARE PRICE FIELDS/APPROACH
+  public function setField(Field $field) {
+    $this->field = $field;
+  }
 
-			if ($this->isProductVariant) {
-				// VARIANT PRODUCT
-				$this->price = $value->variantPrice;
-				$this->otherPrice = $value->variantComparePrice;
-			} else {
-				// NON-VARIANT
-				$this->price = $value->price;
-				$this->otherPrice = $value->comparePrice;
-			}
+  private function setPriceValues() {
+    // @NOTE: THESE ARE JUST FOR BACKEND DISPLAY PURPOSES! Hence 'wrong' values will be displayed
+    // e.g. if sale price is > normal price!
+    /** @var WireData $value */
+    $value = $this->attr('value');
+    if (!empty($this->isUseSaleAndNormalPriceFields)) {
+      // USING SALES + NORMAL PRICE FIELDS/APPROACH
+      if ($this->isProductVariant) {
+        // VARIANT PRODUCT
+        $this->price = $value->variantSalePrice;
+        $this->otherPrice = $value->variantNormalPrice;
+      } else {
+        // NON-VARIANT
+        $this->price = $value->salePrice;
+        $this->otherPrice = $value->normalPrice;
+      }
 
-		}
-	}
+    } else {
+      // USING PRICE + COMPARE PRICE FIELDS/APPROACH
 
-	/**
-	 * Render the entire input area for product properties
-	 *
-	 */
-	public function ___render() {
+      if ($this->isProductVariant) {
+        // VARIANT PRODUCT
+        $this->price = $value->variantPrice;
+        $this->otherPrice = $value->variantComparePrice;
+      } else {
+        // NON-VARIANT
+        $this->price = $value->price;
+        $this->otherPrice = $value->comparePrice;
+      }
 
-		// ------
+    }
+  }
 
-		$modals = "";
-		//+++++++++++
-		// IF THE OPTIONAL FEATURE 'ATTRIBUTES' IS CURRENTLY INSTALLED
-		// then set up variants + related modals
-		if (!empty($this->pwcommerce->isVariantsInUse())) {
-			// TODO: @NOTE: DYNAMIC RENDER OF INPUT FOR sku, allow_backorders and quantity: only show this on main product (template 'pwcommerce-product') IF PRODUCT HAS NO VARIANTS!, i.e. useVariants === 0. Otherswise, each variant will have its own sku, quantity and allow overselling policy
-			// TODO @UPDATE: WE NOW SHOW ABOVE BUT FOR ENABLED, QUANTITY, SKU & BACKORDERS, WE HIDE FROM PRODUCT ONLY IF THEY HAVE VARIANTS
-			// -----
-			// set if current page is a product variant
-			$this->isProductVariant = $this->isProductVariant();
+  /**
+   * Render the entire input area for product properties
+   *
+   */
+  public function ___render() {
 
-			// set if current page is a product AND it uses variants
-			$this->useVariants = $this->isUsingVariants($this->page);
-			// set if current page is a product, uses variants AND HAS VARIANTS
-			// $this->hasExistingVariants = (int)$this->checkHasExistingVariants($this->page);
-			$this->hasExistingVariants = empty($this->checkHasExistingVariants($this->page)) ? 0 : 1;
-			// @note: link to open it is in runtime markup.
-			// TODO: @NOTE: ONLY CALL ONCE AND FOR PRODUCT THAT HAVE VARIANTS!
-			if ($this->useVariants) {
-				$modals = $this->renderEditModals();
-			}
-		}
+    // ------
 
-		// set 'price' and 'other price' values depending on the price fields strategy for the shop
-		$this->setPriceValues();
+    $modals = "";
+    //+++++++++++
+    // IF THE OPTIONAL FEATURE 'ATTRIBUTES' IS CURRENTLY INSTALLED
+    // then set up variants + related modals
+    if (!empty($this->pwcommerce->isVariantsInUse())) {
+      // TODO: @NOTE: DYNAMIC RENDER OF INPUT FOR sku, allow_backorders and quantity: only show this on main product (template 'pwcommerce-product') IF PRODUCT HAS NO VARIANTS!, i.e. useVariants === 0. Otherswise, each variant will have its own sku, quantity and allow overselling policy
+      // TODO @UPDATE: WE NOW SHOW ABOVE BUT FOR ENABLED, QUANTITY, SKU & BACKORDERS, WE HIDE FROM PRODUCT ONLY IF THEY HAVE VARIANTS
+      // -----
+      // set if current page is a product variant
+      $this->isProductVariant = $this->isProductVariant();
 
-		// NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
-		// @note: we use class here instead of id since this field will be used multiple times on the same page in case a product has variants.
-		$out = "<div class='pwcommerce_product_stock_wrapper'>" . $this->buildForm() . "</div>";
-		$out .= $modals;
+      // set if current page is a product AND it uses variants
+      $this->useVariants = $this->isUsingVariants($this->page);
+      // set if current page is a product, uses variants AND HAS VARIANTS
+      // $this->hasExistingVariants = (int)$this->checkHasExistingVariants($this->page);
+      $this->hasExistingVariants = empty($this->checkHasExistingVariants($this->page)) ? 0 : 1;
+      // @note: link to open it is in runtime markup.
+      // TODO: @NOTE: ONLY CALL ONCE AND FOR PRODUCT THAT HAVE VARIANTS!
+      if ($this->useVariants) {
+        $modals = $this->renderEditModals();
+      }
+    }
 
-		return $out;
-	}
+    // set 'price' and 'other price' values depending on the price fields strategy for the shop
+    $this->setPriceValues();
 
-	/**
-	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
-	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
-	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
-		// if currency locale set..
-		// grab symbol; we use on price fields description
-		$shopCurrencySymbolString = $this->pwcommerce->renderShopCurrencySymbolString();
-		if (strlen($shopCurrencySymbolString)) {
-			$this->shopCurrencySymbolString = " " . $shopCurrencySymbolString;
-		}
-		// -------------
-		return parent::renderReady($parent, $renderValueMode);
-	}
+    // NORMAL NON-AJAX/SAVED OUTPUT FOR SAVED VALUES
+    // @note: we use class here instead of id since this field will be used multiple times on the same page in case a product has variants.
+    $out = "<div class='pwcommerce_product_stock_wrapper'>" . $this->buildForm() . "</div>";
+    $out .= $modals;
 
-	private function renderEditModals() {
-		$pageID = $this->page->id;
+    return $out;
+  }
 
-		//---------------
-		// @note: here htmx listens to an event that will be fired after the POST request to create variants 'has settled'. htxm will then issue a requrest to runtime markup to update its variants lists. We need to add the htmx code here so it is within the parent chain of the POST button (bubbling). @see for more info: https: // github.com/bigskysoftware/htmx/issues/187 and this for reference: https: // github.com/bigskysoftware/htmx/issues/339
+  /**
+   * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
+   *
+   * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
+   * @param bool $renderValueMode Whether renderValueMode will be used.
+   * @return bool
+   *
+   */
+  public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+    // if currency locale set..
+    // grab symbol; we use on price fields description
+    $shopCurrencySymbolString = $this->pwcommerce->renderShopCurrencySymbolString();
+    if (strlen($shopCurrencySymbolString)) {
+      $this->shopCurrencySymbolString = " " . $shopCurrencySymbolString;
+    }
+    // -------------
+    return parent::renderReady($parent, $renderValueMode);
+  }
 
-		// @note: the url field is to InputfieldPWCommerceRuntimeMarkup field!
-		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
-		$adminEdit = "{$adminEditURL}?id={$this->page->id}&field=pwcommerce_runtime_markup&context=refresh";
+  private function renderEditModals() {
+    $pageID = $this->page->id;
 
-		// @note: these open in modals! they interact with alpine JS
-		// TODO: DO WE NEED ' hx-indicator' here?
-		// TODO: @update - this works but we won't use it; will need to reinit images, etc!. for now, we will refresh the page or tell user to do so or replace with page needs reloading.. or are you sure, etc
-		// TODO: UPDATE! TRYING TO GET REFRESH OF VARIANTS LIST TO WORK WITH ALPINE JS! SIMPLE X-FOR LOOP! MIGHT WORK?
-		// TODO: UPDATE - 6.20PM - BACK IN PLAY! SUCCESS! - can add this and init most fields!
-		// TODO: UPDATE: 22.12 - MOSTLY WORKS! EVENT SELECTIZE WORKS! IMAGES SORTING AND UPLOAD WORK; ONLY NAGGING THING IS ONLY IMAGES DON'T WANT TO BE LIMITED TO NEW! SO, MANY SELECTS! BUT CAN TRY ISOLATE THEM. TODO => HOW TO SEND  NEW VARIANTS IDS/ hx-params / hx-include / hx-cofigrequest? via session or wirecache? https://htmx.org/docs/#parameters
-		// TODO @UPDATE: FRIDAY 6 AUGUST 2021! -hx-include works great! we get CSV values from an inputfield inserted in the dom by htmx as a response to the trigger that created new variants
-		// @see: hx-include: https: //htmx.org/attributes/hx-include/
-		// @note: this '.pwcommerce_product_created_variants' will come back from server as part of response when new variants created
-		$target = "#wrap_Inputfield_pwcommerce_runtime_markup > div > ul:nth-child(2)";
-		// TODO: unsure if we need this from:body? => 'hx-trigger='pwcommercerefreshinputfieldruntimemarkuplist from:body'
-		// hx-include='#pwcommerce_product_created_variants_ids'
-		// @note: now using the class 'pwcommerce_product_created_variants' so that we can include both: input#pwcommerce_product_created_variants_ids and input#pwcommerce_created_items_timestamp
-		$out = "<div id='pwcommerce_product_main_edit_modals' class='pwcommerce_reload_inputfield_runtimemarkup_list' x-data='InputfieldPWCommerceProductStockData' hx-trigger='pwcommercerefreshinputfieldruntimemarkuplist' hx-target='{$target}' hx-get='{$adminEdit}' hx-swap='beforeend' hx-include='.pwcommerce_product_created_variants'>" .
+    //---------------
+    // @note: here htmx listens to an event that will be fired after the POST request to create variants 'has settled'. htxm will then issue a requrest to runtime markup to update its variants lists. We need to add the htmx code here so it is within the parent chain of the POST button (bubbling). @see for more info: https: // github.com/bigskysoftware/htmx/issues/187 and this for reference: https: // github.com/bigskysoftware/htmx/issues/339
 
-			// initialise modal for product variants generations/edit
-			$this->getModalMarkupForBuildProductVariants() .
-			//-------------
-			"</div>";
+    // @note: the url field is to InputfieldPWCommerceRuntimeMarkup field!
+    $adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
+    $adminEdit = "{$adminEditURL}?id={$this->page->id}&field=pwcommerce_runtime_markup&context=refresh";
 
-		// TODO; EXPERIMENTAL AS TARGET WILL BE DYNAMIC DEPENDING ON  ATTRIBUTE OPTION BEING EDITED!
+    // @note: these open in modals! they interact with alpine JS
+    // TODO: DO WE NEED ' hx-indicator' here?
+    // TODO: @update - this works but we won't use it; will need to reinit images, etc!. for now, we will refresh the page or tell user to do so or replace with page needs reloading.. or are you sure, etc
+    // TODO: UPDATE! TRYING TO GET REFRESH OF VARIANTS LIST TO WORK WITH ALPINE JS! SIMPLE X-FOR LOOP! MIGHT WORK?
+    // TODO: UPDATE - 6.20PM - BACK IN PLAY! SUCCESS! - can add this and init most fields!
+    // TODO: UPDATE: 22.12 - MOSTLY WORKS! EVENT SELECTIZE WORKS! IMAGES SORTING AND UPLOAD WORK; ONLY NAGGING THING IS ONLY IMAGES DON'T WANT TO BE LIMITED TO NEW! SO, MANY SELECTS! BUT CAN TRY ISOLATE THEM. TODO => HOW TO SEND  NEW VARIANTS IDS/ hx-params / hx-include / hx-cofigrequest? via session or wirecache? https://htmx.org/docs/#parameters
+    // TODO @UPDATE: FRIDAY 6 AUGUST 2021! -hx-include works great! we get CSV values from an inputfield inserted in the dom by htmx as a response to the trigger that created new variants
+    // @see: hx-include: https: //htmx.org/attributes/hx-include/
+    // @note: this '.pwcommerce_product_created_variants' will come back from server as part of response when new variants created
+    $target = "#wrap_Inputfield_pwcommerce_runtime_markup > div > ul:nth-child(2)";
+    // TODO: unsure if we need this from:body? => 'hx-trigger='pwcommercerefreshinputfieldruntimemarkuplist from:body'
+    // hx-include='#pwcommerce_product_created_variants_ids'
+    // @note: now using the class 'pwcommerce_product_created_variants' so that we can include both: input#pwcommerce_product_created_variants_ids and input#pwcommerce_created_items_timestamp
+    $out = "<div id='pwcommerce_product_main_edit_modals' class='pwcommerce_reload_inputfield_runtimemarkup_list' x-data='InputfieldPWCommerceProductStockData' hx-trigger='pwcommercerefreshinputfieldruntimemarkuplist' hx-target='{$target}' hx-get='{$adminEdit}' hx-swap='beforeend' hx-include='.pwcommerce_product_created_variants'>" .
 
-		$out .= "<div id='search-results' x-data='InputfieldPWCommerceProductStockData'></div>";
+      // initialise modal for product variants generations/edit
+      $this->getModalMarkupForBuildProductVariants() .
+      //-------------
+      "</div>";
 
-		return $out;
-	}
+    // TODO; EXPERIMENTAL AS TARGET WILL BE DYNAMIC DEPENDING ON  ATTRIBUTE OPTION BEING EDITED!
 
-	private function renderBuildVariantsTabs() {
+    $out .= "<div id='search-results' x-data='InputfieldPWCommerceProductStockData'></div>";
 
-		$xstore = $this->xstore;
-		$selectOptions = $this->_('Edit Options');
-		$preview = $this->_('Preview');
-		$selectOptionsContent = $this->getGenerateProductVariantsMarkup();
-		$previewContent = $this->buildProductVariantsPreview();
-		$value = $this->attr('value');
+    return $out;
+  }
 
-		// $mainProductPrice = $value->price;
-		// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
-		$mainProductPrice = $this->pwcommerce->localeConvertValue($value->price);
-		$productAttributesCount = $this->getProductAttributes()->count;
+  private function renderBuildVariantsTabs() {
 
-		$hasExistingVariants = empty($this->hasExistingVariants) ? 0 : 1;
-		$formattedExistingVariantsOptionsIDs = $this->getFormmattedExistingVariantsOptionsIDs();
+    $xstore = $this->xstore;
+    $selectOptions = $this->_('Edit Options');
+    $preview = $this->_('Preview');
+    $selectOptionsContent = $this->getGenerateProductVariantsMarkup();
+    $previewContent = $this->buildProductVariantsPreview();
+    $value = $this->attr('value');
 
-		// prepare object for alpine's use in the generate variants preview modal
-		// product price; to set initial variant's prices; attributes_count: to verify number of expected options groups; has_existing_variants; to check if this product has existing variants, meaning potential deletion of these if new variants are generated; existing_variants to show in generated that the variant exists (TODO: needed?)
+    // $mainProductPrice = $value->price;
+    // @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+    $mainProductPrice = $this->pwcommerce->localeConvertValue($value->price);
+    $productAttributesCount = $this->getProductAttributes()->count;
 
-		// @note: no longer works since existing_variants is an array
-		// $mainProductData = "{product_price: $mainProductPrice, attributes_count: $productAttributesCount, has_existing_variants: $hasExistingVariants, existing_variants: $formattedExistingVariantsOptionsIDs}";
-		$mainProductData = json_encode(['product_price' => $mainProductPrice, 'attributes_count' => $productAttributesCount, 'has_existing_variants' => $hasExistingVariants, 'existing_variants' => $formattedExistingVariantsOptionsIDs]);
+    $hasExistingVariants = empty($this->hasExistingVariants) ? 0 : 1;
+    $formattedExistingVariantsOptionsIDs = $this->getFormmattedExistingVariantsOptionsIDs();
 
-		// INIT ALPINE IN PREVIEW VARIANTS MODAL
-		//         <div x-data='InputfieldPWCommerceProductStockData' x-init='initMainProductData($mainProductData)' id='pwcommerce_product_variants_build_tab_wrapper' x-show='!{$xstore}.is_creating_variants'> => x-show NOT WORKING! MAYBE BECAUSE OF THE JS ERRORS WE ARE GETTING ABOUT 'l is not a function!' also don't know why jquerycore is being called there! for now, try to use class instead
-		// @note: we are using JavaScript's short-circuit evaluation && here!
-		$out =
-			<<<EOT
+    // prepare object for alpine's use in the generate variants preview modal
+    // product price; to set initial variant's prices; attributes_count: to verify number of expected options groups; has_existing_variants; to check if this product has existing variants, meaning potential deletion of these if new variants are generated; existing_variants to show in generated that the variant exists (TODO: needed?)
+
+    // @note: no longer works since existing_variants is an array
+    // $mainProductData = "{product_price: $mainProductPrice, attributes_count: $productAttributesCount, has_existing_variants: $hasExistingVariants, existing_variants: $formattedExistingVariantsOptionsIDs}";
+    $mainProductData = json_encode(['product_price' => $mainProductPrice, 'attributes_count' => $productAttributesCount, 'has_existing_variants' => $hasExistingVariants, 'existing_variants' => $formattedExistingVariantsOptionsIDs]);
+
+    // INIT ALPINE IN PREVIEW VARIANTS MODAL
+    //         <div x-data='InputfieldPWCommerceProductStockData' x-init='initMainProductData($mainProductData)' id='pwcommerce_product_variants_build_tab_wrapper' x-show='!{$xstore}.is_creating_variants'> => x-show NOT WORKING! MAYBE BECAUSE OF THE JS ERRORS WE ARE GETTING ABOUT 'l is not a function!' also don't know why jquerycore is being called there! for now, try to use class instead
+    // @note: we are using JavaScript's short-circuit evaluation && here!
+    $out =
+      <<<EOT
 <div x-data='InputfieldPWCommerceProductStockData' x-init='initMainProductData($mainProductData)' id='pwcommerce_product_variants_build_tab_wrapper' :class='{$xstore}.is_creating_variants && `hidden`'>
 <nav class='pb-5'>
 <a class='mr-3' :class="{ 'active': {$xstore}.build_variants_tab === 'select_options' }" @click.prevent="setActiveBuildVariantsTab('select_options')" href="#">{$selectOptions}</a>
@@ -262,1358 +262,1372 @@ class InputfieldPWCommerceProductStock extends Inputfield
 </div>
 
 EOT;
-		// CONTENT TO SHOW IN MODAL WHEN IN 'IS CREATING VARIANTS PHASE' + for VARIANTS CREATION OUTCOME
-		// @note: at this point, the ajax request has been made. Show a spinnner and on success (TODO!) close the modal. On error (TODO!) show the error
-		// TODO: success message should come in here and very briefly after send window request to alpine to close modal!
-		// TODO @NOTE: @SEE ERROR above about x-show; whilst below is working, for consistency, we also bind class instead
-		// @note: we are using JavaScript's short-circuit evaluation && here!
-		$out .= "<div x-data='InputfieldPWCommerceProductStockData' @pwcommerceproductgeneratevariantsisfinished.window='resetProductVariantsAndClose(true)' id='pwcommerce_product_variants_is_creating_wrapper' class='flex justify-center items-center mt-10' :class='!{$xstore}.is_creating_variants && `hidden`'>" .
-			// TODO: NEED SPINNER TO SHOW UNTIL REFRESH FINISHED! PLUS NEED SHOW MESSAGE ABOUT REFRESHING VARIANTS LIST, PLEASE WAIT..IN FACT, THAT SPINNER SHOULD BE ON THE REFRESH PLEASE WAIT PARAGRAPH! MEANING, WE SET IT USING ALPINE, WHICH WILL BE X-SHOW OR 'HIDDEN' A PARAGRAPH DEPENDING ON A STORE PROPERTY! E.G. is_refreshing_variants_list! WHICH WOULD BE A BOOL! WILL NEED TO REVERT THAT TO FALSE WHEN MODAL CLOSES/REOPENS!
-			"<p id='pwcommerce_product_variants_creation_outcome'>" . $this->_('Creating variants. Please wait') . "&hellip;" . $this->getGenerateVariantsIsCreatingSpinner() . "</p>" .
-			"</div>";
-		//----------------
-		// REFRESHING VARIANTS LIST AFTER SUCCESSFUL CREATION + UPDATING 'existing_variants'
-		$out .= "<div x-data='InputfieldPWCommerceProductStockData' @pwcommerceproductisrefreshingvariantslist.window='setIsRefreshingVariantsList(true)' @pwcommerceproductupdateexistingvariantslist.window='updateExistingVariantsList' id='pwcommerce_product_variants_is_refreshing_list_wrapper' class='flex justify-center items-center mt-5' :class='!{$xstore}.is_refreshing_variants_list && `hidden`'>" .
-			"<p id='pwcommerce_product_variants_is_refreshing_list'>" . $this->_('Refreshing variants list. Please wait') . "&hellip;" . $this->getGenerateVariantsIsCreatingSpinner() . "</p>" .
-			"</div>";
-		//---------------
-
-		$wrapper = $this->pwcommerce->getInputfieldWrapper();
-
-		$options = [
-			'skipLabel' => Inputfield::skipLabelHeader,
-			'collapsed' => Inputfield::collapsedNever,
-			'wrapClass' => true,
-			// TODO: DELETE IF NOT IN USE
-			'classes' => 'pwcommerce_override_processwire_inputfield_content_padding_left',
-			'wrapper_classes' => 'pwcommerce_no_outline',
-			'value' => $out,
-		];
-
-		$field = $this->pwcommerce->getInputfieldMarkup($options);
-		$wrapper->add($field);
-
-		return $wrapper->render();
-	}
-
-	private function buildForm() {
-
-		// TODO: WE'LL NEED TO DYNAMICALLY SHOW ENABLE INPUT ONLY ON VARIANT PAGES; QUANTITY WILL BE ON PRODUCT IF NO VARIANTS, ELSE ON VARIANTS;  SAME FOR BACKORDERS; PRICES WILL BE ON BOTH AS WELL AS SKU
-
-		/** @var WireData $value */
-		$value = $this->attr('value');
-		$page = $this->page;
-		$pageID = $this->page->id;
-
-		// GET WRAPPER FOR ALL INPUTFIELDS HERE
-		$wrapper = $this->pwcommerce->getInputfieldWrapper();
-
-		// @note: we need page->id suffixes to id and names of inputs since this field will be used multiple times on the same page in case a product has variants.
-
-		/*
-																																																																																																																																																																																						@note:
-																																																																																																																																																																																						- if a product IS USING VARIANTS we hide 'enabled', 'sku', 'allow_backorders' and 'quantity' inputs.
-																																																																																																																																																																																						- using variants means that setting is enabled; it doesn't infer no product variants created yet!
-																																																																																																																																																																																						*/
-
-		//------------------- enabled (getInputfieldCheckbox)
-
-		if (!$this->useVariants) {
-
-			// by default (no value saved yet) - enable product/variant
-			if (is_null($value->enabled)) {
-				$checked = true;
-			} else {
-				$checked = empty($value->enabled) ? false : true;
-			}
-
-			$strings = $this->getInputfieldStrings();
-			$enabledNotes = $strings['enabled_notes'];
-
-			$options = [
-				'id' => "pwcommerce_product_stock_enabled{$pageID}",
-				'name' => "pwcommerce_product_stock_enabled{$pageID}",
-				'label' => $this->_('Enabled'),
-				// TODO: make dynamic for product vs variants
-				// 'notes' => $notes,
-				'notes' => $enabledNotes,
-				'collapsed' => Inputfield::collapsedNever,
-				'columnWidth' => 50,
-				'wrapClass' => true,
-				'wrapper_classes' => 'pwcommerce_no_outline',
-				'checked' => $checked,
-			];
-
-			$field = $this->pwcommerce->getInputfieldCheckbox($options);
-			$wrapper->add($field);
-
-			//------------------- sku (getInputfieldText)
-
-			$options = [
-				'id' => "pwcommerce_product_stock_sku{$pageID}",
-				'name' => "pwcommerce_product_stock_sku{$pageID}",
-				'label' => $this->_('SKU'),
-				'collapsed' => Inputfield::collapsedNever,
-				'columnWidth' => 50,
-				'wrapClass' => true,
-				'wrapper_classes' => 'pwcommerce_no_outline',
-				'value' => $value->sku,
-			];
-
-			$field = $this->pwcommerce->getInputfieldText($options);
-			$wrapper->add($field);
-		}
-
-		$strings = $this->getInputfieldStrings();
-
-		// ++++++++++++++++++++
-
-		if (!empty($this->isUseSaleAndNormalPriceFields)) {
-			// SALE AND NORMAL PRICE FIELDS STRATEGY
-			# +++++++++++
-
-			if ($this->isProductVariant) {
-				// PRODUCT VARIANT STRINGS
-				// labels
-				$priceLabel = $strings['variant_sale_price_label'];
-				$otherPriceLabel = $strings['variant_normal_price_label'];
-				// descriptions
-				$priceDescription = $strings['variant_sale_price_description'];
-				$otherPriceDescription = $strings['variant_normal_price_description'];
-				// notes
-				$priceNotes = $strings['variant_sale_price_notes'];
-				$otherPriceNotes = $strings['variant_normal_price_notes'];
-			} else {
-				// PRODUCT STRINGS
-				// labels
-				$priceLabel = $strings['sale_price_label'];
-				$otherPriceLabel = $strings['normal_price_label'];
-				// descriptions
-				$priceDescription = $strings['sale_price_description'];
-				$otherPriceDescription = $strings['normal_price_description'];
-				// notes
-				$priceNotes = $strings['sale_price_notes'];
-				$otherPriceNotes = $strings['normal_price_notes'];
-			}
-		} else {
-			// PRICE AND COMPARE PRICE FIELDS STRATEGY
-			# +++++++++++
-
-			if ($this->isProductVariant) {
-				// PRODUCT VARIANT STRINGS
-				// labels
-				$priceLabel = $strings['variant_price_label'];
-				$otherPriceLabel = $strings['variant_compare_price_label'];
-				// descriptions
-				$priceDescription = $strings['variant_price_description'];
-				$otherPriceDescription = $strings['variant_compare_price_description'];
-				// notes
-				$priceNotes = $strings['variant_price_notes'];
-				$otherPriceNotes = $strings['variant_compare_price_notes'];
-			} else {
-				// PRODUCT STRINGS
-				// labels
-				$priceLabel = $strings['price_label'];
-				$otherPriceLabel = $strings['compare_price_label'];
-				// descriptions
-				$priceDescription = $strings['price_description'];
-				$otherPriceDescription = $strings['compare_price_description'];
-				// notes
-				$priceNotes = $strings['price_notes'];
-				$otherPriceNotes = $strings['compare_price_notes'];
-			}
-
-		}
-		// ++++++++++++++++++++
-
-		//------------------- 'price' or 'sale_price' (getInputfieldText)
-
-		$options = [
-			'id' => "pwcommerce_product_stock_price{$pageID}",
-			'name' => "pwcommerce_product_stock_price{$pageID}",
-			'type' => 'number',
-			'step' => '0.01',
-			'min' => 0,
-			'label' => $priceLabel,
-			'description' => $priceDescription,
-			'notes' => $priceNotes,
-			'required' => $this->getIsPriceFieldRequired(),
-			'collapsed' => Inputfield::collapsedNever,
-			'columnWidth' => 50,
-			'wrapClass' => true,
-			'wrapper_classes' => 'pwcommerce_no_outline',
-			// 'value' => $value->price,
-			// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
-			// 'value' => $this->pwcommerce->localeConvertValue($value->price)
-			'value' => $this->pwcommerce->localeConvertValue($this->price)
-		];
-
-		$field = $this->pwcommerce->getInputfieldText($options);
-
-		// FIELD ERRORS
-		$errorForSaleAndNormalPriceFields = NULL;
-		$errorForPriceAndComparePriceFields = NULL;
-		# FOR 'SALE' AND 'NORMAL' PRICING
-		if ($this->isUseSaleAndNormalPriceFields) {
-			// SALE PRICE GREATER THAN NORMAL PRICE
-			if ($this->price > $this->otherPrice)
-				if ($this->isProductVariant) {
-					$errorForSaleAndNormalPriceFields = $this->_('Variant sale price is greater than variant normal price.');
-				} else {
-					$errorForSaleAndNormalPriceFields = $this->_('Sale price is greater than normal price.');
-				}
-		} else {
-			# FOR 'PRICE' AND 'COMPARE' PRICING
-			// PRICE GREATER THAN COMPARE PRICE WHEN COMPARE PRICE IS NOT EMPTY/GREATER THAN ZERO
-			// NOTE: THIS ASSUMES THAT A COMPARE PRICE OF ZERO MEANS THERE IS NO COMPARE PRICE
-			if ($this->otherPrice > 0 && $this->price > $this->otherPrice) {
-				if ($this->isProductVariant) {
-					$errorForPriceAndComparePriceFields = $this->_('Current variant price is greater than the previous variant price.');
-				} else {
-					$errorForPriceAndComparePriceFields = $this->_('Current price is greater than the previous price.');
-				}
-			}
-		}
-		if (!empty($errorForSaleAndNormalPriceFields)) {
-			// show the error on the sale price side
-			$field->error($errorForSaleAndNormalPriceFields);
-		}
-
-
-
-		$wrapper->add($field);
-
-		//------------------- 'compare_price' OR 'normal_price' (getInputfieldText)
-
-		// @NOTE: NOT USED BY GIFT CARD PRODUCT VARIANTS
-		if ($this->getInputfieldStringsType() !== 'gift_card_variant') {
-			$options = [
-				'id' => "pwcommerce_product_stock_compare_price{$pageID}",
-				'name' => "pwcommerce_product_stock_compare_price{$pageID}",
-				'type' => 'number',
-				'step' => '0.01',
-				'min' => 0,
-				// 'label' => $this->_('Compare Price'),
-				'label' => $otherPriceLabel,
-				// 'description' => $description,
-				'description' => $otherPriceDescription,
-				'notes' => $otherPriceNotes,
-				// 'notes' => $this->_('Former price.'),
-				'required' => $this->getIsPriceFieldRequired('compare_price_or_normal_price'),
-				'collapsed' => Inputfield::collapsedNever,
-				'columnWidth' => 50,
-				'wrapClass' => true,
-				'wrapper_classes' => 'pwcommerce_no_outline',
-				// 'value' => $value->comparePrice,
-				// @note: server-side locale-aware value converted to properly render in HTML5 input of type number
-				// 'value' => $this->pwcommerce->localeConvertValue($value->comparePrice)
-				'value' => $this->pwcommerce->localeConvertValue($this->otherPrice)
-			];
-
-			$field = $this->pwcommerce->getInputfieldText($options);
-			if (!empty($errorForPriceAndComparePriceFields)) {
-				// show the error on the compare price side
-				$field->error($errorForPriceAndComparePriceFields);
-			}
-			$wrapper->add($field);
-		}
-
-		if (!$this->useVariants) {
-
-			//------------------- quantity (getInputfieldText)
-
-			if ($this->isProductVariant) {
-				$label = $this->_('Variant Quantity');
-			} else {
-				$label = $this->_('Quantity');
-			}
-
-			$options = [
-				'id' => "pwcommerce_product_stock_quantity{$pageID}",
-				'name' => "pwcommerce_product_stock_quantity{$pageID}",
-				'type' => 'number',
-				'step' => '1',
-				'min' => 0,
-				'label' => $label,
-				'collapsed' => Inputfield::collapsedNever,
-				'columnWidth' => 50,
-				'wrapClass' => true,
-				'wrapper_classes' => 'pwcommerce_no_outline',
-				'value' => $value->quantity,
-			];
-
-			// get product settings to build note about not tracking inventory if necessary
-			// if a variant, we need to get settings from parent page
-			if ($this->isProductVariant()) {
-				$settings = $this->page->parent->get(PwCommerce::PRODUCT_SETTINGS_FIELD_NAME);
-			} else {
-				$settings = $this->page->get(PwCommerce::PRODUCT_SETTINGS_FIELD_NAME);
-			}
-
-			if (empty($settings->trackInventory)) {
-				$options['notes'] = $this->_('Please note that this product does not currently track inventory.');
-			}
-
-			$field = $this->pwcommerce->getInputfieldText($options);
-			$wrapper->add($field);
-
-			//------------------- allowBackorders (getInputfieldCheckbox)
-
-			if ($this->isProductVariant) {
-				$label = $this->_('Variant Allows Backorders');
-			} else {
-				$label = $this->_('Allow Backorders');
-			}
-
-			$strings = $this->getInputfieldStrings();
-			$backordersNotes = $strings['backorders_notes'];
-
-			$options = [
-				'id' => "pwcommerce_product_stock_allow_backorders{$pageID}",
-				'name' => "pwcommerce_product_stock_allow_backorders{$pageID}",
-				'label' => $label,
-				//    'label2' => $this->_('overselling'),
-				// TODO: make dynamic for product vs variants
-				// 'notes' => $notes,
-				'notes' => $backordersNotes,
-				'collapsed' => Inputfield::collapsedNever,
-				'columnWidth' => 50,
-				'wrapClass' => true,
-				'wrapper_classes' => 'pwcommerce_no_outline',
-				'checked' => empty($value->allowBackorders) ? false : true,
-			];
-
-			$field = $this->pwcommerce->getInputfieldCheckbox($options);
-			$wrapper->add($field);
-		}
-
-		//----------------------
-
-		$out = $wrapper->render();
-
-		return $out;
-	}
-
-	// build single row of the grid of attribute -> attribute-options for generating variants.
-	// $page here is an attribute page selected in the product page's attribute page ref field.
-	private function buildProductAttributeAndOptionsRow($attribute, $attributeOptionsInExistingVariants) {
-
-		// $out = "<select class='input-tags'></select/>";
-		// return $out;
-
-		//##############
-		// TODO: ADD PAGEAUTOCOMPLETE!
-		// TODO; DO WE NEED HIDDEN INPUT HERE FOR IDS MAYBE?
-		// TODO ADD HTMX HERE ON ON PARENT DIV ABOVE?
-		$out = "
-			<div id='pwcommerce_product_attribute_options_list{$attribute->id}'>" .
-			$this->buildProductAttributeOptionsAutocomplete($attribute, $attributeOptionsInExistingVariants) .
-			"</div>";
-		return $out;
-	}
-
-	private function buildProductAttributeOptionsAutocomplete($attribute, $attributeOptionsInExistingVariants) {
-
-		$attributeID = $attribute->id;
-
-		//------------------- pwcommerce product variants generation attibute options (InputfieldTextTags)
-		// @note: results will be limited to this $attributeID's children!
-		// parent is the 'attribute' that is the parent of this 'attribute options'
-		$pageSelector = "template=pwcommerce-attribute-option,parent_id={$attributeID},limit=50, status<" . Page::statusTrash;
-		$wrapper = $this->pwcommerce->getInputfieldWrapper();
-
-		$pageID = $this->page->id;
-		$name = $this->name;
-
-		// @note: without the id and field params, processwire will send this to bookmarks! with them, it will send them to this inputfield.
-		//
-		// $tagsURL = "{$adminEdit}?id={$pageID}&field={$name}&parent_id={$attributeID}&context=options&q={q}";
-		$customHookURL = "/find-pwcommerce_product_attributes/";
-		$tagsURL = "{$customHookURL}?id={$pageID}&field={$name}&parent_id={$attributeID}&context=options&q={q}";
-		$label = sprintf(__("%s options"), $attribute->title);
-		//   $placeholder = $this->_('Start typing to search.');
-		//   $placeholder = sprintf(__("Begin typing to search for %s options"), mb_strtolower($attribute->title));
-		// TODO: REPHRASE?
-		$placeholder = sprintf(__("Type at least 3 characters to search for %s options"), mb_strtolower($attribute->title));
-		//--------------
-
-		$optionsTextTags = [
-			'id' => "pwcommerce_product_generate_variants_attribute_options{$attributeID}",
-			'name' => "pwcommerce_product_generate_variants_attribute_options{$attributeID}",
-			'required' => true,
-			// TODO: OK?
-			'pageSelector' => $pageSelector,
-			'useAjax' => true,
-			'closeAfterSelect' => false,
-			'tagsUrl' => $tagsURL,
-			'placeholder' => $placeholder,
-			'label' => $label,
-			'collapsed' => Inputfield::collapsedNever,
-			'wrapClass' => true,
-			'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_override_processwire_inputfield_header_padding_top pwcommerce_override_processwire_inputfield_header_padding_left pwcommerce_override_processwire_inputfield_content_padding_bottom pwcommerce_override_processwire_inputfield_content_padding_left',
-			// TODO: DO WE NEED THIS? IF YES, SHOULD BE SET TO CURRENT VALUES IF EDITING! I.E., THE IDS OF THE OPTIONS IN THE 'HIDDEN' PAGE REF FOR ATTRIBUTE OPTIONS ON THE PAGE!
-			// TODO: IF SETTING, IS IT AN ARRAY OR CSV?!!!
-			//    'value' => XXXXX,
-		];
-
-		$field = $this->pwcommerce->getInputfieldTextTags($optionsTextTags);
-		// doesn't work as expected; both treated as labels!
-		//   $field->val('1133 Red');
-		// above in combination with below seems to work, although we get an _ before the value, but no matter as we don't use it ourselves??? yes we do! we would have to remove it!
-		// TODO: trying multiple values
-		// @note: this method does not exist!
-		// $field->value(['1133', '1140']);
-		// set existing variants' options if they exist
-		if (!empty($attributeOptionsInExistingVariants)) {
-			$field->val(array_keys($attributeOptionsInExistingVariants));
-			$field->setTagsList($attributeOptionsInExistingVariants);
-		}
-		// TODO:  TEST IF CAN ADD ATTRS HERE, E.G. ref for ALPINE JS, ETC - yes we can but they don't get fired since changes are made programmatically by selectize and not the user!
-		//   $field->attr('x-on:input', 'something');
-		//   $field->attr('x-on:change', 'another');
-		// @note: doesn't work: $field->addClass('kilimanjaro');
-		//-------------
-
-		$wrapper->add($field);
-		// TODO: I DON'T THINK THIS WILL WORK! - nope; it doesn't!
-		//   return $field->render();
-		return $wrapper->render();
-	}
-
-	// TODO - BUILD PREVIEW FOR VARIANTS BASED ON SELECTED ATTRIBUTE OPTIONS
-	// TODO: alpine js - it!!!
-	// TODO: MIGHT RENAME METHOD + SPLIT IT UP!
-	private function buildProductVariantsPreview() {
-
-		$xstore = $this->xstore;
-
-		$button = $this->getGenerateVariantsPreviewButton();
-		// TODO: amend? too long? own tab? collapsible?
-		$extraGenerateVariantsInfo = $this->getExtraGenerateVariantsInfo();
-
-		$out = "<div x-show='{$xstore}.is_ready_for_generate_variants'>" .
-			$button .
-			"<small>" .
-			"<a x-show='!{$xstore}.is_show_information_for_generate_variants' @click='toggleShowInformationForGenerateVariants'>" . $this->_('view instructions') . "</a>" .
-			"<a x-show='{$xstore}.is_show_information_for_generate_variants' @click='toggleShowInformationForGenerateVariants'>" . $this->_('hide instructions') . "</a>" .
-			"</small>" .
-			// TODO: revisit this x-transition!
-			"<p class='notes' x-show='{$xstore}.is_show_information_for_generate_variants' x-transition>{$extraGenerateVariantsInfo}</p>" .
-			"</div>" .
-			"<hr>";
-
-		// ####################
-		// loop through  variants_preview_items in the alpine js store
-
-		//---------------------------
-
-		// @note: these inputfields will be rendered in alpine JS x-for loop!
-		//###################
-
-		//------------------- product variant preview: SELECTED OPTIONS IDs (getInputfieldHidden)
-		$hiddenVariantOptionsIDsMarkup = $this->getGenerateVariantsSelectedOptionsIDsHiddenInput();
-		//TODO: WE WANT A VALUE TO BE ALWAYS SUBMITTED, OTHERWISE WILL 'IMBALANCE' ARRAY - SO FORCE VALUE 0/1 USING ALPINE OR VANILLA JS - ALTERNATIVELY, TRY HIDDEN INPUT, BUT WOULD HAVE TO TOGGLE ITS  VALUE AS 0/1 PER THIS CHECKBOX -> TODO: @SEE BELOW; USING HIDDEN INPUT
-		//------------------- product variant preview: ENABLED (getInputfieldCheckbox)
-		$enabledCheckboxMarkup = $this->getGenerateVariantsEnabledCheckbox();
-		//------------------- product variant enabled status: ENABLED STATUS (getInputfieldHidden)
-		$hiddenVariantEnabledStatusMarkup = $this->getGenerateVariantsEnabledStatusHiddenInput();
-		// TODO DELETE WHEN DONE: WE NOW GRAB TITLES ON THE SERVER USING VARIANTS IDs (hiddenVariantOptionsIDsMarkup)
-		//------------------- product variant preview: TITLE (getInputfieldHidden)
-		// @note: we use this hidden inputfield to save the generated titles of variants.
-		// $hiddenVariantTitleMarkup = $this->getGenerateVariantsTitleHiddenInput();
-		//------------------- product variant preview: PRICE (getInputfieldText)
-		$priceMarkup = $this->getGenerateVariantsPriceTextInput();
-		//------------------- product variant preview: SKU (getInputfieldText)
-		$skuMarkup = $this->getGenerateVariantsSKUTextInput();
-
-		// TODO: WILL NEED TO add :key=index in loop
-		// TODO: REMOVE THIS CLASSES IF NOT NEEDED AS WE REMOVE IMMEDIATELY! - but keep the 'pwcommerce_trash' as we need it in the csss
-		$trashMarkup = $this->getGenerateVariantsTrashMarkup();
-
-		$variantAlreadyExistsInfo = $this->_('variant already exists');
-
-		$variantPriceLabel = $this->_('Price');
-		$variantPriceLabel .= $this->shopCurrencySymbolString;
-
-		//-----------------------------
-		// generated variants preview grid
-		$out .=
-			"<div id='pwcommerce_product_generated_variants_preview_wrapper' @pwcommerceproductgeneratevariantshidepreview.window='handleHideProductGenerateVariantsPreview' x-show='!{$xstore}.is_hide_generate_variants_preview' >" .
-			// :start loop
-			"<template x-for='(variant,index) in {$xstore}.variants_preview_items' :key='index'>" .
-			//  grid
-			"<div class='grid grid-cols-8 gap-4'>" .
-			//----------------
-			// grid items
-			//---------------
-			// variant preview title/name
-			"<div class='col-span-full'>" .
-			"<span x-text='getVariantPreviewNumbering(index)'></span>" .
-			"<span x-text='variant.label'></span>" .
-			//---------------
-			// @note: show if variant already exists. for use in 'regenerate' variants
-			"<template x-if='checkVariantAlreadyExists(variant)'>" .
-			"<span class='ml-1'>" .
-			"<small class='pwcommerce_light_gray'>({$variantAlreadyExistsInfo})</small>" .
-			"</span>" .
-			"</template>" .
-			//---------------
-			"</div>" .
-
-			// ############### USE/SHOW INPUTS FOR NEW VARIANTS ONLY ###############
-			// @note: to weed out existing variants when in 'regenerate' variants situation
-			// TODO @NOTE:alpine:  A SINGLE TEMPLATE BLOCK DID NOT WORK; NEEDED TO ADD THEM FOR EACH DIV BLOCK!
-			// TODO: in future, might use this as a bulk editor for variants???
-			// @note the use of the input suffix: options_ids_for_name_suffix
-			// e.g. pwcommerce_product_variant_preview_sku123456789012
-			//----------------
-			// hidden input for variant options IDs + enabled checkbox + hidden enabled status input + 'joined' variant title
-			"<template x-if='!checkVariantAlreadyExists(variant)'>" .
-			"<div class='col-span-full md:col-span-1 md:mt-7'>" .
-			$hiddenVariantOptionsIDsMarkup .
-			$enabledCheckboxMarkup .
-			$hiddenVariantEnabledStatusMarkup .
-			// TODO DELETE WHEN DONE; NO LONGER IN USE
-			// $hiddenVariantTitleMarkup .
-			"</div>" .
-			"</template>" .
-			//----------------
-			// price input
-			"<template x-if='!checkVariantAlreadyExists(variant)'>" .
-			"<div class='col-span-full md:col-span-3'>" .
-			// @note: custom label, bind 'for' using alpine JS
-
-			"<label class='InputfieldHeader uk-form-label' :for='`pwcommerce_product_variant_preview_price\${variant.options_ids_for_name_suffix}`'>" . $variantPriceLabel . "</label>" .
-			$priceMarkup .
-			"</div>" .
-			"</template>" .
-			//----------------
-			// sku input
-			"<template x-if='!checkVariantAlreadyExists(variant)'>" .
-			"<div class='col-span-full md:col-span-3'>" .
-			// @note: custom label, bind 'for' using alpine JS
-			"<label class='InputfieldHeader uk-form-label' :for='`pwcommerce_product_variant_preview_sku\${variant.options_ids_for_name_suffix}`'>" . $this->_('SKU') . "</label>" .
-			$skuMarkup .
-			"</div>" .
-			"</template>" .
-			//----------------
-			// trash can
-			"<template x-if='!checkVariantAlreadyExists(variant)'>" .
-			"<div class='col-span-full md:col-span-1 md:mt-7'>" .
-			$trashMarkup .
-			"</div>" .
-			"</template>" .
-			//----------------
-			// ############### :END - SHOW INPUTS FOR NEW VARIANTS ONLY ###############
-			"<hr class='col-span-full'>" .
-			//--------------------
-			// :end grid
-			"</div>" .
-			//-------------------
-			// :end loop
-			"</template>" .
-			"<template x-if='!{$xstore}.is_ready_for_generate_variants'>" .
-			"<span>" . $this->_('You have to specify at least one option for each product attribute before you can generate variants.') . "</span>" .
-			"</template>" .
-			"</div>";
-
-		return $out;
-	}
-
-	private function getGenerateVariantsPreviewButton() {
-		$label = $this->_('Generate Preview');
-		$options = [
-			'label' => $label,
-			'collapsed' => Inputfield::collapsedNever,
-			'small' => true,
-			'wrapClass' => true,
-			'wrapper_classes' => 'pwcommerce_no_outline',
-		];
-
-		$field = $this->pwcommerce->getInputfieldButton($options);
-		// set dynamic alpine JS class attribute to this button
-		// we'll hide it if we are not yet ready to generate variants
-		//   $class = "{ hidden: !{$xstore}.is_ready_for_generate_variants}";
-		// @note: this class bind did not work on this button; maybe because we render it ourselves instead of inside an InputfieldWrapper
-		// @note: x-show works though!
-		$field->attr(
-			[
-				//   'x-bind:class' => $class,
-				// @note: moved to wrapper div below
-				// 'x-show' => "{$xstore}.is_ready_for_generate_variants",
-				'x-on:click' => 'handleGenerateProductVariantsPreview',
-			]
-		);
-		return $field->render();
-	}
-
-	private function getExtraGenerateVariantsInfo() {
-		$out = $this->_('Click the preview button to generate a preview of the variants that will be created based on your current selections. Remove any variants that you do not wish to be generated. When happy with your edits, click the apply button to start the process of creating variants. This might take a while depending on the number of variants that will be created based on the product attributes and their respective options. Please be patient.');
-		return $out;
-	}
-
-	private function getGenerateVariantsSelectedOptionsIDsHiddenInput() {
-		//------------------- product variant preview: SELECTED OPTIONS IDs (getInputfieldHidden)
-		$field = $this->pwcommerce->getInputfieldHidden();
-		$field->attr([
-			'x-bind:id' => '`pwcommerce_product_variant_preview_options_ids${index}`',
-			// @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
-			'x-bind:name' => '`pwcommerce_product_variant_preview_options_ids[]`',
-			// 'x-bind:value' => "{$productVariantPreviewOptionIDsValueFunction}",
-			'x-bind:value' => 'variant.options_ids',
-		]);
-		return $field->render();
-	}
-
-	private function getGenerateVariantsEnabledCheckbox() {
-		//------------------- product variant preview: ENABLED (getInputfieldCheckbox)
-		$options = [
-			//    'name' => "pwcommerce_order_line_item_select_product{$productID}",
-			// @note: skipLabel not working here so pw will use name to create label. So, force no label by setting blank name, but re-add name using alpine js
-			'name' => '',
-			'skipLabel' => Inputfield::skipLabelMarkup,
-			'collapsed' => Inputfield::collapsedNever,
-			'wrapClass' => true,
-			'wrapper_classes' => 'pwcommerce_no_outline',
-		];
-
-		$field = $this->pwcommerce->getInputfieldCheckbox($options);
-		$field->attr([
-			// 'x-on:input' => 'handleProductVariantInPreviewEnabledChange()',
-			'x-bind:id' => '`pwcommerce_product_variant_preview_enabled_toggle${variant.options_ids_for_name_suffix}`',
-			// @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
-			// TODO: delete when done; we don't send this; instead, we send the hidden input counterpart below.
-			//    'x-bind:name' => '`pwcommerce_product_variant_preview_enabled_toggle[]`',
-			'x-model' => "variant.enabled",
-		]);
-		return $field->render();
-	}
-
-	private function getGenerateVariantsEnabledStatusHiddenInput() {
-		//------------------- product variant enabled status: ENABLED STATUS (getInputfieldHidden)
-		// @note: we use this hidden inputfield to track enabled/disabled status of variants
-		// in a POST, this inputfield will always be submitted unlike its counterpart checkbox above.
-		$field = $this->pwcommerce->getInputfieldHidden();
-		$field->attr([
-			'x-bind:id' => '`pwcommerce_product_variant_preview_enabled${variant.options_ids_for_name_suffix}`',
-			// @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
-			// @see 'pwcommerce_product_variant_preview_sku' for issues with names
-			// 'x-bind:name' => '`pwcommerce_product_variant_preview_enabled[]`',
-			'x-bind:name' => '`pwcommerce_product_variant_preview_enabled${variant.options_ids_for_name_suffix}`',
-			// @note: bind 'enabled' or 'disabled' depending on
-			'x-bind:value' => "variant.enabled ? 'enabled' : 'disabled' ",
-		]);
-		return $field->render();
-	}
-
-	// TODO DELETE WHEN DONE: WE NOW GRAB TITLES ON THE SERVER USING VARIANTS IDs
-	private function getGenerateVariantsTitleHiddenInput() {
-		//------------------- product variant preview: PRICE (getInputfieldText)
-		// @note: we use this hidden inputfield to save the generated titles of variants.
-		$field = $this->pwcommerce->getInputfieldHidden();
-		$field->attr([
-			'x-bind:id' => '`pwcommerce_product_variant_preview_title${variant.options_ids_for_name_suffix}`',
-			// @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
-			// @see 'pwcommerce_product_variant_preview_sku' for issues with names
-			//    'x-bind:name' => '`pwcommerce_product_variant_preview_title[]`',
-			'x-bind:name' => '`pwcommerce_product_variant_preview_title${variant.options_ids_for_name_suffix}`',
-			// @note: temporary 'default' title for variant
-			'x-bind:value' => "variant.label",
-		]);
-		return $field->render();
-	}
-
-	private function getGenerateVariantsPriceTextInput() {
-
-		//------------------- product variant preview: (getInputfieldText)
-		// $value = $this->attr('value');
-
-		$options = [
-			// @see 'pwcommerce_product_variant_preview_sku' for issues with names
-			// 'name' => "pwcommerce_product_variant_preview_price[]",
-			'type' => 'number',
-			'step' => '0.01',
-			'min' => 0,
-			// @note: since we render this inputfield outside a wrapper, processwire will not display this label. we use a custom one in our markup instead
-			// 'label' => $this->_('Price'),
-			// 'skipLabel' => Inputfield::skipLabelMarkup,
-			// set initial variant price to the main product price
-			// 'value' => $mainProductPrice,
-			'collapsed' => Inputfield::collapsedNever,
-			'wrapClass' => true,
-			'wrapper_classes' => 'pwcommerce_no_outline',
-		];
-
-		$field = $this->pwcommerce->getInputfieldText($options);
-		$field->attr([
-			// 'x-on:input' => 'handleProductVariantInPreviewPriceChange',
-			'x-bind:id' => '`pwcommerce_product_variant_preview_price${variant.options_ids_for_name_suffix}`',
-			'x-model.number' => "variant.price",
-			'x-bind:name' => '`pwcommerce_product_variant_preview_price${variant.options_ids_for_name_suffix}`',
-		]);
-
-		return $field->render();
-	}
-
-	private function getGenerateVariantsSKUTextInput() {
-		//------------------- product variant preview: SKU (getInputfieldText)
-		$options = [
-			// @see below for issues with this name
-			// 'name' => "pwcommerce_product_variant_preview_sku[]",
-			// @note: since we render this inputfield outside a wrapper, processwire will not display this label. we use a custom one in our markup instead
-			// 'label' => $this->_('SKU'),
-			// 'skipLabel' => Inputfield::skipLabelMarkup,
-			'collapsed' => Inputfield::collapsedNever,
-			'wrapClass' => true,
-			'wrapper_classes' => 'pwcommerce_no_outline',
-		];
-
-		$field = $this->pwcommerce->getInputfieldText($options);
-		$field->attr([
-			// 'x-on:input' => 'handleProductVariantInPreviewSKUChange()',
-			'x-bind:id' => '`pwcommerce_product_variant_preview_sku${variant.options_ids_for_name_suffix}`',
-			'x-model' => "variant.sku",
-			// @note: TODO: having issues with htmx not POST-ing empty inputs @see: https: //github.com/bigskysoftware/htmx/issues/33. causing error in processing values + array-imbalance, so wrong assignment of values! for now, we set custom names for each input we process
-			'x-bind:name' => '`pwcommerce_product_variant_preview_sku${variant.options_ids_for_name_suffix}`',
-		]);
-		return $field->render();
-	}
-
-	private function getGenerateVariantsTrashMarkup() {
-		$trashTitle = $this->_('remove variant');
-		$out =
-			"<span class='fa fa-trash pwcommerce_order_line_item_delete pwcommerce_trash' title='{$trashTitle}' @click='handleRemoveProductVariantInPreview(index)'></span>";
-		return $out;
-	}
-
-	private function getGenerateVariantsIsCreatingSpinner() {
-		$out = "<span class='fa fa-fw fa-spin fa-spinner ml-1'></span>";
-		return $out;
-	}
-
-	//~~~~~~~~~~~~~
-
-	// extra content to be prepended to InputfieldPWCommerceRuntimeMarkup with respect to this field
-	// @note: TODO: we MIGHT still handle any JS interactions here!
-	// @note: we send in $page since this getting called from another inputfield, e.g. InputfieldPWCommerceRuntimeMarkup
-	public function getPrependContent($page, $name) {
-
-		// @note: ONLY PREPEND CONTENT IF PRODUCT 'USES' VARIANTS
-		// else, return null!
-		if (!$this->isUsingVariants($page)) {
-			return null;
-		}
-
-		$wrapper = $this->pwcommerce->getInputfieldWrapper();
-
-		//------------------- track generate variant item parent ID (main product) (InputfieldHidden)
-		// @note: we use this value as parent_id when creating variants
-		$options = [
-			'id' => "pwcommerce_product_generate_variants_parent_page_id",
-			'name' => 'pwcommerce_product_generate_variants_parent_page_id',
-			'value' => $page->id, // store the parent ID of the new/incoming product variant [new Page()]
-		];
-		$field = $this->pwcommerce->getInputfieldHidden($options);
-		$wrapper->add($field);
-
-		//------------------- track generate variant item parent TITLE (main product) (InputfieldHidden)
-		// @note: we use this value as prefix FOR VARIANT-TITLE (hence name as well) when creating variants
-		// TODO: DOES THE ML LANGUAGE MATTER? MAYBE NOT, SINCE ONE TIME CREATION OF VARIANTS + WE DON'T USE THE TITLE? ACTUALLY WE DO USE THE TITLE, SO MAYBE, CAN DO PROGRAMMATICALLY AND SET FOR EACH LANGUAGE?!!!
-		// TODO: DELETE IF NOT IN USE SINCE ON CREATE WE STILL NEED TO GET THE PARENT AS AN OBJECT
-
-		$options = [
-			'id' => "pwcommerce_product_generate_variants_parent_page_title",
-			'name' => 'pwcommerce_product_generate_variants_parent_page_title',
-			'value' => $page->title, // store the parent TITLE of the new/incoming product variant [new Page()]
-		];
-		$field = $this->pwcommerce->getInputfieldHidden($options);
-		$wrapper->add($field);
-
-		// also add multilingual titles if applicable
-		$multilingualTitlesForVariantPrefixes = $this->getMultilingualProductTitleForGenerateVariants($page);
-		if (!empty($multilingualTitlesForVariantPrefixes)) {
-
-			foreach ($multilingualTitlesForVariantPrefixes as $languageID => $languageTitle) {
-				$options = [
-					'id' => "pwcommerce_product_generate_variants_parent_page_title{$languageID}",
-					'name' => "pwcommerce_product_generate_variants_parent_page_title{$languageID}",
-					// store the parent TITLE of the new/incoming product variant [new Page()] FOR THIS LANGUAGE
-					'value' => $languageTitle,
-				];
-				$field = $this->pwcommerce->getInputfieldHidden($options);
-				$wrapper->add($field);
-			}
-		}
-
-		//------------------- for htmx to populate options_ids that were used to create new variants. Will be swapped out-of-bands so we always have one (getInputfieldHidden)
-		// @note: for normal page loads, we get these values from this->renderBuildVariantsTabs() @see:  $mainProductData AND $formattedExistingVariantsOptionsIDs
-
-		$options = [
-			'id' => "pwcommerce_product_created_variants_options_ids",
-			'name' => 'pwcommerce_product_created_variants_options_ids',
-		];
-		$field = $this->pwcommerce->getInputfieldHidden($options);
-		$wrapper->add($field);
-
-		//------------------- for htmx to populate a hidden input with a timestamp that will tell PWCommerceCommonScripts which Inputfields to reload. We are having issues with subsequent reload triggers of InputfieldTextTags (JSON undefined errors). This timestamp will be used in InputfieldPWCommerceRuntimeMarkup::buildForm() to create a unique css class everytime a bunch of variants are created without a page refresh. This only applies to new items. On page reload, the classes will be wiped out as no longer needed. @note that this inputfield will be swapped out-of-bands so we always have one (getInputfieldHidden)
-
-		$options = [
-			'id' => "pwcommerce_created_items_timestamp",
-			'name' => 'pwcommerce_created_items_timestamp',
-		];
-		$field = $this->pwcommerce->getInputfieldHidden($options);
-		$wrapper->add($field);
-
-		//------------------- generate product variants modal link (InputfieldMarkup)
-		$out = "";
-
-		// TODO; ALSO NEED TO CHECK (JUST IN CASE) IF THIS IS A PRODUCT THAT WILL HAVE VARIANTS! ELSE DON'T SHOW BELOW MESSAGE
-		if (!$page->pwcommerce_product_attributes->count) {
-			$out = "<p>" . $this->_('You need to add at least one attribute before you can generate product variants.') . "</p>";
-		} else {
-			// LINK TO EDIT/GENERATE PRODUCT VARIANTS
-
-			// TODO: HERE CHECK IF HAVE VARIANTS, IN WHICH CASE EDIT, ELSE GENERATE NEW
-			// @note: since in prependContent mode, we need to check using $page
-			$hasExistingVariants = $this->checkHasExistingVariants($page);
-
-			//    $label = empty($hasExistingVariants) ? $this->_('Generate product variants') : $this->_('Edit product variants');
-
-			if ($hasExistingVariants) {
-				$label = $this->_('Regenerate product variants');
-				$hasExistingVariantsNote = "<p class='notes'>" . $this->_('Regenerating product variants can potentially permanently delete existing variants. If you have changed the product attributes since generating its variants, all existing variants will be lost when new ones are generated.  Adding new options to existing attributes will not affect existing variants.') . "</p>";
-			} else {
-				$label = $this->_('Generate product variants');
-				$hasExistingVariantsNote = "";
-			}
-
-			// TODO: CHANGE TO SMALL BUTTON? - no; doesn't look good here with variants below it
-			// TODO: dynamic label? generate vs edit?
-			$out =
-				"<div id='open_modal_wrapper' x-data='InputfieldPWCommerceProductStockData'>" .
-				"<a id='open' @click='handleOpenGenerateProductVariantsModal'>{$label}</a>" .
-				$hasExistingVariantsNote .
-				"</div>";
-		}
-
-		//----------
-
-		$options = [
-			'skipLabel' => Inputfield::skipLabelHeader,
-			'collapsed' => Inputfield::collapsedNever,
-			'wrapClass' => true,
-			// TODO: DELETE IF NOT IN USE
-			'classes' => 'pwcommerce_override_processwire_inputfield_content_padding_left',
-			'wrapper_classes' => 'pwcommerce_no_outline',
-			'value' => $out,
-		];
-
-		$field = $this->pwcommerce->getInputfieldMarkup($options);
-
-		$wrapper->add($field);
-		// @note: return unrendered wrapper
-		return $wrapper;
-	}
-
-	// extra content to be added as inline asset to InputfieldPWCommerceRuntimeMarkup with respect to this field
-	// @note: TODO: we MIGHT still handle any JS interactions here!
-	// TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
-	public function getPreloadInlineAssetsContent($page) {
-		// TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE ALPINE ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
-		// TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
-		return;
-		// TODO: THIS MIGHT CHANGE IN FUTURE!
-		// @note: ONLY NEED INLINE ASSETS CONTENT IF PRODUCT 'USES' VARIANTS
-		// else, return null!
-
-		if (!$this->isUsingVariants($page)) {
-			return null;
-		}
-		$url = $this->wire('config')->urls->ProcessPWCommerce;
-		return [
-			['source' => "{$url}vendors/scripts/alpinejs/alpinejs.3.2.4.min.js", 'defer' => true],
-		];
-	}
-
-	// extra content to be added as assets to InputfieldPWCommerceRuntimeMarkup with respect to this field
-	// @note: TODO: we MIGHT still handle any JS interactions here!
-	// TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
-	public function getPreloadAssetsContent() {
-		// TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE HTMX ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
-		// TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
-		return;
-		$url = $this->wire('config')->urls->ProcessPWCommerce;
-		return [
-			['source' => "{$url}vendors/scripts/htmx/htmx.1.7.0.min.js"],
-		];
-	}
-	// modal for generating or editing products variants builds
-	private function getModalMarkupForBuildProductVariants() {
-
-		$xstore = $this->xstore;
-
-		// TODOe: the pageautocomplete must limit parent_id to its attribute parent!";
-		// TODO: UNSURE IF THIS BUTTON SHOULD BE GENERATE OR NOT HAVE IT AND USE A LINK INSTEAD?
-		// TODO: BEST ALSO TO HIDE IT IF NOT READY TO GENERATE VARIANTS!
-		// TODO: hide or disable if not ready?
-		// $applyButtonAttributes = ['x-on:click' => 'handleSaveGeneratedProductVariants', 'x-show' => "{$xstore}.is_ready_for_generate_variants"];
-		// TODO; testing use htxm instead
-		$ajaxPostURL = $this->ajaxPostURL;
-		$applyButtonAttributes = [
-			// HTMX
-			'hx-post' => $ajaxPostURL,
-			// TODO: delete when done: not needed except for file uploads
-			//  'hx-encoding' => 'multipart/form-data',
-			// @note: we are using htmx out of band in the response!
-			// @see: https: //htmx.org/attributes/hx-swap-oob/
-			// The hx-swap-oob attribute allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target, that is "Out of Band". This allows you to piggy back updates to other element updates on a response.
-			'hx-target' => '#pwcommerce_product_generated_variants_preview_wrapper',
-			// TODO @UPDATE we now target the 'is creating variants please wait markup'
-			// TODO: HAVING ISSUES WITH BELOW! NOT GETTING UPDATED. MAYBE IT IS OUT OF BAND? ALSO, CAUSING PREVIEW NOT TO BE HIDDEN! TODO - TRY USING OOB TRUE IN THE RESPONSE P
-			// @note: this is a 'p'
-			//'hx-target' => '#pwcommerce_product_variants_is_creating_info',
-			//    'hx-swap' => 'beforeend',
-			'hx-swap' => 'beforebegin',
-			// TODO: TESTING - E.G. SENDING STATE OF GENARATE; REPLACE, ADD, ETC, DEPENDING ON ONLY OPTIONS CHANGE, ETC
-			//    'hx-vals' => '{"myVal": "My Value"}',// @note: works fine! TODO: delete if not in use
-			// ALPINE
-			// @note: 'apply button' to generate variants has own bool property being checked whether it is visible.
-			// don't show appy button before variants preview have been generated and also when in 'is creating variants' phase (i.e., server request to create variants has been sent)
-			'x-show' => "{$xstore}.is_show_apply_generated_variants_button && !{$xstore}.is_creating_variants",
-			// @note: on click, htmx above will kick in. In alpine.js, we also set a property to swap the display when variants are being generated
-			// TODO @update: not needed for now. We use handleHideProductGenerateVariantsPreview() instead
-			//'x-on:click' => 'handleIsGeneratingProductVariants',
-		];
-		// ----
-		$cancelButtonAttributes = [
-			'x-on:click' => 'resetProductVariantsAndClose',
-			// don't show cancel button when in 'is creating variants' phase (i.e., server request to create variants has been sent)
-			'x-show' => "!{$xstore}.is_creating_variants",
-		];
-
-		// hx-encoding
-		$applyButton = $this->pwcommerce->getModalActionButton($applyButtonAttributes, 'apply');
-		$cancelButton = $this->pwcommerce->getModalActionButton($cancelButtonAttributes, 'cancel');
-		// TODO: make header string dynamic? i.e. generate vs edit?
-		$header = $this->_("Generate product variants");
-		$body = $this->renderBuildVariantsTabs();
-		$footer = "<div class='ui-dialog-buttonset'>{$applyButton}{$cancelButton}</div>";
-		$xproperty = 'is_edit_product_variants_modal_open';
-		$size = '6x-large';
-		// wrap content in modal for adding/editing product variants
-		// modal options
-		$options = [
-			// $header The modal title pane markup.
-			'header' => $header,
-			// $body The main content markup.
-			'body' => $body,
-			// $footer The footer markup.
-			'footer' => $footer,
-			// $xstore The alpinejs store with the property that will be modelled to show/hide the modal.
-			'xstore' => $this->xstoreProduct,
-			// $xproperty The alpinejs property that will be modelled to show/hide the modal.
-			'xproperty' => $xproperty,
-			// $size The size of the modal requested.
-			'size' => $size,
-			// custom handler for x (close) in modal title dialog [instead of the usual ]
-			'handler_for_close_modal' => 'resetProductVariantsAndClose',
-			'handler_for_close_modal_value' => '',
-		];
-		$out = $this->pwcommerce->getModalMarkup($options);
-		return $out;
-	}
-	// TODO: MIGHT RENAME METHOD
-	// TODO: rename if will have different generate view versus setup!!!
-	// TODO: loop through + add htmx attributes!
-	private function getGenerateProductVariantsMarkup() {
-
-		// $pageID = $this->page->id;
-
-		$attributes = $this->getProductAttributes();
-		$existingProductVariantsOptions = $this->getProductExistingVariantsOptions();
-
-		// TODO: RETURN IF NO PRODUCT ATTRIBUTES?
-		//=============
-
-		// TODO; DO WE NEED HIDDEN INPUT HERE FOR IDS MAYBE?
-		// TODO ADD HTMX HERE ON ON CHILDREN ROWS  DIV BELOW?
-		// TODO: ON FIRST LOAD, IDEALLY CHECK IF IS READY IN CASE WE HAVE EXISTING VARIANTS? DON'T MAKE MUCH SENSE THOUGH AS WHY WOULD THEY WANT TO PREVIEW WHAT THEY ALREADY HAVE? IN SUCH A CASE, MAYBE JUST SHOW A MESSAGE?
-		// open wrapper div for generate variants
-		$out = "<div id='pwcommerce_product_generate_variants_select_options_wrapper' x-data='InputfieldPWCommerceProductStockData' @pwcommerceproductgeneratevariantsselectizechange.window='handleIsReadyForGenerateVariants'>";
-		// add notice if they have existing variants
-		// TODO: also add note about need to make changes before can generate previews
-		if ($this->hasExistingVariants) {
-			// TODO: rephrase!
-			$out .= "<p class='notes'>" . $this->_('This product has existing variants. Their options are pre-selected below. You need to make changes before you can preview regenerated variants.') . "</p>";
-		}
-		// loop through attributes and build generate variants grid
-		$cnt = 0;
-		foreach ($attributes as $attribute) {
-			$attributeOptionsInExistingVariants = $this->getAttributeOptionsInExistingVariants($existingProductVariantsOptions, $attribute->id);
-			// TODO: HERE, CHECK EMPTY, ETC
-			// TODO: CREATE METHOD TO RETURN AS TAGS FOR TEXTTAGS OR USE THAT INPUTFIELD TO FORMAT THEM?
-
-			$out .= $this->buildProductAttributeAndOptionsRow($attribute, $attributeOptionsInExistingVariants);
-			// $out .= $this->buildProductAttributeAndOptionsRow($attribute, $attributeOptionsInExistingVariants[$attribute->id]);
-			$cnt++;
-			if ($cnt < $attributes->count) {
-				$out .= "<hr>";
-			}
-		}
-		//------------
-		// close the wrapper div for variants
-		$out .= "</div>";
-
-		return $out;
-	}
-
-	// get the PageArray of the product attributes for this product
-	// these are in the page ref field pwcommerce_product_attributes
-	private function getProductAttributes() {
-		return $this->page->pwcommerce_product_attributes;
-	}
-
-	private function getProductExistingVariantsOptions() {
-		$existingVariantsOptions = $this->wire('pages')->findRaw(
-			"parent={$this->page}",
-			[
-				//   'title',
-				'pwcommerce_product_attributes_options.id',
-				'pwcommerce_product_attributes_options.title',
-				'pwcommerce_product_attributes_options.parent_id',
-			]
-		);
-
-		return $existingVariantsOptions;
-	}
-
-	// for alpine js comparison of string made up of options IDs that make up a variant
-	// e.g. 1234,2456,7890 -> black,large,cotton
-	// used to display 'existing variant' message if regenerating variants and product has existing ones
-	private function getFormmattedExistingVariantsOptionsIDs() {
-		$formattedExistingVariantsOptionsIDs = [];
-		$existingVariantsOptions = $this->getProductExistingVariantsOptions();
-		if (!empty($existingVariantsOptions)) {
-			foreach ($existingVariantsOptions as $values) {
-
-				$options = array_column($values['pwcommerce_product_attributes_options'], 'id');
-
-				$optionsIDs = implode(',', $options);
-
-				$formattedExistingVariantsOptionsIDs[] = $optionsIDs;
-			}
-		}
-
-		return $formattedExistingVariantsOptionsIDs;
-	}
-
-	// TODO: DELETE WHEN DONE
-	private function getAttributeOptionsInExistingVariants($existingVariants, $attributeID) {
-		$attributeOptions = [];
-
-		// loop through variants
-		foreach ($existingVariants as $values) {
-			$variants = $values['pwcommerce_product_attributes_options'];
-
-			$columnsID = array_column($variants, 'id', 'parent_id');
-
-			$columnsTitle = array_column($variants, 'title', 'parent_id');
-
-			$id = $columnsID[$attributeID];
-			$title = $columnsTitle[$attributeID];
-			// @note: we will get inner array later, below
-			// we do it like this to overwrite duplicate options
-			$attributeOptions[$attributeID][$id] = $title;
-		}
-
-		// @note: just return the inner array
-		if (isset($attributeOptions[$attributeID])) {
-			$attributeOptions = $attributeOptions[$attributeID];
-
-		}
-		return $attributeOptions;
-	}
-
-	//~~~~~~~~~~~~~
-
-	private function checkHasExistingVariants($page) {
-		$variant = $this->wire('pages')->getRaw("template=pwcommerce-product-variant,parent_id={$page->id}", 'id');
-		return $variant;
-	}
-
-	private function getMultilingualProductTitleForGenerateVariants($page) {
-		$languageStringsArray = [];
-		if ($this->wire('languages')) {
-			foreach ($this->wire('languages') as $language) {
-				//  skip default
-				if ($language->name === 'default') {
-					continue;
-				}
-				//-------------
-				$languageStringsArray[$language->id] = $page->title->getLanguageValue($language);
-			}
-		}
-		return $languageStringsArray;
-	}
-
-	// ~~~~~~~~~
-
-	/**
-	 * Process input for the values sent from the product properties for this page
-	 *
-	 */
-	public function ___processInput(WireInputData $input) {
-
-		// @note: @see processInputDeleteItems() - a handler to delete product variants called via InputfieldRuntimeMarkup::processInput()
-
-		$stock = $this->field->type->getBlankValue($this->page, $this->field);
-		$pageID = $this->page->id;
-
-		// @note: we have page->id suffixes to id and names of inputs since this field will be used multiple times on the same page in case a product has variants.
-
-		// process values
-		$stock->sku = $this->wire('sanitizer')->text($input->{"pwcommerce_product_stock_sku{$pageID}"});
-		// ++++++++++++
-
-		$price = (float) $input->{"pwcommerce_product_stock_price{$pageID}"};
-		$otherPrice = (float) $input->{"pwcommerce_product_stock_compare_price{$pageID}"};
-
-		if (!empty($this->isUseSaleAndNormalPriceFields)) {
-			// USING SALES + NORMAL PRICE FIELDS/APPROACH
-			$stock->salePrice = $price;
-			$stock->normalPrice = $otherPrice;
-			;
-		} else {
-			// USING PRICE + COMPARE PRICE FIELDS/APPROACH
-			$stock->price = $price;
-			$stock->comparePrice = $otherPrice;
-		}
-
-		// +++++++++++
-		$stock->quantity = (int) $input->{"pwcommerce_product_stock_quantity{$pageID}"};
-		$stock->allowBackorders = (int) $input->{"pwcommerce_product_stock_allow_backorders{$pageID}"};
-		$stock->enabled = (int) $input->{"pwcommerce_product_stock_enabled{$pageID}"};
-
-		// if the string values of the processed properties are different from the previous,
-		// then flag this Inputfield as changed
-		// so that it will be automatically saved with the page
-		// @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
-		if ($this->toStringInhouse($stock) !== $this->toStringInhouse($this->value)) {
-			$this->attr('value', $stock);
-			$this->trackChange('value');
-		}
-	}
-
-	public function processInputDeleteItems(WireInputData $input) {
-		$deleteItems = $input->pwcommerce_is_delete_item;
-		// page IDs are in one hidden inputfield; get the first array item
-		$deleteVariantsIDsCSV = $deleteItems[0]; // csv string of IDs
-		$deleteVariantsIDsArray = $this->wire('sanitizer')->intArray($deleteVariantsIDsCSV);
-		if (!empty($deleteVariantsIDsArray)) {
-			$deleteVariantsIDs = implode('|', $deleteVariantsIDsArray);
-			//-------------
-			$pages = $this->wire('pages');
-			$variants = $pages->find("id={$deleteVariantsIDs}");
-
-			// ---------
-			// TRASH each variant page
-
-			$notDeletedVariantsTitles = [];
-			$deletedVariantsTitles = [];
-			foreach ($variants as $variant) {
-				// locked for edits
-				if ($variant->isLocked()) {
-					$notDeletedVariantsTitles[] = $variant->title;
-					continue;
-				}
-				$pages->trash($variant);
-				// successfully trashed
-				if ($variant->isTrash()) {
-					$deletedVariantsTitles[] = $variant->title;
-				}
-			}
-			// ------
-			// NOTICES
-			// success
-			if (!empty($deletedVariantsTitles)) {
-				$this->message(sprintf(__("Deleted these variants: %s."), implode(', ', $deletedVariantsTitles)));
-			}
-			// error
-			if (!empty($notDeletedVariantsTitles)) {
-				$this->warning(sprintf(__("Could not delete these variants: %s."), implode(', ', $notDeletedVariantsTitles)));
-			}
-		}
-	}
-
-	// ~~~~~~~~~~~~
-
-	/**
-	 * Make a string value to represent the stock values that can be used for comparison purposes.
-	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
-	 */
-	private function toStringInhouse($item) {
-		if (!empty($this->isUseSaleAndNormalPriceFields)) {
-			// USING SALES + NORMAL PRICE FIELDS/APPROACH
-			$price = $item->salePrice;
-			$otherPrice = $item->normalPrice;
-		} else {
-			// USING PRICE + COMPARE PRICE FIELDS/APPROACH
-			$price = $item->price;
-			$otherPrice = $item->comparePrice;
-		}
-		$string = (string) "$item->sku: $price: $otherPrice: $item->quantity: $item->allowBackorders: $item->enabled";
-		return $string;
-	}
-
-	// check if current page is a product variant
-	private function isProductVariant() {
-		return $this->page->template->name === 'pwcommerce-product-variant';
-	}
-
-	// check if current page is a product AND it uses variants
-	// @note: use here means the setting is enabled
-	// it does not check if variants have actually been created or not
-	private function isUsingVariants($page) {
-		//   $page = $this->page; // TODO: so we can reuse with externally provided page (e.g. from InputfieldRuntimeMarkup), now passing as parameter
-		if ($page->template->name !== 'pwcommerce-product') {
-			return false;
-		}
-		// $settings = $page->pwcommerce_product_settings;
-		$settings = $page->get(PwCommerce::PRODUCT_SETTINGS_FIELD_NAME);
-		return !empty($settings->useVariants);
-	}
-
-	private function getInputfieldStrings() {
-
-		// append currency symbol string if available
-		$currencySymbol = $this->shopCurrencySymbolString . '.';
-		$type = $this->getInputfieldStringsType();
-
-		$allStrings = [
-			'product' => [
-				// -------
-				// FOR 'PRICE & COMPARE PRICE' FIELDS APPROACH
-				// labels
-				'price_label' => $this->_('Price'),
-				'compare_price_label' => $this->_('Compare Price'),
-				// descriptions
-				'price_description' => $this->_('Main product price') . $currencySymbol,
-				'compare_price_description' => $this->_('Previous price') . $currencySymbol,
-				// notes
-				'price_notes' => $this->_('This price will be used as the product price. It should not be zero or greater than the compare price. It will also be used as the price for product variants without own prices, if applicable.'),
-				'compare_price_notes' => $this->_('The price in this field will be used as the compare (ex) price. The value should not be zero or less than the price.  It will also be used as the compare price for product variants without own compare prices, if applicable.'),
-
-				# ++++++++++++++++++++++++++
-
-				// FOR 'SALES & NORMAL PRICE' FIELDS APPROACH
-				// labels
-				'sale_price_label' => $this->_('Sale Price'),
-				'normal_price_label' => $this->_('Normal Price'),
-				// descriptions
-				'sale_price_description' => $this->_('Sale price') . $currencySymbol,
-				'normal_price_description' => $this->_('Normal price when not on sale') . $currencySymbol,
-				// notes
-				'sale_price_notes' => $this->_("This sale price will be used as the product price if it is not empty or zero. Otherwise, the 'normal price' will be used. It should not be zero or greater than the normal price. It will also be used as the sale price for product variants without own sale prices, if applicable."),
-				'normal_price_notes' => $this->_("This price will be used if a valid 'sale price' is not specified. It should not be zero or less than the sale price. It will also be used as the normal price for product variants without own normal prices, if applicable."),
-
-				// ------------
-				'enabled_notes' => $this->_('If unchecked, customers will not be able to buy this product.'),
-				'backorders_notes' => $this->_('If checked, customers will still be able to buy this product when out of stock.'),
-			],
-			'variant' => [
-				// FOR 'PRICE & COMPARE PRICE' FIELDS APPROACH
-				// labels
-				'variant_price_label' => $this->_('Variant Price'),
-				'variant_compare_price_label' => $this->_('Variant Compare Price'),
-				// descriptions
-				'variant_price_description' => $this->_('Variant price') . $currencySymbol,
-				'variant_compare_price_description' => $this->_('Previous variant price') . $currencySymbol,
-				// notes
-				'variant_price_notes' => $this->_('This price will be used as the variant price. To be used, it should not be zero or greater than the variant compare price. If left empty, the main product price will be used instead.'),
-				'variant_compare_price_notes' => $this->_('The price in this field will be used as the variant compare (ex) price. The value should not be zero or less than the variant price. If left empty, the main product compare price will be used instead.'),
-
-				# ++++++++++++++++++++++++++
-
-				// FOR 'SALES & NORMAL PRICE' FIELDS APPROACH
-				// labels
-				'variant_sale_price_label' => $this->_('Variant Sale Price'),
-				'variant_normal_price_label' => $this->_('Variant Normal Price'),
-				// descriptions
-				'variant_sale_price_description' => $this->_('Variant sale price') . $currencySymbol,
-				'variant_normal_price_description' => $this->_('Variant normal price when not on sale') . $currencySymbol,
-				// notes
-				'variant_sale_price_notes' => $this->_("This sale price will be used as the variant price if it is not empty or zero. Otherwise, the 'variant normal price' will be used. To be used, it should not be zero or greater than the variant normal price. If both the variant sale price and the variant normal price are left empty, the main product sale price (if not empty) will be used instead. Else the main product normal price will be used."),
-				'variant_normal_price_notes' => $this->_("This price will be used if a valid 'variant sale price' is not specified. To be used, it should not be zero or less than the variant sale price. If left empty, the main product normal price will be used instead"),
-
-				// ------------
-				'enabled_notes' => $this->_('If unchecked, customers will not be able to buy this product variant.'),
-				'backorders_notes' => $this->_('If checked, customers will still be able to buy this product variant when out of stock.'),
-			],
-			'gift_card_variant' => [
-				// 'price_description' => $this->_('Gift card variant price') . $currencySymbol,
-				'price_description' => '',
-				'compare_price_description' => $this->_('Previous price') . $currencySymbol,
-
-				// ------------
-				'enabled_notes' => $this->_('If unchecked, you will not be able to issue or sell a gift card from this gift card product variant.'),
-				'price_notes' => $this->_('The denomination for this gift card for a future purchase.'),
-				// TODO MAYBE DON'T USE THIS FIELD? THIS IS BECAUSE GCPV IS A CURRENCY! IT SHOULD BE AVAILABLE IF BOUGHT!
-				'backorders_notes' => $this->_('If checked, customers will still be able to buy this gift card product variant when out of stock.'),
-			],
-		];
-
-		// --------
-
-		$strings = $allStrings[$type];
-		return $strings;
-	}
-
-	private function getInputfieldStringsType() {
-		$types = [
-			'pwcommerce-product' => 'product',
-			'pwcommerce-product-variant' => 'variant',
-			'pwcommerce-gift-card-product-variant' => 'gift_card_variant',
-		];
-		// --------
-		$type = $types[$this->page->template->name];
-		return $type;
-	}
-
-	private function getIsPriceFieldRequired($priceFieldType = 'price_or_sale_price') {
-
-		$isPriceFieldRequired = false;
-
-		// -----
-		if (!empty($this->isUseSaleAndNormalPriceFields)) {
-			// SALE AND NORMAL PRICE FIELDS STRATEGY
-			if ($priceFieldType === 'compare_price_or_normal_price') {
-				if (empty($this->isUsingVariants($this->page))) {
-					// product without variants
-					$isPriceFieldRequired = true;
-				} elseif ($this->isProductVariant) {
-					// product variants
-					$isPriceFieldRequired = true;
-				}
-
-			}
-		} else {
-			// PRICE AND COMPARE PRICE FIELDS STRATEGY
-			if ($priceFieldType === 'price_or_sale_price') {
-				if (empty($this->isUsingVariants($this->page))) {
-					// product without variants
-					$isPriceFieldRequired = true;
-				} elseif ($this->isProductVariant) {
-					// product variants
-					$isPriceFieldRequired = true;
-				}
-			}
-
-		}
-		// --------
-		return $isPriceFieldRequired;
-	}
+    // CONTENT TO SHOW IN MODAL WHEN IN 'IS CREATING VARIANTS PHASE' + for VARIANTS CREATION OUTCOME
+    // @note: at this point, the ajax request has been made. Show a spinnner and on success (TODO!) close the modal. On error (TODO!) show the error
+    // TODO: success message should come in here and very briefly after send window request to alpine to close modal!
+    // TODO @NOTE: @SEE ERROR above about x-show; whilst below is working, for consistency, we also bind class instead
+    // @note: we are using JavaScript's short-circuit evaluation && here!
+    $out .= "<div x-data='InputfieldPWCommerceProductStockData' @pwcommerceproductgeneratevariantsisfinished.window='resetProductVariantsAndClose(true)' id='pwcommerce_product_variants_is_creating_wrapper' class='flex justify-center items-center mt-10' :class='!{$xstore}.is_creating_variants && `hidden`'>" .
+      // TODO: NEED SPINNER TO SHOW UNTIL REFRESH FINISHED! PLUS NEED SHOW MESSAGE ABOUT REFRESHING VARIANTS LIST, PLEASE WAIT..IN FACT, THAT SPINNER SHOULD BE ON THE REFRESH PLEASE WAIT PARAGRAPH! MEANING, WE SET IT USING ALPINE, WHICH WILL BE X-SHOW OR 'HIDDEN' A PARAGRAPH DEPENDING ON A STORE PROPERTY! E.G. is_refreshing_variants_list! WHICH WOULD BE A BOOL! WILL NEED TO REVERT THAT TO FALSE WHEN MODAL CLOSES/REOPENS!
+      "<p id='pwcommerce_product_variants_creation_outcome'>" . $this->_('Creating variants. Please wait') . "&hellip;" . $this->getGenerateVariantsIsCreatingSpinner() . "</p>" .
+      "</div>";
+    //----------------
+    // REFRESHING VARIANTS LIST AFTER SUCCESSFUL CREATION + UPDATING 'existing_variants'
+    $out .= "<div x-data='InputfieldPWCommerceProductStockData' @pwcommerceproductisrefreshingvariantslist.window='setIsRefreshingVariantsList(true)' @pwcommerceproductupdateexistingvariantslist.window='updateExistingVariantsList' id='pwcommerce_product_variants_is_refreshing_list_wrapper' class='flex justify-center items-center mt-5' :class='!{$xstore}.is_refreshing_variants_list && `hidden`'>" .
+      "<p id='pwcommerce_product_variants_is_refreshing_list'>" . $this->_('Refreshing variants list. Please wait') . "&hellip;" . $this->getGenerateVariantsIsCreatingSpinner() . "</p>" .
+      "</div>";
+    //---------------
+
+    $wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+    $options = [
+      'skipLabel' => Inputfield::skipLabelHeader,
+      'collapsed' => Inputfield::collapsedNever,
+      'wrapClass' => true,
+      // TODO: DELETE IF NOT IN USE
+      'classes' => 'pwcommerce_override_processwire_inputfield_content_padding_left',
+      'wrapper_classes' => 'pwcommerce_no_outline',
+      'value' => $out,
+    ];
+
+    $field = $this->pwcommerce->getInputfieldMarkup($options);
+    $wrapper->add($field);
+
+    return $wrapper->render();
+  }
+
+  private function buildForm() {
+
+    // TODO: WE'LL NEED TO DYNAMICALLY SHOW ENABLE INPUT ONLY ON VARIANT PAGES; QUANTITY WILL BE ON PRODUCT IF NO VARIANTS, ELSE ON VARIANTS;  SAME FOR BACKORDERS; PRICES WILL BE ON BOTH AS WELL AS SKU
+
+    /** @var WireData $value */
+    $value = $this->attr('value');
+    $page = $this->page;
+    $pageID = $this->page->id;
+
+    // GET WRAPPER FOR ALL INPUTFIELDS HERE
+    $wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+    // @note: we need page->id suffixes to id and names of inputs since this field will be used multiple times on the same page in case a product has variants.
+
+    /*
+                                                                                                                                                                                                                                                                                                                                                                            @note:
+                                                                                                                                                                                                                                                                                                                                                                            - if a product IS USING VARIANTS we hide 'enabled', 'sku', 'allow_backorders' and 'quantity' inputs.
+                                                                                                                                                                                                                                                                                                                                                                            - using variants means that setting is enabled; it doesn't infer no product variants created yet!
+                                                                                                                                                                                                                                                                                                                                                                            */
+
+    //------------------- enabled (getInputfieldCheckbox)
+
+    if (!$this->useVariants) {
+
+      // by default (no value saved yet) - enable product/variant
+      if (is_null($value->enabled)) {
+        $checked = true;
+      } else {
+        $checked = empty($value->enabled) ? false : true;
+      }
+
+      $strings = $this->getInputfieldStrings();
+      $enabledNotes = $strings['enabled_notes'];
+
+      $options = [
+        'id' => "pwcommerce_product_stock_enabled{$pageID}",
+        'name' => "pwcommerce_product_stock_enabled{$pageID}",
+        'label' => $this->_('Enabled'),
+        // TODO: make dynamic for product vs variants
+        // 'notes' => $notes,
+        'notes' => $enabledNotes,
+        'collapsed' => Inputfield::collapsedNever,
+        'columnWidth' => 50,
+        'wrapClass' => true,
+        'wrapper_classes' => 'pwcommerce_no_outline',
+        'checked' => $checked,
+      ];
+
+      $field = $this->pwcommerce->getInputfieldCheckbox($options);
+      $wrapper->add($field);
+
+      //------------------- sku (getInputfieldText)
+
+      $options = [
+        'id' => "pwcommerce_product_stock_sku{$pageID}",
+        'name' => "pwcommerce_product_stock_sku{$pageID}",
+        'label' => $this->_('SKU'),
+        'collapsed' => Inputfield::collapsedNever,
+        'columnWidth' => 50,
+        'wrapClass' => true,
+        'wrapper_classes' => 'pwcommerce_no_outline',
+        'value' => $value->sku,
+      ];
+
+      $field = $this->pwcommerce->getInputfieldText($options);
+      $wrapper->add($field);
+    }
+
+    $strings = $this->getInputfieldStrings();
+
+    // ++++++++++++++++++++
+
+    if (!empty($this->isUseSaleAndNormalPriceFields)) {
+      // SALE AND NORMAL PRICE FIELDS STRATEGY
+      # +++++++++++
+
+      if ($this->isProductVariant) {
+        // PRODUCT VARIANT STRINGS
+        // labels
+        $priceLabel = $strings['variant_sale_price_label'];
+        $otherPriceLabel = $strings['variant_normal_price_label'];
+        // descriptions
+        $priceDescription = $strings['variant_sale_price_description'];
+        $otherPriceDescription = $strings['variant_normal_price_description'];
+        // notes
+        $priceNotes = $strings['variant_sale_price_notes'];
+        $otherPriceNotes = $strings['variant_normal_price_notes'];
+      } else {
+        // PRODUCT STRINGS
+        // labels
+        $priceLabel = $strings['sale_price_label'];
+        $otherPriceLabel = $strings['normal_price_label'];
+        // descriptions
+        $priceDescription = $strings['sale_price_description'];
+        $otherPriceDescription = $strings['normal_price_description'];
+        // notes
+        $priceNotes = $strings['sale_price_notes'];
+        $otherPriceNotes = $strings['normal_price_notes'];
+      }
+    } else {
+      // PRICE AND COMPARE PRICE FIELDS STRATEGY
+      # +++++++++++
+
+      if ($this->isProductVariant) {
+        // PRODUCT VARIANT STRINGS
+        // labels
+        $priceLabel = $strings['variant_price_label'];
+        $otherPriceLabel = $strings['variant_compare_price_label'];
+        // descriptions
+        $priceDescription = $strings['variant_price_description'];
+        $otherPriceDescription = $strings['variant_compare_price_description'];
+        // notes
+        $priceNotes = $strings['variant_price_notes'];
+        $otherPriceNotes = $strings['variant_compare_price_notes'];
+      } else {
+        // PRODUCT STRINGS
+        // labels
+        $priceLabel = $strings['price_label'];
+        $otherPriceLabel = $strings['compare_price_label'];
+        // descriptions
+        $priceDescription = $strings['price_description'];
+        $otherPriceDescription = $strings['compare_price_description'];
+        // notes
+        $priceNotes = $strings['price_notes'];
+        $otherPriceNotes = $strings['compare_price_notes'];
+      }
+
+    }
+    // ++++++++++++++++++++
+
+    //------------------- 'price' or 'sale_price' (getInputfieldText)
+
+    $options = [
+      'id' => "pwcommerce_product_stock_price{$pageID}",
+      'name' => "pwcommerce_product_stock_price{$pageID}",
+      'type' => 'number',
+      'step' => '0.01',
+      'min' => 0,
+      'label' => $priceLabel,
+      'description' => $priceDescription,
+      'notes' => $priceNotes,
+      'required' => $this->getIsPriceFieldRequired(),
+      'collapsed' => Inputfield::collapsedNever,
+      'columnWidth' => 50,
+      'wrapClass' => true,
+      'wrapper_classes' => 'pwcommerce_no_outline',
+      // 'value' => $value->price,
+      // @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+      // 'value' => $this->pwcommerce->localeConvertValue($value->price)
+      'value' => $this->pwcommerce->localeConvertValue($this->price)
+    ];
+
+    $field = $this->pwcommerce->getInputfieldText($options);
+
+    // FIELD ERRORS
+    $errorForSaleAndNormalPriceFields = NULL;
+    $errorForPriceAndComparePriceFields = NULL;
+    # FOR 'SALE' AND 'NORMAL' PRICING
+    if ($this->isUseSaleAndNormalPriceFields) {
+      // SALE PRICE GREATER THAN NORMAL PRICE
+      if ($this->price > $this->otherPrice)
+        if ($this->isProductVariant) {
+          $errorForSaleAndNormalPriceFields = $this->_('Variant sale price is greater than variant normal price.');
+        } else {
+          $errorForSaleAndNormalPriceFields = $this->_('Sale price is greater than normal price.');
+        }
+    } else {
+      # FOR 'PRICE' AND 'COMPARE' PRICING
+      // PRICE GREATER THAN COMPARE PRICE WHEN COMPARE PRICE IS NOT EMPTY/GREATER THAN ZERO
+      // NOTE: THIS ASSUMES THAT A COMPARE PRICE OF ZERO MEANS THERE IS NO COMPARE PRICE
+      if ($this->otherPrice > 0 && $this->price > $this->otherPrice) {
+        if ($this->isProductVariant) {
+          $errorForPriceAndComparePriceFields = $this->_('Current variant price is greater than the previous variant price.');
+        } else {
+          $errorForPriceAndComparePriceFields = $this->_('Current price is greater than the previous price.');
+        }
+      }
+    }
+    if (!empty($errorForSaleAndNormalPriceFields)) {
+      // show the error on the sale price side
+      $field->error($errorForSaleAndNormalPriceFields);
+    }
+
+
+
+    $wrapper->add($field);
+
+    //------------------- 'compare_price' OR 'normal_price' (getInputfieldText)
+
+    // @NOTE: NOT USED BY GIFT CARD PRODUCT VARIANTS
+    if ($this->getInputfieldStringsType() !== 'gift_card_variant') {
+      $options = [
+        'id' => "pwcommerce_product_stock_compare_price{$pageID}",
+        'name' => "pwcommerce_product_stock_compare_price{$pageID}",
+        'type' => 'number',
+        'step' => '0.01',
+        'min' => 0,
+        // 'label' => $this->_('Compare Price'),
+        'label' => $otherPriceLabel,
+        // 'description' => $description,
+        'description' => $otherPriceDescription,
+        'notes' => $otherPriceNotes,
+        // 'notes' => $this->_('Former price.'),
+        'required' => $this->getIsPriceFieldRequired('compare_price_or_normal_price'),
+        'collapsed' => Inputfield::collapsedNever,
+        'columnWidth' => 50,
+        'wrapClass' => true,
+        'wrapper_classes' => 'pwcommerce_no_outline',
+        // 'value' => $value->comparePrice,
+        // @note: server-side locale-aware value converted to properly render in HTML5 input of type number
+        // 'value' => $this->pwcommerce->localeConvertValue($value->comparePrice)
+        'value' => $this->pwcommerce->localeConvertValue($this->otherPrice)
+      ];
+
+      $field = $this->pwcommerce->getInputfieldText($options);
+      if (!empty($errorForPriceAndComparePriceFields)) {
+        // show the error on the compare price side
+        $field->error($errorForPriceAndComparePriceFields);
+      }
+      $wrapper->add($field);
+    }
+
+    if (!$this->useVariants) {
+
+      //------------------- quantity (getInputfieldText)
+
+      if ($this->isProductVariant) {
+        $label = $this->_('Variant Quantity');
+      } else {
+        $label = $this->_('Quantity');
+      }
+
+      $options = [
+        'id' => "pwcommerce_product_stock_quantity{$pageID}",
+        'name' => "pwcommerce_product_stock_quantity{$pageID}",
+        'type' => 'number',
+        'step' => '1',
+        'min' => 0,
+        'label' => $label,
+        'collapsed' => Inputfield::collapsedNever,
+        'columnWidth' => 50,
+        'wrapClass' => true,
+        'wrapper_classes' => 'pwcommerce_no_outline',
+        'value' => $value->quantity,
+      ];
+
+      // get product settings to build note about not tracking inventory if necessary
+      // if a variant, we need to get settings from parent page
+      if ($this->isProductVariant()) {
+        $settings = $this->page->parent->get(PwCommerce::PRODUCT_SETTINGS_FIELD_NAME);
+      } else {
+        $settings = $this->page->get(PwCommerce::PRODUCT_SETTINGS_FIELD_NAME);
+      }
+
+      if (empty($settings->trackInventory)) {
+        $options['notes'] = $this->_('Please note that this product does not currently track inventory.');
+      }
+
+      $field = $this->pwcommerce->getInputfieldText($options);
+      $wrapper->add($field);
+
+      //------------------- allowBackorders (getInputfieldCheckbox)
+
+      if ($this->isProductVariant) {
+        $label = $this->_('Variant Allows Backorders');
+      } else {
+        $label = $this->_('Allow Backorders');
+      }
+
+      $strings = $this->getInputfieldStrings();
+      $backordersNotes = $strings['backorders_notes'];
+
+      $options = [
+        'id' => "pwcommerce_product_stock_allow_backorders{$pageID}",
+        'name' => "pwcommerce_product_stock_allow_backorders{$pageID}",
+        'label' => $label,
+        //    'label2' => $this->_('overselling'),
+        // TODO: make dynamic for product vs variants
+        // 'notes' => $notes,
+        'notes' => $backordersNotes,
+        'collapsed' => Inputfield::collapsedNever,
+        'columnWidth' => 50,
+        'wrapClass' => true,
+        'wrapper_classes' => 'pwcommerce_no_outline',
+        'checked' => empty($value->allowBackorders) ? false : true,
+      ];
+
+      $field = $this->pwcommerce->getInputfieldCheckbox($options);
+      $wrapper->add($field);
+    }
+
+    //----------------------
+
+    $out = $wrapper->render();
+
+    return $out;
+  }
+
+  // build single row of the grid of attribute -> attribute-options for generating variants.
+  // $page here is an attribute page selected in the product page's attribute page ref field.
+  private function buildProductAttributeAndOptionsRow($attribute, $attributeOptionsInExistingVariants) {
+
+    // $out = "<select class='input-tags'></select/>";
+    // return $out;
+
+    //##############
+    // TODO: ADD PAGEAUTOCOMPLETE!
+    // TODO; DO WE NEED HIDDEN INPUT HERE FOR IDS MAYBE?
+    // TODO ADD HTMX HERE ON ON PARENT DIV ABOVE?
+    $out = "
+      <div id='pwcommerce_product_attribute_options_list{$attribute->id}'>" .
+      $this->buildProductAttributeOptions($attribute, $attributeOptionsInExistingVariants) .
+      "</div>";
+    return $out;
+  }
+
+  private function buildProductAttributeOptions($attribute, $attributeOptionsInExistingVariants) {
+
+    $attributeID = $attribute->id;
+
+    //------------------- pwcommerce product variants generation attibute options (InputfieldTextTags)
+    // @note: results will be limited to this $attributeID's children!
+    // parent is the 'attribute' that is the parent of this 'attribute options'
+    $pageSelector = "template=pwcommerce-attribute-option,parent_id={$attributeID},limit=50, status<" . Page::statusTrash;
+    $wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+    $pageID = $this->page->id;
+    $name = $this->name;
+
+    // @note: without the id and field params, processwire will send this to bookmarks! with them, it will send them to this inputfield.
+    //
+    // $tagsURL = "{$adminEdit}?id={$pageID}&field={$name}&parent_id={$attributeID}&context=options&q={q}";
+    $customHookURL = "/find-pwcommerce_product_attributes/";
+    $tagsURL = "{$customHookURL}?id={$pageID}&field={$name}&parent_id={$attributeID}&context=options&q={q}";
+    $label = sprintf(__("%s options"), $attribute->title);
+
+    $placeholder = sprintf(__("Click to select %s options"), mb_strtolower($attribute->title));
+
+    //--------------
+
+    $optionsTextTags = [
+      'id' => "pwcommerce_product_generate_variants_attribute_options{$attributeID}",
+      'name' => "pwcommerce_product_generate_variants_attribute_options{$attributeID}",
+      'required' => true,
+      // TODO: OK?
+      'pageSelector' => $pageSelector,
+      'useAjax' => false,
+      'closeAfterSelect' => false,
+      'tagsUrl' => $tagsURL,
+      'placeholder' => $placeholder,
+      'label' => $label,
+      'collapsed' => Inputfield::collapsedNever,
+      'wrapClass' => true,
+      'wrapper_classes' => 'pwcommerce_no_outline pwcommerce_override_processwire_inputfield_header_padding_top pwcommerce_override_processwire_inputfield_header_padding_left pwcommerce_override_processwire_inputfield_content_padding_bottom pwcommerce_override_processwire_inputfield_content_padding_left',
+      // TODO: DO WE NEED THIS? IF YES, SHOULD BE SET TO CURRENT VALUES IF EDITING! I.E., THE IDS OF THE OPTIONS IN THE 'HIDDEN' PAGE REF FOR ATTRIBUTE OPTIONS ON THE PAGE!
+      // TODO: IF SETTING, IS IT AN ARRAY OR CSV?!!!
+      //    'value' => XXXXX,
+    ];
+
+    $field = $this->pwcommerce->getInputfieldTextTags($optionsTextTags);
+
+    // doesn't work as expected; both treated as labels!
+    //   $field->val('1133 Red');
+    // above in combination with below seems to work, although we get an _ before the value, but no matter as we don't use it ourselves??? yes we do! we would have to remove it!
+    // TODO: trying multiple values
+    // @note: this method does not exist!
+    // $field->value(['1133', '1140']);
+    // set existing variants' options if they exist
+    if (!empty($attributeOptionsInExistingVariants)) {
+      $field->val(array_keys($attributeOptionsInExistingVariants));
+      $field->setTagsList($attributeOptionsInExistingVariants);
+    }
+
+    // Preload list of tags
+    $tagPages = $this->wire->pages->get($pageSelector)->siblings()->getArray();
+
+    $tagOptions = array_reduce($tagPages, function($options, $tagPage) {
+      $options[$tagPage->id] = $tagPage->title;
+
+      return $options;
+    }, []);
+
+    if (count($tagOptions)) {
+      $field->addOptions($tagOptions);
+    }
+
+    // TODO:  TEST IF CAN ADD ATTRS HERE, E.G. ref for ALPINE JS, ETC - yes we can but they don't get fired since changes are made programmatically by selectize and not the user!
+    //   $field->attr('x-on:input', 'something');
+    //   $field->attr('x-on:change', 'another');
+    // @note: doesn't work: $field->addClass('kilimanjaro');
+    //-------------
+
+    $wrapper->add($field);
+    // TODO: I DON'T THINK THIS WILL WORK! - nope; it doesn't!
+    //   return $field->render();
+    return $wrapper->render();
+  }
+
+  // TODO - BUILD PREVIEW FOR VARIANTS BASED ON SELECTED ATTRIBUTE OPTIONS
+  // TODO: alpine js - it!!!
+  // TODO: MIGHT RENAME METHOD + SPLIT IT UP!
+  private function buildProductVariantsPreview() {
+
+    $xstore = $this->xstore;
+
+    $button = $this->getGenerateVariantsPreviewButton();
+    // TODO: amend? too long? own tab? collapsible?
+    $extraGenerateVariantsInfo = $this->getExtraGenerateVariantsInfo();
+
+    $out = "<div x-show='{$xstore}.is_ready_for_generate_variants'>" .
+      $button .
+      "<small>" .
+      "<a x-show='!{$xstore}.is_show_information_for_generate_variants' @click='toggleShowInformationForGenerateVariants'>" . $this->_('view instructions') . "</a>" .
+      "<a x-show='{$xstore}.is_show_information_for_generate_variants' @click='toggleShowInformationForGenerateVariants'>" . $this->_('hide instructions') . "</a>" .
+      "</small>" .
+      // TODO: revisit this x-transition!
+      "<p class='notes' x-show='{$xstore}.is_show_information_for_generate_variants' x-transition>{$extraGenerateVariantsInfo}</p>" .
+      "</div>" .
+      "<hr>";
+
+    // ####################
+    // loop through  variants_preview_items in the alpine js store
+
+    //---------------------------
+
+    // @note: these inputfields will be rendered in alpine JS x-for loop!
+    //###################
+
+    //------------------- product variant preview: SELECTED OPTIONS IDs (getInputfieldHidden)
+    $hiddenVariantOptionsIDsMarkup = $this->getGenerateVariantsSelectedOptionsIDsHiddenInput();
+    //TODO: WE WANT A VALUE TO BE ALWAYS SUBMITTED, OTHERWISE WILL 'IMBALANCE' ARRAY - SO FORCE VALUE 0/1 USING ALPINE OR VANILLA JS - ALTERNATIVELY, TRY HIDDEN INPUT, BUT WOULD HAVE TO TOGGLE ITS  VALUE AS 0/1 PER THIS CHECKBOX -> TODO: @SEE BELOW; USING HIDDEN INPUT
+    //------------------- product variant preview: ENABLED (getInputfieldCheckbox)
+    $enabledCheckboxMarkup = $this->getGenerateVariantsEnabledCheckbox();
+    //------------------- product variant enabled status: ENABLED STATUS (getInputfieldHidden)
+    $hiddenVariantEnabledStatusMarkup = $this->getGenerateVariantsEnabledStatusHiddenInput();
+    // TODO DELETE WHEN DONE: WE NOW GRAB TITLES ON THE SERVER USING VARIANTS IDs (hiddenVariantOptionsIDsMarkup)
+    //------------------- product variant preview: TITLE (getInputfieldHidden)
+    // @note: we use this hidden inputfield to save the generated titles of variants.
+    // $hiddenVariantTitleMarkup = $this->getGenerateVariantsTitleHiddenInput();
+    //------------------- product variant preview: PRICE (getInputfieldText)
+    $priceMarkup = $this->getGenerateVariantsPriceTextInput();
+    //------------------- product variant preview: SKU (getInputfieldText)
+    $skuMarkup = $this->getGenerateVariantsSKUTextInput();
+
+    // TODO: WILL NEED TO add :key=index in loop
+    // TODO: REMOVE THIS CLASSES IF NOT NEEDED AS WE REMOVE IMMEDIATELY! - but keep the 'pwcommerce_trash' as we need it in the csss
+    $trashMarkup = $this->getGenerateVariantsTrashMarkup();
+
+    $variantAlreadyExistsInfo = $this->_('variant already exists');
+
+    $variantPriceLabel = $this->_('Price');
+    $variantPriceLabel .= $this->shopCurrencySymbolString;
+
+    //-----------------------------
+    // generated variants preview grid
+    $out .=
+      "<div id='pwcommerce_product_generated_variants_preview_wrapper' @pwcommerceproductgeneratevariantshidepreview.window='handleHideProductGenerateVariantsPreview' x-show='!{$xstore}.is_hide_generate_variants_preview' >" .
+      // :start loop
+      "<template x-for='(variant,index) in {$xstore}.variants_preview_items' :key='index'>" .
+      //  grid
+      "<div class='grid grid-cols-8 gap-4'>" .
+      //----------------
+      // grid items
+      //---------------
+      // variant preview title/name
+      "<div class='col-span-full'>" .
+      "<span x-text='getVariantPreviewNumbering(index)'></span>" .
+      "<span x-text='variant.label'></span>" .
+      //---------------
+      // @note: show if variant already exists. for use in 'regenerate' variants
+      "<template x-if='checkVariantAlreadyExists(variant)'>" .
+      "<span class='ml-1'>" .
+      "<small class='pwcommerce_light_gray'>({$variantAlreadyExistsInfo})</small>" .
+      "</span>" .
+      "</template>" .
+      //---------------
+      "</div>" .
+
+      // ############### USE/SHOW INPUTS FOR NEW VARIANTS ONLY ###############
+      // @note: to weed out existing variants when in 'regenerate' variants situation
+      // TODO @NOTE:alpine:  A SINGLE TEMPLATE BLOCK DID NOT WORK; NEEDED TO ADD THEM FOR EACH DIV BLOCK!
+      // TODO: in future, might use this as a bulk editor for variants???
+      // @note the use of the input suffix: options_ids_for_name_suffix
+      // e.g. pwcommerce_product_variant_preview_sku123456789012
+      //----------------
+      // hidden input for variant options IDs + enabled checkbox + hidden enabled status input + 'joined' variant title
+      "<template x-if='!checkVariantAlreadyExists(variant)'>" .
+      "<div class='col-span-full md:col-span-1 md:mt-7'>" .
+      $hiddenVariantOptionsIDsMarkup .
+      $enabledCheckboxMarkup .
+      $hiddenVariantEnabledStatusMarkup .
+      // TODO DELETE WHEN DONE; NO LONGER IN USE
+      // $hiddenVariantTitleMarkup .
+      "</div>" .
+      "</template>" .
+      //----------------
+      // price input
+      "<template x-if='!checkVariantAlreadyExists(variant)'>" .
+      "<div class='col-span-full md:col-span-3'>" .
+      // @note: custom label, bind 'for' using alpine JS
+
+      "<label class='InputfieldHeader uk-form-label' :for='`pwcommerce_product_variant_preview_price\${variant.options_ids_for_name_suffix}`'>" . $variantPriceLabel . "</label>" .
+      $priceMarkup .
+      "</div>" .
+      "</template>" .
+      //----------------
+      // sku input
+      "<template x-if='!checkVariantAlreadyExists(variant)'>" .
+      "<div class='col-span-full md:col-span-3'>" .
+      // @note: custom label, bind 'for' using alpine JS
+      "<label class='InputfieldHeader uk-form-label' :for='`pwcommerce_product_variant_preview_sku\${variant.options_ids_for_name_suffix}`'>" . $this->_('SKU') . "</label>" .
+      $skuMarkup .
+      "</div>" .
+      "</template>" .
+      //----------------
+      // trash can
+      "<template x-if='!checkVariantAlreadyExists(variant)'>" .
+      "<div class='col-span-full md:col-span-1 md:mt-7'>" .
+      $trashMarkup .
+      "</div>" .
+      "</template>" .
+      //----------------
+      // ############### :END - SHOW INPUTS FOR NEW VARIANTS ONLY ###############
+      "<hr class='col-span-full'>" .
+      //--------------------
+      // :end grid
+      "</div>" .
+      //-------------------
+      // :end loop
+      "</template>" .
+      "<template x-if='!{$xstore}.is_ready_for_generate_variants'>" .
+      "<span>" . $this->_('You have to specify at least one option for each product attribute before you can generate variants.') . "</span>" .
+      "</template>" .
+      "</div>";
+
+    return $out;
+  }
+
+  private function getGenerateVariantsPreviewButton() {
+    $label = $this->_('Generate Preview');
+    $options = [
+      'label' => $label,
+      'collapsed' => Inputfield::collapsedNever,
+      'small' => true,
+      'wrapClass' => true,
+      'wrapper_classes' => 'pwcommerce_no_outline',
+    ];
+
+    $field = $this->pwcommerce->getInputfieldButton($options);
+    // set dynamic alpine JS class attribute to this button
+    // we'll hide it if we are not yet ready to generate variants
+    //   $class = "{ hidden: !{$xstore}.is_ready_for_generate_variants}";
+    // @note: this class bind did not work on this button; maybe because we render it ourselves instead of inside an InputfieldWrapper
+    // @note: x-show works though!
+    $field->attr(
+      [
+        //   'x-bind:class' => $class,
+        // @note: moved to wrapper div below
+        // 'x-show' => "{$xstore}.is_ready_for_generate_variants",
+        'x-on:click' => 'handleGenerateProductVariantsPreview',
+      ]
+    );
+    return $field->render();
+  }
+
+  private function getExtraGenerateVariantsInfo() {
+    $out = $this->_('Click the preview button to generate a preview of the variants that will be created based on your current selections. Remove any variants that you do not wish to be generated. When happy with your edits, click the apply button to start the process of creating variants. This might take a while depending on the number of variants that will be created based on the product attributes and their respective options. Please be patient.');
+    return $out;
+  }
+
+  private function getGenerateVariantsSelectedOptionsIDsHiddenInput() {
+    //------------------- product variant preview: SELECTED OPTIONS IDs (getInputfieldHidden)
+    $field = $this->pwcommerce->getInputfieldHidden();
+    $field->attr([
+      'x-bind:id' => '`pwcommerce_product_variant_preview_options_ids${index}`',
+      // @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
+      'x-bind:name' => '`pwcommerce_product_variant_preview_options_ids[]`',
+      // 'x-bind:value' => "{$productVariantPreviewOptionIDsValueFunction}",
+      'x-bind:value' => 'variant.options_ids',
+    ]);
+    return $field->render();
+  }
+
+  private function getGenerateVariantsEnabledCheckbox() {
+    //------------------- product variant preview: ENABLED (getInputfieldCheckbox)
+    $options = [
+      //    'name' => "pwcommerce_order_line_item_select_product{$productID}",
+      // @note: skipLabel not working here so pw will use name to create label. So, force no label by setting blank name, but re-add name using alpine js
+      'name' => '',
+      'skipLabel' => Inputfield::skipLabelMarkup,
+      'collapsed' => Inputfield::collapsedNever,
+      'wrapClass' => true,
+      'wrapper_classes' => 'pwcommerce_no_outline',
+    ];
+
+    $field = $this->pwcommerce->getInputfieldCheckbox($options);
+    $field->attr([
+      // 'x-on:input' => 'handleProductVariantInPreviewEnabledChange()',
+      'x-bind:id' => '`pwcommerce_product_variant_preview_enabled_toggle${variant.options_ids_for_name_suffix}`',
+      // @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
+      // TODO: delete when done; we don't send this; instead, we send the hidden input counterpart below.
+      //    'x-bind:name' => '`pwcommerce_product_variant_preview_enabled_toggle[]`',
+      'x-model' => "variant.enabled",
+    ]);
+    return $field->render();
+  }
+
+  private function getGenerateVariantsEnabledStatusHiddenInput() {
+    //------------------- product variant enabled status: ENABLED STATUS (getInputfieldHidden)
+    // @note: we use this hidden inputfield to track enabled/disabled status of variants
+    // in a POST, this inputfield will always be submitted unlike its counterpart checkbox above.
+    $field = $this->pwcommerce->getInputfieldHidden();
+    $field->attr([
+      'x-bind:id' => '`pwcommerce_product_variant_preview_enabled${variant.options_ids_for_name_suffix}`',
+      // @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
+      // @see 'pwcommerce_product_variant_preview_sku' for issues with names
+      // 'x-bind:name' => '`pwcommerce_product_variant_preview_enabled[]`',
+      'x-bind:name' => '`pwcommerce_product_variant_preview_enabled${variant.options_ids_for_name_suffix}`',
+      // @note: bind 'enabled' or 'disabled' depending on
+      'x-bind:value' => "variant.enabled ? 'enabled' : 'disabled' ",
+    ]);
+    return $field->render();
+  }
+
+  // TODO DELETE WHEN DONE: WE NOW GRAB TITLES ON THE SERVER USING VARIANTS IDs
+  private function getGenerateVariantsTitleHiddenInput() {
+    //------------------- product variant preview: PRICE (getInputfieldText)
+    // @note: we use this hidden inputfield to save the generated titles of variants.
+    $field = $this->pwcommerce->getInputfieldHidden();
+    $field->attr([
+      'x-bind:id' => '`pwcommerce_product_variant_preview_title${variant.options_ids_for_name_suffix}`',
+      // @note: we use the JS template literals `` around the string to 'escape' the []. otherwise, alpine wil trip on them!
+      // @see 'pwcommerce_product_variant_preview_sku' for issues with names
+      //    'x-bind:name' => '`pwcommerce_product_variant_preview_title[]`',
+      'x-bind:name' => '`pwcommerce_product_variant_preview_title${variant.options_ids_for_name_suffix}`',
+      // @note: temporary 'default' title for variant
+      'x-bind:value' => "variant.label",
+    ]);
+    return $field->render();
+  }
+
+  private function getGenerateVariantsPriceTextInput() {
+
+    //------------------- product variant preview: (getInputfieldText)
+    // $value = $this->attr('value');
+
+    $options = [
+      // @see 'pwcommerce_product_variant_preview_sku' for issues with names
+      // 'name' => "pwcommerce_product_variant_preview_price[]",
+      'type' => 'number',
+      'step' => '0.01',
+      'min' => 0,
+      // @note: since we render this inputfield outside a wrapper, processwire will not display this label. we use a custom one in our markup instead
+      // 'label' => $this->_('Price'),
+      // 'skipLabel' => Inputfield::skipLabelMarkup,
+      // set initial variant price to the main product price
+      // 'value' => $mainProductPrice,
+      'collapsed' => Inputfield::collapsedNever,
+      'wrapClass' => true,
+      'wrapper_classes' => 'pwcommerce_no_outline',
+    ];
+
+    $field = $this->pwcommerce->getInputfieldText($options);
+    $field->attr([
+      // 'x-on:input' => 'handleProductVariantInPreviewPriceChange',
+      'x-bind:id' => '`pwcommerce_product_variant_preview_price${variant.options_ids_for_name_suffix}`',
+      'x-model.number' => "variant.price",
+      'x-bind:name' => '`pwcommerce_product_variant_preview_price${variant.options_ids_for_name_suffix}`',
+    ]);
+
+    return $field->render();
+  }
+
+  private function getGenerateVariantsSKUTextInput() {
+    //------------------- product variant preview: SKU (getInputfieldText)
+    $options = [
+      // @see below for issues with this name
+      // 'name' => "pwcommerce_product_variant_preview_sku[]",
+      // @note: since we render this inputfield outside a wrapper, processwire will not display this label. we use a custom one in our markup instead
+      // 'label' => $this->_('SKU'),
+      // 'skipLabel' => Inputfield::skipLabelMarkup,
+      'collapsed' => Inputfield::collapsedNever,
+      'wrapClass' => true,
+      'wrapper_classes' => 'pwcommerce_no_outline',
+    ];
+
+    $field = $this->pwcommerce->getInputfieldText($options);
+    $field->attr([
+      // 'x-on:input' => 'handleProductVariantInPreviewSKUChange()',
+      'x-bind:id' => '`pwcommerce_product_variant_preview_sku${variant.options_ids_for_name_suffix}`',
+      'x-model' => "variant.sku",
+      // @note: TODO: having issues with htmx not POST-ing empty inputs @see: https: //github.com/bigskysoftware/htmx/issues/33. causing error in processing values + array-imbalance, so wrong assignment of values! for now, we set custom names for each input we process
+      'x-bind:name' => '`pwcommerce_product_variant_preview_sku${variant.options_ids_for_name_suffix}`',
+    ]);
+    return $field->render();
+  }
+
+  private function getGenerateVariantsTrashMarkup() {
+    $trashTitle = $this->_('remove variant');
+    $out =
+      "<span class='fa fa-trash pwcommerce_order_line_item_delete pwcommerce_trash' title='{$trashTitle}' @click='handleRemoveProductVariantInPreview(index)'></span>";
+    return $out;
+  }
+
+  private function getGenerateVariantsIsCreatingSpinner() {
+    $out = "<span class='fa fa-fw fa-spin fa-spinner ml-1'></span>";
+    return $out;
+  }
+
+  //~~~~~~~~~~~~~
+
+  // extra content to be prepended to InputfieldPWCommerceRuntimeMarkup with respect to this field
+  // @note: TODO: we MIGHT still handle any JS interactions here!
+  // @note: we send in $page since this getting called from another inputfield, e.g. InputfieldPWCommerceRuntimeMarkup
+  public function getPrependContent($page, $name) {
+
+    // @note: ONLY PREPEND CONTENT IF PRODUCT 'USES' VARIANTS
+    // else, return null!
+    if (!$this->isUsingVariants($page)) {
+      return null;
+    }
+
+    $wrapper = $this->pwcommerce->getInputfieldWrapper();
+
+    //------------------- track generate variant item parent ID (main product) (InputfieldHidden)
+    // @note: we use this value as parent_id when creating variants
+    $options = [
+      'id' => "pwcommerce_product_generate_variants_parent_page_id",
+      'name' => 'pwcommerce_product_generate_variants_parent_page_id',
+      'value' => $page->id, // store the parent ID of the new/incoming product variant [new Page()]
+    ];
+    $field = $this->pwcommerce->getInputfieldHidden($options);
+    $wrapper->add($field);
+
+    //------------------- track generate variant item parent TITLE (main product) (InputfieldHidden)
+    // @note: we use this value as prefix FOR VARIANT-TITLE (hence name as well) when creating variants
+    // TODO: DOES THE ML LANGUAGE MATTER? MAYBE NOT, SINCE ONE TIME CREATION OF VARIANTS + WE DON'T USE THE TITLE? ACTUALLY WE DO USE THE TITLE, SO MAYBE, CAN DO PROGRAMMATICALLY AND SET FOR EACH LANGUAGE?!!!
+    // TODO: DELETE IF NOT IN USE SINCE ON CREATE WE STILL NEED TO GET THE PARENT AS AN OBJECT
+
+    $options = [
+      'id' => "pwcommerce_product_generate_variants_parent_page_title",
+      'name' => 'pwcommerce_product_generate_variants_parent_page_title',
+      'value' => $page->title, // store the parent TITLE of the new/incoming product variant [new Page()]
+    ];
+    $field = $this->pwcommerce->getInputfieldHidden($options);
+    $wrapper->add($field);
+
+    // also add multilingual titles if applicable
+    $multilingualTitlesForVariantPrefixes = $this->getMultilingualProductTitleForGenerateVariants($page);
+    if (!empty($multilingualTitlesForVariantPrefixes)) {
+
+      foreach ($multilingualTitlesForVariantPrefixes as $languageID => $languageTitle) {
+        $options = [
+          'id' => "pwcommerce_product_generate_variants_parent_page_title{$languageID}",
+          'name' => "pwcommerce_product_generate_variants_parent_page_title{$languageID}",
+          // store the parent TITLE of the new/incoming product variant [new Page()] FOR THIS LANGUAGE
+          'value' => $languageTitle,
+        ];
+        $field = $this->pwcommerce->getInputfieldHidden($options);
+        $wrapper->add($field);
+      }
+    }
+
+    //------------------- for htmx to populate options_ids that were used to create new variants. Will be swapped out-of-bands so we always have one (getInputfieldHidden)
+    // @note: for normal page loads, we get these values from this->renderBuildVariantsTabs() @see:  $mainProductData AND $formattedExistingVariantsOptionsIDs
+
+    $options = [
+      'id' => "pwcommerce_product_created_variants_options_ids",
+      'name' => 'pwcommerce_product_created_variants_options_ids',
+    ];
+    $field = $this->pwcommerce->getInputfieldHidden($options);
+    $wrapper->add($field);
+
+    //------------------- for htmx to populate a hidden input with a timestamp that will tell PWCommerceCommonScripts which Inputfields to reload. We are having issues with subsequent reload triggers of InputfieldTextTags (JSON undefined errors). This timestamp will be used in InputfieldPWCommerceRuntimeMarkup::buildForm() to create a unique css class everytime a bunch of variants are created without a page refresh. This only applies to new items. On page reload, the classes will be wiped out as no longer needed. @note that this inputfield will be swapped out-of-bands so we always have one (getInputfieldHidden)
+
+    $options = [
+      'id' => "pwcommerce_created_items_timestamp",
+      'name' => 'pwcommerce_created_items_timestamp',
+    ];
+    $field = $this->pwcommerce->getInputfieldHidden($options);
+    $wrapper->add($field);
+
+    //------------------- generate product variants modal link (InputfieldMarkup)
+    $out = "";
+
+    // TODO; ALSO NEED TO CHECK (JUST IN CASE) IF THIS IS A PRODUCT THAT WILL HAVE VARIANTS! ELSE DON'T SHOW BELOW MESSAGE
+    if (!$page->pwcommerce_product_attributes->count) {
+      $out = "<p>" . $this->_('You need to add at least one attribute before you can generate product variants.') . "</p>";
+    } else {
+      // LINK TO EDIT/GENERATE PRODUCT VARIANTS
+
+      // TODO: HERE CHECK IF HAVE VARIANTS, IN WHICH CASE EDIT, ELSE GENERATE NEW
+      // @note: since in prependContent mode, we need to check using $page
+      $hasExistingVariants = $this->checkHasExistingVariants($page);
+
+      //    $label = empty($hasExistingVariants) ? $this->_('Generate product variants') : $this->_('Edit product variants');
+
+      if ($hasExistingVariants) {
+        $label = $this->_('Regenerate product variants');
+        $hasExistingVariantsNote = "<p class='notes'>" . $this->_('Regenerating product variants can potentially permanently delete existing variants. If you have changed the product attributes since generating its variants, all existing variants will be lost when new ones are generated.  Adding new options to existing attributes will not affect existing variants.') . "</p>";
+      } else {
+        $label = $this->_('Generate product variants');
+        $hasExistingVariantsNote = "";
+      }
+
+      // TODO: CHANGE TO SMALL BUTTON? - no; doesn't look good here with variants below it
+      // TODO: dynamic label? generate vs edit?
+      $out =
+        "<div id='open_modal_wrapper' x-data='InputfieldPWCommerceProductStockData'>" .
+        "<a id='open' @click='handleOpenGenerateProductVariantsModal'>{$label}</a>" .
+        $hasExistingVariantsNote .
+        "</div>";
+    }
+
+    //----------
+
+    $options = [
+      'skipLabel' => Inputfield::skipLabelHeader,
+      'collapsed' => Inputfield::collapsedNever,
+      'wrapClass' => true,
+      // TODO: DELETE IF NOT IN USE
+      'classes' => 'pwcommerce_override_processwire_inputfield_content_padding_left',
+      'wrapper_classes' => 'pwcommerce_no_outline',
+      'value' => $out,
+    ];
+
+    $field = $this->pwcommerce->getInputfieldMarkup($options);
+
+    $wrapper->add($field);
+    // @note: return unrendered wrapper
+    return $wrapper;
+  }
+
+  // extra content to be added as inline asset to InputfieldPWCommerceRuntimeMarkup with respect to this field
+  // @note: TODO: we MIGHT still handle any JS interactions here!
+  // TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
+  public function getPreloadInlineAssetsContent($page) {
+    // TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE ALPINE ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
+    // TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
+    return;
+    // TODO: THIS MIGHT CHANGE IN FUTURE!
+    // @note: ONLY NEED INLINE ASSETS CONTENT IF PRODUCT 'USES' VARIANTS
+    // else, return null!
+
+    if (!$this->isUsingVariants($page)) {
+      return null;
+    }
+    $url = $this->wire('config')->urls->ProcessPWCommerce;
+    return [
+      ['source' => "{$url}vendors/scripts/alpinejs/alpinejs.3.2.4.min.js", 'defer' => true],
+    ];
+  }
+
+  // extra content to be added as assets to InputfieldPWCommerceRuntimeMarkup with respect to this field
+  // @note: TODO: we MIGHT still handle any JS interactions here!
+  // TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
+  public function getPreloadAssetsContent() {
+    // TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE HTMX ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
+    // TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
+    return;
+    $url = $this->wire('config')->urls->ProcessPWCommerce;
+    return [
+      ['source' => "{$url}vendors/scripts/htmx/htmx.1.7.0.min.js"],
+    ];
+  }
+  // modal for generating or editing products variants builds
+  private function getModalMarkupForBuildProductVariants() {
+
+    $xstore = $this->xstore;
+
+    // TODOe: the pageautocomplete must limit parent_id to its attribute parent!";
+    // TODO: UNSURE IF THIS BUTTON SHOULD BE GENERATE OR NOT HAVE IT AND USE A LINK INSTEAD?
+    // TODO: BEST ALSO TO HIDE IT IF NOT READY TO GENERATE VARIANTS!
+    // TODO: hide or disable if not ready?
+    // $applyButtonAttributes = ['x-on:click' => 'handleSaveGeneratedProductVariants', 'x-show' => "{$xstore}.is_ready_for_generate_variants"];
+    // TODO; testing use htxm instead
+    $ajaxPostURL = $this->ajaxPostURL;
+    $applyButtonAttributes = [
+      // HTMX
+      'hx-post' => $ajaxPostURL,
+      // TODO: delete when done: not needed except for file uploads
+      //  'hx-encoding' => 'multipart/form-data',
+      // @note: we are using htmx out of band in the response!
+      // @see: https: //htmx.org/attributes/hx-swap-oob/
+      // The hx-swap-oob attribute allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target, that is "Out of Band". This allows you to piggy back updates to other element updates on a response.
+      'hx-target' => '#pwcommerce_product_generated_variants_preview_wrapper',
+      // TODO @UPDATE we now target the 'is creating variants please wait markup'
+      // TODO: HAVING ISSUES WITH BELOW! NOT GETTING UPDATED. MAYBE IT IS OUT OF BAND? ALSO, CAUSING PREVIEW NOT TO BE HIDDEN! TODO - TRY USING OOB TRUE IN THE RESPONSE P
+      // @note: this is a 'p'
+      //'hx-target' => '#pwcommerce_product_variants_is_creating_info',
+      //    'hx-swap' => 'beforeend',
+      'hx-swap' => 'beforebegin',
+      // TODO: TESTING - E.G. SENDING STATE OF GENARATE; REPLACE, ADD, ETC, DEPENDING ON ONLY OPTIONS CHANGE, ETC
+      //    'hx-vals' => '{"myVal": "My Value"}',// @note: works fine! TODO: delete if not in use
+      // ALPINE
+      // @note: 'apply button' to generate variants has own bool property being checked whether it is visible.
+      // don't show appy button before variants preview have been generated and also when in 'is creating variants' phase (i.e., server request to create variants has been sent)
+      'x-show' => "{$xstore}.is_show_apply_generated_variants_button && !{$xstore}.is_creating_variants",
+      // @note: on click, htmx above will kick in. In alpine.js, we also set a property to swap the display when variants are being generated
+      // TODO @update: not needed for now. We use handleHideProductGenerateVariantsPreview() instead
+      //'x-on:click' => 'handleIsGeneratingProductVariants',
+    ];
+    // ----
+    $cancelButtonAttributes = [
+      'x-on:click' => 'resetProductVariantsAndClose',
+      // don't show cancel button when in 'is creating variants' phase (i.e., server request to create variants has been sent)
+      'x-show' => "!{$xstore}.is_creating_variants",
+    ];
+
+    // hx-encoding
+    $applyButton = $this->pwcommerce->getModalActionButton($applyButtonAttributes, 'apply');
+    $cancelButton = $this->pwcommerce->getModalActionButton($cancelButtonAttributes, 'cancel');
+    // TODO: make header string dynamic? i.e. generate vs edit?
+    $header = $this->_("Generate product variants");
+    $body = $this->renderBuildVariantsTabs();
+    $footer = "<div class='ui-dialog-buttonset'>{$applyButton}{$cancelButton}</div>";
+    $xproperty = 'is_edit_product_variants_modal_open';
+    $size = '6x-large';
+    // wrap content in modal for adding/editing product variants
+    // modal options
+    $options = [
+      // $header The modal title pane markup.
+      'header' => $header,
+      // $body The main content markup.
+      'body' => $body,
+      // $footer The footer markup.
+      'footer' => $footer,
+      // $xstore The alpinejs store with the property that will be modelled to show/hide the modal.
+      'xstore' => $this->xstoreProduct,
+      // $xproperty The alpinejs property that will be modelled to show/hide the modal.
+      'xproperty' => $xproperty,
+      // $size The size of the modal requested.
+      'size' => $size,
+      // custom handler for x (close) in modal title dialog [instead of the usual ]
+      'handler_for_close_modal' => 'resetProductVariantsAndClose',
+      'handler_for_close_modal_value' => '',
+    ];
+    $out = $this->pwcommerce->getModalMarkup($options);
+    return $out;
+  }
+  // TODO: MIGHT RENAME METHOD
+  // TODO: rename if will have different generate view versus setup!!!
+  // TODO: loop through + add htmx attributes!
+  private function getGenerateProductVariantsMarkup() {
+
+    // $pageID = $this->page->id;
+
+    $attributes = $this->getProductAttributes();
+    $existingProductVariantsOptions = $this->getProductExistingVariantsOptions();
+
+    // TODO: RETURN IF NO PRODUCT ATTRIBUTES?
+    //=============
+
+    // TODO; DO WE NEED HIDDEN INPUT HERE FOR IDS MAYBE?
+    // TODO ADD HTMX HERE ON ON CHILDREN ROWS  DIV BELOW?
+    // TODO: ON FIRST LOAD, IDEALLY CHECK IF IS READY IN CASE WE HAVE EXISTING VARIANTS? DON'T MAKE MUCH SENSE THOUGH AS WHY WOULD THEY WANT TO PREVIEW WHAT THEY ALREADY HAVE? IN SUCH A CASE, MAYBE JUST SHOW A MESSAGE?
+    // open wrapper div for generate variants
+    $out = "<div id='pwcommerce_product_generate_variants_select_options_wrapper' x-data='InputfieldPWCommerceProductStockData' @pwcommerceproductgeneratevariantsselectizechange.window='handleIsReadyForGenerateVariants'>";
+    // add notice if they have existing variants
+    // TODO: also add note about need to make changes before can generate previews
+    if ($this->hasExistingVariants) {
+      // TODO: rephrase!
+      $out .= "<p class='notes'>" . $this->_('This product has existing variants. Their options are pre-selected below. You need to make changes before you can preview regenerated variants.') . "</p>";
+    }
+    // loop through attributes and build generate variants grid
+    $cnt = 0;
+    foreach ($attributes as $attribute) {
+      $attributeOptionsInExistingVariants = $this->getAttributeOptionsInExistingVariants($existingProductVariantsOptions, $attribute->id);
+      // TODO: HERE, CHECK EMPTY, ETC
+      // TODO: CREATE METHOD TO RETURN AS TAGS FOR TEXTTAGS OR USE THAT INPUTFIELD TO FORMAT THEM?
+
+      $out .= $this->buildProductAttributeAndOptionsRow($attribute, $attributeOptionsInExistingVariants);
+      // $out .= $this->buildProductAttributeAndOptionsRow($attribute, $attributeOptionsInExistingVariants[$attribute->id]);
+      $cnt++;
+      if ($cnt < $attributes->count) {
+        $out .= "<hr>";
+      }
+    }
+    //------------
+    // close the wrapper div for variants
+    $out .= "</div>";
+
+    return $out;
+  }
+
+  // get the PageArray of the product attributes for this product
+  // these are in the page ref field pwcommerce_product_attributes
+  private function getProductAttributes() {
+    return $this->page->pwcommerce_product_attributes;
+  }
+
+  private function getProductExistingVariantsOptions() {
+    $existingVariantsOptions = $this->wire('pages')->findRaw(
+      "parent={$this->page}",
+      [
+        //   'title',
+        'pwcommerce_product_attributes_options.id',
+        'pwcommerce_product_attributes_options.title',
+        'pwcommerce_product_attributes_options.parent_id',
+      ]
+    );
+
+    return $existingVariantsOptions;
+  }
+
+  // for alpine js comparison of string made up of options IDs that make up a variant
+  // e.g. 1234,2456,7890 -> black,large,cotton
+  // used to display 'existing variant' message if regenerating variants and product has existing ones
+  private function getFormmattedExistingVariantsOptionsIDs() {
+    $formattedExistingVariantsOptionsIDs = [];
+    $existingVariantsOptions = $this->getProductExistingVariantsOptions();
+    if (!empty($existingVariantsOptions)) {
+      foreach ($existingVariantsOptions as $values) {
+
+        $options = array_column($values['pwcommerce_product_attributes_options'], 'id');
+
+        $optionsIDs = implode(',', $options);
+
+        $formattedExistingVariantsOptionsIDs[] = $optionsIDs;
+      }
+    }
+
+    return $formattedExistingVariantsOptionsIDs;
+  }
+
+  // TODO: DELETE WHEN DONE
+  private function getAttributeOptionsInExistingVariants($existingVariants, $attributeID) {
+    $attributeOptions = [];
+
+    // loop through variants
+    foreach ($existingVariants as $values) {
+      $variants = $values['pwcommerce_product_attributes_options'];
+
+      $columnsID = array_column($variants, 'id', 'parent_id');
+
+      $columnsTitle = array_column($variants, 'title', 'parent_id');
+
+      $id = $columnsID[$attributeID];
+      $title = $columnsTitle[$attributeID];
+      // @note: we will get inner array later, below
+      // we do it like this to overwrite duplicate options
+      $attributeOptions[$attributeID][$id] = $title;
+    }
+
+    // @note: just return the inner array
+    if (isset($attributeOptions[$attributeID])) {
+      $attributeOptions = $attributeOptions[$attributeID];
+
+    }
+    return $attributeOptions;
+  }
+
+  //~~~~~~~~~~~~~
+
+  private function checkHasExistingVariants($page) {
+    $variant = $this->wire('pages')->getRaw("template=pwcommerce-product-variant,parent_id={$page->id}", 'id');
+    return $variant;
+  }
+
+  private function getMultilingualProductTitleForGenerateVariants($page) {
+    $languageStringsArray = [];
+    if ($this->wire('languages')) {
+      foreach ($this->wire('languages') as $language) {
+        //  skip default
+        if ($language->name === 'default') {
+          continue;
+        }
+        //-------------
+        $languageStringsArray[$language->id] = $page->title->getLanguageValue($language);
+      }
+    }
+    return $languageStringsArray;
+  }
+
+  // ~~~~~~~~~
+
+  /**
+   * Process input for the values sent from the product properties for this page
+   *
+   */
+  public function ___processInput(WireInputData $input) {
+
+    // @note: @see processInputDeleteItems() - a handler to delete product variants called via InputfieldRuntimeMarkup::processInput()
+
+    $stock = $this->field->type->getBlankValue($this->page, $this->field);
+    $pageID = $this->page->id;
+
+    // @note: we have page->id suffixes to id and names of inputs since this field will be used multiple times on the same page in case a product has variants.
+
+    // process values
+    $stock->sku = $this->wire('sanitizer')->text($input->{"pwcommerce_product_stock_sku{$pageID}"});
+    // ++++++++++++
+
+    $price = (float) $input->{"pwcommerce_product_stock_price{$pageID}"};
+    $otherPrice = (float) $input->{"pwcommerce_product_stock_compare_price{$pageID}"};
+
+    if (!empty($this->isUseSaleAndNormalPriceFields)) {
+      // USING SALES + NORMAL PRICE FIELDS/APPROACH
+      $stock->salePrice = $price;
+      $stock->normalPrice = $otherPrice;
+      ;
+    } else {
+      // USING PRICE + COMPARE PRICE FIELDS/APPROACH
+      $stock->price = $price;
+      $stock->comparePrice = $otherPrice;
+    }
+
+    // +++++++++++
+    $stock->quantity = (int) $input->{"pwcommerce_product_stock_quantity{$pageID}"};
+    $stock->allowBackorders = (int) $input->{"pwcommerce_product_stock_allow_backorders{$pageID}"};
+    $stock->enabled = (int) $input->{"pwcommerce_product_stock_enabled{$pageID}"};
+
+    // if the string values of the processed properties are different from the previous,
+    // then flag this Inputfield as changed
+    // so that it will be automatically saved with the page
+    // @note: we compare using an in-house toString() private method as we don't implement toString() in the field.
+    if ($this->toStringInhouse($stock) !== $this->toStringInhouse($this->value)) {
+      $this->attr('value', $stock);
+      $this->trackChange('value');
+    }
+  }
+
+  public function processInputDeleteItems(WireInputData $input) {
+    $deleteItems = $input->pwcommerce_is_delete_item;
+    // page IDs are in one hidden inputfield; get the first array item
+    $deleteVariantsIDsCSV = $deleteItems[0]; // csv string of IDs
+    $deleteVariantsIDsArray = $this->wire('sanitizer')->intArray($deleteVariantsIDsCSV);
+    if (!empty($deleteVariantsIDsArray)) {
+      $deleteVariantsIDs = implode('|', $deleteVariantsIDsArray);
+      //-------------
+      $pages = $this->wire('pages');
+      $variants = $pages->find("id={$deleteVariantsIDs}");
+
+      // ---------
+      // TRASH each variant page
+
+      $notDeletedVariantsTitles = [];
+      $deletedVariantsTitles = [];
+      foreach ($variants as $variant) {
+        // locked for edits
+        if ($variant->isLocked()) {
+          $notDeletedVariantsTitles[] = $variant->title;
+          continue;
+        }
+        $pages->trash($variant);
+        // successfully trashed
+        if ($variant->isTrash()) {
+          $deletedVariantsTitles[] = $variant->title;
+        }
+      }
+      // ------
+      // NOTICES
+      // success
+      if (!empty($deletedVariantsTitles)) {
+        $this->message(sprintf(__("Deleted these variants: %s."), implode(', ', $deletedVariantsTitles)));
+      }
+      // error
+      if (!empty($notDeletedVariantsTitles)) {
+        $this->warning(sprintf(__("Could not delete these variants: %s."), implode(', ', $notDeletedVariantsTitles)));
+      }
+    }
+  }
+
+  // ~~~~~~~~~~~~
+
+  /**
+   * Make a string value to represent the stock values that can be used for comparison purposes.
+   *
+   * @note: this is only for internal use since we don't have a __toString() method.
+   * @return string
+   *
+   */
+  private function toStringInhouse($item) {
+    if (!empty($this->isUseSaleAndNormalPriceFields)) {
+      // USING SALES + NORMAL PRICE FIELDS/APPROACH
+      $price = $item->salePrice;
+      $otherPrice = $item->normalPrice;
+    } else {
+      // USING PRICE + COMPARE PRICE FIELDS/APPROACH
+      $price = $item->price;
+      $otherPrice = $item->comparePrice;
+    }
+    $string = (string) "$item->sku: $price: $otherPrice: $item->quantity: $item->allowBackorders: $item->enabled";
+    return $string;
+  }
+
+  // check if current page is a product variant
+  private function isProductVariant() {
+    return $this->page->template->name === 'pwcommerce-product-variant';
+  }
+
+  // check if current page is a product AND it uses variants
+  // @note: use here means the setting is enabled
+  // it does not check if variants have actually been created or not
+  private function isUsingVariants($page) {
+    //   $page = $this->page; // TODO: so we can reuse with externally provided page (e.g. from InputfieldRuntimeMarkup), now passing as parameter
+    if ($page->template->name !== 'pwcommerce-product') {
+      return false;
+    }
+    // $settings = $page->pwcommerce_product_settings;
+    $settings = $page->get(PwCommerce::PRODUCT_SETTINGS_FIELD_NAME);
+    return !empty($settings->useVariants);
+  }
+
+  private function getInputfieldStrings() {
+
+    // append currency symbol string if available
+    $currencySymbol = $this->shopCurrencySymbolString . '.';
+    $type = $this->getInputfieldStringsType();
+
+    $allStrings = [
+      'product' => [
+        // -------
+        // FOR 'PRICE & COMPARE PRICE' FIELDS APPROACH
+        // labels
+        'price_label' => $this->_('Price'),
+        'compare_price_label' => $this->_('Compare Price'),
+        // descriptions
+        'price_description' => $this->_('Main product price') . $currencySymbol,
+        'compare_price_description' => $this->_('Previous price') . $currencySymbol,
+        // notes
+        'price_notes' => $this->_('This price will be used as the product price. It should not be zero or greater than the compare price. It will also be used as the price for product variants without own prices, if applicable.'),
+        'compare_price_notes' => $this->_('The price in this field will be used as the compare (ex) price. The value should not be zero or less than the price.  It will also be used as the compare price for product variants without own compare prices, if applicable.'),
+
+        # ++++++++++++++++++++++++++
+
+        // FOR 'SALES & NORMAL PRICE' FIELDS APPROACH
+        // labels
+        'sale_price_label' => $this->_('Sale Price'),
+        'normal_price_label' => $this->_('Normal Price'),
+        // descriptions
+        'sale_price_description' => $this->_('Sale price') . $currencySymbol,
+        'normal_price_description' => $this->_('Normal price when not on sale') . $currencySymbol,
+        // notes
+        'sale_price_notes' => $this->_("This sale price will be used as the product price if it is not empty or zero. Otherwise, the 'normal price' will be used. It should not be zero or greater than the normal price. It will also be used as the sale price for product variants without own sale prices, if applicable."),
+        'normal_price_notes' => $this->_("This price will be used if a valid 'sale price' is not specified. It should not be zero or less than the sale price. It will also be used as the normal price for product variants without own normal prices, if applicable."),
+
+        // ------------
+        'enabled_notes' => $this->_('If unchecked, customers will not be able to buy this product.'),
+        'backorders_notes' => $this->_('If checked, customers will still be able to buy this product when out of stock.'),
+      ],
+      'variant' => [
+        // FOR 'PRICE & COMPARE PRICE' FIELDS APPROACH
+        // labels
+        'variant_price_label' => $this->_('Variant Price'),
+        'variant_compare_price_label' => $this->_('Variant Compare Price'),
+        // descriptions
+        'variant_price_description' => $this->_('Variant price') . $currencySymbol,
+        'variant_compare_price_description' => $this->_('Previous variant price') . $currencySymbol,
+        // notes
+        'variant_price_notes' => $this->_('This price will be used as the variant price. To be used, it should not be zero or greater than the variant compare price. If left empty, the main product price will be used instead.'),
+        'variant_compare_price_notes' => $this->_('The price in this field will be used as the variant compare (ex) price. The value should not be zero or less than the variant price. If left empty, the main product compare price will be used instead.'),
+
+        # ++++++++++++++++++++++++++
+
+        // FOR 'SALES & NORMAL PRICE' FIELDS APPROACH
+        // labels
+        'variant_sale_price_label' => $this->_('Variant Sale Price'),
+        'variant_normal_price_label' => $this->_('Variant Normal Price'),
+        // descriptions
+        'variant_sale_price_description' => $this->_('Variant sale price') . $currencySymbol,
+        'variant_normal_price_description' => $this->_('Variant normal price when not on sale') . $currencySymbol,
+        // notes
+        'variant_sale_price_notes' => $this->_("This sale price will be used as the variant price if it is not empty or zero. Otherwise, the 'variant normal price' will be used. To be used, it should not be zero or greater than the variant normal price. If both the variant sale price and the variant normal price are left empty, the main product sale price (if not empty) will be used instead. Else the main product normal price will be used."),
+        'variant_normal_price_notes' => $this->_("This price will be used if a valid 'variant sale price' is not specified. To be used, it should not be zero or less than the variant sale price. If left empty, the main product normal price will be used instead"),
+
+        // ------------
+        'enabled_notes' => $this->_('If unchecked, customers will not be able to buy this product variant.'),
+        'backorders_notes' => $this->_('If checked, customers will still be able to buy this product variant when out of stock.'),
+      ],
+      'gift_card_variant' => [
+        // 'price_description' => $this->_('Gift card variant price') . $currencySymbol,
+        'price_description' => '',
+        'compare_price_description' => $this->_('Previous price') . $currencySymbol,
+
+        // ------------
+        'enabled_notes' => $this->_('If unchecked, you will not be able to issue or sell a gift card from this gift card product variant.'),
+        'price_notes' => $this->_('The denomination for this gift card for a future purchase.'),
+        // TODO MAYBE DON'T USE THIS FIELD? THIS IS BECAUSE GCPV IS A CURRENCY! IT SHOULD BE AVAILABLE IF BOUGHT!
+        'backorders_notes' => $this->_('If checked, customers will still be able to buy this gift card product variant when out of stock.'),
+      ],
+    ];
+
+    // --------
+
+    $strings = $allStrings[$type];
+    return $strings;
+  }
+
+  private function getInputfieldStringsType() {
+    $types = [
+      'pwcommerce-product' => 'product',
+      'pwcommerce-product-variant' => 'variant',
+      'pwcommerce-gift-card-product-variant' => 'gift_card_variant',
+    ];
+    // --------
+    $type = $types[$this->page->template->name];
+    return $type;
+  }
+
+  private function getIsPriceFieldRequired($priceFieldType = 'price_or_sale_price') {
+
+    $isPriceFieldRequired = false;
+
+    // -----
+    if (!empty($this->isUseSaleAndNormalPriceFields)) {
+      // SALE AND NORMAL PRICE FIELDS STRATEGY
+      if ($priceFieldType === 'compare_price_or_normal_price') {
+        if (empty($this->isUsingVariants($this->page))) {
+          // product without variants
+          $isPriceFieldRequired = true;
+        } elseif ($this->isProductVariant) {
+          // product variants
+          $isPriceFieldRequired = true;
+        }
+
+      }
+    } else {
+      // PRICE AND COMPARE PRICE FIELDS STRATEGY
+      if ($priceFieldType === 'price_or_sale_price') {
+        if (empty($this->isUsingVariants($this->page))) {
+          // product without variants
+          $isPriceFieldRequired = true;
+        } elseif ($this->isProductVariant) {
+          // product variants
+          $isPriceFieldRequired = true;
+        }
+      }
+
+    }
+    // --------
+    return $isPriceFieldRequired;
+  }
 
 }
