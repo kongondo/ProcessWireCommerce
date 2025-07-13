@@ -607,12 +607,12 @@ EOT;
 		// TODO ADD HTMX HERE ON ON PARENT DIV ABOVE?
 		$out = "
 			<div id='pwcommerce_product_attribute_options_list{$attribute->id}'>" .
-			$this->buildProductAttributeOptionsAutocomplete($attribute, $attributeOptionsInExistingVariants) .
+			$this->buildProductAttributeOptions($attribute, $attributeOptionsInExistingVariants) .
 			"</div>";
 		return $out;
 	}
 
-	private function buildProductAttributeOptionsAutocomplete($attribute, $attributeOptionsInExistingVariants) {
+	private function buildProductAttributeOptions($attribute, $attributeOptionsInExistingVariants) {
 
 		$attributeID = $attribute->id;
 
@@ -631,10 +631,7 @@ EOT;
 		$customHookURL = "/find-pwcommerce_product_attributes/";
 		$tagsURL = "{$customHookURL}?id={$pageID}&field={$name}&parent_id={$attributeID}&context=options&q={q}";
 		$label = sprintf(__("%s options"), $attribute->title);
-		//   $placeholder = $this->_('Start typing to search.');
-		//   $placeholder = sprintf(__("Begin typing to search for %s options"), mb_strtolower($attribute->title));
-		// TODO: REPHRASE?
-		$placeholder = sprintf(__("Type at least 3 characters to search for %s options"), mb_strtolower($attribute->title));
+		$placeholder = sprintf(__("Click to select %s options"), mb_strtolower($attribute->title));
 		//--------------
 
 		$optionsTextTags = [
@@ -668,6 +665,21 @@ EOT;
 			$field->val(array_keys($attributeOptionsInExistingVariants));
 			$field->setTagsList($attributeOptionsInExistingVariants);
 		}
+
+
+		// Preload list of tags
+		$tagPages = $this->wire->pages->get($pageSelector)->siblings()->getArray();
+
+		$tagOptions = array_reduce($tagPages, function($options, $tagPage) {
+			$options[$tagPage->id] = $tagPage->title;
+
+			return $options;
+		}, []);
+
+		if (count($tagOptions)) {
+			$field->addOptions($tagOptions);
+		}
+
 		// TODO:  TEST IF CAN ADD ATTRS HERE, E.G. ref for ALPINE JS, ETC - yes we can but they don't get fired since changes are made programmatically by selectize and not the user!
 		//   $field->attr('x-on:input', 'something');
 		//   $field->attr('x-on:change', 'another');
