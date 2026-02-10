@@ -13,8 +13,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Check if a given product has variants.
 	 *
-	 * @param Page $product Product to check.
-	 * @return boolean If a product has variants.
+	 * @param mixed $product
+	 * @return bool
 	 */
 	public function isProductWithVariants($product) {
 		$oneVariant = (int) $this->wire('pages')->getRaw("template=" . PwCommerce::PRODUCT_VARIANT_TEMPLATE_NAME . ",parent={$product},pwcommerce_product_stock.enabled=1", 'id');
@@ -22,6 +22,11 @@ trait TraitPWCommerceUtilitiesProduct
 	}
 
 	// CHECK IF ATTRIBUTES FEATURE IS INSTALLED, IN WHICH CASE CAN USE VARIANTS
+	/**
+	 * Is Variants In Use.
+	 *
+	 * @return bool
+	 */
 	public function isVariantsInUse() {
 		$installedOptionalFeatures = $this->getPWCommerceInstalledOptionalFeatures(PwCommerce::PWCOMMERCE_PROCESS_MODULE);
 
@@ -29,6 +34,12 @@ trait TraitPWCommerceUtilitiesProduct
 	}
 
 	// is given $product a digital product?
+	/**
+	 * Is Digital Product.
+	 *
+	 * @param mixed $product
+	 * @return bool
+	 */
 	public function isDigitalProduct($product) {
 		$isDigitalProduct = false;
 		if (is_array($product)) {
@@ -60,8 +71,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Check if given produc tracks inventory.
 	 *
-	 * @param Page $product Product to check.
-	 * @return boolean If template of product shows it is a variant or not.
+	 * @param Page $product
+	 * @return bool
 	 */
 	public function isProductTrackInventory(Page $product) {
 		/** @var WireData $settings */
@@ -74,8 +85,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Check if given product or variant is enabled for selling.
 	 *
-	 * @param Page $product Product to check.
-	 * @return boolean If product or variant is enabled for selling.
+	 * @param Page $product
+	 * @return bool
 	 */
 	public function isProductEnabledForSelling(Page $product) {
 		$stock = $product->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -87,8 +98,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Check if given product or variant is enabled for selling.
 	 *
-	 * @param Page $product Product to check.
-	 * @return boolean If product or variant is enabled for selling.
+	 * @param Page $product
+	 * @return bool
 	 */
 	public function isProductAllowOverSelling(Page $product) {
 		$stock = $product->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -101,12 +112,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Check if given product or variant allows overselling.
 	 *
-	 * This means 'allows back orders'.
-	 * @note: Alias for PwCommerce::isProductAllowOverSelling
-	 *
-	 * @access public
-	 * @param Page $product Product to check.
-	 * @return bool Whether product or variant allows overselling.
+	 * @param Page $product
+	 * @return bool
 	 */
 	public function isProductAllowBackOrders(Page $product) {
 		return $this->isProductAllowOverSelling($product);
@@ -115,7 +122,7 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Check if shop uses 'sale' and 'normal' price fields.
 	 *
-	 * @return bool true if sale and normal price in use, else false.
+	 * @return bool
 	 */
 	public function isUseSaleAndNormalPriceFields() {
 		$generalSettings = $this->getShopGeneralSettings();
@@ -127,8 +134,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Get the price of the lowest-priced active variant for a given product.
 	 *
-	 * @param Page $product Product whose lowest-priced variant to get.
-	 * @return float Price of the lowest-priced variant.
+	 * @param mixed $product
+	 * @return mixed
 	 */
 	public function getPriceOfLowestPricedEnabledVariantForProduct($product) {
 		$lowestPricedVariant = (float) $this->wire('pages')->getRaw("template=" . PwCommerce::PRODUCT_VARIANT_TEMPLATE_NAME . ",parent={$product},pwcommerce_product_stock.enabled=1,sort=pwcommerce_product_stock.price", 'pwcommerce_product_stock.price');
@@ -138,8 +145,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * Get the price of the highest-priced active variant for a given product.
 	 *
-	 * @param Page $product Product whose highest-priced variant to get.
-	 * @return float Price of the highest-priced variant.
+	 * @param mixed $product
+	 * @return mixed
 	 */
 	public function getPriceOfHighestPricedEnabledVariantForProduct($product) {
 		$highestPricedVariant = (float) $this->wire('pages')->getRaw("template=" . PwCommerce::PRODUCT_VARIANT_TEMPLATE_NAME . ",parent={$product},pwcommerce_product_stock.enabled=1,sort=-pwcommerce_product_stock.price", 'pwcommerce_product_stock.price');
@@ -149,10 +156,8 @@ trait TraitPWCommerceUtilitiesProduct
 	/**
 	 * For a given product/variant, get its remaining product/variant quantity from its stock.
 	 *
-	 * @note: Does not take into account status of track inventory setting.
-	 * @note: Does not take into account active items in basket!
-	 * @param Page $product Product whose quantity to get.
-	 * @return int Quantity of product/variant.
+	 * @param Page $product
+	 * @return mixed
 	 */
 	public function getProductRemainingStockQuantity(Page $product) {
 		$stock = $product->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -162,10 +167,23 @@ trait TraitPWCommerceUtilitiesProduct
 		return (int) $stock->quantity;
 	}
 
+	/**
+	 * Is Variant.
+	 *
+	 * @param Page $page
+	 * @return bool
+	 */
 	public function isVariant($page) {
 		return $page->template->name === PwCommerce::PRODUCT_VARIANT_TEMPLATE_NAME;
 	}
 
+	/**
+	 *    get Product Weight.
+	 *
+	 * @param Page $product
+	 * @param int $weightID
+	 * @return mixed
+	 */
 	public function ___getProductWeight(Page $product, $weightID) {
 		$unitProductWeight = 0;
 		// determine if product is a variant or main product (without variants)
@@ -187,6 +205,11 @@ trait TraitPWCommerceUtilitiesProduct
 		return $unitProductWeight;
 	}
 
+	/**
+	 * Get Shop Product Weight Property I D.
+	 *
+	 * @return mixed
+	 */
 	public function getShopProductWeightPropertyID() {
 		$generalSettings = $this->getShopGeneralSettings();
 		// return isset($generalSettings['product_weight_property']) ? $generalSettings['product_weight_property'] : 0;

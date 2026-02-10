@@ -22,6 +22,12 @@ trait TraitPWCommerceFinder
 
 
 
+	/**
+	 * Find.
+	 *
+	 * @param mixed $selector
+	 * @return mixed
+	 */
 	public function find($selector) {
 		// TODO:IF EMPTY ERROR? SILENT? SUPS ONLY?
 		if (!empty($selector)) {
@@ -33,6 +39,12 @@ trait TraitPWCommerceFinder
 		}
 	}
 
+	/**
+	 * Get.
+	 *
+	 * @param mixed $selector
+	 * @return mixed
+	 */
 	public function get($selector) {
 		// TODO:IF EMPTY ERROR? SILENT? SUPS ONLY?
 		if (!empty($selector)) {
@@ -44,7 +56,15 @@ trait TraitPWCommerceFinder
 		}
 	}
 
-	public function findRaw($selector, $fields = null, $options = []) {
+	/**
+	 * Find Raw.
+	 *
+	 * @param mixed $selector
+	 * @param mixed $fields
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function findRaw($selector, $fields = null, array $options = []) {
 		// TODO: FIND RAW WILL BE PROBLEMATIC FOR FIELDS WITH RUNTIMEMARKUP IF NO FIELD GIVEN IN OPTIONS SINCE IT WILL TRY TO LOAD THE FIELD FROM THE DATABASE!
 
 		// ------
@@ -63,7 +83,15 @@ trait TraitPWCommerceFinder
 		}
 	}
 
-	public function getRaw($selector, $fields = null, $options = []) {
+	/**
+	 * Get Raw.
+	 *
+	 * @param mixed $selector
+	 * @param mixed $fields
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function getRaw($selector, $fields = null, array $options = []) {
 		// TODO:IF EMPTY ERROR? SILENT? SUPS ONLY?
 		if (!empty($selector)) {
 			$selector = $this->convertShortSyntaxSelectorToFullSyntax($selector);
@@ -78,7 +106,16 @@ trait TraitPWCommerceFinder
 		}
 	}
 
-	public function getProductVariants($product, $isUseRaw = true, $fields = null, $options = []) {
+	/**
+	 * Get Product Variants.
+	 *
+	 * @param mixed $product
+	 * @param bool $isUseRaw
+	 * @param mixed $fields
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function getProductVariants($product, bool $isUseRaw = true, $fields = null, array $options = []) {
 		$pages = $this->wire('pages');
 		$selector = null;
 		$variants = null;
@@ -119,6 +156,12 @@ trait TraitPWCommerceFinder
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// TODO MOVE BELOW TO UTILITIES?
+	/**
+	 * Convert Short Syntax Selector To Full Syntax.
+	 *
+	 * @param mixed $selector
+	 * @return mixed
+	 */
 	private function convertShortSyntaxSelectorToFullSyntax($selector) {
 		$selectors = new Selectors($selector);
 		// ------------
@@ -181,12 +224,24 @@ trait TraitPWCommerceFinder
 		return $selectors;
 	}
 
+	/**
+	 * Short Syntax To Full Syntax Fields Names.
+	 *
+	 * @param mixed $fields
+	 * @return mixed
+	 */
 	private function shortSyntaxToFullSyntaxFieldsNames($fields) {
 		$searchFieldsNames = $this->getFieldsShortNamesForSelectorReplacement();
 		$replaceFieldsNames = $this->getFieldsFullNamesForSelectorReplacement();
 		return $this->shortSyntaxToFullSyntaxReplace($searchFieldsNames, $replaceFieldsNames, $fields);
 	}
 
+	/**
+	 * Short Syntax To Full Syntax Template Names.
+	 *
+	 * @param mixed $values
+	 * @return mixed
+	 */
 	private function shortSyntaxToFullSyntaxTemplateNames($values) {
 		$searchTemplateNames = $this->getTemplatesShortNamesForSelectorReplacement();
 		$replaceTemplateNames = $this->getTemplatesFullNamesForSelectorReplacement();
@@ -194,6 +249,12 @@ trait TraitPWCommerceFinder
 	}
 
 	// ----------
+	/**
+	 * Process Special Selector Values.
+	 *
+	 * @param mixed $values
+	 * @return mixed
+	 */
 	private function processSpecialSelectorValues($values) {
 		$specialSelectors = new Selectors($values);
 		$specialStringArray = [];
@@ -234,6 +295,14 @@ trait TraitPWCommerceFinder
 		return $values;
 	}
 
+	/**
+	 * Short Syntax To Full Syntax Replace.
+	 *
+	 * @param mixed $search
+	 * @param mixed $replace
+	 * @param mixed $subject
+	 * @return mixed
+	 */
 	private function shortSyntaxToFullSyntaxReplace($search, $replace, $subject) {
 
 		// $testpregreplace = preg_replace("/\b{$search}\b/", $replace, $subject);
@@ -249,7 +318,7 @@ trait TraitPWCommerceFinder
 	/**
 	 * Undocumented function
 	 *
-	 * @return array
+	 * @return mixed
 	 */
 	private function getTemplatesShortNamesForSelectorReplacement() {
 		// @note: order must match the long-form order!
@@ -292,7 +361,7 @@ trait TraitPWCommerceFinder
 	/**
 	 * Undocumented function
 	 *
-	 * @return array
+	 * @return mixed
 	 */
 	private function getTemplatesFullNamesForSelectorReplacement() {
 		return [
@@ -322,6 +391,11 @@ trait TraitPWCommerceFinder
 		];
 	}
 
+	/**
+	 * Get Fields Short Names For Selector Replacement.
+	 *
+	 * @return mixed
+	 */
 	private function getFieldsShortNamesForSelectorReplacement() {
 		// @note: order must match the long-form order!
 		return [
@@ -367,7 +441,7 @@ trait TraitPWCommerceFinder
 	/**
 	 * Undocumented function
 	 *
-	 * @return array
+	 * @return mixed
 	 */
 	private function getFieldsFullNamesForSelectorReplacement() {
 		return [

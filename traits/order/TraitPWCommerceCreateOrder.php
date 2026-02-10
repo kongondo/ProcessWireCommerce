@@ -5,6 +5,11 @@ namespace ProcessWire;
 trait TraitPWCommerceCreateOrder
 {
 
+	/**
+	 * Create Order.
+	 *
+	 * @return mixed
+	 */
 	public function createOrder() {
 
 		// NOTE IF NOT  ROUNDED TO TWO DECIMAL PLACES,  PAYPAL FATAL ERROR!

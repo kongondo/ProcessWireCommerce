@@ -45,22 +45,42 @@ trait TraitPWCommerceAdmin
 	public $adminURL;
 	public $adminPageID;
 
+	/**
+	 * Get P W Commerce Shop Admin Page.
+	 *
+	 * @return mixed
+	 */
 	protected function getPWCommerceShopAdminPage() {
 		$processPWCommerceModuleID = $this->modules->getModuleID('ProcessPWCommerce');
 		$shopPage = $this->pages->get("template=admin, process=$processPWCommerceModuleID");
 		return $shopPage;
 	}
+	/**
+	 * Get P W Commerce Shop Admin Page I D.
+	 *
+	 * @return mixed
+	 */
 	protected function getPWCommerceShopAdminPageID() {
 		$shopPage = $this->getPWCommerceShopAdminPage();
 		$adminPageID = $shopPage->id;
 		return $adminPageID;
 	}
+	/**
+	 * Get P W Commerce Shopadmin U R L.
+	 *
+	 * @return mixed
+	 */
 	protected function getPWCommerceShopadminURL() {
 		$shopPage = $this->getPWCommerceShopAdminPage();
 		$adminURL = $shopPage->url;
 		return $adminURL;
 	}
 
+	/**
+	 *  init Trait P W Commerce Admin.
+	 *
+	 * @return mixed
+	 */
 	protected function _initTraitPWCommerceAdmin() {
 		$adminPage = $this->getPWCommerceShopAdminPage();
 		$this->adminURL = $adminPage->url;

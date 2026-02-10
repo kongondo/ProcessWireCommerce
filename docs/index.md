@@ -1,0 +1,21 @@
+# ProcessWire Commerce
+
+ProcessWire Commerce is a free, open-source fully featured e-commerce module (plugin) for building and managing fully function online shops (stores) in ProcessWire. It is flexible, extensible, highly customisable, scalable, robust, multilingual by design and battle tested.
+
+## Project Links
+
+*   **Repository:** [GitHub](https://github.com/kongondo/PWCommerce2Starter)
+*   **Support Forum:** [ProcessWire Talk](https://processwire.com/talk/forum/62-pwcommerce-support/)
+*   **Official Docs:** [docs/](.)
+
+## Getting Started
+
+Check out the sections in the navigation to learn more about setting up and using ProcessWire Commerce.
+
+*   **[Admin Guide](admin/index.md):** Learn how to install and manage your store.
+*   **[Frontend Guide](frontend/index.md):** Learn how to build your storefront.
+*   **[Developer API](developer/index.md):** Deep dive into the code.
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](contributing.md) for details on how to help improve this documentation.

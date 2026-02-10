@@ -46,9 +46,7 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Return information about this module (required).
 	 *
-	 * @access public
-	 * @return array module info
-	 *
+	 * @return mixed
 	 */
 	public static function getModuleInfo() {
 
@@ -96,6 +94,11 @@ class PwCommerceHooks extends Wire implements Module {
 	 */
 	protected $ajaxFieldName = '';
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 
 
@@ -196,7 +199,12 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// ~~~~~~~~~~~~~
 
-	//  public function ready() {
+	//  /**
+   * Ready.
+   *
+   * @return mixed
+   */
+  public function ready() {
 	//
 
 	//
@@ -206,6 +214,12 @@ class PwCommerceHooks extends Wire implements Module {
 	////////////////////////////////////////
 	// ************* PAGE EDIT GUI **********
 
+	/**
+	 * Hook Modify Edit Form G U I.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function hookModifyEditFormGUI(HookEvent $event) {
 		/*********************
 		 *
@@ -251,6 +265,12 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// TODO: MIGHT NO LONGER NEED THIS! - DELETE WHEN DONE THEN
 	// @credits: @see: https: //processwire.com/talk/topic/15870-how-to-add-own-tab-in-admin-on-edit-page-via-api/?do=findComment&comment=204171
+	/**
+	 * Hook Add G U I In Edit Form.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function hookAddGUIInEditForm(HookEvent $event) {
 		//-------------
 		$form = $event->return;
@@ -303,11 +323,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * This hook is called before ProcessPageEdit::ajaxSave.
 	 *
-	 * For use with PWCommerce Product Variants' images uploads.
-	 * We modify the HTTP_X_FIELDNAME var to remove the "_repeater123" portion of the variable,
-	 * since ProcessPageEdit doesn't know about 'repeaters'.
-	 * @see: InputfieldRuntimeMarkup why we need the suffix '_repeaters'
-	 * @see: FieldtypeRepeater::hookProcessPageEditAjaxSave
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookProcessPageEditAjaxSave(HookEvent $event) {
 		// @note: in Ajax mode $this->isNormalEditit will always be true
@@ -359,6 +376,12 @@ class PwCommerceHooks extends Wire implements Module {
 		}
 	}
 
+	/**
+	 * Hook Modify Page Name On Page Title Changed.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function hookModifyPageNameOnPageTitleChanged(HookEvent $event) {
 		$page = $event->object;
 		// $oldTitle = $event->arguments(1); // old value
@@ -393,6 +416,12 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// ~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Hook Custom Save.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function hookCustomSave(HookEvent $event) {
 		// TODO: DELETE IF NOT IN USE!
 		return;
@@ -410,14 +439,11 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hide inputfields in page edit.
 	 *
-	 * We save values to the hidden inputfields via a hook here.
-	 * Typically for use by pages that have an inputfield for storing json settings.
-	 * We use custom inputs inserted in the page edit to populate and edit the json settings.
-	 *
 	 * @param HookEvent $event
-	 * @return void
+	 * @param array $hideFields
+	 * @return mixed
 	 */
-	public function hookHideInputfieldsInEditForm(HookEvent $event, $hideFields = []) {
+	public function hookHideInputfieldsInEditForm(HookEvent $event, array $hideFields = []) {
 
 		// we only hide the JSON textarea if editing the page in PWCommerce Process Module
 		// TODO: if using this for other fields, we need to check dynamically! e.g. if general settings, etc
@@ -441,6 +467,12 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// TODO: use this extra hook or remove as above?
 	// TODO: NO LONGER IN USE; USING DIFFERENT METHOD HERE (removeTabs()) - DELETE IF NOT IN USE
+	/**
+	 * Hook Edit Form Tabs.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function hookEditFormTabs($event) {
 		// logic check
 		//        if ($this->user->isSuperuser()) return;
@@ -453,6 +485,12 @@ class PwCommerceHooks extends Wire implements Module {
 		$event->return = $tabs;
 	}
 
+	/**
+	 * Hook Find P W Commerce Product Attributes Options.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function hookFindPWCommerceProductAttributesOptions(HookEvent $event) {
 		$q = $event->input->get("q", "text,selectorValue");
 
@@ -487,11 +525,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to find product properties for use in PWCommerce General Settings page.
 	 *
-	 * For use by  InputfieldTextTags/selectize.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return array $results Results to populate the InputfieldTextTags.
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookFindPWCommerceGeneralSettingsProductProperties(HookEvent $event) {
 		$q = $event->input->get("q", "text,selectorValue");
@@ -512,11 +547,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to find shipping zones for use in PWCommerce General Settings page.
 	 *
-	 * For use by  InputfieldTextTags/selectize.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return array $results Results to populate the InputfieldTextTags.
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookFindPWCommerceGeneralSettingsShippingZones(HookEvent $event) {
 		$q = $event->input->get("q", "text,selectorValue");
@@ -537,11 +569,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to find customer emails for use in PWCommerce Manually Issue Gift Card page.
 	 *
-	 * For use by  InputfieldTextTags/selectize.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return array $results Results to populate the InputfieldTextTags.
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookFindPWCommerceGiftCardManualIssueCustomersEmails(HookEvent $event) {
 		$q = $event->input->get("q", "text,selectorValue");
@@ -570,12 +599,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to find specific customers or customer groups for use in PWCommerce Discounts Customer Eligibility.
 	 *
-	 * For use by  InputfieldTextTags/selectize.
-	 * Called when editing a discount.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return array $results Results to populate the InputfieldTextTags.
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookFindPWCommerceDiscountCustomerEligibility(HookEvent $event) {
 		$q = $event->input->get("q", "text,selectorValue");
@@ -626,15 +651,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to find discount applies to items.
 	 *
-	 * Can be specific categories or products and product variants or countries for use in PWCommerce Discounts Applies To.
-	 *
-	 * Used by Products, Free shipping and Buy X Get Y (BOGO) discounts.
-	 * For use by  InputfieldTextTags/selectize.
-	 * Called when editing a discount.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return array $results Results to populate the InputfieldTextTags.
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookFindPWCommerceDiscountAppliesTo(HookEvent $event) {
 		$q = $event->input->get("q", "text,selectorValue");
@@ -680,12 +698,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to hide PWCommerce Parent Pages that live under a specified Custom Shop Root Page.
 	 *
-	 * The custom shop root page allows shop to install certain Pdloper parent pages outside 'admin' page tree.
-	 * This hook implements the setting to hide those pages (and their children) in the page tree.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return void
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookProcessPageListFind(HookEvent $event) {
 
@@ -746,13 +760,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to amend page tree actions for some pages in relation to PWCommerce parent pages that are children of a speficied Custom Shop Root Page.
 	 *
-	 * The custom shop root page allows shop to install certain Pdloper parent pages outside 'admin' page treee.
-	 * This hook implements the setting to limit tree actions for those pages (and their children) in the page tree.
-	 * All actions on the children pages are limited and redirect to PWCommerce dashboards.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return void
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookProcessPageListActionsGetActions(HookEvent $event) {
 
@@ -882,9 +891,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to update customer and associated ProcessWire user and vice versa when certain changes happen in either.
 	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return void
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookUpdateCustomerUserAssociation(HookEvent $event) {
 
@@ -954,12 +962,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to modify values for pwcommerce pages found via page search live.
 	 *
-	 * Modify template_label, editUrl and type.
-	 * Also removes pwcommerce parent pages from results.
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return void
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookProcessPageSearchLive(HookEvent $event) {
 
@@ -1100,6 +1104,11 @@ class PwCommerceHooks extends Wire implements Module {
 
 	}
 
+	/**
+	 * Get Results Parts.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsParts() {
 		return [
 			// PRODUCT ATTRIBUTES
@@ -1241,6 +1250,12 @@ class PwCommerceHooks extends Wire implements Module {
 
 	}
 
+	/**
+	 * Get Result Values.
+	 *
+	 * @param array $result
+	 * @return mixed
+	 */
 	private function getResultValues(array $result) {
 		$templateLabel = $result['template_label'];
 		$editUrl = $result['editUrl'];
@@ -1261,6 +1276,11 @@ class PwCommerceHooks extends Wire implements Module {
 
 	}
 
+	/**
+	 * Get P W Commerce Parents Templates Names.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceParentsTemplatesNames() {
 		return [
 			'pwcommerce-attributes',
@@ -1283,6 +1303,12 @@ class PwCommerceHooks extends Wire implements Module {
 		];
 	}
 
+	/**
+	 * Is Parent Page.
+	 *
+	 * @param mixed $templateNamePart
+	 * @return bool
+	 */
 	private function isParentPage($templateNamePart) {
 		$isParentPage = false;
 		$parentsTemplatesNames = $this->getPWCommerceParentsTemplatesNames();
@@ -1304,12 +1330,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hook to delete a product's variants if its attributes have changed.
 	 *
-	 * User will need to create variants afresh.
-	 * There is a warning on the field (pwcommerce_product_attributes).
-	 *
-	 * @access public
-	 * @param HookEvent $event The HookEvent we are attaching to.
-	 * @return void
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function hookDeleteProductVariants(HookEvent $event) {
 		$page = $event->object;
@@ -1329,12 +1351,8 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Hide inputfields in page edit.
 	 *
-	 * We save values to the hidden inputfields via a hook here.
-	 * Typically for use by pages that have an inputfield for storing json settings.
-	 * We use custom inputs inserted in the page edit to populate and edit the json settings.
-	 *
 	 * @param HookEvent $event
-	 * @return void
+	 * @return mixed
 	 */
 	public function hookModifyRestOfTheWorldShippingZoneCountriesGUI(HookEvent $event) {
 
@@ -1358,6 +1376,17 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// ~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Move Field To Other Tab.
+	 *
+	 * @param mixed $inputfieldName
+	 * @param mixed $form
+	 * @param int $moveFromTabID
+	 * @param int $moveToTabID
+	 * @param mixed $attachMode
+	 * @param mixed $afterOrBefore
+	 * @return mixed
+	 */
 	private function moveFieldToOtherTab($inputfieldName, $form, $moveFromTabID, $moveToTabID, $attachMode, $afterOrBefore = null) {
 
 		$moveFromTab = $form->children->get("id={$moveFromTabID}");
@@ -1381,6 +1410,14 @@ class PwCommerceHooks extends Wire implements Module {
 
 	}
 
+	/**
+	 * Insert Field.
+	 *
+	 * @param mixed $inputfield
+	 * @param mixed $destinationTab
+	 * @param mixed $attachMode
+	 * @return mixed
+	 */
 	private function insertField($inputfield, $destinationTab, $attachMode) {
 		// append
 		if ($attachMode === 'append') {
@@ -1407,9 +1444,9 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Removes tabs depending on context.
 	 *
-	 * @param [Mixed] $form The form/wrapper hooked into.
-	 * @param [Hook] $event The event the Hook was called on.
-	 * @return void
+	 * @param mixed $form
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	private function removeTabs($form, $event) {
 		$page = $event->process->getPage();
@@ -1427,10 +1464,10 @@ class PwCommerceHooks extends Wire implements Module {
 	/**
 	 * Remove a give tab and its content.
 	 *
-	 * @param [Mixed] $form The form/wrapper hooked into.
-	 * @param [Hook] $event The event the Hook was called on.
-	 * @param [String] $id The ID of the tab to remove.
-	 * @return void
+	 * @param mixed $form
+	 * @param HookEvent $event
+	 * @param int $id
+	 * @return mixed
 	 */
 	private function removeTab($form, $event, $id) {
 		$tab = $form->children->get("id={$id}");
@@ -1441,6 +1478,12 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// ~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Replace Rest Of The World Countries Markup.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function replaceRestOfTheWorldCountriesMarkup($page) {
 
 
@@ -1457,6 +1500,11 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// ~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Modify Edit Form G U I Templates.
+	 *
+	 * @return mixed
+	 */
 	private function getModifyEditFormGUITemplates() {
 		// TODO: ADD MORE?
 		return [
@@ -1487,6 +1535,12 @@ class PwCommerceHooks extends Wire implements Module {
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~
+	/**
+	 * Is Remove Process Page Edit Delete Tab.
+	 *
+	 * @param Page $page
+	 * @return bool
+	 */
 	private function isRemoveProcessPageEditDeleteTab($page) {
 		$contextsRemovingProcessPageEditDeleteTab = [
 			// @note: these are page templates!
@@ -1500,6 +1554,12 @@ class PwCommerceHooks extends Wire implements Module {
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~
+	/**
+	 * Get Hide Fields.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getHideFields($page) {
 		$contextsHidingFields = [
 			// @note: these are page templates!
@@ -1535,7 +1595,7 @@ class PwCommerceHooks extends Wire implements Module {
 	 * Ensure that InputfieldFile outputs markup with the proper fieldname (including the repeater_ part)
 	 *
 	 * @param HookEvent $event
-	 * @credits: FieldtypeRepeater::hookInputfieldFileRenderItem.
+	 * @return mixed
 	 */
 	public function hookInputfieldFileRenderItem(HookEvent $event) {
 
@@ -1563,6 +1623,11 @@ class PwCommerceHooks extends Wire implements Module {
 
 	// OTHER
 
+	/**
+	 * Show Warning If Editing P W Commerce Page Outside Shop Context.
+	 *
+	 * @return mixed
+	 */
 	private function showWarningIfEditingPWCommercePageOutsideShopContext() {
 		if ($this->isNormalEdit) {
 			// @note: this does not show!

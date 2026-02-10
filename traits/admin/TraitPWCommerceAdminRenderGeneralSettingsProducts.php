@@ -7,6 +7,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsProducts
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PRODUCTS TAB  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Products Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getProductsTab() {
 
 
@@ -158,10 +163,22 @@ trait TraitPWCommerceAdminRenderGeneralSettingsProducts
 
 	// @note: setting saved values to InputfieldTextTags is a two step process, it seems?
 	// we handle it here
+	/**
+	 * Get Saved Default Product Properties.
+	 *
+	 * @param mixed $setting
+	 * @return mixed
+	 */
 	private function getSavedDefaultProductProperties($setting) {
 		return $this->getSavedProductProperties($setting);
 	}
 
+	/**
+	 * Get Saved Product Weight Property.
+	 *
+	 * @param mixed $setting
+	 * @return mixed
+	 */
 	private function getSavedProductWeightProperty($setting) {
 		return $this->getSavedProductProperties($setting);
 	}
@@ -169,12 +186,8 @@ trait TraitPWCommerceAdminRenderGeneralSettingsProducts
 	/**
 	 * Generic method for finding and setting product properties IDs and titles.
 	 *
-	 * For use to set InputfieldTextTags (selectize) values for general settings product
-	 * 'default physical properites' and 'weight property'
-	 *
-	 * @access private
-	 * @param string $setting Key in general settings where values are saved for the property.
-	 * @return void
+	 * @param mixed $setting
+	 * @return mixed
 	 */
 	private function getSavedProductProperties($setting) {
 		$value = null;

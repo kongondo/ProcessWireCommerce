@@ -44,6 +44,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 
 		if (is_array($options)) {
@@ -61,6 +67,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		$this->allOrderStatusesDefinitions = $this->pwcommerce->getAllOrderStatusDefinitionsFromDatabase();
 	}
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	protected function renderResults($selector = null) {
 
 		// enforce to string for strpos for PHP 8+
@@ -153,8 +165,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get the options for building the form to add a new Order for use in ProcessPWCommerce.
 	 *
-	 * @access protected
-	 * @return array array with options for the form.
+	 * @return array
 	 */
 	protected function getAddNewItemOptions(): array {
 		$exampleOrderTitle = $this->_("Special Children's Books Order");
@@ -170,12 +181,22 @@ class PWCommerceAdminRenderOrders extends WireData {
 		];
 	}
 
+	/**
+	 * Pagination Options.
+	 *
+	 * @return mixed
+	 */
 	private function paginationOptions() {
 		//------------
 		$paginationOptions = ['base_url' => $this->adminURL . 'orders/', 'ajax_post_url' => $this->adminURL . 'ajax/'];
 		return $paginationOptions;
 	}
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		$selectAllCheckboxName = "pwcommerce_bulk_edit_selected_items_all";
@@ -202,6 +223,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		];
 	}
 
+	/**
+	 * Get Single View Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getSingleViewTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		return [
@@ -211,13 +237,17 @@ class PWCommerceAdminRenderOrders extends WireData {
 			[$this->_('Quantity'), 'pwcommerce_orders_table_order_line_item_quantity'],
 			// UNIT PRICE
 			[$this->_('Price'), 'pwcommerce_orders_table_order_line_item_unit_price'],
-			// NET PRICE
-			[$this->_('NET Price'), 'pwcommerce_orders_table_order_line_item_net_unit_price'],
 			// TOTAL PRICE
 			[$this->_('Total'), 'pwcommerce_orders_table_order_line_item_total_price'],
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getResultsTableRow(Page $page) {
 		$checkBoxesName = "pwcommerce_bulk_edit_selected_items[]";
 		$order = $page->get(PwCommerce::ORDER_FIELD_NAME);
@@ -256,6 +286,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		];
 	}
 
+	/**
+	 * Get Order Combined Statuses Text.
+	 *
+	 * @param array $statusesArray
+	 * @return string
+	 */
 	private function getOrderCombinedStatusesText(array $statusesArray): string {
 		// --------
 		// here we combine order payment status and fulfilment status
@@ -267,6 +303,13 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $statusesText;
 	}
 
+	/**
+	 * Get Order Combined Statuses Array.
+	 *
+	 * @param WireData $order
+	 * @param array $excludeStatuses
+	 * @return array
+	 */
 	private function getOrderCombinedStatusesArray(WireData $order, array $excludeStatuses = []): array {
 		$statuses = $this->pwcommerce->getOrderCombinedStatuses($order);
 		// --------
@@ -283,6 +326,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $statuses;
 	}
 
+	/**
+	 * Get View Order.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getViewOrder($page) {
 
 		// ++++++
@@ -309,11 +358,22 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 *    get View Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function ___getViewItemURL($page) {
 		$out = "<a href='{$this->adminURL}orders/view/?id={$page->id}'>{$page->id}</a>";
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Order Status Action Types.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForOrderStatusActionTypes() {
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -361,6 +421,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Order Status Action Select.
+	 *
+	 * @param string $actionType
+	 * @return mixed
+	 */
 	private function getMarkupForOrderStatusActionSelect(string $actionType) {
 		// TODO THIS SHOULD FILTER TO ONLY GRAB THE RELEVANT ACTIONS FOR THE TYPE
 		$actionTypesOptions = [
@@ -433,6 +499,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Get Options For Selects For Order Actions.
+	 *
+	 * @param mixed $actionType
+	 * @return mixed
+	 */
 	private function getOptionsForSelectsForOrderActions($actionType) {
 		# TODO @UPDATE: RETURNING THE TRANSLATED STRINGS INSTEAD!
 		// $allOrderStatuses = $this->allOrderStatuses;
@@ -454,7 +526,18 @@ class PWCommerceAdminRenderOrders extends WireData {
 	 *
 	 * @return string $out Modal markup.
 	 */
-	// private function getModalMarkupForConfirmMarkOrderAs($mode = 'payment_mark_as_paid') {
+	// /**
+  * Get Modal Markup For Confirm Mark Order As.
+  *
+  * @param string $mode
+  * @return mixed
+  */
+ private function getModalMarkupForConfirmMarkOrderAs($mode = 'payment_mark_as_paid') {
+	/**
+	 * Get Modal Markup For Order Status Actions.
+	 *
+	 * @return mixed
+	 */
 	private function getModalMarkupForOrderStatusActions() {
 		// ## ORDER MARK AS MODALs MARKUP  ##
 		$xstore = $this->xstore;
@@ -541,6 +624,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Render Modal Markup For Order Status Actions Apply Button.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderModalMarkupForOrderStatusActionsApplyButton() {
 		# ALPINE JS #
 		$xstore = $this->xstore;
@@ -568,7 +656,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 	}
 	/**
 	 * Get rendered button for the modal for actioning a selected order status.
-	 * @return string $cancelButton.
+	 *
+	 * @return string
 	 */
 	private function renderModalMarkupForOrderStatusActionsCancelButton(): string {
 		$cancelButton = $this->pwcommerce->getModalActionButton(['x-on:click' => 'resetOrderStatusActionAndCloseModal'], 'cancel');
@@ -578,8 +667,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get hidden markup to set order id of the order that will have its status actioned.
 	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @return mixed
 	 */
 	private function getOrderActionHiddenMarkupForOrderID() {
 		//------------------- order_action_mark_order_as_order_id (getInputfieldHidden)
@@ -597,12 +685,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get hidden markup to model selected order status action.
 	 *
-	 * This will one of 'order', 'payment' or 'shipment' status [FLAG].
-	 * It will be used to fetch the markup (for edit) for the selected status action.
-	 * Shop staff will then edit and confirm the action.
-	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @return mixed
 	 */
 	private function getOrderSelectedStatusFlagForOrder() {
 		// TODO
@@ -619,6 +702,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field->render();
 	}
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemURL($page) {
 		// if page is locked, don't show edit URL
 		if ($page->isLocked()) {
@@ -629,6 +718,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getBulkEditActionsPanel() {
 		$actions = [
 			// TODO: NEED TO DISABLE THESE IF ORDER COMPLETE?
@@ -658,6 +752,14 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @param mixed $xref
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name, $xref = null) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",
@@ -683,6 +785,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Build View Order.
+	 *
+	 * @return mixed
+	 */
 	private function buildViewOrder() {
 
 		########### GET MARKUP ########
@@ -716,7 +823,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render single order view headline to append to the Process headline in PWCommerce.
 	 *
-	 * @return string $out Headline string to append to the main Process headline.
+	 * @param Page $orderPage
+	 * @return string|mixed
 	 */
 	public function renderViewItemHeadline(Page $orderPage) {
 		$headline = $this->_('View order');
@@ -730,6 +838,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Render Print Item.
+	 *
+	 * @param Page $orderPage
+	 * @return string|mixed
+	 */
 	public function renderPrintItem(Page $orderPage) {
 
 		if (!$orderPage->id) {
@@ -740,6 +854,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		}
 	}
 
+	/**
+	 * Render Print Order Invoice.
+	 *
+	 * @param Page $orderPage
+	 * @return string|mixed
+	 */
 	private function renderPrintOrderInvoice(Page $orderPage) {
 		$templateFile = "invoice.php";
 		/** @var TemplateFile $t */
@@ -748,6 +868,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		exit();
 	}
 
+	/**
+	 * Render Email Item.
+	 *
+	 * @param Page $orderPage
+	 * @return string|mixed
+	 */
 	public function renderEmailItem(Page $orderPage) {
 		// TODO: nothing to render really! rename!??? leave it for now
 		if (!$orderPage->id) {
@@ -758,6 +884,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		}
 	}
 
+	/**
+	 * Email Order Invoice.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function emailOrderInvoice(Page $orderPage) {
 		$this->pwcommerce->sendConfirmation($orderPage);
 		$notice = sprintf(__("Emailed invoice for order number %d."), $orderPage->id);
@@ -773,25 +905,42 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Build the string for the last created date of this order page.
 	 *
-	 * @param Page $page The order page whose created date we are building.
-	 * @return string The last created date string.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	private function getCreatedDate($page) {
 		return $this->pwcommerce->getCreatedDate($page);
 	}
 
 	// ~~~~~~~~~~~~~
+	/**
+	 * Is Order No Longer Editable.
+	 *
+	 * @param WireData $order
+	 * @return bool
+	 */
 	private function isOrderNoLongerEditable(WireData $order) {
 
 		return (int) $order->orderStatus > PwCommerce::ORDER_STATUS_DRAFT;
 	}
 
+	/**
+	 * Is Order Has Customer Email.
+	 *
+	 * @return bool
+	 */
 	private function isOrderHasCustomerEmail() {
 		$orderPage = $this->orderPage;
 		$orderCustomer = $orderPage->get(PwCommerce::ORDER_CUSTOMER_FIELD_NAME);
 		return !empty($orderCustomer->email);
 	}
 
+	/**
+	 * Get Order Customer Page I D.
+	 *
+	 * @param WireData $customer
+	 * @return mixed
+	 */
 	private function getOrderCustomerPageID(WireData $customer) {
 		$customerPageID = 0;
 		// if customers feature not installed in shop, nothing to do!
@@ -803,6 +952,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $customerPageID;
 	}
 
+	/**
+	 * Get Order Mark As Payments To Show.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	private function getOrderMarkAsPaymentsToShow(WireData $order) {
 		$markAsPaymentsToShow = [];
 		$paymentStatus = $order->paymentStatus;
@@ -821,6 +976,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 
 	# >>>>>>>>>>>>>>>>>>> AJAX <<<<<<<<<<<<<<<<<<<
 
+	/**
+	 * Handle Ajax Order Status Action.
+	 *
+	 * @return mixed
+	 */
 	private function handleAjaxOrderStatusAction() {
 
 		// $out = "";
@@ -845,6 +1005,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Process Ajax Get Request For Order Status Action.
+	 *
+	 * @return mixed
+	 */
 	private function processAjaxGetRequestForOrderStatusAction() {
 
 		$input = $this->wire('input');
@@ -889,6 +1054,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Build Markup For Ajax Get Request For Order Status Action.
+	 *
+	 * @return string
+	 */
 	private function buildMarkupForAjaxGetRequestForOrderStatusAction(): string {
 		$out = "";
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
@@ -957,6 +1127,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 * Get Order Status Application Note Textarea Field.
+	 *
+	 * @return InputfieldTextarea
+	 */
 	private function getOrderStatusApplicationNoteTextareaField(): InputfieldTextarea {
 
 		//------------------- note text/content/value (getInputfieldTextarea/getInputfieldMarkup)
@@ -983,6 +1158,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Get Order Status Application Notify Customer Checkbox.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderStatusApplicationNotifyCustomerCheckbox() {
 
 		// TODO NOT IN USE FOR NOW! BETTER TO SEND A COMPLETE MESSAGE TO CUSTOMER INSTEAD OF A VERY SHORT ONE SUCH AS 'your order has been marked as pendind' without giving further details!
@@ -1016,6 +1196,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Get Hidden Inputs For Order Status Application.
+	 *
+	 * @param mixed $wrapper
+	 * @return InputfieldWrapper
+	 */
 	private function getHiddenInputsForOrderStatusApplication($wrapper): InputfieldWrapper {
 		// hidden input to track status code/flag if status is confirmed and applied
 		$options = [
@@ -1053,6 +1239,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $wrapper;
 	}
 
+	/**
+	 * Order Status Actions Requiring Extra Markup.
+	 *
+	 * @return mixed
+	 */
 	private function orderStatusActionsRequiringExtraMarkup() {
 		return [
 			'partially_paid' => PwCommerce::PAYMENT_STATUS_PARTIALLY_PAID,
@@ -1062,6 +1253,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		];
 	}
 
+	/**
+	 * Order Refund Status Actions Requiring Extra Markup.
+	 *
+	 * @return mixed
+	 */
 	private function orderRefundStatusActionsRequiringExtraMarkup() {
 		return [
 
@@ -1070,6 +1266,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		];
 	}
 
+	/**
+	 * Order Payment Capture Status Actions Requiring Extra Markup.
+	 *
+	 * @return mixed
+	 */
 	private function orderPaymentCaptureStatusActionsRequiringExtraMarkup() {
 		return [
 			'partially_paid' => PwCommerce::PAYMENT_STATUS_PARTIALLY_PAID,
@@ -1077,6 +1278,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		];
 	}
 
+	/**
+	 * Order Status Actions Extra Markup.
+	 *
+	 * @param mixed $wrapper
+	 * @return InputfieldWrapper
+	 */
 	private function orderStatusActionsExtraMarkup($wrapper): InputfieldWrapper {
 		// @note: currently, all the statuses that require extra markup have to do with payments; 2 for taking payment and 2 for refunding money
 		// -------
@@ -1096,6 +1303,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		// --------
 		return $wrapper;
 	}
+	/**
+	 * Order Status Actions Extra Markup For Refunds.
+	 *
+	 * @return mixed
+	 */
 	private function orderStatusActionsExtraMarkupForRefunds() {
 		// @note: extra markup to capture amount that was refunded IF PARTIAL
 		// else markup that shows (for confirmation) THE ORDER TOTAL
@@ -1103,6 +1315,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Order Status Actions Extra Markup For Captured Payment.
+	 *
+	 * @param mixed $wrapper
+	 * @return InputfieldWrapper
+	 */
 	private function orderStatusActionsExtraMarkupForCapturedPayment($wrapper): InputfieldWrapper {
 		// @note: extra markup to capture amount that was captured and the payment gateway details
 
@@ -1138,6 +1356,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $wrapper;
 	}
 
+	/**
+	 * Render Order Status Application Capture Payment Method Select Field.
+	 *
+	 * @param mixed $notes
+	 * @return string|mixed
+	 */
 	private function renderOrderStatusApplicationCapturePaymentMethodSelectField($notes) {
 
 		// TODO NEED TO ACCOUNT FOR STORES THAT HAVEN'T INSTALLED PAYMENT PROVIDER FEATURE!
@@ -1186,6 +1410,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Render Order Status Application Refund Amount Markup.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderOrderStatusApplicationRefundAmountMarkup() {
 		if ($this->applyStatusCode === PwCommerce::PAYMENT_STATUS_PARTIALLY_REFUNDED) {
 			$field = $this->getOrderStatusApplicationPartialRefundAmountTextField();
@@ -1195,6 +1424,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Get Order Status Application Partial Refund Amount Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderStatusApplicationPartialRefundAmountTextField() {
 
 		//------------------- order_status_refunded_amount_for_selected_action_apply (getInputfieldText)
@@ -1229,6 +1463,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Get Order Status Application Partial Payment Amount Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderStatusApplicationPartialPaymentAmountTextField() {
 
 		//-------------------  order_status_paid_amount_for_selected_action_apply (getInputfieldText)
@@ -1262,6 +1501,12 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Get Order Status Application Payment Amounts Text Field.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function getOrderStatusApplicationPaymentAmountsTextField($options) {
 		$xstore = $this->xstore;
 		$field = $this->pwcommerce->getInputfieldText($options);
@@ -1274,6 +1519,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $field;
 	}
 
+	/**
+	 * Get Order Status Application Full Refund Amount Text.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderStatusApplicationFullRefundAmountText() {
 		$orderTotalAmount = $this->pwcommerce->getValueFormattedAsCurrencyForShop($this->applyStatusCodeOrderTotalPrice);
 		$fullRefundAmount = "<span class='font-bold'>" . sprintf(__("Refunded amount: %s"), $orderTotalAmount) . "</span>";
@@ -1295,8 +1545,9 @@ class PWCommerceAdminRenderOrders extends WireData {
 
 	/**
 	 * Render the markup for a single order view.
-	 * @param Page $orderPage The order page being viewed.
-	 * @return string Rendered markup.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
 	 */
 	public function ___renderViewItem(Page $orderPage) {
 
@@ -1357,10 +1608,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for the left column of the single order view grid.
 	 *
-	 * Markup consists of order line items, shipping details, grand total and order notes.
-	 *
-	 * @access protected
-	 * @return string $out Markup of the left grid column.
+	 * @return mixed
 	 */
 	protected function ___renderLeftGridColumn() {
 		$out =
@@ -1385,8 +1633,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order line items block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of line items block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderLineItemsBlock() {
 		$out =
@@ -1401,8 +1648,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order discounts total block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of order discounts total block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderDiscountsTotalsBlock() {
 		$orderPage = $this->orderPage;
@@ -1427,8 +1673,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order shipping details block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of shipping details block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderShippingBlock() {
 		// TODO ALSO SHOW FREE SHIPPING IF APPLICABLE PLUS HOW MUCH SHIPPING WOULD HAVE COST OTHERWISE
@@ -1467,8 +1712,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order totals block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of totals block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderTotalsBlock() {
 		$orderPage = $this->orderPage;
@@ -1493,8 +1737,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order line items block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of line items block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderNotesBlock() {
 		$out =
@@ -1510,10 +1753,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for the right column of the single order view grid.
 	 *
-	 * Markup consists of order status, edit markup, customer and actions.
-	 *
-	 * @access protected
-	 * @return string $out Markup of the right grid column.
+	 * @return mixed
 	 */
 	protected function ___renderRightGridColumn() {
 		$out =
@@ -1536,8 +1776,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order status block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of status block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderStatusBlock() {
 		$out =
@@ -1555,8 +1794,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order edit block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of edit block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderEditBlock() {
 		$out =
@@ -1574,8 +1812,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order customer block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of customer block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderCustomerBlock() {
 		$out =
@@ -1595,8 +1832,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render markup for current order actions block in the grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of actions block.
+	 * @return mixed
 	 */
 	protected function ___renderOrderActionsBlock() {
 		$out =
@@ -1616,8 +1852,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order line items block heading.
 	 *
-	 * @access protected
-	 * @return string $out Markup of line items block heading.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderLineItemsHeading() {
 		// TODO H3 OK?
@@ -1629,8 +1864,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order shipping details for details block heading.
 	 *
-	 * @access protected
-	 * @return string $out Markup of shipping details heading.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderDiscountsTotalHeading() {
 		// TODO H3 OK?
@@ -1642,8 +1876,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order shipping details for details block heading.
 	 *
-	 * @access protected
-	 * @return string $out Markup of shipping details heading.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderShippingDetailsHeading() {
 		// TODO H3 OK?
@@ -1655,8 +1888,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order notes block heading.
 	 *
-	 * @access protected
-	 * @return string $out Markup of notes block heading.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderNotesHeading() {
 		// TODO H3 OK?
@@ -1668,8 +1900,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of heading of current order status block.
 	 *
-	 * @access protected
-	 * @return string $out Markup of heading of status block.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderStatusHeading() {
 		$out = "<h3 class='mb-1'>" . $this->_('Status') . "</h3>";
@@ -1679,8 +1910,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of heading of current order edit block.
 	 *
-	 * @access protected
-	 * @return string $out Markup of heading of edit block.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderEditHeading() {
 		$out = "<h3 class='mt-5 mb-1'>" . $this->_('Edit') . "</h3>";
@@ -1690,8 +1920,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of heading of current order customer block.
 	 *
-	 * @access protected
-	 * @return string $out Markup of heading of customer block.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderCustomerHeading() {
 		$out = "<h3 class='mt-5 mb-1'>" . $this->_('Customer') . "</h3>";
@@ -1701,8 +1930,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of heading of current order actions block.
 	 *
-	 * @access protected
-	 * @return string $out Markup of heading of actions block.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderActionsHeading() {
 		$out = "<h3 class='mt-5 mb-1'>" . $this->_('Actions') . "</h3>";
@@ -1712,8 +1940,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order invoice actions sub-heading for actions block.
 	 *
-	 * @access protected
-	 * @return string $out Markup of invoice actions sub-heading.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderInvoiceActionsSubHeading() {
 		$out = "<h4 class='pwcommerce_override_processwire_heading_margin_top'>" . $this->_('Invoices') . "</h4>";
@@ -1722,8 +1949,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order status actions sub-heading for actions block.
 	 *
-	 * @access protected
-	 * @return string $out Markup of actions sub heading.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderStatusActionsSubHeading() {
 		// TODO
@@ -1736,8 +1962,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order line items block main content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of line items block main content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderLineItemsMainContent() {
 		$orderPage = $this->orderPage;
@@ -1756,8 +1981,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order notes block main content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of notes block main content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderNotesMainContent() {
 		$out = $this->getSingleViewOrderNotes();
@@ -1768,8 +1992,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order status block main content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of status block main content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderStatusMainContent() {
 		$orderPage = $this->orderPage;
@@ -1808,8 +2031,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order edit block main content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of edit block main content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderEditMainContent() {
 
@@ -1825,8 +2047,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order customer block main content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of customer block main content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderCustomerMainContent() {
 		$out =
@@ -1842,8 +2063,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order customer block shipping address content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of customer block shipping address content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderCustomerShippingAddressContent() {
 		$orderPage = $this->orderPage;
@@ -1885,8 +2105,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order customer block primary address content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of customer block primary address content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderCustomerBillingAddressContent() {
 		$orderPage = $this->orderPage;
@@ -1940,7 +2159,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 
 	/**
 	 * Check if billing address is identical to shipping address.
-	 * @return bool $isBillingAddressSameAsShippingAddress True if identical, else false.
+	 *
+	 * @return bool
 	 */
 	private function isBillingAddressSameAsShippingAddress() {
 		$orderPage = $this->orderPage;
@@ -1976,8 +2196,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order customer block email address content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of customer block email address content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderCustomerEmailContent() {
 		$orderPage = $this->orderPage;
@@ -1995,8 +2214,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order actions block main content.
 	 *
-	 * @access protected
-	 * @return string $out Markup of actions block main content.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderActionsMainContent() {
 		$out = $this->getOrderActions();
@@ -2008,8 +2226,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order created date.
 	 *
-	 * @access protected
-	 * @return string $out Markup of order created date.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderCreatedDate() {
 		$orderPage = $this->orderPage;
@@ -2021,8 +2238,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render divider markup for use by the blocks of the  right column of the single order view grid.
 	 *
-	 * @access protected
-	 * @return string $out Markup of the dividier.
+	 * @return mixed
 	 */
 	protected function ___renderRightGridColumnBlocksDivider() {
 		$out = "<hr class='md:hidden mt-3 mb-1'>";
@@ -2030,6 +2246,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $out;
 	}
 
+	/**
+	 *    get Markup For Order Invoice Actions.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getMarkupForOrderInvoiceActions() {
 
 		$orderPage = $this->orderPage;
@@ -2090,8 +2311,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of applicable actions for current order.
 	 *
-	 * @access protected
-	 * @return string $out Markup of applicable actions.
+	 * @return mixed
 	 */
 	protected function ___getOrderActions() {
 
@@ -2197,10 +2417,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup for editing current order.
 	 *
-	 * Edit button only visible if order is editable.
-	 *
-	 * @access protected
-	 * @return string $out Markup of edit button.
+	 * @return mixed
 	 */
 	protected function ___getEditOrderMarkup() {
 		$orderPage = $this->orderPage;
@@ -2233,11 +2450,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get a single row for an order line item for the order line items table.
 	 *
-	 * For use in single order view GUI.
-	 *
-	 * @access protected
-	 * @param Page $page The order line item page whose row to build.
-	 * @return array Array with table cell values for the table row.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	protected function ___getSingleViewTableRow($page) {
 		$orderLineItem = $page->get(PwCommerce::ORDER_LINE_ITEM_FIELD_NAME);
@@ -2249,8 +2463,6 @@ class PWCommerceAdminRenderOrders extends WireData {
 			$orderLineItem->quantity,
 			// UNIT PRICE
 			$this->pwcommerce->getValueFormattedAsCurrencyForShop($orderLineItem->unitPrice),
-			// NET PRICE AFTER DISCOUNT
-			$this->pwcommerce->getValueFormattedAsCurrencyForShop($orderLineItem->unitPriceDiscounted),
 			// TOTAL DISCOUNTED PRICE WITH TAX + DISCOUNTS INFO
 			$totalPriceAndDiscountsInfo,
 		];
@@ -2259,11 +2471,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get a single row for an order line item for the order line items table.
 	 *
-	 * For use in single order view GUI.
-	 *
-	 * @access protected
-	 * @param Page $page The order line item page whose row to build.
-	 * @return string Markup of line item total price including discounts for use as  table cell value for totals for the table row.
+	 * @param WireData $orderLineItem
+	 * @return mixed
 	 */
 	protected function ___getSingleViewTableRowTotalAndDiscounts(WireData $orderLineItem) {
 		$out = "";
@@ -2288,9 +2497,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup for current order discounts total.
 	 *
-	 * @access protected
-	 * @param string $discountsTotal Currency-formatted order discounts total.
-	 * @return string $out Markup of order discounts total.
+	 * @param mixed $discountsTotal
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderDiscountsTotal($discountsTotal) {
 		$out =
@@ -2304,10 +2512,9 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup for current order shipping and handling total.
 	 *
-	 * @access protected
-	 * @param string $shippingAndHandlingTotal Currency-formatted order shipping and handling total.
-	 * @param NULL|WireData $freeShippingDiscount WireData object with information for free shipping discount applied to order if applicable, else null.
-	 * @return string $out Markup of shipping and handling total.
+	 * @param mixed $shippingAndHandlingTotal
+	 * @param mixed $freeShippingDiscount
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderShippingAndHandlingTotal($shippingAndHandlingTotal, $freeShippingDiscount = NULL) {
 		$freeShippingDiscountInfo = "";
@@ -2330,9 +2537,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup for current order free shipping discount info.
 	 *
-	 * @access protected
-	 * @param WireData $freeShippingDiscount Object with information about the free shipping discount.
-	 * @return string $out Markup of free shipping discount code.
+	 * @param WireData $freeShippingDiscount
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderFreeShippingDiscountInfo(WireData $freeShippingDiscount) {
 		$out =
@@ -2345,11 +2551,10 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup for current order shipping delivery name and estimated days.
 	 *
-	 * @access protected
-	 * @param string $shippingRateName Name of the shipping rate that was applied to order.
-	 * @param int $shippingMininumDays Estimated delivery time minimum in days.
-	 * @param int $shippingMaximumDays Estimated delivery time maximum in days.
-	 * @return string $out Markup of shipping rate name and estimated delivery time.
+	 * @param mixed $shippingRateName
+	 * @param mixed $shippingMininumDays
+	 * @param mixed $shippingMaximumDays
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderShippingRateDetails($shippingRateName, $shippingMininumDays, $shippingMaximumDays) {
 
@@ -2393,9 +2598,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup for current order grand total.
 	 *
-	 * @access protected
-	 * @param string $grandTotal Currency-formatted order grand total.
-	 * @return string $out Markup of grand total.
+	 * @param mixed $grandTotal
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderGrandTotal($grandTotal) {
 		$out = "<div>" .
@@ -2408,8 +2612,7 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Get markup of current order notes.
 	 *
-	 * @access protected
-	 * @return string $orderNotesMarkup Markup of order notes.
+	 * @return mixed
 	 */
 	protected function ___getSingleViewOrderNotes() {
 		$orderPage = $this->orderPage;
@@ -2430,10 +2633,9 @@ class PWCommerceAdminRenderOrders extends WireData {
 	/**
 	 * Render table with order line items for single view or several orders for bulk edit view
 	 *
-	 * @access protected
-	 * @param PageArray $pages Order pages.
-	 * @param string $usage Whether to render single view order or bulk order edit GUI.
-	 * @return string $out The markup for the table.
+	 * @param mixed $pages
+	 * @param string $usage
+	 * @return mixed
 	 */
 	protected function ___getTable($pages, $usage = 'orders_bulk_edit_view') {
 
@@ -2465,12 +2667,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 			if ($usage === 'orders_single_view') {
 				$footerLabels = [
 					// @note: forcing empty for columns 1-3
+					'',
+					'',
+					'',
 					// using for note for totals
-					"<span class='italic'>" . $this->_('Totals include applicable tax') . "</span>",
-					'',
-					'',
-					'',
-					'',
+					"<span class='italic'>" . $this->_('Totals include applicable tax') . "</span>"
 				];
 				$field->footerRow($footerLabels);
 			}
@@ -2482,6 +2683,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		// TODO DRAFT ORDERS?
 		$filters = [
@@ -2500,6 +2706,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		return [
 			// ALL
@@ -2514,6 +2725,11 @@ class PWCommerceAdminRenderOrders extends WireData {
 		];
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 

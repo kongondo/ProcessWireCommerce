@@ -29,7 +29,8 @@ trait TraitPWCommerceDatabase
 	/**
 	 * Prepare and execute a PDO GroupBy query.
 	 *
-	 * @return array $result Result of the query.
+	 * @param array $options
+	 * @return mixed
 	 */
 	protected function processQueryGroupBy(array $options) {
 
@@ -145,7 +146,8 @@ trait TraitPWCommerceDatabase
 	/**
 	 * Prepare and execute a PDO GroupBy and Sum query.
 	 *
-	 * @return array $result Result of the query.
+	 * @param array $options
+	 * @return mixed
 	 */
 	protected function processQueryGroupBySum(array $options) {
 
@@ -287,7 +289,8 @@ trait TraitPWCommerceDatabase
 	/**
 	 * Prepare and execute a PDO GroupBy and Count query.
 	 *
-	 * @return array $result Result of the query.
+	 * @param array $options
+	 * @return mixed
 	 */
 	protected function processQueryGroupByCount(array $options) {
 
@@ -368,7 +371,8 @@ trait TraitPWCommerceDatabase
 	/**
 	 * Prepare and execute a PDO simple Select query.
 	 *
-	 * @return array $result Result of the query.
+	 * @param array $options
+	 * @return mixed
 	 */
 	protected function processQuerySelect(array $options) {
 		// e.g.
@@ -492,7 +496,8 @@ trait TraitPWCommerceDatabase
 	/**
 	 * Prepare and execute a PDO GroupBy, Sum and Having query.
 	 *
-	 * @return array $result Result of the query.
+	 * @param array $options
+	 * @return mixed
 	 */
 	protected function processQueryGroupBySumHaving(array $options) {
 		// TODO consider refactor as quite similar to processQueryGroupBySum
@@ -637,6 +642,14 @@ trait TraitPWCommerceDatabase
 
 	}
 
+	/**
+	 * Process Query Product Count In All Carts.
+	 *
+	 * @param int $productID
+	 * @param int $intervalValue
+	 * @param string $intervalType
+	 * @return mixed
+	 */
 	public function processQueryProductCountInAllCarts(int $productID, int $intervalValue, string $intervalType) {
 		// TODO NEED TO RETURN STDCLASS FOR CONSISTENCY!
 		$queryResult = [
@@ -674,6 +687,14 @@ trait TraitPWCommerceDatabase
 
 	}
 
+	/**
+	 * My S Q L Date Functions Build Interval Query.
+	 *
+	 * @param int $productID
+	 * @param int $intervalValue
+	 * @param string $intervalType
+	 * @return mixed
+	 */
 	private function mySQLDateFunctionsBuildIntervalQuery(int $productID, int $intervalValue, string $intervalType) {
 		$sql = "
 			SELECT SUM(quantity) AS count " .
@@ -698,6 +719,11 @@ trait TraitPWCommerceDatabase
 		// return $query->fetch();
 	}
 
+	/**
+	 * Get My S Q L Date Functions Interval Types.
+	 *
+	 * @return mixed
+	 */
 	private function getMySQLDateFunctionsIntervalTypes() {
 		$intervalTypes = [
 			'microsecond' => 'MICROSECOND',

@@ -22,8 +22,9 @@ trait TraitPWCommerceInputfieldsHelpers
 
 	/**
 	 * Return a blank ProcessWire InputfieldForm.
-	 * @param array $options Form options.
-	 * @return InputfieldForm Blank InputfieldForm.
+	 *
+	 * @param array $options
+	 * @return mixed
 	 */
 	public function getInputfieldForm(array $options = []) {
 
@@ -67,6 +68,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Wrapper.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldWrapper(array $options = []) {
 		// TODO: unsure which of these work and under what circumstances!
 		$defaultOptions = [
@@ -127,6 +134,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Markup.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldMarkup(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -187,6 +200,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Fieldset.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldFieldset(array $options = []) {
 		// TODO: unsure which of these work and under what circumstances!
 		$defaultOptions = [
@@ -245,6 +264,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Text.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldText(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -340,6 +365,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Textarea.
+	 *
+	 * @param array $options
+	 * @return InputfieldTextarea
+	 */
 	public function getInputfieldTextarea(array $options = []): InputfieldTextarea {
 		$defaultOptions = [
 			'id' => null,
@@ -419,6 +450,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield C K Editor.
+	 *
+	 * @param array $options
+	 * @return InputfieldCKEditor
+	 */
 	public function getInputfieldCKEditor(array $options = []): InputfieldCKEditor {
 		$defaultOptions = [
 			'id' => null,
@@ -500,6 +537,12 @@ trait TraitPWCommerceInputfieldsHelpers
 
 	// TODO ADD TINYMCE!
 
+	/**
+	 * Get Inputfield Email.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldEmail(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -589,6 +632,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Checkbox.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldCheckbox(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -672,6 +721,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Checkboxes.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldCheckboxes(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -762,6 +817,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Radios.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldRadios(array $options = []) {
 
 		$defaultOptions = [
@@ -839,6 +900,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Select.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldSelect(array $options = []) {
 
 		$defaultOptions = [
@@ -916,6 +983,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Button.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldButton(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -996,6 +1069,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Page Autocomplete.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldPageAutocomplete(array $options = []) {
 
 		$defaultOptions = [
@@ -1078,6 +1157,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Page List Select.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldPageListSelect(array $options = []) {
 
 		$defaultOptions = [
@@ -1185,6 +1270,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Text Tags.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldTextTags(array $options = []) {
 
 		$defaultOptions = [
@@ -1281,6 +1372,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Hidden.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldHidden(array $options = []) {
 
 		$defaultOptions = [
@@ -1321,6 +1418,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Selector.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldSelector(array $options = []) {
 
 		$defaultOptions = [
@@ -1468,6 +1571,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Page Title.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldPageTitle(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -1537,6 +1646,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $field;
 	}
 
+	/**
+	 * Get Inputfield Datetime.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getInputfieldDatetime(array $options = []) {
 		$defaultOptions = [
 			'id' => null,
@@ -1626,10 +1741,8 @@ trait TraitPWCommerceInputfieldsHelpers
 	/**
 	 * Helper to return classes for a specified modal size.
 	 *
-	 * For use with a PWCommerce custom modal.
-	 *
-	 * @param string $size The size corresponding to the requested modal class.
-	 * @return string $modalSizeClass The class corresponding to the specified modal size.
+	 * @param mixed $size
+	 * @return mixed
 	 */
 	public function getModalClassSize($size) {
 		$modalSizeClass = '';
@@ -1682,11 +1795,9 @@ trait TraitPWCommerceInputfieldsHelpers
 	/**
 	 * Build custom modal for use in various PWCommerce inputfields.
 	 *
-	 * Used with alpinejs and tailwindcss.
-	 *
-	 * @param array $options Options to build the modal.
+	 * @param array $options
+	 * @return mixed
 	 */
-
 	public function getModalMarkup(array $options) {
 
 		// SET VARIABLES
@@ -1745,6 +1856,13 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $out;
 	}
 
+	/**
+	 * Get Modal Markup Title Dialog Close Button.
+	 *
+	 * @param mixed $handleCloseModal
+	 * @param mixed $xproperty
+	 * @return mixed
+	 */
 	private function getModalMarkupTitleDialogCloseButton($handleCloseModal, $xproperty) {
 		// TODO add custom handler here for those that need it! e.g. some handlers need to reset before close!
 		$close = $this->_('Close');
@@ -1754,11 +1872,23 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $out;
 	}
 
+	/**
+	 * Get Modal Markup Body.
+	 *
+	 * @param mixed $body
+	 * @return mixed
+	 */
 	private function getModalMarkupBody($body) {
 		$out = "<main class='flex-1 overflow-y-auto p-5'>{$body}</main>";
 		return $out;
 	}
 
+	/**
+	 * Get Modal Markup Footer.
+	 *
+	 * @param mixed $footer
+	 * @return mixed
+	 */
 	private function getModalMarkupFooter($footer) {
 		$out = "<div class='flex justify-end pwcommerce-custom-ui-dialog-buttonpane ui-widget-content ui-helper-clearfix'> {$footer}" .
 			"</div>";
@@ -1768,11 +1898,9 @@ trait TraitPWCommerceInputfieldsHelpers
 	/**
 	 * Build button for the custom modal used by PWCommerce in various inputfields.
 	 *
-	 * For use with alpinejs.
-	 *
-	 * @param string $clickJSFunction The string representing the JavaScript function to call when the button is clicked.
-	 * @param string $buttonType The type of button to build.
-	 * @return string Rendered output of the ProcessWire InputfieldButton.
+	 * @param array $attributes
+	 * @param string $buttonType
+	 * @return mixed
 	 */
 	public function getModalActionButton(array $attributes, $buttonType = 'add') {
 
@@ -1811,6 +1939,12 @@ trait TraitPWCommerceInputfieldsHelpers
 
 	// htmx-enhanced search box (debounced type ahead)
 	// e.g., as used by search for products to add to order
+	/**
+	 * Get Search Box.
+	 *
+	 * @param array $searchBoxOptions
+	 * @return mixed
+	 */
 	public function getSearchBox(array $searchBoxOptions) {
 		// search box options
 		$options = [
@@ -1861,6 +1995,12 @@ trait TraitPWCommerceInputfieldsHelpers
 
 	// build actions panel used by bulk edit or just bulk views
 	// e.g. add new products, delete tags, reports, etc
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $panelOptions
+	 * @return mixed
+	 */
 	public function getBulkEditActionsPanel($panelOptions) {
 
 		$leftSideContent = '';
@@ -2013,6 +2153,13 @@ trait TraitPWCommerceInputfieldsHelpers
 	}
 
 	// pagination for bulk edit views/pages
+	/**
+	 * Get Pagination.
+	 *
+	 * @param mixed $pages
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function getPagination($pages, $options) {
 		$baseURL = $options['base_url'];
 		$ajaxPostURL = $options['ajax_post_url'];
@@ -2028,6 +2175,12 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $out;
 	}
 
+	/**
+	 * Find Anything Markup.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function findAnythingMarkup($options) {
 		// TODO DEPRECATED SINCE PWCOMMERCE 009; @SEE HOOK 'hookProcessPageSearchLive'
 		// TODO DELETE IN NEXT RELEASE
@@ -2093,7 +2246,13 @@ trait TraitPWCommerceInputfieldsHelpers
 		return $out;
 	}
 
-	public function renderShopCurrencySymbolString($isUseParentheses = true) {
+	/**
+	 * Render Shop Currency Symbol String.
+	 *
+	 * @param bool $isUseParentheses
+	 * @return string|mixed
+	 */
+	public function renderShopCurrencySymbolString(bool $isUseParentheses = true) {
 		$currencySymbolStr = '';
 		$shopCurrencyLocale = $this->getShopCurrencyLocale();
 		if (!empty($shopCurrencyLocale['currency_symbol'])) {

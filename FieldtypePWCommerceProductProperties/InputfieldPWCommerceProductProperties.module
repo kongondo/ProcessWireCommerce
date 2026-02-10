@@ -20,6 +20,11 @@ namespace ProcessWire;
 class InputfieldPWCommerceProductProperties extends Inputfield
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Product Properties: Inputfield',
@@ -35,6 +40,11 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 	protected $field;
 
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -45,10 +55,22 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
@@ -56,6 +78,7 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 	/**
 	 * Render the entire input area for product properties
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -84,17 +107,21 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		$this->preloadInputfieldAssets();
 		// $scripts = $this->config->js($this->id, $options);
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Render Add New Link.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderAddNewLink() {
 		$name = $this->attr('name');
 		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
@@ -109,6 +136,11 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Footer.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderFooter() {
 
 		//------------------- add new property (InputfieldMarkup)
@@ -131,6 +163,11 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 	// @note: special input for colour selection
 	// note, however, that we only output the input in this module
 	// the processing and saving is done in the module InputfieldPWCommerceProductSettings
+	/**
+	 * Render Colour Property.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderColourProperty() {
 
 		// TODO @note: might make this configurable, hence hidden if not enabled
@@ -182,6 +219,11 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 		return $wrapper->render();
 	}
 
+	/**
+	 * Preload Inputfield Assets.
+	 *
+	 * @return mixed
+	 */
 	private function preloadInputfieldAssets() {
 		// colour picker
 		// $this->wire->config->scripts->add("https://unpkg.com/vanilla-picker@2");
@@ -191,6 +233,11 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 		$this->wire->config->scripts->add($vanillapicker);
 	}
 
+	/**
+	 * Build Form.
+	 *
+	 * @return mixed
+	 */
 	private function buildForm() {
 
 		/** @var WireArray $value */
@@ -211,8 +258,10 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 	/**
 	 * Build a row of inputs representing a single product property.
 	 *
-	 * @access private
-	 * @return InputfieldWrapper
+	 * @param WireData $property
+	 * @param mixed $n
+	 * @param string $newClass
+	 * @return mixed
 	 */
 	private function buildRow(WireData $property, $n, $newClass = '') {
 		// GET WRAPPER FOR ROW
@@ -299,6 +348,8 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 	/**
 	 * Process input for the values sent from the product properties for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -368,9 +419,8 @@ class InputfieldPWCommerceProductProperties extends Inputfield
 	/**
 	 * Make a string value to represent these values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param array $items
+	 * @return mixed
 	 */
 	private function toStringInhouse($items) {
 		$a = [];

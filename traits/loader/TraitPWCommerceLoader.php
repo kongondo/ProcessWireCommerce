@@ -20,7 +20,14 @@ trait TraitPWCommerceLoader {
 
 	# ~~~~~~~~ CLASSES  ~~~~~~~~
 
-	protected function getPWCommerceClassByName($className, $options = []) {
+	/**
+	 * Get P W Commerce Class By Name.
+	 *
+	 * @param mixed $className
+	 * @param array $options
+	 * @return mixed
+	 */
+	protected function getPWCommerceClassByName($className, array $options = []) {
 		$classPath = $this->getPWCommerceClassPath($className);
 
 		if (!empty($classPath)) {
@@ -44,6 +51,12 @@ trait TraitPWCommerceLoader {
 
 	}
 
+	/**
+	 * Load P W Commerce Class By Name.
+	 *
+	 * @param mixed $className
+	 * @return mixed
+	 */
 	protected function loadPWCommerceClassByName($className) {
 		$classPath = $this->getPWCommerceClassPath($className);
 
@@ -53,6 +66,11 @@ trait TraitPWCommerceLoader {
 		}
 	}
 
+	/**
+	 * Get All P W Commerce Required Classes Paths.
+	 *
+	 * @return mixed
+	 */
 	private function getAllPWCommerceRequiredClassesPaths() {
 		$paths = [
 			// addons
@@ -141,6 +159,12 @@ trait TraitPWCommerceLoader {
 		return $paths;
 	}
 
+	/**
+	 * Get P W Commerce Class Path.
+	 *
+	 * @param mixed $className
+	 * @return mixed
+	 */
 	private function getPWCommerceClassPath($className) {
 		$allClassesNames = $this->getAllPWCommerceRequiredClassesPaths();
 		$includePath = NULL;
@@ -176,6 +200,12 @@ trait TraitPWCommerceLoader {
 
 	# ~~~~~~~~
 
+	/**
+	 * Require Once P W Commerce File.
+	 *
+	 * @param mixed $filePath
+	 * @return mixed
+	 */
 	private function requireOncePWCommerceFile($filePath) {
 		require_once __DIR__ . $filePath;
 	}

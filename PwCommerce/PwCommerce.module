@@ -45,6 +45,11 @@ class PwCommerce extends Wire implements Module
 	use TraitPWCommerce;
 
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo()
 	{
 		return [
@@ -73,6 +78,11 @@ class PwCommerce extends Wire implements Module
 	private $productNotFound;
 	private $session_id;
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init()
 	{
 		// create a global $pwcommerce variable
@@ -152,6 +162,11 @@ class PwCommerce extends Wire implements Module
 	}
 
 
+	/**
+	 * Ready.
+	 *
+	 * @return mixed
+	 */
 	public function ready()
 	{
 		$requiredClasses = [];
@@ -185,6 +200,12 @@ class PwCommerce extends Wire implements Module
 
 	// TODO WHAT DOES THIS DO? IT IS CALLED IN init() ->     $this->pages->addHookAfter('saveReady', $this, 'hookUpdateSessionId');
 
+	/**
+	 * Hook Update Session Id.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function hookUpdateSessionId($event)
 	{
 
@@ -202,6 +223,12 @@ class PwCommerce extends Wire implements Module
 
 	// ~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Run P W Commerce.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function runPWCommerce($event)
 	{
 
@@ -233,6 +260,13 @@ class PwCommerce extends Wire implements Module
 	// ~~~~~~~~~~~~~~~~
 
 
+	/**
+	 *  redirect.
+	 *
+	 * @param mixed $redirect
+	 * @param array $params
+	 * @return mixed
+	 */
 	private function _redirect($redirect, $params)
 	{
 		// TODO REVISIT THIS TO HANDLE ERRORS BETTER! since $params is sometimes errors!
@@ -280,7 +314,15 @@ class PwCommerce extends Wire implements Module
 
 	# >>>>>>>>>>>>>>>>>>>>>>>>>> IMPORT <<<<<<<<<<<<<<<<<<<<<<<
 
-	public function import(array $items, string $importType, $options = [])
+	/**
+	 * Import.
+	 *
+	 * @param array $items
+	 * @param string $importType
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function import(array $items, string $importType, array $options = [])
 	{
 		# error: no items
 		if (empty($items)) {
@@ -300,6 +342,11 @@ class PwCommerce extends Wire implements Module
 		return $result;
 	}
 
+	/**
+	 * Test.
+	 *
+	 * @return mixed
+	 */
 	protected function test()
 	{
 		return time();

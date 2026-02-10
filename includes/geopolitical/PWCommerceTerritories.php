@@ -23,15 +23,7 @@ class PWCommerceTerritories extends WireData
 	/**
 	 * Returns array of territories (states, provinces, cantons, etc) for various countries and their codes.
 	 *
-	 * states - 25
-	 * provinces - 7
-	 * cantons - 1 (Switzerland)
-	 * regions - 1 (Greece)
-	 * districts - 1 (Bangladesh)
-	 * zones - 1 (Nepal)
-	 * unamed - 1 (Ireland)
-	 * ----------------
-	 * total: 37
+	 * @return mixed
 	 */
 	public function getTerritories() {
 
@@ -5154,6 +5146,12 @@ class PWCommerceTerritories extends WireData
 		return $territories;
 	}
 
+	/**
+	 * Get Country Territory By Code.
+	 *
+	 * @param mixed $countryCode
+	 * @return mixed
+	 */
 	public function getCountryTerritoryByCode($countryCode) {
 		$foundCountryTerritory = null;
 		if (empty($countryCode)) {

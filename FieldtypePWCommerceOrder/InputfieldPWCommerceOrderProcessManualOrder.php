@@ -51,6 +51,12 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 
 	// =============
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function __construct($page) {
 
 		$this->page = $page;
@@ -63,9 +69,8 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Process order customer for saving via InputfieldPWCommerceOrderCustomer.
 	 *
-	 * @access public
-	 * @param WireInputData $input Input to get customer details from.
-	 * @return void
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function processOrderCustomerForSaving(WireInputData $input) {
 		$inputfieldName = "InputfieldPWCommerceOrderCustomer";
@@ -93,13 +98,9 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Process order for saving.
 	 *
-	 * Process line items, shipping values, etc.
-	 * Process new,deleted and existing/kept items.
-	 *
-	 * @access public
-	 * @param WireInputData $input Input to get order line items details from.
-	 * @param bool $isCustomerValuesForProcessCalculableValuesChanged Whether customer values that require the processing of order line items calculable values have happened..
-	 * @return void
+	 * @param WireInputData $input
+	 * @param bool $isCustomerValuesForProcessCalculableValuesChanged
+	 * @return mixed
 	 */
 	public function processOrderForSaving(WireInputData $input, bool $isCustomerValuesForProcessCalculableValuesChanged) {
 		// @note: called by InputfieldPWCommerceOrder::___processInput
@@ -157,6 +158,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		$this->processSaveNonLiveOrder();
 	}
 
+	/**
+	 * Pre Process Order For Live Calculations O R Saving.
+	 *
+	 * @return mixed
+	 */
 	private function preProcessOrderForLiveCalculationsORSaving() {
 
 		// ------
@@ -196,6 +202,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 
 	}
 
+	/**
+	 * Get I Ds For Existing Order Line Items For Order.
+	 *
+	 * @return mixed
+	 */
 	private function getIDsForExistingOrderLineItemsForOrder() {
 		$fields = 'id';
 		$existingChildrenIDs = $this->wire('pages')->findRaw("template=" . PwCommerce::ORDER_LINE_ITEMS_TEMPLATE_NAME . ", parent={$this->page},check_access=0", $fields);
@@ -203,6 +214,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $existingChildrenIDs;
 	}
 
+	/**
+	 * Get In Edit Order Line Items I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getInEditOrderLineItemsIDs() {
 		// TODO: make sure getting from correct input!!!
 		// TODO: delete if not in use: pwcommerce_order_live_order_line_items_products_ids
@@ -212,12 +228,22 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $inEditOrderLineItemsIDs;
 	}
 
+	/**
+	 * Get In Edit Products I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getInEditProductsIDs() {
 		$inEditOrderLineItemsProductsIDs = $this->wire('sanitizer')->intArray($this->input->pwcommerce_order_live_order_line_items_products_ids);
 
 		return $inEditOrderLineItemsProductsIDs;
 	}
 
+	/**
+	 * Get I Ds For Added Order Line Items For Order.
+	 *
+	 * @return mixed
+	 */
 	private function getIDsForAddedOrderLineItemsForOrder() {
 		// get new items
 		$newOrderLineItemsIDs = array_diff($this->inEditOrderLineItemsIDs, $this->existingOrderLineItemsIDs);
@@ -225,6 +251,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $newOrderLineItemsIDs;
 	}
 
+	/**
+	 * Get I Ds For Deleted Order Line Items For Order.
+	 *
+	 * @return mixed
+	 */
 	private function getIDsForDeletedOrderLineItemsForOrder() {
 		// get deleted items
 		$deletedOrderLineItemsIDs = array_diff($this->existingOrderLineItemsIDs, $this->inEditOrderLineItemsIDs);
@@ -232,6 +263,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $deletedOrderLineItemsIDs;
 	}
 
+	/**
+	 * Get I Ds For Kept Order Line Items For Order.
+	 *
+	 * @return mixed
+	 */
 	private function getIDsForKeptOrderLineItemsForOrder() {
 		// get kept/preserved items
 		$keptOrderLineItemsIDs = array_intersect($this->existingOrderLineItemsIDs, $this->inEditOrderLineItemsIDs);
@@ -239,6 +275,13 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $keptOrderLineItemsIDs;
 	}
 
+	/**
+	 * Process Non Save Live Order.
+	 *
+	 * @param WireInputData $input
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	public function processNonSaveLiveOrder(WireInputData $input, Page $orderPage) {
 
 		// TODO @debug #works#
@@ -288,6 +331,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $this->order;
 	}
 
+	/**
+	 * Process Save Non Live Order.
+	 *
+	 * @return mixed
+	 */
 	private function processSaveNonLiveOrder() {
 
 		// 1. FIRST, CREATE NEW ORDER LINE ITEMS
@@ -362,12 +410,7 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Process creation of new order line items for this order.
 	 *
-	 * @note: we do this here instead of inside InputfieldPWCommerceOrderLineItem::processInput in order to avoid race condition.
-	 * We need line items, new and existing, to be processed first in order to then process the dependable values in whole order.
-	 *
-	 * @access private
-	 * @param array $newOrderLineItemsProductsOrVariantsIDsArray IDs of products or variants to add as new line items.
-	 * @return void
+	 * @return mixed
 	 */
 	private function processInputCreateNewItems() {
 		$input = $this->input;
@@ -512,6 +555,13 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	}
 
 	// process a single order line item for either saving or live calculate values
+	/**
+	 * Process Order Line Item.
+	 *
+	 * @param mixed $orderLineItem
+	 * @param int $id
+	 * @return mixed
+	 */
 	private function processOrderLineItem($orderLineItem, $id) {
 
 		$productOrVariantPage = $this->getProductOrVariantPagesForOrderLineItem($orderLineItem->productID, $orderLineItem->isVariant);
@@ -547,6 +597,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $orderLineItem;
 	}
 
+	/**
+	 * Process Input Deleted Removed Existing Items.
+	 *
+	 * @return mixed
+	 */
 	private function processInputDeletedRemovedExistingItems() {
 
 		// TODO TEST THIS!
@@ -565,6 +620,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		}
 	}
 
+	/**
+	 * Process Input Edit Existing Items.
+	 *
+	 * @return mixed
+	 */
 	private function processInputEditExistingItems() {
 
 		// TODO DELETE IF NOT IN USE - USING NEW APPROACH BELOW
@@ -623,12 +683,9 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Process order line item calculable values.
 	 *
-	 * These include discount amount and taxes.
-	 *
-	 * @access private
-	 * @param WireData $orderLineItem Order line item to process.
-	 * @param array $productOrVariantPage Array with properties from the product/product variant page, i.e. price, etc.
-	 * @return WireData $orderLineItem The processed order line item.
+	 * @param WireData $orderLineItem
+	 * @param mixed $productOrVariantPage
+	 * @return WireData
 	 */
 	private function processOrderLineItemCalculableValues(WireData $orderLineItem, $productOrVariantPage): WireData {
 		// ==========  RECALCULATE CALCULABE VALUES ====
@@ -656,10 +713,7 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Process order calculable values.
 	 *
-	 * These include discount amount, handling, shipping and final/total price.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function processOrderCalculableValues() {
 
@@ -773,9 +827,8 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Make a string value to represent the order values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param mixed $item
+	 * @return mixed
 	 */
 	private function toStringInhouse($item) {
 		// TODO: ADD OTHER CALCULABE E.G. SHIPMENT STATUS? what about totalprice? hmm, that is always calculated separately anyway (line item post-processing!)
@@ -785,6 +838,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 
 	// ~~~~~~~~~~~~~~
 
+	/**
+	 * Get Product Or Variant Pages For Creating New Order Line Items.
+	 *
+	 * @return mixed
+	 */
 	private function getProductOrVariantPagesForCreatingNewOrderLineItems() {
 		$productsOrVariantsIDsSelector = implode("|", $this->newOrderLineItemsIDs);
 		$selector = "id={$productsOrVariantsIDsSelector}";
@@ -795,6 +853,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $productsOrVariantPages;
 	}
 
+	/**
+	 * Get Existing Order Line Items Pages To Process.
+	 *
+	 * @return mixed
+	 */
 	private function getExistingOrderLineItemsPagesToProcess() {
 		$existingOrderLineItemsIDsToProcessSelector = implode("|", $this->keptOrderLineItemsIDs);
 		/** @var PageArray $orderLineItemsPages */
@@ -806,14 +869,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Get the product or product variant for an order line item.
 	 *
-	 * We need properties including title, product_id, stock values (prices, etc), etc.
-	 *
-	 * @access private
-	 * @param integer $productsOrVariantsID The ID of the product or product variant whose properties to find.
-	 * @param boolean $isVariant
-	 * @return array $productOrVariantPage Array with needed values from product or product variant page.
+	 * @param int $productsOrVariantsID
+	 * @param bool $isVariant
+	 * @return array
 	 */
-	private function getProductOrVariantPagesForOrderLineItem($productsOrVariantsID, $isVariant = false): array {
+	private function getProductOrVariantPagesForOrderLineItem($productsOrVariantsID, bool $isVariant = false): array {
 
 		$selector = "id={$productsOrVariantsID}";
 		// @note: 'pwcommerce_product_settings' only for main products!
@@ -832,16 +892,33 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $productOrVariantPage;
 	}
 
+	/**
+	 * Get Variant Parent Product Settings And Categories.
+	 *
+	 * @param int $parentID
+	 * @return mixed
+	 */
 	private function getVariantParentProductSettingsAndCategories($parentID) {
 		$parentProductSettingsAndCategories = $this->wire('pages')->getRaw("id={$parentID}", ['pwcommerce_product_settings' => 'settings', 'pwcommerce_categories' => 'categories']);
 		return $parentProductSettingsAndCategories;
 	}
 
+	/**
+	 * Get Order Line Item Allowed Discount Types.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderLineItemAllowedDiscountTypes() {
 		$allowedDiscountTypeValues = ['none', 'percentage', 'fixed_applied_once', 'fixed_applied_per_item'];
 		return $allowedDiscountTypeValues;
 	}
 
+	/**
+	 * Get Selected Matched Shipping Rate.
+	 *
+	 * @param int $shippingRateID
+	 * @return mixed
+	 */
 	private function getSelectedMatchedShippingRate($shippingRateID) {
 
 		$rate = null;
@@ -858,6 +935,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 
 	// ~~~~~~~~~~~~~~~
 
+	/**
+	 * Set Order Order Line Items Shared Properties.
+	 *
+	 * @return mixed
+	 */
 	private function setOrderOrderLineItemsSharedProperties() {
 		// $isError = false;
 		// $error = null;
@@ -887,12 +969,9 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Set order line item discount type and value based on form values.
 	 *
-	 * Note that discount value is not the discount amount!
-	 * The amount will be determined later, based on discount type and value!
-	 *
-	 * @access private
-	 * @param WireData $orderLineItem The Order Line Item WireData object to populate with discount type and value.
-	 * @return WireData $orderLineItem The populated order line item.
+	 * @param WireData $orderLineItem
+	 * @param int $id
+	 * @return mixed
 	 */
 	private function setOrderLineItemDiscountTypeAndValue(WireData $orderLineItem, $id) {
 		// @note: we only allow these discount types
@@ -914,11 +993,7 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Set manual order discount type and value based on form values.
 	 *
-	 * Note that discount value is not the discount amount!
-	 * The amount will be determined later, based on discount type and value!
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function setOrderDiscountTypeAndValue() {
 		// @note: we only allow these discount types
@@ -937,6 +1012,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		// return $order;
 	}
 
+	/**
+	 * Set Order Shipping Country.
+	 *
+	 * @return mixed
+	 */
 	private function setOrderShippingCountry() {
 		// ============== GET SHIPPING COUNTRY TAX + OVERRIDES DATA ======
 
@@ -959,6 +1039,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $isSetOrderShippingCountry;
 	}
 
+	/**
+	 * Set Is Customer Tax Exempt.
+	 *
+	 * @return mixed
+	 */
 	private function setIsCustomerTaxExempt() {
 		// ===========================================
 		// CUSTOMER TAX EXEMPTION STATUS
@@ -968,6 +1053,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 
 	}
 
+	/**
+	 * Set Is Charge Taxes Manual Exemption.
+	 *
+	 * @return mixed
+	 */
 	private function setIsChargeTaxesManualExemption() {
 		// MANUAL ORDER TAX EXEMPTION STATUS
 		// @note: if value is zero (0), exemption being applied, if one (1), charge taxes normaly
@@ -978,10 +1068,7 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Set to $this->order the manual order shipping values based on form values.
 	 *
-	 * Values set here are whether shipping is custom and in that case, the custom shipping fee.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function setOrderShippingValues() {
 		$input = $this->input;
@@ -1080,6 +1167,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		// --------------
 		// return $order;
 	}
+	/**
+	 * Set Order Shipping Values O L D Delete.
+	 *
+	 * @return mixed
+	 */
 	private function setOrderShippingValuesOLDDelete() {
 		// TODO DELETE THIS ONE AS WE NO LONGER CHECK RATE ID IN THIS WAY -> INSTEAD WE ARE PREVENTING SAVING ON THE CLIENT UNTIL RECALCULATION REQUIREMENTS ARE FULFILLED
 		// +++++++++++++++++++++
@@ -1182,6 +1274,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		// return $order;
 	}
 
+	/**
+	 * Is Custom Shipping Fee Needs Calculating.
+	 *
+	 * @return bool
+	 */
 	private function isCustomShippingFeeNeedsCalculating() {
 		// custom shipping fee neededing calculating is only affected by customer country or tax exemption change OR manual tax exemption change
 		// @note: above will not apply if taxes not charged on shipping -> that will be sorted out in PWCommerceUtilities::getOrderShippingFee()
@@ -1199,12 +1296,7 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Set manual order handling fee values based on form values.
 	 *
-	 * Values set here are whether handling fee is custom and in that case, the custom handling fee type and value.
-	 * Note that handling fee value is not the handling fee amount!
-	 * The amount will be determined later, based on handling fee type and value!
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function setOrderHandlingFeeValues() {
 		$input = $this->input;
@@ -1251,10 +1343,7 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Set manual order taxes values based on form values.
 	 *
-	 * Values set here are whether a manual tax exemption is set by user and 'prices include taxes' value set when the order was created.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function setOrderTaxesValues() {
 		$incomingIsChargeTaxesManualExemption = (int) $this->input->pwcommerce_order_apply_manual_tax_exemption;
@@ -1275,7 +1364,19 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 
 	// TODO - REFACTOR THIS! IT IS NEAR IDENTICAL TO PROCESSINPUT AND PROCESSINPUTEXISTING! NEED TO MAKE ONE AGNOSTIC METHOD THAT RETURNS A WIREARRAY OF WIREDATA OF LINE ITEMS! WE CAN THEN PASS THAT WIREARRAY TO WHICHEVER PROCESS THAT NEEDS IT! E.G. FOR SAVING LINE ITEMS, FOR CREATING LINE ITEMS OR FOR LIVE CALCULATIONS IN UTILITIES!!!
 
-	// private function setLiveOrderLineItemsValues(array $inEditOrderLineItemsProductsIDs, array $inEditOrderLineItemsIDs): array {
+	// /**
+  * Set Live Order Line Items Values.
+  *
+  * @param array $inEditOrderLineItemsProductsIDs
+  * @param array $inEditOrderLineItemsIDs
+  * @return array
+  */
+ private function setLiveOrderLineItemsValues(array $inEditOrderLineItemsProductsIDs, array $inEditOrderLineItemsIDs): array {
+	/**
+	 * Set Live Order Line Items Values.
+	 *
+	 * @return array
+	 */
 	private function setLiveOrderLineItemsValues(): array {
 		// TODO THOROUGHLY TEST THIS GIVEN NEW CHANGES IN MARCH 2022!
 		// TODO: LOOP THROUGH liveOrderLineItemsProductsIDs AND GET - change this! we need lineitems ids for exsiting ones' inputs!
@@ -1329,15 +1430,9 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 	/**
 	 * Make a string value to represent these values that can be used for comparison purposes.
 	 *
-	 * @note We only compare three mutable values with respect to editing an order line item.
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 *
-	 * @access private
-	 * @param integer $editedQuantity The quantity of this line item.
-	 * @param string $editedDiscountType One of 'none|percentage|fixed_applied_once|fixed_applied_per_item' representing discount type.
-	 * @param float $editedDiscountValue Discount value, e.g. 1.5% or €4.99
-	 * @return bool Whether above values are different from their counterpart saved values
-	 *
+	 * @param mixed $orderLineItem
+	 * @param int $id
+	 * @return bool
 	 */
 	private function isChangedOrderLineItem($orderLineItem, $id) {
 		$editedQuantity = (int) $this->input->{"pwcommerce_order_line_item_quantity{$id}"};
@@ -1359,6 +1454,11 @@ class InputfieldPWCommerceOrderProcessManualOrder extends WireData
 		return $editedString !== $savedString;
 	}
 
+	/**
+	 * Is Charge Taxes Manual Exemption Changed.
+	 *
+	 * @return bool
+	 */
 	private function isChargeTaxesManualExemptionChanged() {
 		// @note: by this point, the value of $this->order->isChargeTaxesManualExemption IS THE SAVED ONE
 		// it hasn't been changed yet at setOrderTaxesValues()

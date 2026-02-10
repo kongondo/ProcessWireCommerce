@@ -10,10 +10,8 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Builds a basic add new page/item for the context needing it.
 	 *
-	 * Returns InputfieldForm that includes an InputfieldPageTitle.
-	 *
-	 * @param array $addNewItemOptions Label for breadcrumb in this view.
-	 * @return InputfieldForm $form Add new page Form.
+	 * @param mixed $addNewItemOptions
+	 * @return mixed
 	 */
 	public function getBasicAddNewItemForm($addNewItemOptions) {
 		$form = $this->pwcommerce->getInputfieldForm();
@@ -90,11 +88,9 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Builds the page edit form for page being edited
 	 *
-	 * Returns output of ProcessPageEdit::execute().
-	 *
-	 * @param string $href Href for the breadcrumb in this view.
-	 * @param string $label Label for breadcrumb in this view.
-	 * @return string $editForm Edit page Form markup.
+	 * @param mixed $href
+	 * @param mixed $label
+	 * @return mixed
 	 */
 	public function getEmbeddedEdit($href, $label) {
 
@@ -144,6 +140,12 @@ trait TraitPWCommerceAdminForm
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PROCESS FORMS  ~~~~~~~~~~~~~~~~~~
 
 	// TODO WIP
+	/**
+	 * Process Calculate Order Taxes And Shipping.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function processCalculateOrderTaxesAndShipping($input) {
 		// @note: pass calculatations and matched rates markup to InputfieldPWCommerceOrder
 		$inputfieldPWCommerceOrder = $this->wire('modules')->get('InputfieldPWCommerceOrder');
@@ -154,6 +156,12 @@ trait TraitPWCommerceAdminForm
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Process Add New Item.
+	 *
+	 * @param mixed $form
+	 * @return mixed
+	 */
 	private function processAddNewItem($form) {
 		$input = $this->wire('input')->post;
 
@@ -204,6 +212,12 @@ trait TraitPWCommerceAdminForm
 		}
 	}
 
+	/**
+	 * Process Bulk Edit Action.
+	 *
+	 * @param mixed $form
+	 * @return mixed
+	 */
 	private function processBulkEditAction($form) {
 
 		$input = $this->wire('input')->post;
@@ -234,6 +248,12 @@ trait TraitPWCommerceAdminForm
 	}
 
 	// e.g. General Settings, Tax Settings, etc
+	/**
+	 * Process Single Edit.
+	 *
+	 * @param mixed $form
+	 * @return mixed
+	 */
 	private function processSingleEdit($form) {
 
 		$input = $this->wire('input')->post;
@@ -278,6 +298,12 @@ trait TraitPWCommerceAdminForm
 	}
 
 	// e.g. Discounts
+	/**
+	 * Process Pre Process.
+	 *
+	 * @param mixed $form
+	 * @return mixed
+	 */
 	private function processPreProcess($form) {
 
 		$input = $this->wire('input')->post;
@@ -325,10 +351,7 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Process a request for inline-edit.
 	 *
-	 * @note: mainly used by inline-edit of a table row in inventory context.
-	 * @note: Inline-edit is called as a response to an ajax request.
-	 *
-	 * @return string
+	 * @return mixed
 	 */
 	private function processAjaxSingleInlineEdit() {
 		$input = $this->wire('input')->post;
@@ -359,9 +382,7 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Process a request for generating a sales report.
 	 *
-	 * @note: Called as a response to an ajax request.
-	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function processAjaxGenerateReport() {
 		$input = $this->wire('input')->post;
@@ -392,9 +413,7 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Process a request to generate and manually issue a gift card.
 	 *
-	 * @note: Called as a response to an ajax request.
-	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function processAjaxManuallyIssueGiftCard() {
 		// TODO @NOTE: NOT IN USE FOR NOW; DUE TO DATEPICKER ISSUE, NOT SHOWING IN MODAL, WE NEED TO USE A SINGLE PAGE INSTEAD.
@@ -435,10 +454,7 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Process a request to create variants for a given product.
 	 *
-	 * The requests comes after user has previewed variants that would be generated based off their attribute and attribute options choices.
-	 * It is a response to an ajax request.
-	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function processGenerateVariants() {
 		$input = $this->wire('input')->post;
@@ -490,6 +506,11 @@ trait TraitPWCommerceAdminForm
 	}
 
 
+	/**
+	 * Process Ajax Find Anything.
+	 *
+	 * @return mixed
+	 */
 	private function processAjaxFindAnything() {
 		// TODO DEPRECATED SINCE PWCOMMERCE 009; @SEE HOOK 'hookProcessPageSearchLive'
 		// TODO DELETE IN NEXT RELEASE
@@ -527,9 +548,8 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Process a request to configure pwcommerce install.
 	 *
-	 * @note: used for both first time and modify pwcommerce install.
-	 *
-	 * @return void
+	 * @param mixed $form
+	 * @return mixed
 	 */
 	private function processConfigureInstall($form) {
 		$input = $this->wire('input')->post;
@@ -570,10 +590,7 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Process a request to configure pwcommerce install.
 	 *
-	 * @note: used for both first time and modify pwcommerce install.
-	 * @note: called as a response to an ajax request.
-	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function processAjaxConfigureInstall() {
 		$input = $this->wire('input')->post;
@@ -619,9 +636,8 @@ trait TraitPWCommerceAdminForm
 	/**
 	 * Process a request to configure pwcommerce install.
 	 *
-	 * @note: used for both first time and modify pwcommerce install.
-	 *
-	 * @return void
+	 * @param mixed $form
+	 * @return mixed
 	 */
 	private function processCompleteRemoval($form) {
 		$input = $this->wire('input')->post;

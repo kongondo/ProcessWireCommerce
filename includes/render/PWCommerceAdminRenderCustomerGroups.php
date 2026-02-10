@@ -23,6 +23,12 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 
 
 
+	/**
+	 * Get View Customer Group.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	protected function getViewCustomerGroup($page) {
 		// get the view URL if item is unlocked
 		$out = $this->getViewItemURL($page);
@@ -44,6 +50,12 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get View Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getViewItemURL($page) {
 
 		// TODO: CHECK IF UNLOCKED FIRST!
@@ -69,7 +81,8 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 	/**
 	 * Render single customer group view headline to append to the Process headline in PWCommerce.
 	 *
-	 * @return string $out Headline string to append to the main Process headline.
+	 * @param Page $customerGroupPage
+	 * @return string|mixed
 	 */
 	public function renderViewItemHeadline(Page $customerGroupPage) {
 		$headline = $this->_('View customer group');
@@ -80,8 +93,9 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 
 	/**
 	 * Render the markup for a single customer group view.
-	 * @param Page $customerGroupPage The customer group page being viewed.
-	 * @return string Rendered markup.
+	 *
+	 * @param Page $customerGroupPage
+	 * @return string|mixed
 	 */
 	public function renderViewItem(Page $customerGroupPage) {
 
@@ -114,6 +128,11 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		return $wrapper->render();
 	}
 
+	/**
+	 * Build View Customer Group.
+	 *
+	 * @return mixed
+	 */
 	private function buildViewCustomerGroup() {
 		$out = "<p>STILL WORKING ON THIS GUI! WE WILL SHOW CRITERIA HERE + MATCHED CUSTOMERS BUT LIMIT THESE? ALTHOUGH USING FINDARRAY.</p>";
 		return $out;
@@ -137,6 +156,11 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// TITLE
@@ -149,11 +173,23 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		];
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No customer groups found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 		// get the count of products referencing this customer group
 		$referencingCustomersCount = $page->references(true)->count;
@@ -172,6 +208,12 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 
 
 
+	/**
+	 * Get Customer Group Description.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getCustomerGroupDescription($page) {
 		$description = $page->get(PwCommerce::DESCRIPTION_FIELD_NAME);
 		$out = $this->wire('sanitizer')->truncate($description, 150);
@@ -179,6 +221,12 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -205,6 +253,11 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -219,6 +272,11 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -227,6 +285,11 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -247,6 +310,12 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -260,6 +329,11 @@ class PWCommerceAdminRenderCustomerGroups extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Unused.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUnused() {
 		// e.g.
 		// SELECT data as customer_group_id

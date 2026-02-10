@@ -28,6 +28,12 @@ class PWCommerceAdminRenderTaxRates extends WireData
 	private $continents;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function __construct($options) {
 		$this->continents = $this->pwcommerce->getPWCommerceClassByName('PWCommerceContinents');
 		$this->countries = $this->pwcommerce->getPWCommerceClassByName('PWCommerceCountries');
@@ -37,6 +43,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 
 	// ~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// TITLE
@@ -52,6 +63,13 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 
 		// @note: a country can only have one standard/base tax!
@@ -82,12 +100,23 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No countries found.');
 		return $noResultsTableRecords;
 	}
 
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -115,9 +144,7 @@ class PWCommerceAdminRenderTaxRates extends WireData
 	/**
 	 * Builds a custom add new page/item for adding a new country.
 	 *
-	 * Returns InputfieldForm that includes form inputs needed to create new country.
-	 *
-	 * @return InputfieldForm $form Add new page Form.
+	 * @return mixed
 	 */
 	public function getCustomAddNewItemForm() {
 		$form = $this->pwcommerce->getInputfieldForm();
@@ -194,6 +221,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 	}
 
 	// @note: uses alpine.js!
+	/**
+	 * Render Countries List.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderCountriesList() {
 
 		$out = "";
@@ -273,6 +305,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Filter Countries Box.
+	 *
+	 * @return mixed
+	 */
 	private function getFilterCountriesBox() {
 		//------------------- search_country_query (getInputfieldText)
 		$options = [
@@ -297,6 +334,12 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $field->render();
 	}
 
+	/**
+	 * Get Contintent Checkbox.
+	 *
+	 * @param mixed $continent
+	 * @return mixed
+	 */
 	private function getContintentCheckbox($continent) {
 
 		$continentID = $continentID = $continent['id'];
@@ -329,12 +372,23 @@ class PWCommerceAdminRenderTaxRates extends WireData
 	}
 
 	// country 'not-yet added added' markup
+	/**
+	 * Get Not Yet Added Country List Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getNotYetAddedCountryListMarkup() {
 		$label = $this->getCountryFlag() . "<span x-text='country.name' class='cursor-pointer' ></span>";
 		$out = $this->getCountryCheckbox($label);
 		return $out;
 	}
 
+	/**
+	 * Get Country Checkbox.
+	 *
+	 * @param mixed $label
+	 * @return mixed
+	 */
 	private function getCountryCheckbox($label) {
 
 		$options = [
@@ -365,6 +419,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 	}
 
 	// country 'already added' markup
+	/**
+	 * Get Already Added Country List Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getAlreadyAddedCountryListMarkup() {
 		$alreadyAddedText = $this->_('already added');
 		// @note: x-if requires one root element only!
@@ -373,12 +432,22 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Country Flag.
+	 *
+	 * @return mixed
+	 */
 	private function getCountryFlag() {
 		$out = "<img :src='getCountryFlag(country.id)' class='w-7 inline-block mr-3' :class='isAlreadyAdded(country.id) ? `ml-7` : `ml-3 cursor-pointer`'>";
 		return $out;
 	}
 
 	// TODO: IN FUTURE MOVE TO UTILITIES SO CAN REUSE WITH PWCOMMERCEACTIONS
+	/**
+	 * Get Already Added Countries.
+	 *
+	 * @return mixed
+	 */
 	private function getAlreadyAddedCountries() {
 		// finding countries that have saved location codes. Should return all available since this is not a user editable setting and it is set on create/add new countries/tax rates!
 		$countries = $this->wire('pages')->findRaw("template=" . PwCommerce::COUNTRY_TEMPLATE_NAME . ",pwcommerce_tax_rates.tax_location_code!='',include=all", 'pwcommerce_tax_rates.tax_location_code');
@@ -390,8 +459,7 @@ class PWCommerceAdminRenderTaxRates extends WireData
 	/**
 	 * Inline javascript configuration values for ALL line items in an order for given $data.
 	 *
-	 * @param array $data
-	 * @return string
+	 * @return mixed
 	 */
 	private function getJavaScriptConfigurationsForCountriesList() {
 		$data = [
@@ -407,6 +475,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -429,6 +502,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -437,6 +515,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -463,6 +546,12 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -476,6 +565,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Not In Shipping Zone.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNotInShippingZone() {
 		// e.g.
 		// SELECT data as country_id
@@ -504,6 +598,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter No Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoTax() {
 		// TODO HOW TO INCLUDE TERRITORIES?
 		// this checks both 'NULL' and saved but 0 tax rates
@@ -513,6 +612,11 @@ class PWCommerceAdminRenderTaxRates extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Has Overrides.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterHasOverrides() {
 		$selector = "," . PwCommerce::TAX_OVERRIDES_FIELD_NAME . "!=''";
 		// ----

@@ -7,6 +7,12 @@ trait TraitPWCommerceWebhooks {
 	private $isNonCorePaymentProvider = false;
 	private $paymentProvider;
 
+	/**
+	 * Handle P W Commerce Webhook.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	protected function handlePWCommerceWebhook(HookEvent $event) {
 
 		// Get an instance of WireHttp
@@ -89,6 +95,12 @@ trait TraitPWCommerceWebhooks {
 		exit();
 	}
 
+	/**
+	 * Clean And Validate Webhook Provider.
+	 *
+	 * @param mixed $uncleanProviderName
+	 * @return bool
+	 */
 	private function cleanAndValidateWebhookProvider($uncleanProviderName): bool {
 		$isValidWebhook = true;
 		$cleanProviderName = $this->wire('sanitizer')->pageName($uncleanProviderName, true);
@@ -106,6 +118,12 @@ trait TraitPWCommerceWebhooks {
 		return $isValidWebhook;
 	}
 
+	/**
+	 * Get Payment Provider For Webhook.
+	 *
+	 * @param mixed $providerName
+	 * @return Page
+	 */
 	private function getPaymentProviderForWebhook($providerName): Page|NullPage {
 		// existing and active (published) payment provider
 		$paymentProvider = $this->pwcommerce->get("name={$providerName},status<" . Page::statusUnpublished);
@@ -113,6 +131,11 @@ trait TraitPWCommerceWebhooks {
 		return $paymentProvider;
 	}
 
+	/**
+	 * Get Payment Provider Class For Webhook.
+	 *
+	 * @return mixed
+	 */
 	private function getPaymentProviderClassForWebhook() {
 
 		$paymentClass = NULL;
@@ -144,6 +167,11 @@ trait TraitPWCommerceWebhooks {
 
 	}
 
+	/**
+	 * Get Payment Provider Class Name For Webhook.
+	 *
+	 * @return string
+	 */
 	private function getPaymentProviderClassNameForWebhook(): string {
 		$nonCorePaymentProvidersIDs = $this->pwcommerce->getNonCorePaymentProvidersIDs();
 		$paymentProviderID = (int) $this->paymentProvider->id;
@@ -166,7 +194,7 @@ trait TraitPWCommerceWebhooks {
 	/**
 	 * Returns path to Payment Class file, checking if core vs non-core payment addon.
 	 *
-	 * @return string $path;
+	 * @return string
 	 */
 	private function getPaymentProviderClassForWebhookFilePath(): string {
 		// TODO - REFACTOR SINCE SIMILAR TO TraitPWCommercePayment::getPaymentClassFilePath!

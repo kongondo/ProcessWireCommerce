@@ -8,6 +8,11 @@ trait TraitPWCommerceActionsOrderStatus
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ORDER STATUS ~~~~~~~~~~~~~~~~~~
 
 	// set a single order status
+	/**
+	 * Manually Set Order Status Action.
+	 *
+	 * @return mixed
+	 */
 	private function manuallySetOrderStatusAction() {
 
 		$input = $this->actionInput;
@@ -268,6 +273,13 @@ trait TraitPWCommerceActionsOrderStatus
 
 
 
+	/**
+	 * Manually Set Order Status Action Notify Customer.
+	 *
+	 * @param Page $orderPage
+	 * @param string $statusName
+	 * @return mixed
+	 */
 	private function manuallySetOrderStatusActionNotifyCustomer(Page $orderPage, string $statusName) {
 		// TODO NOT IN USE FOR NOW! BETTER TO SEND A COMPLETE MESSAGE TO CUSTOMER INSTEAD OF A VERY SHORT ONE SUCH AS 'your order has been marked as pending' without giving further details!
 		return;
@@ -276,6 +288,12 @@ trait TraitPWCommerceActionsOrderStatus
 		// $notice = sprintf(__("Marked order as %s."), $statusName);
 	}
 
+	/**
+	 * Is Manually Set Order Status Needs Post Process.
+	 *
+	 * @param mixed $statusCode
+	 * @return bool
+	 */
 	private function isManuallySetOrderStatusNeedsPostProcess($statusCode) {
 		$orderStatusesNeedingPostProcessing = $this->orderStatusesNeedingPostProcessing();
 		$isManuallySetOrderStatusNeedsPostProcess = in_array($statusCode, $orderStatusesNeedingPostProcessing);
@@ -283,6 +301,11 @@ trait TraitPWCommerceActionsOrderStatus
 		return $isManuallySetOrderStatusNeedsPostProcess;
 	}
 
+	/**
+	 * Order Statuses Needing Post Processing.
+	 *
+	 * @return mixed
+	 */
 	private function orderStatusesNeedingPostProcessing() {
 		return [
 				// order status (2000): cancelled - need to restock if product tracks inventory
@@ -290,6 +313,13 @@ trait TraitPWCommerceActionsOrderStatus
 		];
 	}
 
+	/**
+	 * Post Process Order Status.
+	 *
+	 * @param mixed $statusCode
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function postProcessOrderStatus($statusCode, Page $orderPage) {
 		// @note: for now we only have one order status that needs post processing
 		// this is 'ORDER STATUS: CANCELLED' The code is 2000
@@ -300,7 +330,13 @@ trait TraitPWCommerceActionsOrderStatus
 
 
 	# TODO DELETE IF NO LONGER IN USE
-	private function actionMarkOrderAs($isSingle = false) {
+	/**
+	 * Action Mark Order As.
+	 *
+	 * @param bool $isSingle
+	 * @return mixed
+	 */
+	private function actionMarkOrderAs(bool $isSingle = false) {
 		// TODO:@UPDATE: SATURDAY 2 2 APRIL 2023 -> REMOVED THESE FROM BULK EDIT SINCE WE NOW HANDLE ALL STATUSES; THE LIST IS LONG HENCE DOING THIS IN SINGLE ORDER VIEW
 		// TODO: ACCESS CHECKS HERE - FOR FUTURE RELEASE!
 

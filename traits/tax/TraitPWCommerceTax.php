@@ -37,7 +37,7 @@ trait TraitPWCommerceTax
 	/**
 	 * Get the shop's tax settings
 	 *
-	 * @return array $taxSettings The tax settings.
+	 * @return mixed
 	 */
 	public function getShopTaxSettings() {
 		$taxSettings = [];
@@ -49,26 +49,51 @@ trait TraitPWCommerceTax
 		return $taxSettings;
 	}
 
+	/**
+	 * Is Prices Include Taxes.
+	 *
+	 * @return bool
+	 */
 	public function isPricesIncludeTaxes() {
 		$taxSettings = $this->getShopTaxSettings();
 		return !empty($taxSettings['prices_include_taxes']);
 	}
 
+	/**
+	 * Get Shop Country Tax Rate.
+	 *
+	 * @return mixed
+	 */
 	public function getShopCountryTaxRate() {
 		$taxSettings = $this->getShopTaxSettings();
 		return isset($taxSettings['shop_country_tax_rate']) ? $taxSettings['shop_country_tax_rate'] : null;
 	}
 
+	/**
+	 * Is Shop Charge Taxes On Shipping Rates.
+	 *
+	 * @return bool
+	 */
 	public function isShopChargeTaxesOnShippingRates() {
 		$taxSettings = $this->getShopTaxSettings();
 		return !empty($taxSettings['charge_taxes_on_shipping_rates']);
 	}
 
+	/**
+	 * Is Shop Charging E U Digital Goods V A T Taxes.
+	 *
+	 * @return bool
+	 */
 	public function isShopChargingEUDigitalGoodsVATTaxes() {
 		$taxSettings = $this->getShopTaxSettings();
 		return !empty($taxSettings['charge_eu_digital_goods_vat_taxes']);
 	}
 
+	/**
+	 * Is Shipping Taxable On Order.
+	 *
+	 * @return bool
+	 */
 	private function isShippingTaxableOnOrder() {
 		$isShippingTaxableOnOrder = false;
 		$isShopChargeTaxesOnShippingRates = $this->isShopChargeTaxesOnShippingRates();
@@ -84,10 +109,20 @@ trait TraitPWCommerceTax
 	// TODO MOVE TO utilities orders traits? utilities checkout traits?
 
 	// TODO: @SEE getOrderLineItemDiscountsAmount() => DELETE BELOW IF THEREFORE NOT IN USE
-	// public function getProductDiscountAmount() {
+	// /**
+  * Get Product Discount Amount.
+  *
+  * @return mixed
+  */
+ public function getProductDiscountAmount() {
 	//     // 2. DISCOUNTS
 	//     // 'discount_amount' => (float) $value->discountAmount, // +++
 	// }
+	/**
+	 * Get Order Country Tax Data.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCountryTaxData() {
 		// 3. TAXES
 		// 'tax_name' => $sanitizer->text($value->taxName), // +++
@@ -103,6 +138,11 @@ trait TraitPWCommerceTax
 		return $shippingCountryTaxData;
 	}
 
+	/**
+	 * Get Order Country Tax Short Name.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCountryTaxShortName() {
 		// 3. TAXES
 		// 'tax_name' => $sanitizer->text($value->taxName), // +++
@@ -110,6 +150,11 @@ trait TraitPWCommerceTax
 		return $shippingCountryTaxData->taxName;
 	}
 
+	/**
+	 * Get Order Country Tax Percentage.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCountryTaxPercentage() {
 		// 3. TAXES
 		// 	'tax_percentage' => (float) $value->taxPercentage, // +++
@@ -118,12 +163,22 @@ trait TraitPWCommerceTax
 		return $shippingCountryTaxData->taxRate;
 	}
 
+	/**
+	 * Get Order Country Tax Location Code.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCountryTaxLocationCode() {
 		//   'tax_location_code' => $sanitizer->text($record->taxLocationCode),
 		$shippingCountryTaxData = $this->getOrderCountryTaxData();
 		return $shippingCountryTaxData->taxLocationCode;
 	}
 
+	/**
+	 * Get Order Country Tax Overrides.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCountryTaxOverrides() {
 		$shippingCountryTaxOverrides = $this->shippingCountry->pwcommerce_tax_overrides;
 		// just in case is empty, to avoid errors in calling methods, we use an empty WireArray
@@ -132,12 +187,22 @@ trait TraitPWCommerceTax
 		return $shippingCountryTaxOverrides;
 	}
 
+	/**
+	 * Get Order Country Category Tax Overrides.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCountryCategoryTaxOverrides() {
 		$shippingCountryTaxOverrides = $this->getOrderCountryTaxOverrides();
 		$shippingCountryCategoryTaxOverrides = $shippingCountryTaxOverrides->find("overrideType=category");
 		return $shippingCountryCategoryTaxOverrides;
 	}
 
+	/**
+	 * Get Order Country Shipping Tax Overrides.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCountryShippingTaxOverrides() {
 		$shippingCountryTaxOverrides = $this->getOrderCountryTaxOverrides();
 		$shippingCountryShippingTaxOverrides = $shippingCountryTaxOverrides->find("overrideType=shipping");
@@ -151,10 +216,7 @@ trait TraitPWCommerceTax
 	/**
 	 * Get the category tax override rate for current order line item.
 	 *
-	 * @note we return the rate for the first category that matches!
-	 *
-	 * @access public
-	 * @return float $categoryTaxOverrideRatePercentage The perecentage category tax override rate.
+	 * @return mixed
 	 */
 	public function getOrderLineItemCategoryTaxOverrideRate() {
 		// @note: we return first match! TODO? in future, return highest or lowest override rate?
@@ -182,10 +244,7 @@ trait TraitPWCommerceTax
 	/**
 	 * Set the tax rate to be used for the current order line item.
 	 *
-	 * This takes into account applicable category tax overrides.
-	 *
-	 * @access public
-	 * @return void
+	 * @return mixed
 	 */
 	public function setOrderLineItemTaxRate() {
 		// TODO RENAME THIS METHOD
@@ -205,6 +264,12 @@ trait TraitPWCommerceTax
 
 	# ****************
 
+	/**
+	 * Get Tax Country By I D.
+	 *
+	 * @param int $countryID
+	 * @return mixed
+	 */
 	public function getTaxCountryByID($countryID) {
 		$options = ['id', 'pwcommerce_tax_rates', 'pwcommerce_tax_overrides', 'children.count'];
 		$countryTaxData = $this->wire('pages')->getRaw("id=$countryID", $options);
@@ -217,11 +282,7 @@ trait TraitPWCommerceTax
 	/**
 	 * Get the applicable tax rate percentage for the current order line item.
 	 *
-	 * This checks for an applicable category tax override first.
-	 * If none present, uses the country standard base tax.
-	 *
-	 * @access public
-	 * @return float $taxRatePercentage The applicable tax rate percentage for the 'current' order line item.
+	 * @return mixed
 	 */
 	public function getOrderLineItemTaxRatePercentage() {
 		if ($this->isCategoryTaxOverridesApplicable()) {
@@ -245,6 +306,11 @@ trait TraitPWCommerceTax
 	// (ii) product-level setting: i.e., is product taxable but also considers EU digital goods taxes for digital products
 	// (iii) shipping country category-level-override: i.e. is there a product-category-based tax override
 
+	/**
+	 * Is Order Line Item Taxable.
+	 *
+	 * @return bool
+	 */
 	public function isOrderLineItemTaxable() {
 
 		$isOrderLineItemTaxable = true;
@@ -273,7 +339,7 @@ trait TraitPWCommerceTax
 	/**
 	 * Checks if  the product in the order line item is taxable as per the product settings
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isProductInOrderLineItemTaxable() {
 		$orderLineItemProductSettings = $this->getOrderLineItemProductSettings();
@@ -282,7 +348,17 @@ trait TraitPWCommerceTax
 		return $taxable === 1;
 	}
 
-	// public function isChargeEUDigitalGoodsTax() {
+	// /**
+  * Is Charge E U Digital Goods Tax.
+  *
+  * @return bool
+  */
+ public function isChargeEUDigitalGoodsTax() {
+	/**
+	 *    is Charge E U Digital Goods Tax.
+	 *
+	 * @return mixed
+	 */
 	public function ___isChargeEUDigitalGoodsTax() {
 		// TODO MAKE HOOKABLE SO DEVS CAN WORK COMPLEX DIGITAL TAX SCENARIOS
 		// is this a digital product?
@@ -300,6 +376,11 @@ trait TraitPWCommerceTax
 		return $isChargeEUDigitalGoodsTax;
 	}
 
+	/**
+	 * Is Category Tax Overrides Applicable.
+	 *
+	 * @return bool
+	 */
 	public function isCategoryTaxOverridesApplicable() {
 		// @note: here we check if at least once of the product categories has an override. We don't check the override value here!
 		/** @var WireArray $value */
@@ -321,6 +402,12 @@ trait TraitPWCommerceTax
 
 	# ************
 
+	/**
+	 * Get Shipping Fee With Tax.
+	 *
+	 * @param mixed $shippingFee
+	 * @return mixed
+	 */
 	public function getShippingFeeWithTax($shippingFee) {
 		$taxRateAsPercentage = $this->getShippingTaxRatePercentage();
 
@@ -338,6 +425,11 @@ trait TraitPWCommerceTax
 		// return $shippingFeeWithTaxMoney;
 	}
 
+	/**
+	 * Get Shipping Tax Rate Percentage.
+	 *
+	 * @return mixed
+	 */
 	protected function getShippingTaxRatePercentage() {
 		// TODO: HERE NEED TO CHECK IF A SHIPPING TAX OVERRIDE APPLIES!
 		// GET THE SHIPPING COUNTRY'S SHIPPING TAX OVERRIDES
@@ -360,6 +452,13 @@ trait TraitPWCommerceTax
 	# ************
 
 
+	/**
+	 * Get Tax Amount From Price Inclusive Tax.
+	 *
+	 * @param float $taxPercent
+	 * @param float $priceInclusiveTax
+	 * @return mixed
+	 */
 	public function getTaxAmountFromPriceInclusiveTax(float $taxPercent, float $priceInclusiveTax) {
 		// taxes calculated using the formula below.
 		// tax = (tax rate * price) / (1 + tax rate)
@@ -382,6 +481,13 @@ trait TraitPWCommerceTax
 		return $taxAmount;
 	}
 
+	/**
+	 * Get Tax Amount From Price Exclusive Tax.
+	 *
+	 * @param float $taxPercent
+	 * @param float $priceExclusiveTax
+	 * @return mixed
+	 */
 	public function getTaxAmountFromPriceExclusiveTax(float $taxPercent, float $priceExclusiveTax) {
 		// taxes calculated using the formula below.
 		// tax = (tax rate * price)

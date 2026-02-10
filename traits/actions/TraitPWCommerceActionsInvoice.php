@@ -7,6 +7,12 @@ trait TraitPWCommerceActionsInvoice
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INVOICE ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Action Prepare Orders Invoices For Printing.
+	 *
+	 * @param PageArray $orders
+	 * @return mixed
+	 */
 	private function actionPrepareOrdersInvoicesForPrinting(PageArray $orders) {
 		$t = $this->pwcommerce->getPWCommerceTemplate("invoices.php");
 		$t->set("orders", $orders);
@@ -14,6 +20,12 @@ trait TraitPWCommerceActionsInvoice
 		exit();
 	}
 
+	/**
+	 * Action Prepare Orders Invoices For Emailing.
+	 *
+	 * @param PageArray $orders
+	 * @return mixed
+	 */
 	private function actionPrepareOrdersInvoicesForEmailing(PageArray $orders) {
 		$pwcommerceProcessOrder = $this->pwcommerce->pwcommerceProcessOrder;
 

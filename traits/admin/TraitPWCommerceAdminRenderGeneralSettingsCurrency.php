@@ -8,6 +8,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsCurrency
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CURRENCY  ~~~~~~~~~~~~~~~~~~
 
 	// reformatted currencies for selection in inputfieldtexttags (shop currency)
+	/**
+	 * Get Currencies.
+	 *
+	 * @return mixed
+	 */
 	private function getCurrencies() {
 		// @note: inputfieldtexttags accepts key => value pairs as 'value' => 'label', i.e. the key of the array at 'set_tags_list' is the value saved. Below, the 'key' is the 'country_code', e.g. 'AF', 'DE', etc.
 		// --------
@@ -25,6 +30,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsCurrency
 	}
 
 	// reformatted currencies formats for selection in inputfieldtexttags (shop currency)
+	/**
+	 * Get Currencies Formats.
+	 *
+	 * @return mixed
+	 */
 	private function getCurrenciesFormats() {
 		$formattedCurrencies = [];
 		$currencies = $this->currencies->getCurrencies();

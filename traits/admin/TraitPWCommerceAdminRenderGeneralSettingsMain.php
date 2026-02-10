@@ -6,6 +6,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsMain
 {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN TAB  ~~~~~~~~~~~~~~~~~~
+	/**
+	 * Get Main Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getMainTab() {
 
 		// get setting for 'enable_addons'

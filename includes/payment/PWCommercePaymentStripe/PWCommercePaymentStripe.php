@@ -31,6 +31,13 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	private $stripeConfigs;
 	private $paymentIntent;
 
+	/**
+	 *   construct.
+	 *
+	 * @param array $stripeConfigs
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function __construct(array $stripeConfigs, array $options = []) {
 		// TODO @KONGONDO DOES THE PARENT CLASS NEED CONFIGS AS WELL?
 		parent::__construct();
@@ -46,10 +53,13 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 
 	// 2. Set up your server to receive a call from the client
 	/**
-	 *This is the sample function to create an order. It uses the
-	 *JSON body returned by buildRequestBody() to create an order.
+	 * This is the sample function to create an order. It uses the
+	 *
+	 * @param mixed $createOrderValues
+	 * @param bool $debug
+	 * @return mixed
 	 */
-	protected function createOrder($createOrderValues = null, $debug = false) {
+	protected function createOrder($createOrderValues = null, bool $debug = false) {
 
 		// -----------------
 		// SET STRIPE SECRET API KEY
@@ -81,14 +91,13 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 
 	// Set up your server to receive a call from the client
 	/**
-	 *This function can be used to capture an order payment by passing the approved
-	 *order ID as argument.
+	 * This function can be used to capture an order payment by passing the approved
 	 *
-	 *@param orderId
-	 *@param debug
-	 *@returns
+	 * @param mixed $orderId
+	 * @param bool $debug
+	 * @return mixed
 	 */
-	protected function captureOrder($orderId, $debug = false) {
+	protected function captureOrder($orderId, bool $debug = false) {
 
 
 		// @note - FOR NOW we CHECK IF PAYMENT INTENT 'amount_received'
@@ -101,7 +110,14 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $paymentIntent;
 	}
 
-	protected function isSuccessfulPaymentCapture($response, $options = []) {
+	/**
+	 * Is Successful Payment Capture.
+	 *
+	 * @param mixed $response
+	 * @param array $options
+	 * @return bool
+	 */
+	protected function isSuccessfulPaymentCapture($response, array $options = []) {
 
 		$isSuccessfulPaymentCapture = false;
 		// *** EXPECTED ***
@@ -140,6 +156,11 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $isSuccessfulPaymentCapture;
 	}
 
+	/**
+	 * Render.
+	 *
+	 * @return string|mixed
+	 */
 	protected function render() {
 
 		// TODO REVISIT THIS!
@@ -186,11 +207,7 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	/**
 	 * Get the fields data to be used to build the backend settings form for Stripe..
 	 *
-	 * For use in PWCommerce admin backend.
-	 * @see documentation for required structure of the schema.
-	 *
-	 * @access private
-	 * @return array Array of fields configurations.
+	 * @return mixed
 	 */
 	protected function getFieldsSchema() {
 		$schema = [
@@ -257,19 +274,39 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	// @see PWCommerceAddons.php
 
 
+	/**
+	 * Get Class Name.
+	 *
+	 * @return mixed
+	 */
 	public function getClassName() {
 		$className = "PWCommercePaymentStripe";
 		return $className;
 	}
 
+	/**
+	 * Get Type.
+	 *
+	 * @return mixed
+	 */
 	public function getType() {
 		return "payment";
 	}
 
+	/**
+	 * Get Title.
+	 *
+	 * @return mixed
+	 */
 	public function getTitle() {
 		return $this->_("Stripe");
 	}
 
+	/**
+	 * Get Description.
+	 *
+	 * @return mixed
+	 */
 	public function getDescription() {
 		$description = $this->_("Stripe is a payment service provider that merchants can use to accept dozens of payment methods, from credit cards to buy now and pay later services. It offers a suite of APIs powering online payment processing and commerce solutions for internet businesses of all sizes.");
 		return $description;
@@ -283,7 +320,7 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	/**
 	 * Sets the secret api key (sk) to be used for Stripe requests.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	public function setStripeSecretAPIKey() {
 		// GET API KEYS
@@ -301,7 +338,7 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	/**
 	 * Get API Keys for Stripe Test versus Live Environment.
 	 *
-	 * @return array Array with publishable and secret API keys.
+	 * @return mixed
 	 */
 	public function getAPIKeysForEnvironment() {
 		// ----
@@ -342,6 +379,11 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		];
 	}
 
+	/**
+	 * Get Client I D.
+	 *
+	 * @return mixed
+	 */
 	private function getClientID() {
 		// TODO: NEED TO CHECK FOR EMPTIES, HANDLE ERRORS! BUT CAN DO THAT IN CONSTRUCT MAYBE?
 		$stripeConfigs = $this->stripeConfigs;
@@ -350,6 +392,11 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $clientID;
 	}
 
+	/**
+	 * Get Stripe Client.
+	 *
+	 * @return mixed
+	 */
 	private function getStripeClient() {
 		// GET API KEYS
 		// get the environment api keys variables, i.e. test versus live
@@ -364,6 +411,11 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $stripeClient;
 	}
 
+	/**
+	 * Create Payment Intent.
+	 *
+	 * @return mixed
+	 */
 	private function createPaymentIntent() {
 
 		$session = $this->wire('session');
@@ -404,12 +456,22 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $paymentIntent;
 	}
 
+	/**
+	 * Save Session Payment Intent I D.
+	 *
+	 * @return mixed
+	 */
 	private function saveSessionPaymentIntentID() {
 		if (empty($this->session->stripePaymentIntentID)) {
 			$this->session->set('stripePaymentIntentID', $this->paymentIntent->id);
 		}
 	}
 
+	/**
+	 * Retrieve Existing Payment Intent.
+	 *
+	 * @return mixed
+	 */
 	private function retrieveExistingPaymentIntent() {
 		// get stripe client
 		$stripeClient = $this->getStripeClient();
@@ -443,6 +505,12 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $paymentIntent;
 	}
 
+	/**
+	 * Update Existing Payment Intent.
+	 *
+	 * @param array $updateOptions
+	 * @return mixed
+	 */
 	private function updateExistingPaymentIntent(array $updateOptions) {
 		// get payment intent ID from session
 		$stripePaymentIntentID = $this->session->get('stripePaymentIntentID');
@@ -460,8 +528,8 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 
 	/**
 	 * Setting up the JSON request body for creating the order with minimum request body. The intent in the
-	 * request body should be "AUTHORIZE" for authorize intent flow.
 	 *
+	 * @return mixed
 	 */
 	private function buildRequestBody() {
 
@@ -491,6 +559,11 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		];
 	}
 
+	/**
+	 * Set Payment Intent Information To Order Cache.
+	 *
+	 * @return mixed
+	 */
 	private function setPaymentIntentInformationToOrderCache() {
 
 		$setOrderCacheKeys = [
@@ -508,6 +581,12 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	# WEBHOOKS HANDLER
 	##############################
 
+	/**
+	 *    handle Webhook.
+	 *
+	 * @param mixed $payload
+	 * @return int
+	 */
 	protected function ___handleWebhook($payload): int {
 
 		$httpResponseStatus = 200;
@@ -570,6 +649,13 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $httpResponseStatus;
 	}
 
+	/**
+	 * Handle Webhook Event O L D D E L E T E.
+	 *
+	 * @param HookEvent $event
+	 * @param mixed $payloadArray
+	 * @return mixed
+	 */
 	private function handleWebhookEventOLDDELETE($event, $payloadArray) {
 
 		$httpResponseStatus = 200;
@@ -603,6 +689,13 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $httpResponseStatus;
 	}
 
+	/**
+	 * Handle Webhook Event.
+	 *
+	 * @param HookEvent $event
+	 * @param mixed $payloadArray
+	 * @return mixed
+	 */
 	private function handleWebhookEvent($event, $payloadArray) {
 
 		// default to unexpected event type
@@ -622,6 +715,11 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $httpResponseStatus;
 	}
 
+	/**
+	 *    get Accepted Webhook Events.
+	 *
+	 * @return array
+	 */
 	protected function ___getAcceptedWebhookEvents(): array {
 		$acceptedWebhookEvents = [
 			'payment_intent.succeeded',
@@ -630,12 +728,23 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 		return $acceptedWebhookEvents;
 	}
 
+	/**
+	 * Get Webhook Secret.
+	 *
+	 * @return mixed
+	 */
 	private function getWebhookSecret() {
 		$apiKeysForEnvironment = $this->getAPIKeysForEnvironment();
 		$webhookSigningSecret = $apiKeysForEnvironment['webhook_signing_secret'];
 		return $webhookSigningSecret;
 	}
 
+	/**
+	 * Update Order Cache.
+	 *
+	 * @param array $payloadArray
+	 * @return mixed
+	 */
 	private function updateOrderCache(array $payloadArray) {
 		// note: can be multiple; we use index = webhook event id
 		$webhookEventID = $payloadArray['id'];
@@ -687,11 +796,21 @@ class PWCommercePaymentStripe extends PWCommercePayment implements PWCommerceAdd
 	# OTHER
 	##############################
 
+	/**
+	 * Get Failure Reason.
+	 *
+	 * @return mixed
+	 */
 	public function getFailureReason() {
 		// TODO CREATE THIS OR DELETE IF NOT IN USE
 		return $this->session->stripeError;
 	}
 
+	/**
+	 * Get Stripe Elements Appearance.
+	 *
+	 * @return mixed
+	 */
 	private function getStripeElementsAppearance() {
 		// file with $stripeElementsAppearance variable. Contains 'theme' and 'variables' values
 		$file = "PWCommercePaymentStripeElementsAppearance.php";

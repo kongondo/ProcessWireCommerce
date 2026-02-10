@@ -8,14 +8,11 @@ trait TraitPWCommerceOrderProductVariants
 	/**
 	 * Get the product or product variant for an order line item.
 	 *
-	 * We need properties including title, product_id, stock values (prices, etc), etc.
-	 *
-	 * @access private
-	 * @param integer $productsOrVariantsID The ID of the product or product variant whose properties to find.
-	 * @param boolean $isVariant
-	 * @return array $productOrVariantPage Array with needed values from product or product variant page.
+	 * @param int $productsOrVariantsID
+	 * @param bool $isVariant
+	 * @return array
 	 */
-	private function getProductOrVariantPagesForOrderLineItem($productsOrVariantsID, $isVariant = false): array {
+	private function getProductOrVariantPagesForOrderLineItem($productsOrVariantsID, bool $isVariant = false): array {
 
 		$selector = "id={$productsOrVariantsID}";
 		// @note: 'pwcommerce_product_settings' only for main products!
@@ -39,6 +36,12 @@ trait TraitPWCommerceOrderProductVariants
 		return $productOrVariantPage;
 	}
 
+	/**
+	 * Get Variant Parent Product Settings And Categories.
+	 *
+	 * @param int $parentID
+	 * @return mixed
+	 */
 	private function getVariantParentProductSettingsAndCategories($parentID) {
 		$fields = ['pwcommerce_product_settings' => 'settings', 'pwcommerce_categories' => 'categories'];
 		// if categories not installed in shop, unset it!

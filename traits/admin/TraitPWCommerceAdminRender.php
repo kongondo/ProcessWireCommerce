@@ -16,7 +16,13 @@ trait TraitPWCommerceAdminRender
 	// for single EDIT process view pages
 	// i.e., tax settings, general settings, payment providers, etc
 	// or for ADD NEW item (category, products, etc)
-	private function getInputfieldButtonSingleEdit($options = []) {
+	/**
+	 * Get Inputfield Button Single Edit.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
+	private function getInputfieldButtonSingleEdit(array $options = []) {
 
 		$defaultOptions = [
 			'id' => null,
@@ -56,6 +62,11 @@ trait TraitPWCommerceAdminRender
 		return $field;
 	}
 
+	/**
+	 * Render Configure Install.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderConfigureInstall() {
 		// TODO WIP!!!
 		$post = $this->wire('input')->post;
@@ -160,6 +171,11 @@ trait TraitPWCommerceAdminRender
 
 	// ~~~~~~~~~~~~~~~~~~~
 	// QUICK FILTERS
+	/**
+	 *    get Context Quick Filters.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getContextQuickFilters() {
 		// get the render for the current context
 		$this->pwcommerceRender = $this->getPWCommerceContextRender();
@@ -192,12 +208,9 @@ trait TraitPWCommerceAdminRender
 	/**
 	 * Enables rendering of a view for adding a new items for a context.
 	 *
-	 * Items could be a new category, tag, product, order, etc.
-	 * @note: Not all context need or use this!
-	 *
-	 * @param string $breadcrumbHREF The link for breadcrumb.
-	 * @param string $breadcrumbLabel The label for breadcrumb.
-	 * @return void
+	 * @param mixed $breadcrumbHREF
+	 * @param mixed $breadcrumbLabel
+	 * @return string|mixed
 	 */
 	protected function renderAddItem($breadcrumbHREF, $breadcrumbLabel) {
 		// get the render for the current ADD context
@@ -290,9 +303,9 @@ trait TraitPWCommerceAdminRender
 	/**
 	 * Enables rendering of a page as within ProcessPageEdit.
 	 *
-	 * @param string $breadcrumbHREF The link for breadcrumb.
-	 * @param string $breadcrumbLabel The label for breadcrumb.
-	 * @return string $out The markup for edit page view.
+	 * @param mixed $breadcrumbHREF
+	 * @param mixed $breadcrumbLabel
+	 * @return string|mixed
 	 */
 	protected function renderEditItem($breadcrumbHREF, $breadcrumbLabel) {
 		$out = '';
@@ -330,9 +343,9 @@ trait TraitPWCommerceAdminRender
 	/**
 	 * Enables rendering of an edit form for special edit views such as edit Payment Providers.
 	 *
-	 * @param string $breadcrumbHREF The link for breadcrumb.
-	 * @param string $breadcrumbLabel The label for breadcrumb.
-	 * @return string $out The markup for edit page view.
+	 * @param mixed $breadcrumbHREF
+	 * @param mixed $breadcrumbLabel
+	 * @return string|mixed
 	 */
 	protected function renderSpecialEditItem($breadcrumbHREF, $breadcrumbLabel) {
 		// get the render for the current SPECIAL EDIT context
@@ -420,6 +433,13 @@ trait TraitPWCommerceAdminRender
 		return $out;
 	}
 
+	/**
+	 * Render View Item.
+	 *
+	 * @param mixed $breadcrumbHREF
+	 * @param mixed $breadcrumbLabel
+	 * @return string|mixed
+	 */
 	private function renderViewItem($breadcrumbHREF, $breadcrumbLabel) {
 		// get the render for the current VIEW context
 		$pwcommerceRender = $this->getPWCommerceContextRender();
@@ -510,6 +530,13 @@ trait TraitPWCommerceAdminRender
 		// ------------
 		return $out;
 	}
+	/**
+	 * Render Print Item.
+	 *
+	 * @param mixed $breadcrumbHREF
+	 * @param mixed $breadcrumbLabel
+	 * @return string|mixed
+	 */
 	protected function renderPrintItem($breadcrumbHREF, $breadcrumbLabel) {
 		// get the render for the current VIEW context
 		$pwcommerceRender = $this->getPWCommerceContextRender();
@@ -594,6 +621,13 @@ trait TraitPWCommerceAdminRender
 		// ------------
 		return $out;
 	}
+	/**
+	 * Render Email Item.
+	 *
+	 * @param mixed $breadcrumbHREF
+	 * @param mixed $breadcrumbLabel
+	 * @return string|mixed
+	 */
 	protected function renderEmailItem($breadcrumbHREF, $breadcrumbLabel) {
 		// TODO - CHANGE BELOW? THIS IS NOT REALLY A VIEW! IT WILL REDIRECT TO /order/view/ after sending email!
 		// --------------
@@ -691,6 +725,12 @@ trait TraitPWCommerceAdminRender
 
 	// -------------------------
 
+	/**
+	 * Render Generate Report.
+	 *
+	 * @param array $reportItems
+	 * @return string|mixed
+	 */
 	protected function renderGenerateReport(array $reportItems) {
 		//-------------
 		// get the render for the current context
@@ -699,6 +739,12 @@ trait TraitPWCommerceAdminRender
 		return $pwcommerceRender->renderReport($reportItems);
 	}
 
+	/**
+	 * Render Notices.
+	 *
+	 * @param mixed $result
+	 * @return string|mixed
+	 */
 	private function renderNotices($result) {
 
 		$noticeType = $result['notice_type'];
@@ -715,6 +761,12 @@ trait TraitPWCommerceAdminRender
 
 	// -------------------------
 
+	/**
+	 * Get Single Inline Edited Markup.
+	 *
+	 * @param int $pageID
+	 * @return mixed
+	 */
 	private function getSingleInlineEditedMarkup($pageID) {
 		//-------------
 		// get the render for the current context
@@ -727,6 +779,11 @@ trait TraitPWCommerceAdminRender
 	}
 	// -------------------------
 
+	/**
+	 * Render Complete Removal.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderCompleteRemoval() {
 
 		// TODO: NOT WORKING PROPERLY! NOT RECEIVING POST! MAYBE checkPWCommerceConfiguration() ??
@@ -824,6 +881,12 @@ trait TraitPWCommerceAdminRender
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ RENDERERS FOR CONTEXTS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	protected function renderResults($selector = null) {
 
 
@@ -919,6 +982,12 @@ trait TraitPWCommerceAdminRender
 		return $out;
 	}
 
+	/**
+	 * Get Results Table.
+	 *
+	 * @param mixed $pages
+	 * @return mixed
+	 */
 	private function getResultsTable($pages) {
 		if (method_exists($this->pwcommerceRender, 'getResultsTable')) {
 			return $this->pwcommerceRender->getResultsTable($pages);
@@ -963,6 +1032,11 @@ trait TraitPWCommerceAdminRender
 		return $out;
 	}
 
+	/**
+	 * Get Contexts Generic Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getContextsGenericResultsTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		$selectAllCheckboxName = "pwcommerce_bulk_edit_selected_items_all";
@@ -978,6 +1052,11 @@ trait TraitPWCommerceAdminRender
 		return $headerSelectAllCheckbox;
 	}
 
+	/**
+	 * Get Custom Lister Settings.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomListerSettings() {
 
 		return [
@@ -992,6 +1071,11 @@ trait TraitPWCommerceAdminRender
 		];
 	}
 
+	/**
+	 * Get Context Template Name.
+	 *
+	 * @return mixed
+	 */
 	private function getContextTemplateName() {
 		$contextTemplateName = '';
 		$contextsTemplateNames = $this->getContextsTemplateNames();
@@ -1001,6 +1085,11 @@ trait TraitPWCommerceAdminRender
 		return $contextTemplateName;
 	}
 
+	/**
+	 * Get Contexts Template Names.
+	 *
+	 * @return mixed
+	 */
 	private function getContextsTemplateNames() {
 		return [
 			'attributes' => PwCommerce::ATTRIBUTE_TEMPLATE_NAME,
@@ -1026,6 +1115,11 @@ trait TraitPWCommerceAdminRender
 		];
 	}
 
+	/**
+	 * Get Context Add New Item Options.
+	 *
+	 * @return mixed
+	 */
 	private function getContextAddNewItemOptions() {
 		$pwcommerceRender = $this->getPWCommerceContextRender();
 		if (method_exists($pwcommerceRender, 'getAddNewItemOptions')) {
@@ -1039,8 +1133,7 @@ trait TraitPWCommerceAdminRender
 	/**
 	 * Get the options for building the form to add a new Brand for use in ProcessPWCommerce.
 	 *
-	 * @access private
-	 * @return array array with options for the form.
+	 * @return mixed
 	 */
 	private function getContextsAddNewItemOptions() {
 
@@ -1117,6 +1210,11 @@ trait TraitPWCommerceAdminRender
 
 
 
+	/**
+	 * Get Contexts Lister Labels.
+	 *
+	 * @return mixed
+	 */
 	private function getContextsListerLabels() {
 
 		$contextsListerLabels =
@@ -1144,12 +1242,22 @@ trait TraitPWCommerceAdminRender
 		return $contextsListerLabels;
 	}
 
+	/**
+	 * Get Context Lister Label.
+	 *
+	 * @return mixed
+	 */
 	private function getContextListerLabel() {
 		$contextsListerLabel = $this->getContextsListerLabels();
 		$contextListerLabel = $contextsListerLabel[$this->context];
 		return $contextListerLabel;
 	}
 
+	/**
+	 * Pagination Options.
+	 *
+	 * @return mixed
+	 */
 	private function paginationOptions() {
 		//------------
 		// TODO CONFIRM BELOW WORKS WITH 'COLLECTIONS' AS CONTEXT!!!
@@ -1158,6 +1266,12 @@ trait TraitPWCommerceAdminRender
 		return $paginationOptions;
 	}
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemURL($page) {
 		if (method_exists($this->pwcommerceRender, 'getEditItemURL')) {
 			return $this->pwcommerceRender->getEditItemURL($page);
@@ -1174,6 +1288,12 @@ trait TraitPWCommerceAdminRender
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item Title.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemTitle($page) {
 		// get the edit URL if item is unlocked
 		$out = $this->getEditItemURL($page);
@@ -1204,6 +1324,14 @@ trait TraitPWCommerceAdminRender
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @param mixed $xref
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name, $xref = null) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",
@@ -1229,6 +1357,12 @@ trait TraitPWCommerceAdminRender
 
 	#### ~~~~~~~~~~ CONTEXTS WITH TABS ~~~~~~~~~~ ####
 
+	/**
+	 * Get Tabs.
+	 *
+	 * @param mixed $wrapper
+	 * @return mixed
+	 */
 	protected function getTabs($wrapper) {
 		// get the render for the current context
 		$pwcommerceRender = $this->pwcommerceRender = $this->getPWCommerceContextRender();

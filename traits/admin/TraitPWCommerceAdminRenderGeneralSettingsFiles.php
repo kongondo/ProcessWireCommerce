@@ -7,6 +7,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsFiles
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FILES TAB  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Files Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getFilesTab() {
 		$tabAndContents = [
 			'details' => [

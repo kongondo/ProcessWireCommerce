@@ -82,7 +82,19 @@ trait TraitPWCommerceUtilities {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~~~
 
-	// public function __construct($options = null) {
+	// /**
+  *   construct.
+  *
+  * @param mixed $options
+  * @return mixed
+  */
+ public function __construct($options = null) {
+	/**
+	 *   init Utilities.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __initUtilities($options = null) {
 		// parent::__construct();
 		// TODO????
@@ -102,6 +114,13 @@ trait TraitPWCommerceUtilities {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DEBUG UTILS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Formatted Print R.
+	 *
+	 * @param mixed $printName
+	 * @param mixed $printValue
+	 * @return mixed
+	 */
 	public function formattedPrintR($printName, $printValue) {
 		// FOR USE WHERE WE CAN'T GET TRACYDEBUGGER
 		if ($this->config->ajax) {
@@ -114,6 +133,13 @@ trait TraitPWCommerceUtilities {
 		echo "</pre><hr>";
 	}
 
+	/**
+	 * Formatted Var Dump.
+	 *
+	 * @param mixed $dumpName
+	 * @param mixed $dumpValue
+	 * @return mixed
+	 */
 	public function formattedVarDump($dumpName, $dumpValue) {
 		// FOR USE WHERE WE CAN'T GET TRACYDEBUGGER
 		if ($this->config->ajax) {
@@ -126,6 +152,13 @@ trait TraitPWCommerceUtilities {
 		echo "</pre><hr>";
 	}
 
+	/**
+	 * Pwcommerce Log.
+	 *
+	 * @param mixed $logName
+	 * @param mixed $logValue
+	 * @return mixed
+	 */
 	public function pwcommerceLog($logName, $logValue) {
 		$log = $this->wire('log');
 		$logNamePrefix = "pwcommerce_log_";

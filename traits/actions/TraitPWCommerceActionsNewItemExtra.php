@@ -10,9 +10,7 @@ trait TraitPWCommerceActionsNewItemExtra
 	/**
 	 * For add new page for a given context, check if extra operations need to be run.
 	 *
-	 * E.g., products may need to set default properties.
-	 *
-	 * @return bool If extra operation need to be run.
+	 * @return bool
 	 */
 	private function isContextRunExtraAddNewItemOperations() {
 		// $parent = null;
@@ -30,11 +28,11 @@ trait TraitPWCommerceActionsNewItemExtra
 	/**
 	 * For add new page for a given context, that runs xtra operations before create new page/item.
 	 *
-	 * E.g., products may need to set default properties.
-	 *
-	 * @return Page $page. The Page with the extra operations applied.
+	 * @param Page $page
+	 * @param array $options
+	 * @return mixed
 	 */
-	private function runContextExtraAddNewItemOperations(Page $page, $options = []) {
+	private function runContextExtraAddNewItemOperations(Page $page, array $options = []) {
 		if ($this->actionContext === 'products') {
 			$page = $this->runProductExtraAddNewItemOperations($page);
 		} else if ($this->actionContext === 'orders') {
@@ -49,8 +47,8 @@ trait TraitPWCommerceActionsNewItemExtra
 	/**
 	 * Run extra operations before create new product page.
 	 *
-	 *
-	 * @return Page $page. The product Page with the extra operations applied.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	private function runProductExtraAddNewItemOperations(Page $page) {
 
@@ -86,6 +84,12 @@ trait TraitPWCommerceActionsNewItemExtra
 		return $page;
 	}
 
+	/**
+	 * Run Order Extra Add New Item Operations.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function runOrderExtraAddNewItemOperations(Page $page) {
 		// blank order (FieldtypePWCommerceOrder)
 		$order = new WireData();
@@ -97,6 +101,13 @@ trait TraitPWCommerceActionsNewItemExtra
 		return $page;
 	}
 
+	/**
+	 * Run Gift Card Extra Add New Item Operations.
+	 *
+	 * @param Page $page
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function runGiftCardExtraAddNewItemOperations(Page $page, array $options) {
 
 		# ============
@@ -145,6 +156,12 @@ trait TraitPWCommerceActionsNewItemExtra
 		// ----------
 		return $page;
 	}
+	/**
+	 * Run Discount Extra Add New Item Operations.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function runDiscountExtraAddNewItemOperations(Page $page) {
 
 		$input = $this->actionInput; // @note this is $input->post!!
@@ -193,8 +210,9 @@ trait TraitPWCommerceActionsNewItemExtra
 	/**
 	 * Run extra operations before create new country page.
 	 *
-	 *
-	 * @return Page $page. The country Page with the extra operations applied.
+	 * @param Page $page
+	 * @param mixed $countryCode
+	 * @return mixed
 	 */
 	private function runCountryExtraAddNewItemOperations(Page $page, $countryCode) {
 		// @note: we have no access to the field's getBlankRecord() here, so just use WireData()

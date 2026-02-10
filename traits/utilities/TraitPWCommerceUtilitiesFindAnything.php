@@ -9,9 +9,7 @@ trait TraitPWCommerceUtilitiesFindAnything
 	/**
 	 * Get array of templates that are searchable for use in 'find anything' feature.
 	 *
-	 * Get values from cache if available. Else, from 'raw' but also save to cache for next time.
-	 *
-	 * @return array $searchableFindAnythingTemplates Array of the searchable templates.
+	 * @return mixed
 	 */
 	public function getSearcheableFindAnythingTemplates() {
 		// @note: these are in $template->id => $template->name key=>value pairs
@@ -30,8 +28,7 @@ trait TraitPWCommerceUtilitiesFindAnything
 	/**
 	 * Get the names of the pwcommerce templates that can be used in 'find anything' feature.
 	 *
-	 * @access private
-	 * @return array $findAnythingTemplatesNames The names of  templates for 'find anything'.
+	 * @return mixed
 	 */
 	private function getFindAnythingTemplatesNames() {
 		$findAnythingTemplatesNames = [
@@ -66,8 +63,7 @@ trait TraitPWCommerceUtilitiesFindAnything
 	/**
 	 * Build the selector to use to for the ProcessWire $templates->find() to fetch templates for laer use in 'find anything'.
 	 *
-	 * @access public
-	 * @return string Selector string of pipe-separated names of 'find anything' templates for $templates->find().
+	 * @return mixed
 	 */
 	public function getFindAnythingTemplatesSelector() {
 		return implode("|", $this->getFindAnythingTemplatesNames());
@@ -76,10 +72,7 @@ trait TraitPWCommerceUtilitiesFindAnything
 	/**
 	 * Get templates for later use as templates for 'find anything' feature.
 	 *
-	 * @note: This is the result of a $templates->find().
-	 *
-	 * @access private
-	 * @return TemplatesArray $templates The result of the templates find.
+	 * @return mixed
 	 */
 	private function getFindAnythingTemplates() {
 		$templatesSelector = $this->getFindAnythingTemplatesSelector();
@@ -90,12 +83,7 @@ trait TraitPWCommerceUtilitiesFindAnything
 	/**
 	 * Get 'find anything' templates array.
 	 *
-	 * These are build from the TemplatesArray of the 'find anything' templates.
-	 * For use to either build the cache for 'find anything' templates or...
-	 * Initial use if no cache was found for the templates.
-	 *
-	 * @access private
-	 * @return array $templatesArray Array of 'find anything' templates.
+	 * @return mixed
 	 */
 	private function getFindAnythingTemplatesArray() {
 		/** @var TemplatesArray $value */
@@ -113,8 +101,7 @@ trait TraitPWCommerceUtilitiesFindAnything
 	/**
 	 * Get the cached values for 'find anything' templates.
 	 *
-	 * @access private
-	 * @return array|null Array or null if no cache found.
+	 * @return mixed
 	 */
 	private function getFindAnythingCachedTemplates() {
 		return $this->wire('cache')->get(PwCommerce::FIND_ANYTHING_TEMPLATES_CACHE_NAME);
@@ -123,10 +110,7 @@ trait TraitPWCommerceUtilitiesFindAnything
 	/**
 	 * Save 'find anything' templates to cache.
 	 *
-	 * @note: The cache never expires.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function cacheFindAnythingTemplates() {
 		$templatesArray = $this->getFindAnythingTemplatesArray();

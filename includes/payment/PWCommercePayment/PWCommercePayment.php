@@ -35,6 +35,11 @@ abstract class PWCommercePayment extends WireData implements Module
 	protected $customer;
 	protected $products;
 
+	/**
+	 *   construct.
+	 *
+	 * @return mixed
+	 */
 	public function __construct() {
 		$this->products = new WireArray();
 
@@ -51,59 +56,51 @@ abstract class PWCommercePayment extends WireData implements Module
 	 * Returns the client friendly title for the payment.
 	 * @return string
 	 */
-	// abstract public function getTitle();
+	// /**
+  * Get Title.
+  *
+  * @return mixed
+  */
+ abstract public function getTitle();
 
 	/**
 	 * Render frontend markup for the payment.
 	 *
-	 * @return string
+	 * @return string|mixed
 	 */
 	abstract protected function render();
 
 	/**
 	 * Create an order using payment.
 	 *
-	 * Varies depending on payment gateway.
-	 * Can be used to create payment intent for gateways such as Stripe or PayPal.
-	 * Can be used to create order, authorize and capture for gateways such as Authorize.Net.
-	 *
 	 * @param WireData $createOrderValues
-	 * @param boolean $debug
-	 * @return void
+	 * @param bool $debug
+	 * @return mixed
 	 */
-	abstract protected function createOrder(WireData $createOrderValues, $debug = false);
+	abstract protected function createOrder(WireData $createOrderValues, bool $debug = false);
 
 	/**
 	 * Capture an order using payment.
 	 *
-	 * Varies depending on payment gateway.
-	 * Can be used to retrieve payment intent for gateways such as Stripe.
-	 * Can be used to execute payment for gateways such as PayPal.
-	 * Can be used to create order, authorize and capture for gateways such as Authorize.Net.
-	 *
-	 * @param int $orderId
-	 * @param boolean $debug
-	 * @return void
+	 * @param mixed $orderId
+	 * @param bool $debug
+	 * @return mixed
 	 */
-	abstract protected function captureOrder($orderId, $debug = false);
+	abstract protected function captureOrder($orderId, bool $debug = false);
 
 	/**
 	 * Confirm payment capture was successfull.
 	 *
-	 * Ideally check various aspects of payment to confirm.
-	 * For instance amount, currency, order ID, etc.
-	 *
-	 * @param object $response
+	 * @param mixed $response
 	 * @param array $options
-	 * @return boolean
+	 * @return bool
 	 */
-	abstract protected function isSuccessfulPaymentCapture($response, $options = []);
+	abstract protected function isSuccessfulPaymentCapture($response, array $options = []);
 
 	/**
 	 * Returns fields schema for building GUI for editing fields/inputs for the payment gateway.
 	 *
-	 * @see documentation.
-	 * @return array $schema.
+	 * @return mixed
 	 */
 	abstract protected function getFieldsSchema();
 
@@ -114,12 +111,22 @@ abstract class PWCommercePayment extends WireData implements Module
 	 * Returns the reason of failure
 	 * @return string
 	 */
-	// abstract public function getFailureReasonx();
+	// /**
+  * Get Failure Reasonx.
+  *
+  * @return mixed
+  */
+ abstract public function getFailureReasonx();
 
 	########################
 	// +++++++++++++
 	// NON-ABSTRACT METHODS
 	// ~~~~~~~~~~~~~
+	/**
+	 * Get Total Amount.
+	 *
+	 * @return mixed
+	 */
 	public function getTotalAmount() {
 
 		/** @var float $subtotal */
@@ -137,7 +144,16 @@ abstract class PWCommercePayment extends WireData implements Module
 		return $total;
 	}
 
-	// public function addProduct($title, $price, $quantity, $tax_percentage = null) {
+	// /**
+  * Add Product.
+  *
+  * @param mixed $title
+  * @param mixed $price
+  * @param mixed $quantity
+  * @param mixed $tax_percentage
+  * @return mixed
+  */
+ public function addProduct($title, $price, $quantity, $tax_percentage = null) {
 	// 	// ############
 	// 	// TODO DELETE THIS METHOD AND BELOW EVENTUALLY
 
@@ -152,7 +168,9 @@ abstract class PWCommercePayment extends WireData implements Module
 
 	/**
 	 * Set numeric id for the payment. Usually order id. Some value required, since used to verify the payment.
-	 * @param integer $desc
+	 *
+	 * @param int $id
+	 * @return mixed
 	 */
 	public function setId($id) {
 		// TODO DELETE AS NO LONGER NEEDED!
@@ -166,7 +184,9 @@ abstract class PWCommercePayment extends WireData implements Module
 
 	/**
 	 * Set currency code for the payment in uppercase
-	 * @param string $currency ie. USD|EUR
+	 *
+	 * @param mixed $currency
+	 * @return mixed
 	 */
 	public function setCurrency($currency) {
 
@@ -175,8 +195,9 @@ abstract class PWCommercePayment extends WireData implements Module
 
 	/**
 	 * Set the url, where payment will be processed. This will be the url where you will load this same
-	 * module and call $payment->processPayment()
-	 * @param string $url
+	 *
+	 * @param mixed $url
+	 * @return mixed
 	 */
 	public function setProcessUrl($url) {
 
@@ -185,6 +206,12 @@ abstract class PWCommercePayment extends WireData implements Module
 	}
 
 	// @kongondo addition
+	/**
+	 * Set Invoice Url.
+	 *
+	 * @param mixed $url
+	 * @return mixed
+	 */
 	public function setInvoiceUrl($url) {
 
 		// @KONGONDO DELETE IF NO LONGER IN USE!
@@ -193,7 +220,9 @@ abstract class PWCommercePayment extends WireData implements Module
 
 	/**
 	 * Set the url where payment processor redirects user if payment fails.
-	 * @param string $url
+	 *
+	 * @param mixed $url
+	 * @return mixed
 	 */
 	public function setFailureUrl($url) {
 
@@ -202,7 +231,9 @@ abstract class PWCommercePayment extends WireData implements Module
 
 	/**
 	 * Set the url where payment processor redirects user if user cancelles the payment. Usually same as failureUrl
-	 * @param string $url
+	 *
+	 * @param mixed $url
+	 * @return mixed
 	 */
 	public function setCancelUrl($url) {
 
@@ -211,7 +242,9 @@ abstract class PWCommercePayment extends WireData implements Module
 
 	/**
 	 * Set the reason of failure
-	 * @param string $string
+	 *
+	 * @param mixed $string
+	 * @return mixed
 	 */
 	public function setFailureReason($string) {
 
@@ -220,7 +253,8 @@ abstract class PWCommercePayment extends WireData implements Module
 
 	/**
 	 * Process the payment
-	 * @return bool true|false depending if the payment was successful
+	 *
+	 * @return mixed
 	 */
 	public function processPayment() {
 	}
