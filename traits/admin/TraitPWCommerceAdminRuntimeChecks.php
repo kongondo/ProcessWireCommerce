@@ -10,6 +10,11 @@ trait TraitPWCommerceAdminRuntimeChecks
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ RUNTIME CHECKS  ~~~~~~~~~~~~~~~~~~
 
 
+	/**
+	 * Is Super User.
+	 *
+	 * @return bool
+	 */
 	protected function isSuperUser() {
 
 		return $this->wire('user')->isSuperuser();
@@ -17,6 +22,11 @@ trait TraitPWCommerceAdminRuntimeChecks
 
 
 
+	/**
+	 * Check P W Commerce Configuration.
+	 *
+	 * @return mixed
+	 */
 	protected function checkPWCommerceConfiguration() {
 		// DON'T RUN CHECK DURING MODULE UNINSTALL!
 
@@ -51,9 +61,7 @@ trait TraitPWCommerceAdminRuntimeChecks
 	/**
 	 * Check if an optional feature's execute page is viewable.
 	 *
-	 * If the optional feature is installed, it is viewable.
-	 * Otherwise, we redirect to shop's home.
-	 * @return void
+	 * @return mixed
 	 */
 	private function checkOptionalFeaturePageViewable() {
 		if (empty($this->isOptionalFeatureInstalledAdminRuntimeCheck($this->context))) {
@@ -66,9 +74,8 @@ trait TraitPWCommerceAdminRuntimeChecks
 	/**
 	 * Check if a given optional feature for a given context is installed.
 	 *
-	 * @access private
-	 * @param string $context Optional feature context to check if installed.
-	 * @return bool $isOptionalFeatureInstalled True if installed else false.
+	 * @param mixed $context
+	 * @return bool
 	 */
 	private function isOptionalFeatureInstalledAdminRuntimeCheck($context) {
 		$isOptionalFeatureInstalled = false;
@@ -89,8 +96,7 @@ trait TraitPWCommerceAdminRuntimeChecks
 	/**
 	 * Is current context an optional feature.
 	 *
-	 * @access protected
-	 * @return bool Whether current context is an optional feature or not
+	 * @return bool
 	 */
 	protected function isCurrentContextAnOptionalFeature() {
 		return $this->isGivenContextAnOptionalFeature($this->context);
@@ -99,9 +105,8 @@ trait TraitPWCommerceAdminRuntimeChecks
 	/**
 	 * Is given context an optional feature.
 	 *
-	 * @access private
-	 * @param string $context Context to check if is an optional feature.
-	 * @return bool Whether given context is an optional feature or not.
+	 * @param mixed $context
+	 * @return bool
 	 */
 	private function isGivenContextAnOptionalFeature($context) {
 		return in_array($context, $this->pwcommerce->getPWCommerceOptionalFeatures());
@@ -110,11 +115,7 @@ trait TraitPWCommerceAdminRuntimeChecks
 	/**
 	 * Check if all required general shop settings have been completed.
 	 *
-	 * Check is done only after second install is done.
-	 * Settings required include shop currency, email, address and image and file allowed extensions.
-	 *
-	 * @access protected
-	 * @return void
+	 * @return mixed
 	 */
 	protected function checkShopRequiredGeneralSettingsIsComplete() {
 		if ($this->getConfigurePWCommerceStatus() === PwCommerce::PWCOMMERCE_SECOND_STAGE_INSTALL_CONFIGURATION_STATUS) {

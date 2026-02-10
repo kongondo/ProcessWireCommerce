@@ -22,6 +22,11 @@ class PWCommerceAdminRenderAttributes extends WireData
 {
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// TITLE
@@ -34,6 +39,13 @@ class PWCommerceAdminRenderAttributes extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 		// get the count of products referencing this attribute
 		$referencingProductsCount = $page->references(true)->count;
@@ -50,11 +62,22 @@ class PWCommerceAdminRenderAttributes extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No attributes found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -79,6 +102,11 @@ class PWCommerceAdminRenderAttributes extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -96,6 +124,11 @@ class PWCommerceAdminRenderAttributes extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -104,6 +137,11 @@ class PWCommerceAdminRenderAttributes extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -127,6 +165,12 @@ class PWCommerceAdminRenderAttributes extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -140,12 +184,22 @@ class PWCommerceAdminRenderAttributes extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter No Attribute Options.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoAttributeOptions() {
 		$selector = ",children.count=0";
 		// ----
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Unused.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUnused() {
 		// e.g.
 		// SELECT data as attribute_id

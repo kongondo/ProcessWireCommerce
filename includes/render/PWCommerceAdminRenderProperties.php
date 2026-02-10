@@ -24,6 +24,11 @@ class PWCommerceAdminRenderProperties extends WireData
 
 	// ~~~~~~~~~~
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// TITLE
@@ -34,6 +39,13 @@ class PWCommerceAdminRenderProperties extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 		// get the count of products referencing this property
 		$referencingProductsCount = $this->getPropertyUsageCount($page);
@@ -48,11 +60,22 @@ class PWCommerceAdminRenderProperties extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No properties found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -75,6 +98,12 @@ class PWCommerceAdminRenderProperties extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Property Usage Count.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getPropertyUsageCount(Page $page) {
 		$productsUsingProperty = $this->wire('pages')->findRaw("template=pwcommerce-product,pwcommerce_product_properties.property_id={$page},include=all", 'id');
 		return count($productsUsingProperty);
@@ -82,6 +111,11 @@ class PWCommerceAdminRenderProperties extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -96,6 +130,11 @@ class PWCommerceAdminRenderProperties extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -104,6 +143,11 @@ class PWCommerceAdminRenderProperties extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -124,6 +168,12 @@ class PWCommerceAdminRenderProperties extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -137,6 +187,11 @@ class PWCommerceAdminRenderProperties extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Unused.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUnused() {
 		// e.g.
 		// SELECT property_id

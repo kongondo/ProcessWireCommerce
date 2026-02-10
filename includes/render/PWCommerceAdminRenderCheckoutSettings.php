@@ -27,6 +27,12 @@ class PWCommerceAdminRenderCheckoutSettings extends WireData
 	private $checkoutSettings;
 
 
+	/**
+	 * Get Tabs.
+	 *
+	 * @param mixed $wrapper
+	 * @return mixed
+	 */
 	protected function getTabs($wrapper) {
 
 		// GET CHECKOUT SETTINGS PAGE
@@ -81,6 +87,12 @@ class PWCommerceAdminRenderCheckoutSettings extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Checkout Settings Tabs.
+	 *
+	 * @param mixed $tabName
+	 * @return mixed
+	 */
 	private function getCheckoutSettingsTabs($tabName) {
 		if ($tabName === 'main') {
 			$tab = $this->getMainTab();
@@ -94,6 +106,11 @@ class PWCommerceAdminRenderCheckoutSettings extends WireData
 	}
 
 	// MAIN TAB
+	/**
+	 * Get Main Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getMainTab() {
 
 		//--------------
@@ -177,6 +194,11 @@ class PWCommerceAdminRenderCheckoutSettings extends WireData
 	}
 
 	// ORDER PROCESSING TAB
+	/**
+	 * Get Order Processing Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderProcessingTab() {
 
 		//--------------
@@ -255,6 +277,11 @@ class PWCommerceAdminRenderCheckoutSettings extends WireData
 	}
 
 	// ABANDONED CHECKOUTS
+	/**
+	 * Get Abandoned Checkouts Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getAbandonedCheckoutsTab() {
 
 		//--------------
@@ -322,6 +349,12 @@ class PWCommerceAdminRenderCheckoutSettings extends WireData
 		return $tabAndContents;
 	}
 
+	/**
+	 * Get Inputfield For Tab.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function getInputfieldForTab($options) {
 		$type = $options['type'];
 		if (in_array($type, ['text', 'number'])) {
@@ -341,6 +374,12 @@ class PWCommerceAdminRenderCheckoutSettings extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Checkout Setting Value.
+	 *
+	 * @param mixed $setting
+	 * @return mixed
+	 */
 	private function getCheckoutSettingValue($setting) {
 		$checkoutSettings = $this->checkoutSettings;
 		// TODO: SHOULD WE SAVE ZEROS OR LEAVE BLANK OR NULL? WHAT IF ZERO WAS ACTUALLY INPUT?

@@ -10,7 +10,7 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	/**
 	 * Get the shop's general settings.
 	 *
-	 * @return WireData $generalSettings The general settings.
+	 * @return mixed
 	 */
 	public function getShopGeneralSettings() {
 		// $generalSettings = [];
@@ -26,16 +26,31 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	}
 
 
+	/**
+	 * Get Shop Email.
+	 *
+	 * @return mixed
+	 */
 	public function getShopEmail() {
 		// for sending emails TO
 		return $this->getShopGeneralSettings()->shop_email;
 	}
 
+	/**
+	 * Get Shop From Email.
+	 *
+	 * @return mixed
+	 */
 	public function getShopFromEmail() {
 		// for sending emails FROM
 		return $this->getShopGeneralSettings()->shop_from_email;
 	}
 
+	/**
+	 * Get Shop Bank Details.
+	 *
+	 * @return mixed
+	 */
 	public function getShopBankDetails() {
 		/** @var WireData $shopGeneralSettings */
 		$shopGeneralSettings = $this->getShopGeneralSettings();
@@ -56,10 +71,7 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	/**
 	 * Checks if all the required general settings of the shop have been saved.
 	 *
-	 * These include shop email, currency, country, etc.
-	 *
-	 * @access public
-	 * @return void
+	 * @return bool
 	 */
 	public function isAllRequiredGeneralSettingsSetUp() {
 		$isAllRequiredGeneralSettingsSetUp = true;
@@ -87,7 +99,7 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	/**
 	 * Check if shop allows installation and use of addons.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isShopAllowAddons() {
 		$generalSettings = $this->getShopGeneralSettings();
@@ -97,7 +109,7 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	/**
 	 * Does shop admin use 'quick filters'?
 	 *
-	 * @return bool true if in use, else false.
+	 * @return bool
 	 */
 	public function isUseQuickFilters() {
 		$generalSettings = $this->getShopGeneralSettings();
@@ -109,7 +121,7 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	/**
 	 * Does shop admin use 'advanced search'?
 	 *
-	 * @return bool true if in use, else false.
+	 * @return bool
 	 */
 	public function isUseAdvancedSearch() {
 		$generalSettings = $this->getShopGeneralSettings();
@@ -121,7 +133,7 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	/**
 	 * Does shop admin use 'dropdown menu'?
 	 *
-	 * @return bool true if in use, else false.
+	 * @return bool
 	 */
 	public function isUseDropdownMenu() {
 		$generalSettings = $this->getShopGeneralSettings();
@@ -135,7 +147,7 @@ trait TraitPWCommerceUtilitiesGeneralSettings
 	/**
 	 * Does shop admin use 'side menu'?
 	 *
-	 * @return bool true if in use, else false.
+	 * @return bool
 	 */
 	public function isUseSideMenu() {
 		$generalSettings = $this->getShopGeneralSettings();

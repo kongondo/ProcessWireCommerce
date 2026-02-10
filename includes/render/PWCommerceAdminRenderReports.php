@@ -24,6 +24,12 @@ class PWCommerceAdminRenderReports extends WireData
 	private $ajaxPostURL;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		if (is_array($options)) {
 			$this->adminURL = $options['admin_url'];
@@ -31,6 +37,12 @@ class PWCommerceAdminRenderReports extends WireData
 		}
 	}
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	protected function renderResults($selector = null) {
 
 		$message = "";
@@ -73,6 +85,11 @@ class PWCommerceAdminRenderReports extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getBulkEditActionsPanel() {
 		// TODO: wip!
 		$ajaxPostURL = $this->ajaxPostURL;
@@ -108,6 +125,11 @@ class PWCommerceAdminRenderReports extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Report Options Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getReportOptionsMarkup() {
 
 		$curYear = date("Y");
@@ -197,6 +219,12 @@ class PWCommerceAdminRenderReports extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @param mixed $reportType
+	 * @return mixed
+	 */
 	private function getResultsTableHeaders($reportType) {
 
 		$numberOfOrders = $this->_('Number of Orders');
@@ -237,6 +265,13 @@ class PWCommerceAdminRenderReports extends WireData
 		return $reportTableHeaders;
 	}
 
+	/**
+	 * Get Results Table.
+	 *
+	 * @param mixed $reportItems
+	 * @param mixed $caption
+	 * @return mixed
+	 */
 	private function getResultsTable($reportItems, $caption = null) {
 
 		$field = $this->modules->get('MarkupAdminDataTable');
@@ -279,6 +314,12 @@ class PWCommerceAdminRenderReports extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Results Table Footer.
+	 *
+	 * @param array $reportItems
+	 * @return mixed
+	 */
 	private function getResultsTableFooter(array $reportItems) {
 		$grandTotalSalesForPeriodAsCurrency = $reportItems['total_sales_for_period_as_currency'];
 		// $footerTotal = sprintf(__("Total: %s"), $grandTotalSalesForPeriodAsCurrency);
@@ -291,6 +332,12 @@ class PWCommerceAdminRenderReports extends WireData
 		return $footer;
 	}
 
+	/**
+	 * Render Report.
+	 *
+	 * @param array $reportItems
+	 * @return string|mixed
+	 */
 	protected function renderReport(array $reportItems) {
 		$out = "";
 		if (!empty($reportItems['grouped_period_sales'])) {
@@ -315,6 +362,12 @@ class PWCommerceAdminRenderReports extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Download C S V Report.
+	 *
+	 * @param mixed $reportItems
+	 * @return string|mixed
+	 */
 	private function renderDownloadCSVReport($reportItems) {
 		$out = "";
 
@@ -337,6 +390,13 @@ class PWCommerceAdminRenderReports extends WireData
 		return $out;
 	}
 
+	/**
+	 * Download C S V Report.
+	 *
+	 * @param mixed $csvReport
+	 * @param mixed $csvReportName
+	 * @return mixed
+	 */
 	private function downloadCSVReport($csvReport, $csvReportName) {
 
 		// get the report from cache
@@ -362,12 +422,24 @@ class PWCommerceAdminRenderReports extends WireData
 		exit();
 	}
 
+	/**
+	 * Get C S V Report From Cache.
+	 *
+	 * @param mixed $csvReportName
+	 * @return mixed
+	 */
 	private function getCSVReportFromCache($csvReportName) {
 		// get cached csv download value
 		$csvReportCache = $this->wire('cache')->get($csvReportName);
 		return $csvReportCache;
 	}
 
+	/**
+	 * Delete C S V Report From Cache.
+	 *
+	 * @param mixed $csvReportName
+	 * @return mixed
+	 */
 	private function deleteCSVReportFromCache($csvReportName) {
 		$this->wire('cache')->delete($csvReportName);
 	}

@@ -22,10 +22,21 @@ class PWCommerceAdminRenderBrands extends WireData
 {
 
 	private $assetsURL;
+	/**
+	 *   construct.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function __construct($options) {
 		$this->assetsURL = $options['assets_url'];
 	}
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// THUMB
@@ -37,11 +48,23 @@ class PWCommerceAdminRenderBrands extends WireData
 		];
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No brands found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 		// get the count of products referencing this brand
 		$referencingProductsCount = $page->references(true)->count;
@@ -58,6 +81,12 @@ class PWCommerceAdminRenderBrands extends WireData
 	}
 
 
+	/**
+	 * Get Brand Logo.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getBrandLogo($page) {
 		$firstImage = $page->pwcommerce_images->first();
 
@@ -75,6 +104,12 @@ class PWCommerceAdminRenderBrands extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -101,6 +136,11 @@ class PWCommerceAdminRenderBrands extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -120,6 +160,11 @@ class PWCommerceAdminRenderBrands extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -128,6 +173,11 @@ class PWCommerceAdminRenderBrands extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -154,6 +204,12 @@ class PWCommerceAdminRenderBrands extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -167,6 +223,11 @@ class PWCommerceAdminRenderBrands extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Unused.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUnused() {
 		// e.g.
 		// SELECT data as brand_id
@@ -195,6 +256,12 @@ class PWCommerceAdminRenderBrands extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Sales.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterSales($quickFilterValue) {
 		// e.g.
 		// SELECT field_pwcommerce_brand.data AS brand_id,
@@ -275,6 +342,11 @@ class PWCommerceAdminRenderBrands extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter No Logo.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoLogo() {
 		$selector = ",pwcommerce_images=''";
 		// ----

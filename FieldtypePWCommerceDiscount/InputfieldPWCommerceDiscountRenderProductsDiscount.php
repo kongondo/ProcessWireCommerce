@@ -28,6 +28,13 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 	private $discountAppliesToType;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @param mixed $field
+	 * @return mixed
+	 */
 	public function __construct($page, $field) {
 		parent::__construct($page, $field);
 		// @NOTE: WE INHERIT BELOW PROPS FROM PARENT CLASS 'InputfieldPWCommerceDiscountRenderOrderDiscount'
@@ -39,6 +46,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Set Discount Applies To Items Mode.
+	 *
+	 * @return mixed
+	 */
 	private function setDiscountAppliesToItemsMode() {
 		$firstItemDiscountAppliesTo = $this->discountAppliesTo->first();
 		if (!empty($firstItemDiscountAppliesTo)) {
@@ -49,6 +61,7 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 	/**
 	 * Render the entire input area for product discount
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		// @overrides parent::render
@@ -61,6 +74,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $out;
 	}
 
+	/**
+	 * Get Discounts Form Header.
+	 *
+	 * @return mixed
+	 */
 	protected function getDiscountsFormHeader() {
 		// @overrides parent::getDiscountsFormHeader
 		$labelCategories = $this->_('amount off categories');
@@ -83,6 +101,12 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $discountTypeHeader;
 	}
 
+	/**
+	 * Render Discount Value.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountValue($wrapper) {
 		// @overrides parent::renderDiscountValue
 		// GET WRAPPER FOR DISCOUNT RENDER VALUE HERE
@@ -93,6 +117,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Get Value For Discount Type.
+	 *
+	 * @return mixed
+	 */
 	protected function getValueForDiscountType() {
 		// @overrides parent::getValueForDiscountType
 		$discountType = $this->discount->discountType;
@@ -116,6 +145,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $value;
 	}
 
+	/**
+	 * Get Radio Options For Discount Value Type.
+	 *
+	 * @return mixed
+	 */
 	protected function getRadioOptionsForDiscountValueType() {
 		// @overrides parent::getRadioOptionsForDiscountValueType
 		// TODO FOR SAVE, WE NEED TO PREFIX WITH '_products/_categories'
@@ -128,6 +162,12 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 	}
 
 	### APPLIES TO ###
+	/**
+	 * Render Discount Applies To.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountAppliesTo($wrapper) {
 		// radio to select applies to type
 		$field = $this->getMarkupForDiscountAppliesToRadioField();
@@ -152,6 +192,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Get Markup For Discount Applies To Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountAppliesToRadioField() {
 		// TODO UNSET CATEGORIES IN CASE NOT IN USE; IN WHICH CASE, USE HIDDEN INPUT TO
 		//------------------- pwcommerce_discount_applies_to (getInputfieldRadios)
@@ -225,6 +270,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Applies To Specific Categories Text Tags Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountAppliesToSpecificCategoriesTextTagsField() {
 		// TODO: WHAT IF CATEGORY IS NOT USED FOR ANY PRODUCT!
 		//------------------- pwcommerce_discount_applies_to_specific_categories (getInputfieldTextTags)
@@ -282,6 +332,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Applies To Specific Products Text Tags Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountAppliesToSpecificProductsTextTagsField() {
 		//------------------- pwcommerce_discount_applies_to_specific_products (getInputfieldTextTags)
 		$description = $this->_('Products and variants eligible for this discount.');
@@ -349,6 +404,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Fixed Apply Once Toggle Checkbox Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountFixedApplyOnceToggleCheckboxField() {
 		//------------------- pwcommerce_discount_fixed_apply_once_toggle (getInputfieldCheckbox)
 
@@ -382,6 +442,12 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 	// @NOTE: PARENT CLASS WILL DO MAIN PROCESSING
 	// HERE WE ONLY PROCESS A FEW INPUTS UNIQUE TO PRODUCTS DISCOUNT
 
+	/**
+	 * Process Discount Value Type.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountValueType(WireInputData $input) {
 
 		// @note: returns 'categories_fixed', 'categories_percentage', 'products_percentage' OR 'products_fixed'
@@ -413,8 +479,8 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 	/**
 	 * Deduct discount value type from the values of two inputs.
 	 *
-	 * @access private
-	 * @return string $discountValueTypeRaw The deducted discount value type.
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	private function getCombinedDiscountValueTypeRaw(WireInputData $input) {
 		# prefix
@@ -431,6 +497,12 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $discountValueTypeRaw;
 	}
 
+	/**
+	 * Get Discount Applies To Type.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	private function getDiscountAppliesToType($input) {
 
 		// @note: reusing the method to deduct the base discount value type
@@ -442,6 +514,11 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $discountAppliesToType;
 	}
 
+	/**
+	 * Get Note For Discount Minimum Requirement Text Field.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoteForDiscountMinimumRequirementTextField() {
 		// @overrides parent::getNoteForDiscountMinimumRequirementTextField
 		$notesCategories = $this->_('Applies to eligible categories.');
@@ -457,6 +534,12 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 		return $notes;
 	}
 
+	/**
+	 * Process Input For Discounts Apply To.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processInputForDiscountsApplyTo(WireInputData $input) {
 
 		// TODO:
@@ -537,6 +620,12 @@ class InputfieldPWCommerceDiscountRenderProductsDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Get Error For Discounts Apply To.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function getErrorForDiscountsApplyTo($input = NULL) {
 
 		// TODO

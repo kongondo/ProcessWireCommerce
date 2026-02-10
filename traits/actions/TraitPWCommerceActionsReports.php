@@ -13,6 +13,12 @@ trait TraitPWCommerceActionsReports
 
 	// ## GENERATE SALES REPORTS ACTIONS
 
+	/**
+	 * Generate Sales Report Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function generateSalesReportAction($input) {
 		$result = [
 			'notice' => $this->_('Error encountered. No action was taken.'),
@@ -104,6 +110,11 @@ trait TraitPWCommerceActionsReports
 		return $result;
 	}
 
+	/**
+	 * Action Daily Sales Report.
+	 *
+	 * @return mixed
+	 */
 	private function actionDailySalesReport() {
 		$reportStart = $this->reportStart;
 		$reportEnd = $this->reportEnd;
@@ -178,6 +189,11 @@ trait TraitPWCommerceActionsReports
 	}
 
 	############
+	/**
+	 * Action Monthly Sales Report.
+	 *
+	 * @return mixed
+	 */
 	private function actionMonthlySalesReport() {
 		$reportStart = $this->reportStart;
 		$reportEnd = $this->reportEnd;
@@ -252,6 +268,11 @@ trait TraitPWCommerceActionsReports
 		return $reportItems;
 	}
 
+	/**
+	 * Action Sales Per Product Report.
+	 *
+	 * @return mixed
+	 */
 	private function actionSalesPerProductReport() {
 
 		// get the sales
@@ -315,6 +336,11 @@ trait TraitPWCommerceActionsReports
 		return $reportItems;
 	}
 
+	/**
+	 * Action Sales As C S V Download Report.
+	 *
+	 * @return mixed
+	 */
 	private function actionSalesAsCSVDownloadReport() {
 
 		// @note: this does not include line items!
@@ -489,11 +515,23 @@ trait TraitPWCommerceActionsReports
 		return $reportItems;
 	}
 
+	/**
+	 * Action Save C S V Sales Report To Cache.
+	 *
+	 * @param mixed $cacheName
+	 * @param mixed $cacheItems
+	 * @return mixed
+	 */
 	private function actionSaveCSVSalesReportToCache($cacheName, $cacheItems) {
 		$expiration = 300; // expire after five minutes
 		$this->wire('cache')->save($cacheName, $cacheItems, $expiration);
 	}
 
+	/**
+	 * Get Time Period Sales.
+	 *
+	 * @return mixed
+	 */
 	private function getTimePeriodSales() {
 
 		$startdate = $this->reportStart;

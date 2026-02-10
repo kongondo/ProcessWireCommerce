@@ -7,6 +7,12 @@ trait TraitPWCommerceUtilitiesRuntimeChecks
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ RUNTIME CHECKS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Is Optional Feature Installed.
+	 *
+	 * @param mixed $feature
+	 * @return bool
+	 */
 	public function isOptionalFeatureInstalled($feature) {
 		// ---------
 		// get list of installed features
@@ -16,6 +22,12 @@ trait TraitPWCommerceUtilitiesRuntimeChecks
 		return in_array($feature, $installedOptionalFeatures);
 	}
 
+	/**
+	 * Is Other Optional Setting Installed.
+	 *
+	 * @param mixed $otherOptionalSetting
+	 * @return bool
+	 */
 	public function isOtherOptionalSettingInstalled($otherOptionalSetting) {
 		// ---------
 		// get list of OTHER SETTINGS/installed features
@@ -28,14 +40,19 @@ trait TraitPWCommerceUtilitiesRuntimeChecks
 	/**
 	 * Checks if given string contains name of the generic no image found image.
 	 *
-	 * @param string $string String to check.
-	 * @return boolean Whether the string contains the generic no image found name or not.
+	 * @param mixed $string
+	 * @return bool
 	 */
 	public function isGenericNoImageFound($string) {
 		$string = strval($string);
 		return strpos($string, 'no-image-found.svg') !== false;
 	}
 
+	/**
+	 * Is Title Language Field.
+	 *
+	 * @return bool
+	 */
 	public function isTitleLanguageField() {
 		$isTitleLanguageField = false;
 		$titleField = $this->wire('fields')->get('title');
@@ -45,6 +62,11 @@ trait TraitPWCommerceUtilitiesRuntimeChecks
 		return $isTitleLanguageField;
 	}
 
+	/**
+	 * Is Description Language Field.
+	 *
+	 * @return bool
+	 */
 	public function isDescriptionLanguageField() {
 		// TODO?
 	}
@@ -54,8 +76,7 @@ trait TraitPWCommerceUtilitiesRuntimeChecks
 	/**
 	 * Check if we are in ProcessWire backend or not.
 	 *
-	 * @access private
-	 * @return boolean If in admin or not.
+	 * @return bool
 	 */
 	private function isInAdmin() {
 		return strpos($_SERVER['REQUEST_URI'], wire('pages')->get(wire('config')->adminRootPageID)->url) !== false;

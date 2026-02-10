@@ -5,6 +5,11 @@ namespace ProcessWire;
 trait TraitPWCommerceAdminRenderGeneralSettingsShipping
 {
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SHIPPING TAB  ~~~~~~~~~~~~~~~~~~
+	/**
+	 * Get Shipping Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getShippingTab() {
 
 		$customHookURL = "/find-pwcommerce_general_settings_shipping_zones/";
@@ -56,12 +61,8 @@ trait TraitPWCommerceAdminRenderGeneralSettingsShipping
 	/**
 	 * Finds saved Rest of The World (ROW) shipping zone.
 	 *
-	 * For use to set InputfieldTextTags (selectize) values for general settings shipping zone
-	 * 'rest of the world' shipping zone.
-	 *
-	 * @access private
-	 * @param string $setting Key in general settings where values are saved for the property.
-	 * @return array
+	 * @param mixed $setting
+	 * @return mixed
 	 */
 	private function getSavedRestOfTheWorldShippingZone($setting) {
 		$value = null;

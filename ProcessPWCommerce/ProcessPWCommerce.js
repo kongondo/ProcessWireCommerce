@@ -168,13 +168,13 @@ const ProcessPWCommerce = {
 	// CHARTS JS
 	// @TODO: REPLACE THE HARDCODED DATA WITH PROCESSWIRE CONFIG ONES!
 	getProcessWireChartJSConfigs: function () {
-		return ProcessWire.config.PWCommerceAdminRenderShopHome.chart_js_configs
+		return ProcessWire.config.PWCommerceProcessRenderShopHome.chart_js_configs
 	},
 	getProcessWireChartJSData: function () {
-		return ProcessWire.config.PWCommerceAdminRenderShopHome.chart_js_data
+		return ProcessWire.config.PWCommerceProcessRenderShopHome.chart_js_data
 	},
 	getProcessWireChartJSLabels: function () {
-		return ProcessWire.config.PWCommerceAdminRenderShopHome.chart_js_labels
+		return ProcessWire.config.PWCommerceProcessRenderShopHome.chart_js_labels
 	},
 	getChartMonths: function () {
 		const chartJSLabels = ProcessPWCommerce.getProcessWireChartJSLabels()
@@ -449,7 +449,7 @@ const ProcessPWCommerce = {
 	},
 
 	getShopCurrencyConfig: function () {
-		return ProcessWire.config.PWCommerceAdminRenderShopHome.shop_currency_config
+		return ProcessWire.config.PWCommerceProcessRenderShopHome.shop_currency_config
 	},
 
 	// ~~~~~~~~~~~~~

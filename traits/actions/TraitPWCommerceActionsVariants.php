@@ -5,6 +5,12 @@ namespace ProcessWire;
 trait TraitPWCommerceActionsVariants
 {
 
+	/**
+	 * Add Variants.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function addVariants($input)
 	{
 

@@ -32,6 +32,12 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		parent::__construct();
 		// TODO????
@@ -44,6 +50,12 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 
 	}
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	public function renderResults($selector = null) {
 
 		// enforce to string for strpos for PHP 8+
@@ -102,8 +114,7 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 	/**
 	 * Get the options for building the form to add a new Gift Card Product for use in ProcessPWCommerce.
 	 *
-	 * @access public
-	 * @return array array with options for the form.
+	 * @return mixed
 	 */
 	public function getAddNewItemOptions() {
 		return [
@@ -112,6 +123,11 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		];
 	}
 
+	/**
+	 * Pagination Options.
+	 *
+	 * @return mixed
+	 */
 	public function paginationOptions() {
 		$adminURL = '';
 		// TODO: WE WILL ALWAYS HAVE AN ADMIN URL, BUT JUST SANITY CHECK!
@@ -124,6 +140,11 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		return $paginationOptions;
 	}
 
+	/**
+	 * Get Custom Lister Settings.
+	 *
+	 * @return mixed
+	 */
 	public function getCustomListerSettings() {
 		return [
 			'label' => $this->_('Filter Gift Card Products'),
@@ -137,6 +158,11 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		$selectAllCheckboxName = "pwcommerce_bulk_edit_selected_items_all";
@@ -154,7 +180,22 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		];
 	}
 
-	//  public function getResultsTable($items, array $headerRow, array $rows, $options = []) {
+	//  /**
+   * Get Results Table.
+   *
+   * @param array $items
+   * @param array $headerRow
+   * @param array $rows
+   * @param array $options
+   * @return mixed
+   */
+  public function getResultsTable($items, array $headerRow, array $rows, array $options = []) {
+	/**
+	 * Get Results Table.
+	 *
+	 * @param mixed $pages
+	 * @return mixed
+	 */
 	private function getResultsTable($pages) {
 
 		$out = "";
@@ -193,6 +234,12 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item Title.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemTitle($page) {
 		// get the edit URL if item is unlocked
 		$out = $this->getEditItemURL($page);
@@ -214,6 +261,12 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemURL($page) {
 		// TODO: CHECK IF UNLOCKED FIRST!
 		$adminURL = $this->options['admin_url'];
@@ -227,6 +280,12 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Gift Card Product Thumb.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getGiftCardProductThumb($page) {
 		$firstImage = $page->pwcommerce_images->first();
 
@@ -248,6 +307,12 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Denominations Count.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getDenominationsCount($page) {
 		$stockFieldName = PwCommerce::PRODUCT_STOCK_FIELD_NAME;
 		$selectorArray = [
@@ -268,6 +333,11 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getBulkEditActionsPanel() {
 		// TODO: wip!
 		# TODO REVISIT THESE! CAN WE TRASH A GCP WHOSE GC IS ACTIVE? YES; SINCE THEY ARE DECOUPLED!
@@ -294,6 +364,14 @@ class PWCommerceProcessRenderGiftCardProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @param mixed $xref
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name, $xref = null) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",

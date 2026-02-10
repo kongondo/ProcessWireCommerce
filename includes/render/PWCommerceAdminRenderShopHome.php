@@ -37,6 +37,12 @@ class PWCommerceAdminRenderShopHome extends WireData
 	//------------------
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		if (is_array($options)) {
 			$this->adminURL = $options['admin_url'];
@@ -49,6 +55,12 @@ class PWCommerceAdminRenderShopHome extends WireData
 
 	}
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	protected function renderResults($selector = null) {
 		// DETERMINE HOW TO RENDER SHOP HOME DASH
 		// +++++
@@ -66,6 +78,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $out;
 	}
 
+	/**
+	 * Build View Shop Home.
+	 *
+	 * @return mixed
+	 */
 	private function buildViewShopHome() {
 
 		########### GET MARKUP ########
@@ -105,6 +122,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Summary Stats Cards.
+	 *
+	 * @return mixed
+	 */
 	private function getSummaryStatsCards() {
 		// TODO revisit this breakpoint if we revisit chart's one! might need to drop earlier than md!
 		$summaryStatsCardOptions = $this->getSummaryStatsCardsOptions();
@@ -123,6 +145,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Summary Stats Cards Options.
+	 *
+	 * @return mixed
+	 */
 	private function getSummaryStatsCardsOptions() {
 		$averageItemsPerOrderCount = $this->pwcommerce->getAverageItemsPerOrderCount();
 		$abandondedCheckoutsCount = $this->pwcommerce->getAbandonedCheckoutsCount();
@@ -144,6 +171,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $summaryStatsCardOptions;
 	}
 
+	/**
+	 * Get Charts Cards.
+	 *
+	 * @return mixed
+	 */
 	private function getChartsCards() {
 		// TODO: ADD JS CONFIGS TO PROCESS MODULE TO GRAB DATA FOR CHARTS! LOOK AT THE 3 CHARTS WE NEED AND THE DATA THEY WILL NEED
 		$chartsCardOptions = $this->getChartsCardsOptions();
@@ -172,6 +204,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Charts Cards Options.
+	 *
+	 * @return mixed
+	 */
 	private function getChartsCardsOptions() {
 
 		$averageOrderValues = $this->pwcommerce->getAverageOrderValues();
@@ -206,6 +243,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $chartsCardOptions;
 	}
 
+	/**
+	 * Get Chart J S Script.
+	 *
+	 * @return mixed
+	 */
 	private function getChartJSScript() {
 		$data = [
 			'chart_js_configs' => $this->getChartJSConfigs(),
@@ -217,11 +259,21 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $script;
 	}
 
+	/**
+	 * Get Chart J S Configs.
+	 *
+	 * @return mixed
+	 */
 	private function getChartJSConfigs() {
 		$chartJSConfigs = [];
 		return $chartJSConfigs;
 	}
 
+	/**
+	 * Get Chart J S Data.
+	 *
+	 * @return mixed
+	 */
 	private function getChartJSData() {
 		$averageOrderValues = $this->pwcommerce->getAverageOrderValues();
 		// --------
@@ -239,6 +291,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $chartJSData;
 	}
 
+	/**
+	 * Get Chart J S Labels.
+	 *
+	 * @return mixed
+	 */
 	private function getChartJSLabels() {
 		// --------
 		$chartJSLabels = [
@@ -251,6 +308,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $chartJSLabels;
 	}
 
+	/**
+	 * Get Latest Orders Table.
+	 *
+	 * @return mixed
+	 */
 	private function getLatestOrdersTable() {
 
 		$orders = $this->getLatestOrders();
@@ -283,6 +345,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Latest Orders Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getLatestOrdersTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		return [
@@ -299,6 +366,12 @@ class PWCommerceAdminRenderShopHome extends WireData
 		];
 	}
 
+	/**
+	 * Get Latest Orders Table Row.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getLatestOrdersTableRow(Page $page) {
 		$order = $page->pwcommerce_order;
 		$orderTotalPriceFormattedAsShopCurrency = $this->pwcommerce->getValueFormattedAsCurrencyForShop($order->totalPrice);
@@ -318,6 +391,12 @@ class PWCommerceAdminRenderShopHome extends WireData
 		];
 	}
 
+	/**
+	 * Get Order View U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getOrderViewURL($page) {
 		// ORDER NUMBER/TITLE
 		$orderTitle = $this->pwcommerce->getOrderNumberWithPrefixAndSuffix($page);
@@ -325,7 +404,14 @@ class PWCommerceAdminRenderShopHome extends WireData
 		return $out;
 	}
 
-	private function getOrderCombinedStatusesText($order, $excludeStatuses = []) {
+	/**
+	 * Get Order Combined Statuses Text.
+	 *
+	 * @param mixed $order
+	 * @param array $excludeStatuses
+	 * @return mixed
+	 */
+	private function getOrderCombinedStatusesText($order, array $excludeStatuses = []) {
 		$statuses = $this->pwcommerce->getOrderCombinedStatuses($order);
 
 		if (!empty($excludeStatuses)) {
@@ -344,6 +430,11 @@ class PWCommerceAdminRenderShopHome extends WireData
 	}
 
 	// get 10 latest orders, newest first
+	/**
+	 * Get Latest Orders.
+	 *
+	 * @return mixed
+	 */
 	private function getLatestOrders() {
 		// FORCE TEMPLATE TO MATCH PWCOMMERCE ORDERS ONLY + INCLUDE ALL + EXLUDE TRASH
 		$selector = "template=" . PwCommerce::ORDER_TEMPLATE_NAME . ",include=all,sort=-created,limit=10,status<" . Page::statusTrash;
@@ -354,8 +445,8 @@ class PWCommerceAdminRenderShopHome extends WireData
 	/**
 	 * Build the string for the last created date of this order page.
 	 *
-	 * @param Page $page The order page whose created date we are building.
-	 * @return string The last created date string.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	private function getCreatedDate($page) {
 		return $this->pwcommerce->getCreatedDate($page);

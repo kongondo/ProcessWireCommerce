@@ -7,6 +7,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsImages
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ IMAGES TAB  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Images Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getImagesTab() {
 		$tabAndContents = [
 			'details' => [

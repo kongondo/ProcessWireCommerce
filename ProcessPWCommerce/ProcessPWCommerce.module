@@ -33,6 +33,11 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 	use TraitPWCommerceAdmin;
 
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 
 		$moduleInfo =
@@ -76,6 +81,11 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 		return $moduleInfo;
 	}
 
+	/**
+	 *   construct.
+	 *
+	 * @return mixed
+	 */
 	public function __construct() {
 		parent::__construct();
 	}
@@ -105,6 +115,11 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SETUP/INIT  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 
@@ -231,6 +246,11 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 	}
 
 
+	/**
+	 * Set Options.
+	 *
+	 * @return mixed
+	 */
 	private function setOptions() {
 		$this->options = [
 			'current_page_number' => $this->currentPaginationNumberForContext,
@@ -245,6 +265,11 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 		$this->xstore = "\$store.{$this->xstoreProcessPWCommerce}";
 	}
 
+	/**
+	 * Get Inline Scripts.
+	 *
+	 * @return mixed
+	 */
 	private function getInlineScripts() {
 		// @note: need to load alpine as 'defer'
 		$url = $this->wire('config')->urls->$this;
@@ -256,7 +281,13 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PAGES HANDLER  ~~~~~~~~~~~~~~~~~~
 
-	private function pagesHandler($isAjaxContext = false) {
+	/**
+	 * Pages Handler.
+	 *
+	 * @param bool $isAjaxContext
+	 * @return mixed
+	 */
+	private function pagesHandler(bool $isAjaxContext = false) {
 
 
 		//===============
@@ -447,6 +478,11 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INSTALL  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    install.
+	 *
+	 * @return mixed
+	 */
 	public function ___install() {
 
 		// check if there is another page in admin with the name 'shop'. If so, abort installation
@@ -486,6 +522,11 @@ class ProcessPWCommerce extends Process implements Module, ConfigModule
 		$this->message("Process PWCommerce: Created page {$page->path}");
 	}
 
+	/**
+	 *    uninstall.
+	 *
+	 * @return mixed
+	 */
 	public function ___uninstall() {
 		// find and delete the page we installed, locating it by the process field (which has the module ID)
 		// it would probably be sufficient just to locate by name, but this is just to be extra sure.

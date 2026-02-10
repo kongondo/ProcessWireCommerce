@@ -6,13 +6,17 @@ trait TraitPWCommerceProcessOrderCustomer {
 	/**
 	 * Gets the session's order.
 	 *
-	 * @note: This is the value of the order page's field 'pwcommerce_order_customer'.
-	 * It is not the order page itself. For that @see getOrderPage()
-	 *
-	 * @return WireData Order customer values in current order.
+	 * @param mixed $orderPage
+	 * @return mixed
 	 */
 	public function ___getOrderCustomer($orderPage = null) {
-		// public function getOrderCustomer($orderPage = null) {
+		// /**
+  * Get Order Customer.
+  *
+  * @param mixed $orderPage
+  * @return mixed
+  */
+ public function getOrderCustomer($orderPage = null) {
 		// TODO MAKE HOOKABLE? SO CAN ADD EXTRA STUFF, E.G. IF CUSTOMER TO PAY DIGITAL GOODS TAX?
 		// ============
 		// @note: init this just to avoid errors in case no order
@@ -37,6 +41,13 @@ trait TraitPWCommerceProcessOrderCustomer {
 		return $orderCustomer;
 	}
 
+	/**
+	 * Set Order Page P W Commerce Order Customer Values.
+	 *
+	 * @param mixed $form
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function setOrderPagePWCommerceOrderCustomerValues($form, Page $orderPage) {
 
 		// -----------

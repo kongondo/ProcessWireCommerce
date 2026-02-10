@@ -4,6 +4,12 @@ namespace ProcessWire;
 
 trait TraitPWCommercePostProcessOrder
 {
+	/**
+	 * Post Capture Order.
+	 *
+	 * @param mixed $response
+	 * @return mixed
+	 */
 	private function postCaptureOrder($response)
 	{
 

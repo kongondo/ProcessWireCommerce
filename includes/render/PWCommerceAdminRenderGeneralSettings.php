@@ -44,6 +44,12 @@ class PWCommerceAdminRenderGeneralSettings extends WireData
 	private $xstore;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INIT  ~~~~~~~~~~~~~~~~~~
@@ -61,6 +67,12 @@ class PWCommerceAdminRenderGeneralSettings extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TABS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Tabs.
+	 *
+	 * @param InputfieldWrapper $wrapper
+	 * @return mixed
+	 */
 	protected function getTabs(InputfieldWrapper $wrapper) {
 
 		// GET GENERAL SETTINGS PAGE
@@ -124,6 +136,12 @@ class PWCommerceAdminRenderGeneralSettings extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get General Settings Tabs.
+	 *
+	 * @param mixed $tabName
+	 * @return mixed
+	 */
 	public function getGeneralSettingsTabs($tabName) {
 		if ($tabName === 'main') {
 			$tab = $this->getMainTab();
@@ -146,6 +164,12 @@ class PWCommerceAdminRenderGeneralSettings extends WireData
 		return $tab;
 	}
 
+	/**
+	 * Get Inputfield For Tab.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function getInputfieldForTab($options) {
 		$type = $options['type'];
 		if (in_array($type, ['text', 'number'])) {
@@ -167,6 +191,13 @@ class PWCommerceAdminRenderGeneralSettings extends WireData
 		return $field;
 	}
 
+	/**
+	 * Set Wrap Attr.
+	 *
+	 * @param mixed $field
+	 * @param array $wrapAttrs
+	 * @return mixed
+	 */
 	private function setWrapAttr($field, array $wrapAttrs) {
 		foreach ($wrapAttrs as $wrapAttr) {
 			$field->wrapAttr($wrapAttr['dataset'], $wrapAttr['value']);
@@ -177,6 +208,12 @@ class PWCommerceAdminRenderGeneralSettings extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SETTINGS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get General Setting Value.
+	 *
+	 * @param mixed $setting
+	 * @return mixed
+	 */
 	private function getGeneralSettingValue($setting) {
 		$generalSettings = $this->generalSettings;
 		// @note: if saved values are pages, e.g. 'default_product_properties'

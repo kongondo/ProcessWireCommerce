@@ -7,6 +7,12 @@ trait TraitPWCommerceAdminPagination
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PAGINATION  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Current Pagination Number.
+	 *
+	 * @param mixed $urlString
+	 * @return mixed
+	 */
 	private function getCurrentPaginationNumber($urlString) {
 		$pageNumber = 0;
 		$urlStringArray = explode("/", $urlString);
@@ -18,18 +24,33 @@ trait TraitPWCommerceAdminPagination
 	}
 
 
+	/**
+	 * Set Pagination Number Cookie For Context.
+	 *
+	 * @return mixed
+	 */
 	private function setPaginationNumberCookieForContext() {
 		$paginationNumberCoookieName = PwCommerce::PWCOMMERCE_PAGINATION_NUMBER_COOKIE_NAME_PREFIX . "_" . $this->wire('sanitizer')->fieldName($this->context);
 		$this->wire('input')->cookie->set($paginationNumberCoookieName, (int) $this->currentPaginationNumberForContext);
 
 	}
 
+	/**
+	 * Get Pagination Number Cookie For Context.
+	 *
+	 * @return mixed
+	 */
 	private function getPaginationNumberCookieForContext() {
 		$paginationNumberCoookieName = PwCommerce::PWCOMMERCE_PAGINATION_NUMBER_COOKIE_NAME_PREFIX . "_" . $this->wire('sanitizer')->fieldName($this->context);
 		$currentPaginationNumber = (int) $this->wire('input')->cookie->get($paginationNumberCoookieName);
 		return $currentPaginationNumber;
 	}
 
+	/**
+	 * Set Pagination Limit Cookie For Context.
+	 *
+	 * @return mixed
+	 */
 	private function setPaginationLimitCookieForContext() {
 		$paginationLimitCoookieName = PwCommerce::PWCOMMERCE_PAGINATION_LIMIT_COOKIE_NAME_PREFIX . "_" . $this->wire('sanitizer')->fieldName($this->context);
 		// $limitValues = explode("=", $this->selector);
@@ -47,12 +68,22 @@ trait TraitPWCommerceAdminPagination
 		}
 	}
 
+	/**
+	 * Get Pagination Limit Cookie For Context.
+	 *
+	 * @return mixed
+	 */
 	private function getPaginationLimitCookieForContext() {
 		$paginationLimitCoookieName = PwCommerce::PWCOMMERCE_PAGINATION_LIMIT_COOKIE_NAME_PREFIX . "_" . $this->wire('sanitizer')->fieldName($this->context);
 		$currentPaginationLimitForContext = (int) $this->wire('input')->cookie->get($paginationLimitCoookieName);
 		return $currentPaginationLimitForContext;
 	}
 
+	/**
+	 * Set Limit For Selector For Lister.
+	 *
+	 * @return mixed
+	 */
 	private function setLimitForSelectorForLister() {
 		// set last limit
 		$currentPaginationLimitForContext = (int) $this->getPaginationLimitCookieForContext();

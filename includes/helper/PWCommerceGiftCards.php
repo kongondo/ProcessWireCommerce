@@ -31,6 +31,12 @@ class PWCommerceGiftCards extends WireData
 	private $digits;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		parent::__construct();
 		if (is_array($options)) {
@@ -43,6 +49,12 @@ class PWCommerceGiftCards extends WireData
 
 	}
 
+	/**
+	 * Process Gift Card Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function processGiftCardAction($input) {
 
 		$this->input = $input;
@@ -69,10 +81,7 @@ class PWCommerceGiftCards extends WireData
 	/**
 	 * xxxxx.
 	 *
-	 * TODO.
-	 *
-	 * @access public
-	 *
+	 * @return mixed
 	 */
 	private function processManuallyIssueGiftCard() {
 
@@ -174,10 +183,7 @@ class PWCommerceGiftCards extends WireData
 	/**
 	 * xxxxx.
 	 *
-	 * TODO.
-	 *
-	 * @access public
-	 *
+	 * @return mixed
 	 */
 	public function xxxProcessSaleOfGiftCard() {
 	}
@@ -187,10 +193,7 @@ class PWCommerceGiftCards extends WireData
 	/**
 	 * xxxxx.
 	 *
-	 * TODO.
-	 *
-	 * @access public
-	 *
+	 * @return mixed
 	 */
 	public function xxxProcessRedeemGiftCardForOrder() {
 	}
@@ -203,10 +206,7 @@ class PWCommerceGiftCards extends WireData
 	/**
 	 * xxxxx.
 	 *
-	 * TODO.
-	 *
-	 * @access public
-	 *
+	 * @return mixed
 	 */
 	public function redeemGiftCardRender() {
 		$t = $this->pwcommerce->getPWCommerceTemplate("gift-card-redeem-html.php");
@@ -216,6 +216,11 @@ class PWCommerceGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Session Applied Gift Cards.
+	 *
+	 * @return mixed
+	 */
 	public function getSessionAppliedGiftCards() {
 
 		$sessionGiftCards = new WireData();
@@ -234,6 +239,11 @@ class PWCommerceGiftCards extends WireData
 
 	}
 
+	/**
+	 * Get Session Applied Gift Cards I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getSessionAppliedGiftCardsIDs() {
 		$redeemedGiftCardsIDs = $this->session->get('redeemedGiftCardsIDs');
 		// bd($redeemedGiftCardsIDs, __METHOD__ . ': $redeemedGiftCardsIDs - GIFT CARD IDs TO REDEEM TOTAL FROM CHECK - at line #' . __LINE__);
@@ -241,6 +251,12 @@ class PWCommerceGiftCards extends WireData
 		return $redeemedGiftCardsIDs;
 	}
 
+	/**
+	 * Get Gift Cards Info.
+	 *
+	 * @param array $giftCardsIDs
+	 * @return mixed
+	 */
 	private function getGiftCardsInfo(array $giftCardsIDs) {
 		// TODO -> PAGE ARRAY FROM SELECTOR OR ARRAY?
 		$giftCardsInfo = new PageArray();
@@ -256,10 +272,21 @@ class PWCommerceGiftCards extends WireData
 		return $giftCardsInfo;
 	}
 
+	/**
+	 * Get Gift Card Info.
+	 *
+	 * @return mixed
+	 */
 	private function getGiftCardInfo() {
 
 	}
 
+	/**
+	 * Process Redeem Gift Card.
+	 *
+	 * @param mixed $submittedGiftCardCodeString
+	 * @return mixed
+	 */
 	public function processRedeemGiftCard($submittedGiftCardCodeString) {
 		// TODO - DO WE NEED TO RETURN ANYTHING? E.G. ERRORS?
 		// -------
@@ -311,6 +338,11 @@ class PWCommerceGiftCards extends WireData
 	// ~~~~~~~~~~~~~~~~
 	// GIFT CARD UTILITIES
 
+	/**
+	 * Get Unique Gift Card Code.
+	 *
+	 * @return mixed
+	 */
 	public function getUniqueGiftCardCode() {
 		// do-while Loop
 		do {
@@ -334,6 +366,11 @@ class PWCommerceGiftCards extends WireData
 		return $code;
 	}
 
+	/**
+	 * Generate Unique Gift Card Code.
+	 *
+	 * @return mixed
+	 */
 	private function generateUniqueGiftCardCode() {
 		$codeRaw = \rand(pow(10, $this->digits - 1) - 1, pow(10, $this->digits) - 1);
 		// TODO MIGHT NEED TO REVISIT THIS SPLIT IF MAKE CONFIGURABLE + IF NOT USER FRIENDLY FOR FRONTEND USE?!
@@ -344,6 +381,12 @@ class PWCommerceGiftCards extends WireData
 		return $code;
 	}
 
+	/**
+	 * Get Last Four Digits Of Gift Card Code.
+	 *
+	 * @param mixed $code
+	 * @return mixed
+	 */
 	public function getLastFourDigitsOfGiftCardCode($code) {
 		$codeArray = explode("-", (string) $code);
 		$codeLastFourDigits = $codeArray[3];

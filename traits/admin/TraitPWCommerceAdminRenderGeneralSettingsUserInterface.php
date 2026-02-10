@@ -6,6 +6,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsUserInterface
 {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ USER INTERFACE TAB  ~~~~~~~~~~~~~~~~~~
+	/**
+	 * Get G U I Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getGUITab() {
 
 		// 		TODO

@@ -7,6 +7,11 @@ trait TraitPWCommerceActionsInventory
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INVENTORY ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Action Inventory.
+	 *
+	 * @return mixed
+	 */
 	private function actionInventory() {
 
 		$items = $this->items;
@@ -72,6 +77,12 @@ trait TraitPWCommerceActionsInventory
 	}
 
 
+	/**
+	 * Post Process Order Status Restock Inventory.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function postProcessOrderStatusRestockInventory(Page $orderPage) {
 		// @note: given that we are cancelling an existing order, we expect all these line items to have a 'published' status
 		/** @var PageArray $orderLineItemsPages */

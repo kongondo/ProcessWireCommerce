@@ -20,6 +20,11 @@ namespace ProcessWire;
 class FieldtypePWCommerceOrderCustomer extends Fieldtype
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Order Customer: Fieldtype',
@@ -34,6 +39,9 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Return the required Inputfield used to populate a field of this type.
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getInputfield(Page $page, Field $field) {
 		$inputfield = $this->modules->get("InputfieldPWCommerceOrderCustomer");
@@ -49,6 +57,9 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Return a blank ready-to-populate version of a field of this type.
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getBlankValue(Page $page, Field $field) {
 		$record = new WireData();
@@ -59,8 +70,8 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Set the config option fields for this Field.
 	 *
-	 * These appear in the 'Details' Tab when editing an instance of this Field.
-	 *
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function ___getConfigInputfields(Field $field) {
 		$inputfields = parent::___getConfigInputfields($field);
@@ -70,6 +81,10 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Format a value for output, called when a Page's outputFormatting is on.
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function formatValue(Page $page, Field $field, $value) {
 		// TODO:???
@@ -78,8 +93,11 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 
 	/**
 	 * Given a value, make it clean for storage within a Page
-	 * Implementation is required by Fieldtype modules, as this method is abstract.
-	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function sanitizeValue(Page $page, Field $field, $value) {
 
@@ -96,6 +114,12 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 		return $value;
 	}
 
+	/**
+	 * Get Country.
+	 *
+	 * @param mixed $countryTitle
+	 * @return mixed
+	 */
 	private function getCountry($countryTitle) {
 		$countryID = 0;
 		if (!empty($countryTitle)) {
@@ -108,12 +132,10 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
 	 *
-	 * @param Page $page.
-	 * @param Field $field.
-	 * @param string|int|array $value.
-	 * @access public
-	 * @return string|int|array|object $value.
-	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___wakeupValue(Page $page, Field $field, $value) {
 		// if for some reason we already got a valid value, then just return it
@@ -221,12 +243,10 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
 	 *
-	 * @param Page $page.
-	 * @param Field $field.
-	 * @param string|int|array|object $value.
-	 * @access public
-	 * @return array $sleepValue.
-	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___sleepValue(Page $page, Field $field, $value) {
 
@@ -289,6 +309,8 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Return the database schema that defines an Order Customer item
 	 *
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getDatabaseSchema(Field $field) {
 		$schema = parent::getDatabaseSchema($field);
@@ -389,6 +411,12 @@ class FieldtypePWCommerceOrderCustomer extends Fieldtype
 	/**
 	 * Method called when the field is database-queried from a selector
 	 *
+	 * @param mixed $query
+	 * @param mixed $table
+	 * @param mixed $subfield
+	 * @param mixed $operator
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
 
