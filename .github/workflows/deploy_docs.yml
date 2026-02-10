@@ -1,0 +1,46 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Build MkDocs Site (Creates 'site/' directory)
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Install MkDocs and Material Theme
+        run: pip install mkdocs-material
+
+      - name: Build MkDocs
+        run: mkdocs build
+
+      # 2. Generate PHP API Documentation (Into 'site/api/')
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: phpDocumentor
+
+      - name: Generate API Docs
+        run: phpdoc -d . -t site/api --ignore "vendor/,node_modules/,site/,docs/,tests/,test/,.git/,.github/" --template="default"
+
+      # 3. Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site

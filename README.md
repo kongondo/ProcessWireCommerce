@@ -24,7 +24,7 @@ https://github.com/kongondo/PWCommerce2Starter
 
 ## Documentation
 
-WIP
+See the [Documentation](docs/) directory.
 
 ## Community Support Forum
 
