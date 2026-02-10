@@ -33,10 +33,11 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          tools: phpDocumentor
 
       - name: Generate API Docs
-        run: phpdoc -d . -t site/api --ignore "vendor/,node_modules/,site/,docs/,tests/,test/,.git/,.github/" --template="default"
+        run: |
+          chmod +x run_phpdoc.sh
+          ./run_phpdoc.sh
 
       # 3. Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
