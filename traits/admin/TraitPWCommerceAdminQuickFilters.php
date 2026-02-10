@@ -8,6 +8,11 @@ trait TraitPWCommerceAdminQuickFilters
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
 
+	/**
+	 *    render Context Quick Filters.
+	 *
+	 * @return mixed
+	 */
 	protected function ___renderContextQuickFilters() {
 		// filters array
 		/** @var array $filters */

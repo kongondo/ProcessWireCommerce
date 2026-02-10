@@ -10,11 +10,8 @@ trait TraitPWCommerceActionsCountry
 	/**
 	 * Create new countries for tax-rates context.
 	 *
-	 * Can be one or multiple.
-	 *
-	 * @access private
-	 * @param WireInputData $input
-	 * @return array $result Outcome of the creation action.
+	 * @param mixed $input
+	 * @return mixed
 	 */
 	private function addNewCountriesAction($input) {
 
@@ -162,6 +159,11 @@ trait TraitPWCommerceActionsCountry
 		return $result;
 	}
 
+	/**
+	 * Get Already Added Countries.
+	 *
+	 * @return mixed
+	 */
 	private function getAlreadyAddedCountries() {
 		// finding countries that have saved location codes. Should return all available since this is not a user editable setting and it is set on create/add new countries/tax rates!
 		$countries = $this->wire('pages')->findRaw("template=pwcommerce-country,pwcommerce_tax_rates.tax_location_code!='',,include=all", 'pwcommerce_tax_rates.tax_location_code');
@@ -170,12 +172,23 @@ trait TraitPWCommerceActionsCountry
 		return $countryCodes;
 	}
 
+	/**
+	 * Get Country Locales.
+	 *
+	 * @return mixed
+	 */
 	private function getCountryLocales() {
 		// GET COUNTRIES LOCALES
 		$locales = $this->pwcommerce->getPWCommerceClassByName('PWCommerceLocales');
 		return $locales;
 	}
 
+	/**
+	 * Get Country Base Tax Rate.
+	 *
+	 * @param mixed $countryCode
+	 * @return mixed
+	 */
 	private function getCountryBaseTaxRate($countryCode) {
 		$countryBaseTaxRate = null;
 		$locales = $this->getCountryLocales();
@@ -197,6 +210,12 @@ trait TraitPWCommerceActionsCountry
 		return $countryBaseTaxRate;
 	}
 
+	/**
+	 * Get Country Territories.
+	 *
+	 * @param mixed $countryCode
+	 * @return mixed
+	 */
 	private function getCountryTerritories($countryCode) {
 		// GET COUNTRIES TERRITORIES
 		$territories = $this->pwcommerce->getPWCommerceClassByName('PWCommerceTerritories');
@@ -205,6 +224,13 @@ trait TraitPWCommerceActionsCountry
 		return $countryTerritories;
 	}
 
+	/**
+	 * Add Country Territories.
+	 *
+	 * @param mixed $countryTerritories
+	 * @param mixed $parent
+	 * @return mixed
+	 */
 	private function addCountryTerritories($countryTerritories, $parent) {
 		// TODO:IN FUTURE, DO A COUNT HERE OF NUMBER OF COUNTRY TERRITORIES CREATED!
 		$template = "pwcommerce-country-territory";

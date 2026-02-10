@@ -36,6 +36,12 @@ class PWCommerceImport extends WireData
 	// ---------
 	private $isMultilingual;
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $importOptions
+	 * @return mixed
+	 */
 	public function __construct($importOptions = null) {
 		parent::__construct();
 		if (is_array($importOptions)) {
@@ -47,9 +53,9 @@ class PWCommerceImport extends WireData
 	/**
 	 * Check and import given items into shop.
 	 *
-	 * @param array $items Array of items to import.
-	 * @param string $importType The type of import.
-	 * @return PWCommerceImport::runImport.
+	 * @param array $items
+	 * @param string $importType
+	 * @return mixed
 	 */
 	public function import(array $items, string $importType) {
 		/*
@@ -89,12 +95,18 @@ class PWCommerceImport extends WireData
 	/**
 	 * Sets class property to true if shop is multilingual site, else false.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function setMultiLingualStatus() {
 		$this->isMultilingual = !empty($this->wire('languages'));
 	}
 
+	/**
+	 * Set Specific Item Parent.
+	 *
+	 * @param int $parentTitleOrID
+	 * @return mixed
+	 */
 	private function setSpecificItemParent($parentTitleOrID) {
 		$parent = null;
 		$parentTemplateName = $this->getImportTypeParentTemplateName();
@@ -120,7 +132,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get the name of the template of a given import type.
 	 *
-	 * @return string $templateName Import type template name.
+	 * @return mixed
 	 */
 	private function getImportTypeTemplate() {
 		$importType = $this->importType;
@@ -138,8 +150,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get the parent page of a given import type.
 	 *
-	 * @param string $importType Import type whose parent page to fetch.
-	 * @return Page $parent Import type parent page.
+	 * @return mixed
 	 */
 	private function getImportTypeParent() {
 		$parentTemplateName = $this->getImportTypeParentTemplateName();
@@ -157,7 +168,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get the parent template name for a given import type.
 	 *
-	 * @return mixed $parentTemplate String if template name found else null.
+	 * @return mixed
 	 */
 	private function getImportTypeParentTemplateName() {
 		$importType = $this->importType;
@@ -176,7 +187,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get the names of templates for all importable types.
 	 *
-	 * @return array Array with names of  templates for all importable types.
+	 * @return mixed
 	 */
 	private function getAllTemplatesForImports() {
 		return
@@ -207,7 +218,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get the names of parent templates for all importable types.
 	 *
-	 * @return array Array with names of parent templates for all importable types.
+	 * @return mixed
 	 */
 	private function getAllParentTemplatesForImports() {
 		return
@@ -234,7 +245,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get properties of pwcommerce fields for importable types.
 	 *
-	 * @return array Array with names of field properties.
+	 * @return mixed
 	 */
 	private function getAllImportPWCommerceFieldsProperties() {
 		// TODO COULD USE SETARRAY? NAAH, NEED TO SANITIZE AS BELOW!
@@ -285,7 +296,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce fields that are language fields if applicable.
 	 *
-	 * @return array Array with names of potential language fields.
+	 * @return mixed
 	 */
 	private function getPWCommerceLanguageFieldsNames() {
 		return [
@@ -296,7 +307,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce image and file fields.
 	 *
-	 * @return array Array with names of image and file fields.
+	 * @return mixed
 	 */
 	private function getPWCommerceImageAndFileFieldsNames() {
 		return
@@ -309,7 +320,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce single page  fields.
 	 *
-	 * @return array Array with names of single page fields.
+	 * @return mixed
 	 */
 	private function getPWCommerceSinglePageFieldsNames() {
 		return [
@@ -321,7 +332,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce multi page  fields.
 	 *
-	 * @return array Array with names of multi page fields.
+	 * @return mixed
 	 */
 	private function getPWCommerceMultiPageFieldsNames() {
 		return
@@ -337,7 +348,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce custom fields.
 	 *
-	 * @return array Array with names of custom fields.
+	 * @return mixed
 	 */
 	private function getPWCommerceCustomFieldsNames() {
 		return
@@ -352,10 +363,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce custom fields that can take multiple records.
 	 *
-	 * These extend FieldtypeMulti.
-	 * There blank item is a WireArray.
-	 *
-	 * @return array Array with names of custom fields that can have multiple records.
+	 * @return mixed
 	 */
 	private function getPWCommerceCustomFieldsNamesForMultipleRecords() {
 		return
@@ -368,7 +376,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce single page  fields allowed templates.
 	 *
-	 * @return array Array with names of single page fields allowed templates.
+	 * @return mixed
 	 */
 	private function getPWCommerceSinglePageFieldsAllowedTemplatesNames() {
 		return [
@@ -380,7 +388,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of pwcommerce multi page  fields allowed templates.
 	 *
-	 * @return array Array with names of multi page fields  allowed templates.
+	 * @return mixed
 	 */
 	private function getPWCommerceMultiPageFieldsAllowedTemplatesNames() {
 		return
@@ -396,8 +404,8 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get the allowed template name for a given PWCommerce single page field.
 	 *
-	 * @param string $fieldName Name of the single page field whose allowed template to get.
-	 * @return mixed $fieldNameAllowedTemplateName Name of allowed template if found, else null.
+	 * @param mixed $fieldName
+	 * @return mixed
 	 */
 	private function getSpecificPWCommerceSinglePageFieldAllowedTemplateName($fieldName) {
 		$fieldNameAllowedTemplateName = null;
@@ -413,8 +421,8 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get the allowed template name for a given PWCommerce single page field.
 	 *
-	 * @param string $fieldName Name of the single page field whose allowed template to get.
-	 * @return mixed $fieldNameAllowedTemplateName Name of allowed template if found, else null.
+	 * @param mixed $fieldName
+	 * @return mixed
 	 */
 	private function getSpecificPWCommerceMultiPageFieldAllowedTemplateName($fieldName) {
 		$fieldNameAllowedTemplateName = null;
@@ -432,9 +440,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of custom fields properties that require a page ID as a value.
 	 *
-	 * Used to check if valid page and template.
-	 *
-	 * @return array Array with property => template name pairs.
+	 * @return mixed
 	 */
 	private function getPWCommerceCustomFieldsPropertyIsPage() {
 		return [
@@ -448,7 +454,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Get names of import contexts whereby each import item will need a specified parent.
 	 *
-	 * @return array Array with names of import contexts whose items needs a specified parent.
+	 * @return mixed
 	 */
 	private function getEachImportItemNeedsSpecificParent() {
 		return
@@ -460,6 +466,14 @@ class PWCommerceImport extends WireData
 
 	// ~~~~~~~~~~
 
+	/**
+	 * Set Multilingual Field Values.
+	 *
+	 * @param mixed $importItem
+	 * @param Page $newPage
+	 * @param mixed $fieldName
+	 * @return mixed
+	 */
 	private function setMultilingualFieldValues($importItem, Page $newPage, $fieldName) {
 
 		foreach ($this->wire('languages') as $language) {
@@ -499,6 +513,13 @@ class PWCommerceImport extends WireData
 
 	// ~~~~~~~~~~~~~~
 
+	/**
+	 * Sanitize Import Field Value.
+	 *
+	 * @param mixed $property
+	 * @param mixed $value
+	 * @return mixed
+	 */
 	private function sanitizeImportFieldValue($property, $value) {
 
 		$sanitizer = $this->wire('sanitizer');
@@ -547,6 +568,14 @@ class PWCommerceImport extends WireData
 
 	// ~~~~~~~~~~~~~~
 
+	/**
+	 * Process Import File Or Image Field.
+	 *
+	 * @param mixed $importItem
+	 * @param Page $newPage
+	 * @param mixed $fieldName
+	 * @return mixed
+	 */
 	private function processImportFileOrImageField($importItem, Page $newPage, $fieldName) {
 
 		// -----------
@@ -569,6 +598,14 @@ class PWCommerceImport extends WireData
 		return $newPage;
 	}
 
+	/**
+	 * Process Import Single Page Field.
+	 *
+	 * @param mixed $importItem
+	 * @param Page $newPage
+	 * @param mixed $fieldName
+	 * @return mixed
+	 */
 	private function processImportSinglePageField($importItem, Page $newPage, $fieldName) {
 
 		// ---------
@@ -595,6 +632,14 @@ class PWCommerceImport extends WireData
 		return $newPage;
 	}
 
+	/**
+	 * Process Import Multi Page Field.
+	 *
+	 * @param mixed $importItem
+	 * @param Page $newPage
+	 * @param mixed $fieldName
+	 * @return mixed
+	 */
 	private function processImportMultiPageField($importItem, Page $newPage, $fieldName) {
 
 		// ---------
@@ -627,6 +672,14 @@ class PWCommerceImport extends WireData
 		return $newPage;
 	}
 
+	/**
+	 * Process Import Custom Fields.
+	 *
+	 * @param mixed $importItem
+	 * @param Page $newPage
+	 * @param mixed $fieldName
+	 * @return mixed
+	 */
 	private function processImportCustomFields($importItem, Page $newPage, $fieldName) {
 
 		// ---------
@@ -716,8 +769,8 @@ class PWCommerceImport extends WireData
 	/**
 	 * Build selector part for getting page using its ID or title.
 	 *
-	 * @param mixed String or Integer for selecting a desired page.
-	 * @return string $selector Built selector or empty string if cannot build.
+	 * @param int $pageTitleOrID
+	 * @return mixed
 	 */
 	private function buildSelectorFromPageIDOrTitle($pageTitleOrID) {
 		$selector = "";
@@ -742,7 +795,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Run an import for a given importable type and given import items.
 	 *
-	 * @return array $result Array with the result of the import.
+	 * @return mixed
 	 */
 	private function runImport() {
 
@@ -959,7 +1012,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Generate variants for a given product based on specified attributes and attribute options.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function generateVariants() {
 
@@ -1070,6 +1123,12 @@ class PWCommerceImport extends WireData
 		return $result;
 	}
 
+	/**
+	 * Set Variant Product Page.
+	 *
+	 * @param int $productTitleOrID
+	 * @return mixed
+	 */
 	private function setVariantProductPage($productTitleOrID) {
 		$selector = $this->buildSelectorFromPageIDOrTitle($productTitleOrID);
 
@@ -1093,6 +1152,12 @@ class PWCommerceImport extends WireData
 		return $productPage;
 	}
 
+	/**
+	 * Create Variant Product Page.
+	 *
+	 * @param mixed $pageTitle
+	 * @return mixed
+	 */
 	private function createVariantProductPage($pageTitle) {
 		// TODO ok memory-wise?
 		$productPage = new NullPage();
@@ -1113,6 +1178,14 @@ class PWCommerceImport extends WireData
 		return $productPage;
 	}
 
+	/**
+	 * Create Variants.
+	 *
+	 * @param Page $productPage
+	 * @param array $cartesianProducts
+	 * @param array $importItem
+	 * @return mixed
+	 */
 	private function createVariants(Page $productPage, array $cartesianProducts, array $importItem) {
 		$fieldNameAttributeOptions = PwCommerce::PRODUCT_ATTRIBUTES_OPTIONS_FIELD_NAME;
 		$fieldNameProductStock = PwCommerce::PRODUCT_STOCK_FIELD_NAME;
@@ -1201,17 +1274,21 @@ class PWCommerceImport extends WireData
 
 	}
 
+	/**
+	 * Build Variant Title.
+	 *
+	 * @param mixed $productTitle
+	 * @param mixed $attributeOptionsTitles
+	 * @return mixed
+	 */
 	private function buildVariantTitle($productTitle, $attributeOptionsTitles) {
 	}
 
 	/**
 	 * Set attribute and attribute options IDs to a lookup array for adding their IDs to product and variants page fields.
 	 *
-	 * These are for pwcommerce_product_attributes and pwcommerce_product_attrpwcommerce_product_attributes_options.
-	 * This lookup will help after we generate cartersian products by not having to refetch or create the attributes and attribute options then.
-	 *
 	 * @param array $attributesAndAttributeOptions
-	 * @return void
+	 * @return mixed
 	 */
 	private function setAttributeAndAttributeOptionsIDs(array $attributesAndAttributeOptions) {
 
@@ -1237,11 +1314,9 @@ class PWCommerceImport extends WireData
 	/**
 	 * Process attribute options IDs for later adding to variants.
 	 *
-	 * Populate a lookup array with their IDs.
-	 *
-	 * @param int $parentAttributeID ID of the attribute whose options to set. Needed if creating new attribute option.
-	 * @param array $attributeOptions Attribute options IDs or titles to process.
-	 * @return void
+	 * @param int $parentAttributeID
+	 * @param mixed $attributeOptions
+	 * @return mixed
 	 */
 	private function processAttributeOptionsForCreatingVariants($parentAttributeID, $attributeOptions) {
 
@@ -1253,6 +1328,13 @@ class PWCommerceImport extends WireData
 		}
 	}
 
+	/**
+	 * Get Or Set Attribute Page.
+	 *
+	 * @param int $attributeTitleOrID
+	 * @param int $parentAttributeID
+	 * @return mixed
+	 */
 	private function getOrSetAttributePage($attributeTitleOrID, $parentAttributeID = 0) {
 		$selector = $this->buildSelectorFromPageIDOrTitle($attributeTitleOrID);
 
@@ -1303,9 +1385,7 @@ class PWCommerceImport extends WireData
 	/**
 	 * Create cartesian product of array of arrays.
 	 *
-	 * Generates variants
-	 * @credits: https://stackoverflow.com/questions/2516599/cartesian-product-of-n-arrays/4743758.
-	 * @return array $cartesianProducts.
+	 * @return mixed
 	 */
 	private function createCartesianProduct() {
 		$_ = func_get_args();
@@ -1336,6 +1416,13 @@ class PWCommerceImport extends WireData
 		return $cartesianProducts;
 	}
 
+	/**
+	 * Set Attributes To Product Page.
+	 *
+	 * @param mixed $productPage
+	 * @param mixed $rawAttributes
+	 * @return mixed
+	 */
 	private function setAttributesToProductPage($productPage, $rawAttributes) {
 		$fieldName = PwCommerce::PRODUCT_ATTRIBUTES_FIELD_NAME;
 
@@ -1352,9 +1439,9 @@ class PWCommerceImport extends WireData
 	/**
 	 * Check if a new item already exists as a child of given parent.
 	 *
-	 * @param Page $parentPage Parent page to check if already has child with given title.
-	 * @param string $pageTitle The title to check if already exists for a child for the given parent page.
-	 * @return boolean True if child page already exists, else false.
+	 * @param Page $parentPage
+	 * @param string $pageTitle
+	 * @return bool
 	 */
 	private function isPageAlreadyExists(Page $parentPage, string $pageTitle) {
 		$name = $this->wire('sanitizer')->pageName($pageTitle, true);

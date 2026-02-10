@@ -20,6 +20,11 @@ namespace ProcessWire;
 class PWCommerceCurrencies extends WireData
 {
 
+	/**
+	 * Get Currencies.
+	 *
+	 * @return mixed
+	 */
 	public function getCurrencies() {
 		$currencies = [
 			0 =>
@@ -5970,6 +5975,11 @@ class PWCommerceCurrencies extends WireData
 		return $currencies;
 	}
 
+	/**
+	 * Get Locale Codes.
+	 *
+	 * @return mixed
+	 */
 	public function getLocaleCodes() {
 
 		$currencies = $this->getCurrencies();
@@ -5984,6 +5994,12 @@ class PWCommerceCurrencies extends WireData
 		return $localeCodes;
 	}
 
+	/**
+	 * Get Country Currency By Country Code.
+	 *
+	 * @param mixed $countryCode
+	 * @return mixed
+	 */
 	public function getCountryCurrencyByCountryCode($countryCode) {
 		$foundCountryCurrency = null;
 		if (empty($countryCode)) {
@@ -6000,6 +6016,12 @@ class PWCommerceCurrencies extends WireData
 		return $foundCountryCurrency;
 	}
 
+	/**
+	 * Get Country Currency By Country Name.
+	 *
+	 * @param mixed $countryName
+	 * @return mixed
+	 */
 	public function getCountryCurrencyByCountryName($countryName) {
 		$foundCountryCurrency = null;
 		if (empty($countryName)) {
@@ -6016,6 +6038,12 @@ class PWCommerceCurrencies extends WireData
 		return $foundCountryCurrency;
 	}
 
+	/**
+	 * Get Locale By Locale Code.
+	 *
+	 * @param mixed $localeCode
+	 * @return mixed
+	 */
 	public function getLocaleByLocaleCode($localeCode) {
 		$foundLocaleCode = null;
 		if (empty($localeCode)) {

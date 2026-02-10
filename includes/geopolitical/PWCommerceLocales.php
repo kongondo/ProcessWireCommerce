@@ -20,6 +20,11 @@ namespace ProcessWire;
 class PWCommerceLocales extends WireData
 {
 
+  /**
+   * Get Locales.
+   *
+   * @return mixed
+   */
   public function getLocales() {
     $locales = [
       // ### AFRICA ###
@@ -966,6 +971,12 @@ class PWCommerceLocales extends WireData
     return $locales;
   }
 
+  /**
+   * Get Country Locale By Code.
+   *
+   * @param mixed $countryCode
+   * @return mixed
+   */
   public function getCountryLocaleByCode($countryCode) {
     $foundCountryLocale = null;
     if (empty($countryCode)) {

@@ -20,6 +20,11 @@ namespace ProcessWire;
 class InputfieldPWCommerceOrderCustomer extends Inputfield
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Order Customer: Inputfield',
@@ -35,6 +40,11 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 	protected $field;
 
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -44,10 +54,22 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 
 		$this->field = $field;
@@ -56,6 +78,7 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 	/**
 	 * Render the entire input area for order customer
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -74,17 +97,21 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		$this->preloadInputfieldAssets();
 		// $scripts = $this->config->js($this->id, $options);
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Preload Inputfield Assets.
+	 *
+	 * @return mixed
+	 */
 	private function preloadInputfieldAssets() {
 		// TODO: DELETE WHEN DONE IF NOT IN USE
 	}
@@ -92,8 +119,7 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 	/**
 	 * Build the form for order customer inputs.
 	 *
-	 * @access private
-	 * @return InputfieldWrapper $wrapper The inputfield wrapper with the form objects.
+	 * @return mixed
 	 */
 	private function buildForm() {
 
@@ -150,6 +176,12 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 		return $wrapper;
 	}
 
+	/**
+	 * Build Form Customer Main Details.
+	 *
+	 * @param InputfieldWrapper $wrapper
+	 * @return mixed
+	 */
 	private function buildFormCustomerMainDetails(InputfieldWrapper $wrapper) {
 
 		/** @var WireData $value */
@@ -263,6 +295,12 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 		return $wrapper;
 	}
 
+	/**
+	 * Build Form Customer Shipping Address.
+	 *
+	 * @param InputfieldWrapper $wrapper
+	 * @return mixed
+	 */
 	private function buildFormCustomerShippingAddress(InputfieldWrapper $wrapper) {
 		/** @var WireData $value */
 		$value = $this->attr('value');
@@ -477,6 +515,12 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 
 		return $wrapper;
 	}
+	/**
+	 * Build Form Customer Billing Address.
+	 *
+	 * @param InputfieldWrapper $wrapper
+	 * @return mixed
+	 */
 	private function buildFormCustomerBillingAddress(InputfieldWrapper $wrapper) {
 		/** @var WireData $value */
 		$value = $this->attr('value');
@@ -731,10 +775,8 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 	/**
 	 * Check if required customer form values have been filled.
 	 *
-	 * @access private
-	 * @param WireInputData $input The order customer POST input.
-	 * @return array $errors Empty or populated array if errors found.
-	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function checkErrors(WireInputData $input) {
 
@@ -784,6 +826,11 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 		return $errors;
 	}
 
+	/**
+	 * Get Required Order Customer Inputs.
+	 *
+	 * @return mixed
+	 */
 	public function getRequiredOrderCustomerInputs() {
 		$buildFormWrapper = $this->buildForm();
 
@@ -803,6 +850,8 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 	/**
 	 * Process input for the values sent from the shipping rate for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -847,6 +896,12 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 		}
 	}
 
+	/**
+	 * Process Order Customer For Saving.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processOrderCustomerForSaving(WireInputData $input) {
 
 		$orderCustomer = $this->field->type->getBlankValue($this->page, $this->field);
@@ -937,9 +992,8 @@ class InputfieldPWCommerceOrderCustomer extends Inputfield
 	/**
 	 * Make a string value to represent the shipping fee settings values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param mixed $item
+	 * @return mixed
 	 */
 	private function toStringInhouse($item) {
 		$string = (string) "$item->firstName: $item->middleName: $item->lastName: $item->email: $item->isTaxExempt: $item->shippingAddressFirstName: $item->shippingAddressMiddleName: $item->shippingAddressLastName: $item->shippingAddressPhone: $item->shippingAddressCompany: $item->shippingAddressLineOne: $item->shippingAddressLineTwo: $item->shippingAddressCity: $item->shippingAddressPostalCode: $item->shippingAddressRegion: $item->shippingAddressCountry: $item->useBillingAddress: $item->billingAddressFirstName: $item->billingAddressMiddleName: $item->billingAddressLastName: $item->billingAddressPhone: $item->billingAddressCompany: $item->billingAddressLineOne: $item->billingAddressLineTwo: $item->billingAddressCity: $item->billingAddressPostalCode: $item->billingAddressRegion: $item->billingAddressCountry";

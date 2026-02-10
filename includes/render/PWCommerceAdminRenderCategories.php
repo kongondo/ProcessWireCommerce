@@ -26,11 +26,21 @@ class PWCommerceAdminRenderCategories extends WireData
 
 	private $isCategoryACollection;
 
+	/**
+	 *   construct.
+	 *
+	 * @return mixed
+	 */
 	public function __construct() {
 		$this->isCategoryACollection = $this->pwcommerce->isOtherOptionalSettingInstalled(PwCommerce::PWCOMMERCE_IS_CATEGORY_A_COLLECTION_SETTING_NAME);
 	}
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// TITLE
@@ -41,6 +51,13 @@ class PWCommerceAdminRenderCategories extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 
 		$notInUseCategoryStr = $this->_('Category not used by any product');
@@ -64,6 +81,11 @@ class PWCommerceAdminRenderCategories extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$notFoundCategoriesStr = $this->_('No categories found.');
 		$notFoundCollectionsStr = $this->_('No collections found.');
@@ -71,6 +93,12 @@ class PWCommerceAdminRenderCategories extends WireData
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -117,6 +145,11 @@ class PWCommerceAdminRenderCategories extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -136,6 +169,11 @@ class PWCommerceAdminRenderCategories extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -144,6 +182,11 @@ class PWCommerceAdminRenderCategories extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -167,6 +210,12 @@ class PWCommerceAdminRenderCategories extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -180,6 +229,11 @@ class PWCommerceAdminRenderCategories extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Unused.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUnused() {
 		// e.g.
 		// SELECT data as category_id
@@ -208,6 +262,12 @@ class PWCommerceAdminRenderCategories extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Sales.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterSales($quickFilterValue) {
 		// e.g.
 		// SELECT field_pwcommerce_categories.data AS category_id,

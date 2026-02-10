@@ -5,6 +5,11 @@ namespace ProcessWire;
 trait TraitPWCommerceAdminRenderGeneralSettingsStandards
 {
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ STANDARDS TAB  ~~~~~~~~~~~~~~~~~~
+	/**
+	 * Get Standards Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getStandardsTab() {
 		//--------------
 		// for weights and measures system

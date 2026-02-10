@@ -24,12 +24,22 @@ class PWCommerceAdminRenderLegalPages extends WireData
 
 	private $datetimeFormat;
 
+	/**
+	 *   construct.
+	 *
+	 * @return mixed
+	 */
 	public function __construct() {
 		$this->datetimeFormat = $this->pwcommerce->getDateTimeFormat();
 	}
 
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// TITLE
@@ -40,6 +50,13 @@ class PWCommerceAdminRenderLegalPages extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 		$row = [
 			// TITLE
@@ -51,11 +68,22 @@ class PWCommerceAdminRenderLegalPages extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No legal pages found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -81,9 +109,8 @@ class PWCommerceAdminRenderLegalPages extends WireData
 	/**
 	 * Build the string for the last modified date of this legal page.
 	 *
-	 * @credits: ProcessPageEdit::buildFormInfo().
-	 * @param Page $page The legal page whose modified date we are building.
-	 * @return string $modifiedDate The last modified date string.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	private function getLastModifiedDate($page) {
 		$unknown = '[?]';

@@ -10,11 +10,8 @@ trait TraitPWCommerceActionsNewItem
 	/**
 	 * Create a new child page for a given context.
 	 *
-	 * E.g. a new category or product, etc.
-	 *
-	 * @access public
-	 * @param WireInputData $input
-	 * @return array $result Outcome of the creation action.
+	 * @param mixed $input
+	 * @return mixed
 	 */
 	public function addNewItemAction($input) {
 
@@ -173,7 +170,7 @@ trait TraitPWCommerceActionsNewItem
 	/**
 	 * For add new page for a given context, get the template.
 	 *
-	 * @return Template|Null $template Template if found else null.
+	 * @return mixed
 	 */
 	private function getContextAddNewItemTemplate() {
 		$template = null;
@@ -217,7 +214,7 @@ trait TraitPWCommerceActionsNewItem
 	/**
 	 * For add new page for a given context, get the parent page.
 	 *
-	 * @return Page|Null $parent Page if found else null.
+	 * @return mixed
 	 */
 	private function getContextAddNewItemParent() {
 

@@ -12,6 +12,11 @@ trait TraitPWCommerceUtilitiesDiscount
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DISCOUNT ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Order Line Item Discounts Amount.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemDiscountsAmount() {
 
 		// TODO UPDATE NOVEMBER 2023 -> THIS NOW CHANGES! FOR THE SAKE OF MULTIPLE DISCOUNTS APPLIED TO ONE LINE ITEM, WE WILL USE A WIREARAY, I.E. $this->orderLineItem->discounts. WE will then LOOP THROUGH IT TO GET EACH DISCOUNTS DISCOUNT TYPE AND SUBSEQUENTLY DISCOUNT VALUE AND COMPUTE AMOUNT; WE WILL NEED TO TRACK A CUMULATIVE NET PRICE TO APPLY THE NEXT DISCOUNT TO!
@@ -163,6 +168,12 @@ trait TraitPWCommerceUtilitiesDiscount
 
 	}
 
+	/**
+	 * Calculate Order Line Item Percentage Discount Amount.
+	 *
+	 * @param mixed $discountValue
+	 * @return mixed
+	 */
 	public function calculateOrderLineItemPercentageDiscountAmount($discountValue) {
 		// ++++++++++++++++++
 
@@ -238,7 +249,8 @@ trait TraitPWCommerceUtilitiesDiscount
 	/**
 	 * TODO
 	 *
-	 * @return \Money\Money
+	 * @param mixed $discountValue
+	 * @return mixed
 	 */
 	public function calculateOrderLineItemFixedDiscountAppliedOnceAmount($discountValue) {
 		// TODO CONFIRM MONEY
@@ -250,6 +262,12 @@ trait TraitPWCommerceUtilitiesDiscount
 		return $discountAmountMoney;
 	}
 
+	/**
+	 * Calculate Order Line Item Fixed Discount Applied Per Item Amount.
+	 *
+	 * @param mixed $discountValue
+	 * @return mixed
+	 */
 	public function calculateOrderLineItemFixedDiscountAppliedPerItemAmount($discountValue) {
 		// ++++++++++++++++++
 		// TODO WE NEED TO BE ABLE TO CUMULATIVELY CALCULATE DISCOUNTS! I.E.IF MULTIPE DISCOUNTS ARE BEING APPLIED, THE UNIT PRICE (?) SHOULD BE MINUS THE PREVIOUS DISCOUNT SET! PASS AS PARAM? IS IT REALLY THE UNIT PRICE THOUGH OR THE TOTAL?
@@ -264,7 +282,13 @@ trait TraitPWCommerceUtilitiesDiscount
 	// --------
 
 
-	private function getOrderDiscountedSubTotal($isForShippingRateCalculation = false) {
+	/**
+	 * Get Order Discounted Sub Total.
+	 *
+	 * @param bool $isForShippingRateCalculation
+	 * @return mixed
+	 */
+	private function getOrderDiscountedSubTotal(bool $isForShippingRateCalculation = false) {
 		// TODO: DO MORE TESTS HERE, BOTH INC TAX AND EX TAX!
 		// sum of order line items 'total_price_discounted'
 		// @NOTE: THIS IS THE FINAL PRE-TAX AND PRE-SHIPPING+HANDLING PRICE!

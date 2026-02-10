@@ -7,6 +7,11 @@ trait TraitPWCommerceActionsPayment
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PAYMENT ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Action Payment Providers.
+	 *
+	 * @return mixed
+	 */
 	private function actionPaymentProviders() {
 
 		// TODO: ACCESS CHECKS HERE - FOR FUTURE RELEASE!

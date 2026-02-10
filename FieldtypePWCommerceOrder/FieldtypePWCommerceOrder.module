@@ -29,6 +29,11 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	private $orderDiscounts;
 	private $orderLineItemsPages;
 	private $orderLineItems;
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return [
 			'title' => 'PWCommerce Order: Fieldtype',
@@ -44,6 +49,9 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Return the required Inputfield used to populate a field of this type.
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getInputfield(Page $page, Field $field) {
 		$inputfield = $this->modules->get("InputfieldPWCommerceOrder");
@@ -58,7 +66,10 @@ class FieldtypePWCommerceOrder extends Fieldtype
 
 	/**
 	 * Return a blank ready-to-populate version of a field of this type.
-	 * @return WireData $record
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getBlankValue(Page $page, Field $field) {
 		$record = new WireData();
@@ -69,8 +80,8 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Set the config option fields for this Field.
 	 *
-	 * These appear in the 'Details' Tab when editing an instance of this Field.
-	 *
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function ___getConfigInputfields(Field $field) {
 		$inputfields = parent::___getConfigInputfields($field);
@@ -80,6 +91,10 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Format a value for output, called when a Page's outputFormatting is on.
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function formatValue(Page $page, Field $field, $value) {
 		// TODO:???
@@ -88,8 +103,11 @@ class FieldtypePWCommerceOrder extends Fieldtype
 
 	/**
 	 * Given a value, make it clean for storage within a Page
-	 * Implementation is required by Fieldtype modules, as this method is abstract.
-	 * This method should remove anything that's invalid from the given value. If it can't be sanitized, it should be made blank.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function sanitizeValue(Page $page, Field $field, $value) {
 
@@ -110,9 +128,8 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Sanitize a value assumed to be either a timestamp or in strtotime() compatible format
 	 *
-	 * @param string|int|\DateTime
-	 * @return int|string Returns unix timestamp integer or blank string if empty or invalid value
-	 *
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	protected function _sanitizeValue($value) {
 
@@ -142,6 +159,12 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	}
 
 
+	/**
+	 * Get Order Tax Amount Total.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getOrderTaxAmountTotal(Page $page) {
 
 		// TODO: REFACTOR OR REUSE THIS? NOW WE HAVE $this->orderLineItemsPages!
@@ -163,6 +186,12 @@ class FieldtypePWCommerceOrder extends Fieldtype
 
 	}
 
+	/**
+	 * Get Order Shipping Fee Plus Handling Fee Amount Total.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	private function getOrderShippingFeePlusHandlingFeeAmountTotal(WireData $order) {
 		$pwcommerce = $this->pwcommerce;
 		$shippingFeeMoney = $pwcommerce->money($order->shippingFee);
@@ -177,6 +206,12 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	// ~~~~~~~~~~~
 
 
+	/**
+	 * Get Order Line Items Property Total.
+	 *
+	 * @param string $property
+	 * @return mixed
+	 */
 	private function getOrderLineItemsPropertyTotal(string $property) {
 		// TODO CHANGE TO USE MONEY!
 
@@ -195,30 +230,56 @@ class FieldtypePWCommerceOrder extends Fieldtype
 		return $orderLineItemsPropertyTotalAmount;
 	}
 
+	/**
+	 * Get Order Line Items Total Price.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderLineItemsTotalPrice() {
 		$orderLineItemsTotalPrice = $this->getOrderLineItemsPropertyTotal('totalPrice');
 		// --
 		return $orderLineItemsTotalPrice;
 	}
 
+	/**
+	 * Get Order Line Items Total Price With Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderLineItemsTotalPriceWithTax() {
 		$orderLineItemsTotalPriceWithTax = $this->getOrderLineItemsPropertyTotal('totalPriceWithTax');
 		// --
 		return $orderLineItemsTotalPriceWithTax;
 	}
 
+	/**
+	 * Get Order Line Items Total Price Discounted.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderLineItemsTotalPriceDiscounted() {
 		$orderLineItemsTotalPriceDiscounted = $this->getOrderLineItemsPropertyTotal('totalPriceDiscounted');
 		// --
 		return $orderLineItemsTotalPriceDiscounted;
 	}
 
+	/**
+	 * Get Order Line Items Total Price Discounted With Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderLineItemsTotalPriceDiscountedWithTax() {
 		$orderLineItemsTotalPriceDiscountedWithTax = $this->getOrderLineItemsPropertyTotal('totalPriceDiscountedWithTax');
 		// --
 		return $orderLineItemsTotalPriceDiscountedWithTax;
 	}
 
+	/**
+	 * Get Order Line Items Total Discount.
+	 *
+	 * @param mixed $orderLineItemsDiscounts
+	 * @return mixed
+	 */
 	private function getOrderLineItemsTotalDiscount($orderLineItemsDiscounts) {
 		$pwcommerce = $this->pwcommerce;
 		$orderLineItemsTotalDiscountMoney = $pwcommerce->money(0);
@@ -231,6 +292,11 @@ class FieldtypePWCommerceOrder extends Fieldtype
 		return $orderLineItemsTotalDiscountAmount;
 	}
 
+	/**
+	 * Get Free Shipping Discount.
+	 *
+	 * @return mixed
+	 */
 	private function getFreeShippingDiscount() {
 		$freeShippingDiscount = NULL;
 		if (!empty($this->orderDiscounts)) {
@@ -240,6 +306,11 @@ class FieldtypePWCommerceOrder extends Fieldtype
 		return $freeShippingDiscount;
 	}
 
+	/**
+	 * Get Order Line Items Discounts.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderLineItemsDiscounts() {
 		$orderLineItemsDiscounts = new WireArray();
 		foreach ($this->orderLineItems as $orderLineItem) {
@@ -268,12 +339,10 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object.
 	 *
-	 * @param Page $page.
-	 * @param Field $field.
-	 * @param string|int|array $value.
-	 * @access public
-	 * @return string|int|array|object $value.
-	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___wakeupValue(Page $page, Field $field, $value) {
 		// if for some reason we already got a valid value, then just return it
@@ -503,12 +572,10 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Given an 'awake' value, as set by wakeupValue, convert the value back to a basic type for storage in DB.
 	 *
-	 * @param Page $page.
-	 * @param Field $field.
-	 * @param string|int|array|object $value.
-	 * @access public
-	 * @return array $sleepValue.
-	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___sleepValue(Page $page, Field $field, $value) {
 		$sleepValue = [];
@@ -578,6 +645,12 @@ class FieldtypePWCommerceOrder extends Fieldtype
 		return $sleepValue;
 	}
 
+	/**
+	 * Update Schema.
+	 *
+	 * @param mixed $field
+	 * @return mixed
+	 */
 	private function updateSchema($field) {
 		$database = $this->wire()->database;
 		$table = $database->escapeTable($field->getTable());
@@ -637,6 +710,8 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Return the database schema that defines an Order item
 	 *
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getDatabaseSchema(Field $field) {
 		// TODO NOW THAT WE HAVE DISCOUNTS AS A SEPARATE TABLE, HOW DO WE ALSO TRACK THE TOTAL PRICE WITHOUT DISCOUNTS HERE?! LINE ITEMS HAVE IT; BUT NOT ORDER! I.E., TOTAL PRICE HERE IS MINUS DISCOUNTS! SECONDLY, WHILST WE MIGHT GET ON DURING RUNTIME, ISN'T IT WORTH SAVING?
@@ -780,6 +855,12 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Method called when the field is database-queried from a selector
 	 *
+	 * @param mixed $query
+	 * @param mixed $table
+	 * @param mixed $subfield
+	 * @param mixed $operator
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
 
@@ -857,14 +938,12 @@ class FieldtypePWCommerceOrder extends Fieldtype
 	/**
 	 * Match a date/time value in the database, as used by PageFinder
 	 *
-	 * @param PageFinderDatabaseQuerySelect $query
-	 * @param string $table
-	 * @param string $subfield
-	 * @param string $operator
-	 * @param int|string $value
-	 * @return DatabaseQuerySelect
-	 * @throws WireException if given invalid operator
-	 *
+	 * @param mixed $query
+	 * @param mixed $table
+	 * @param mixed $subfield
+	 * @param mixed $operator
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function getMatchQueryDatetime($query, $table, $subfield, $operator, $value) {
 		$database = $this->wire()->database;

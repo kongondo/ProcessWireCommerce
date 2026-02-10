@@ -47,6 +47,12 @@ class PWCommerceActions extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		parent::__construct();
 		if (is_array($options)) {
@@ -67,6 +73,12 @@ class PWCommerceActions extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PRE-PROCESS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Pre Process Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function preProcessAction($input) {
 		$result = [
 			'notice' => $this->_('Error encountered. No action was taken.'),

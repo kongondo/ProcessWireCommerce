@@ -6,6 +6,11 @@ namespace ProcessWire;
 trait TraitPWCommerceOrderTotals
 {
 
+	/**
+	 * Get Order Grand Total Money.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderGrandTotalMoney()
 	{
 
@@ -20,6 +25,12 @@ trait TraitPWCommerceOrderTotals
 		return $orderGrandTotalMoney;
 	}
 
+	/**
+	 * Get Order Tax Totals.
+	 *
+	 * @param WireArray $orderLineItems
+	 * @return mixed
+	 */
 	public function getOrderTaxTotals(WireArray $orderLineItems)
 	{
 
@@ -40,6 +51,12 @@ trait TraitPWCommerceOrderTotals
 		return $taxes;
 	}
 
+	/**
+	 * Get Order Line Items Total Discounted With Tax.
+	 *
+	 * @param mixed $orderPage
+	 * @return mixed
+	 */
 	public function getOrderLineItemsTotalDiscountedWithTax($orderPage = null)
 	{
 

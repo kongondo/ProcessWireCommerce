@@ -47,6 +47,13 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	protected $isProductCategoriesFeatureInstalled;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @param mixed $field
+	 * @return mixed
+	 */
 	public function __construct($page, $field) {
 		parent::__construct();
 		// TODO????
@@ -87,6 +94,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		//
 	}
 
+	/**
+	 * Set Discount Customer Eligibility Type.
+	 *
+	 * @return mixed
+	 */
 	protected function setDiscountCustomerEligibilityType() {
 		$firstItemDiscountEligibility = $this->discountCustomerEligibility->first();
 		if (!empty($firstItemDiscountEligibility)) {
@@ -95,6 +107,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 
 	}
 
+	/**
+	 * Set Optional Features Checks.
+	 *
+	 * @return mixed
+	 */
 	protected function setOptionalFeaturesChecks() {
 		$customersFeature = 'customers';
 		$customerGroupsFeature = 'customer_groups';
@@ -109,6 +126,7 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	/**
 	 * Render the entire input area for order discount
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		$xinit = $this->getInitValuesForAlpineJS();
@@ -120,6 +138,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $out;
 	}
 
+	/**
+	 * Build Form.
+	 *
+	 * @return mixed
+	 */
 	protected function buildForm() {
 		//
 		// header
@@ -132,6 +155,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Discounts Form Header.
+	 *
+	 * @return mixed
+	 */
 	protected function getDiscountsFormHeader() {
 		$discountTypeHeader =
 			// discount type header
@@ -142,6 +170,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountTypeHeader;
 	}
 
+	/**
+	 * Get Discounts Form Wrapper.
+	 *
+	 * @return mixed
+	 */
 	protected function getDiscountsFormWrapper() {
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -167,6 +200,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Init Values For Alpine J S.
+	 *
+	 * @return mixed
+	 */
 	protected function getInitValuesForAlpineJS() {
 		$radioValues = $this->getInitValuesArrayForAlpineJS();
 		$radioValuesJSON = json_encode($radioValues);
@@ -176,6 +214,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Init Values Array For Alpine J S.
+	 *
+	 * @return mixed
+	 */
 	protected function getInitValuesArrayForAlpineJS() {
 		$radioValues = [
 			'discount_method_type_selected' => $this->getValueForDiscountMethod(),
@@ -188,6 +231,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	}
 
 	### METHOD ###
+	/**
+	 * Render Discount Method.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountMethod($wrapper) {
 		// radio to select discount method
 		$field = $this->getMarkupForDiscountMethodRadioField();
@@ -208,12 +257,22 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Value For Discount Method.
+	 *
+	 * @return mixed
+	 */
 	private function getValueForDiscountMethod() {
 		$value = $this->discount->isAutomaticDiscount ? 'automatic_discount' : 'discount_code';
 		//------
 		return $value;
 	}
 
+	/**
+	 * Get Markup For Discount Method Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMethodRadioField() {
 		//------------------- pwcommerce_discount_method (getInputfieldRadios)
 
@@ -247,6 +306,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Method Code Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMethodCodeTextField() {
 		//------------------- pwcommerce_discount_method_code (getInputfieldText)
 		$options = [
@@ -269,6 +333,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Method Automatic Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMethodAutomaticTextField() {
 		//------------------- pwcommerce_discount_method_automatic (getInputfieldText)
 		$options = [
@@ -290,6 +359,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Method Generate Code Button.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMethodGenerateCodeButton() {
 		//------------------- pwcommerce_discount_method_code_generate (getInputfieldButton)
 		$pageID = $this->page->id;
@@ -333,6 +407,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	}
 
 	### VALUE ###
+	/**
+	 * Render Discount Value.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountValue($wrapper) {
 		// radio to select discount value type
 		$field = $this->getMarkupForDiscountValueTypeRadioField();
@@ -355,12 +435,22 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Value For Discount Type.
+	 *
+	 * @return mixed
+	 */
 	protected function getValueForDiscountType() {
 		$value = !empty($this->discount->discountType) ? $this->discount->discountType : 'whole_order_percentage';
 		//------
 		return $value;
 	}
 
+	/**
+	 * Get Radio Options For Discount Value Type.
+	 *
+	 * @return mixed
+	 */
 	protected function getRadioOptionsForDiscountValueType() {
 		$radioOptions = [
 			'whole_order_percentage' => __('Percentage'),
@@ -370,6 +460,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $radioOptions;
 	}
 
+	/**
+	 * Get Markup For Discount Value Type Radio Field.
+	 *
+	 * @return mixed
+	 */
 	protected function getMarkupForDiscountValueTypeRadioField() {
 		//------------------- pwcommerce_discount_value_type (getInputfieldRadios)
 
@@ -403,6 +498,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Value Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountValueTextField() {
 		//------------------- pwcommerce_discount_value (getInputfieldText)
 		// x-show description for percentage value
@@ -506,6 +606,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	}
 
 	### MINIMUM REQUIREMENT ###
+	/**
+	 * Render Discount Minimum Requirement.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountMinimumRequirement($wrapper) {
 		// radio to select discount minimum requirement type
 		$field = $this->getMarkupForDiscountMinimumRequirementTypeRadioField();
@@ -529,6 +635,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Value For Discount Minimum Requirement.
+	 *
+	 * @return mixed
+	 */
 	private function getValueForDiscountMinimumRequirement() {
 		$discountMinimumRequirementType = $this->discount->discountMinimumRequirementType;
 		$value = !empty($discountMinimumRequirementType) ? $discountMinimumRequirementType : 'none';
@@ -536,6 +647,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $value;
 	}
 
+	/**
+	 * Get Markup For Discount Minimum Requirement Type Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMinimumRequirementTypeRadioField() {
 		//------------------- pwcommerce_discount_minimum_requirement_type (getInputfieldRadios)
 
@@ -581,6 +697,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Minimum Requirement Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMinimumRequirementTextField() {
 		//------------------- pwcommerce_discount_minimum_requirement (getInputfieldText)
 		// x-show description for purchase amount value
@@ -623,12 +744,23 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Note For Discount Minimum Requirement Text Field.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoteForDiscountMinimumRequirementTextField() {
 		$notes = $this->_('Applies to all products.');
 		return $notes;
 	}
 
 	### CUSTOMER ELIGIBILITY ###
+	/**
+	 * Render Discount Customer Eligibility.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountCustomerEligibility($wrapper) {
 		// radio to select customer eligibility type
 		$field = $this->getMarkupForDiscountCustomerEligibilityRadioField();
@@ -664,6 +796,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Eligibility Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerEligibilityRadioField() {
 		//------------------- pwcommerce_discount_customer_eligibility (getInputfieldRadios)
 
@@ -742,6 +879,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Eligibility Customer Groups Text Tags Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerEligibilityCustomerGroupsTextTagsField() {
 		//------------------- pwcommerce_discount_customer_eligibility_customer_groups (getInputfieldTextTags)
 		$description = $this->_('Customer groups eligible for this discount.');
@@ -798,6 +940,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 
 		return $field;
 	}
+	/**
+	 * Get Markup For Discount Customer Eligibility Specific Customers Text Tags Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerEligibilitySpecificCustomersTextTagsField() {
 		//------------------- pwcommerce_discount_customer_eligibility_specific_customers (getInputfieldTextTags)
 		$description = $this->_('Customers eligible for this discount.');
@@ -854,6 +1001,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	}
 
 	### MAXIMUM USES ###
+	/**
+	 * Render Discount Maximum Uses.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountMaximumUses($wrapper) {
 		// checkbox input to toggle show limit total
 		$field = $this->getMarkupForDiscountMaximumUsesLimitTotalToggleCheckboxField();
@@ -874,6 +1027,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Markup For Discount Maximum Uses Limit Total Toggle Checkbox Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMaximumUsesLimitTotalToggleCheckboxField() {
 		//------------------- pwcommerce_discount_maximum_uses_limit_total_toggle (getInputfieldCheckbox)
 		//
@@ -898,6 +1056,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Maximum Uses Limit Total Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMaximumUsesLimitTotalTextField() {
 		//------------------- pwcommerce_discount_maximum_uses_limit_total (getInputfieldText)
 		$options = [
@@ -926,6 +1089,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Maximum Uses Limit Per Customer Toggle Checkbox Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMaximumUsesLimitPerCustomerToggleCheckboxField() {
 		//------------------- pwcommerce_discount_maximum_uses_limit_per_customer_toggle (getInputfieldCheckbox)
 		$checked = !empty($this->discount->discountLimitPerCustomer);
@@ -950,6 +1118,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Maximum Uses Limit Per Customer Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMaximumUsesLimitPerCustomerTextField() {
 		//------------------- pwcommerce_discount_maximum_uses_limit_per_customer (getInputfieldText)
 
@@ -980,6 +1153,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	}
 
 	### ACTIVE DATES ###
+	/**
+	 * Render Discount Active Dates.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountActiveDates($wrapper) {
 		// markup to show active dates header
 		$field = $this->getMarkupForDiscountActiveDatesHeaderMarkupField();
@@ -998,6 +1177,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Markup For Discount Active Dates Header Markup Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountActiveDatesHeaderMarkupField() {
 		//------------------- active dates header markup (getInputfieldMarkup)
 		$options = [
@@ -1018,6 +1202,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Active Dates Start Date Datetime Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountActiveDatesStartDateDatetimeField() {
 		$xstore = $this->xstore;
 		//------------------- pwcommerce_discount_active_dates_start (getInputfieldDatetime)
@@ -1072,6 +1261,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Active Dates End Date Datetime Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountActiveDatesEndDateDatetimeField() {
 		$xstore = $this->xstore;
 		//------------------- pwcommerce_discount_active_dates_end (getInputfieldDatetime)
@@ -1130,6 +1324,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Discount End Date.
+	 *
+	 * @return mixed
+	 */
 	private function getDiscountEndDate() {
 		$endDateTimestamp = (int) $this->discount->discountEndDate;
 		if ($endDateTimestamp < 1) {
@@ -1141,6 +1340,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $value;
 	}
 
+	/**
+	 * Get Markup For Discount Active Dates Set End Date Checkbox Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountActiveDatesSetEndDateCheckboxField() {
 		//------------------- pwcommerce_discount_active_dates_set_end (getInputfieldText)
 		$checked = !empty($this->getDiscountEndDate());
@@ -1164,6 +1368,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	}
 
 	// TODO DELETE IF NOT IN USE
+	/**
+	 * Render Discount Hidden Inputs.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountHiddenInputs($wrapper) {
 
 		$options = [
@@ -1182,6 +1392,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 
 	#####
 
+	/**
+	 * Get Markup For Discount Sections Divider Markup Field.
+	 *
+	 * @param mixed $idSuffix
+	 * @return mixed
+	 */
 	protected function getMarkupForDiscountSectionsDividerMarkupField($idSuffix) {
 		//------------------- discount method hr divider  markup (getInputfieldMarkup)
 		// @note: TODO: temporary solution to some styling quark
@@ -1205,6 +1421,11 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	}
 
 	// ~~~~~~~~~~~~~~
+	/**
+	 * Process Ajax Request.
+	 *
+	 * @return mixed
+	 */
 	public function processAjaxRequest() {
 		// @NOTE: FOR NOW, WE ONLY DEAL WITH GENERATE DISCOUNT CODE
 		$field = $this->getMarkupForDiscountMethodCodeTextField();
@@ -1223,6 +1444,8 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	/**
 	 * Process input for the values sent from the shipping rate for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -1464,6 +1687,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		$this->page->setAndSave(PwCommerce::DISCOUNT_ELIGIBILITY_FIELD_NAME, $discountsEligibility);
 	}
 
+	/**
+	 * Process Is Automatic Discount.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function processIsAutomaticDiscount($input) {
 		$discountMethod = $this->wire('sanitizer')->fieldName($input->pwcommerce_discount_method);
 		$isAutomaticDiscount = $discountMethod === 'automatic_discount';
@@ -1472,6 +1701,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $isAutomaticDiscount;
 	}
 
+	/**
+	 * Process Discount Value Type.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountValueType(WireInputData $input) {
 		$discountValueTypeRaw = $input->pwcommerce_discount_value_type;
 		$allowedDiscountTypes = $this->pwcommerce->getAllowedDiscountTypes();
@@ -1481,6 +1716,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountValueType;
 	}
 
+	/**
+	 * Process Discount Code.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function processDiscountCode($input) {
 		// @note: if discount method is auto > pwcommerce_discount_method_automatic
 		// @note: if discount method is code > pwcommerce_discount_method_code
@@ -1509,6 +1750,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $code;
 	}
 
+	/**
+	 * Process Discount Value.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountValue(WireInputData $input) {
 		$discountValue = (float) $input->pwcommerce_discount_value;
 
@@ -1516,6 +1763,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountValue;
 	}
 
+	/**
+	 * Process Discount Minimum Requirement Type.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function processDiscountMinimumRequirementType($input) {
 		//@note: pwcommerce_discount_minimum_requirement_type: TEXT IN ALLOWED OPTIONS (none|purchase|quantity)
 		$discountMinimumRequirementTypeRaw = $input->pwcommerce_discount_minimum_requirement_type;
@@ -1526,6 +1779,13 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountMinimumRequirementType;
 	}
 
+	/**
+	 * Process Discount Minimum Requirement Amount.
+	 *
+	 * @param mixed $input
+	 * @param mixed $discountMinimumRequirementType
+	 * @return mixed
+	 */
 	protected function processDiscountMinimumRequirementAmount($input, $discountMinimumRequirementType) {
 		//@note: pwcommerce_discount_minimum_requirement: FLOAT/INT for 'purchase'/'amount' respectively
 		// $minimumRequirementeErrorAmount = $this->_('Minimum quantity items must be specified');
@@ -1553,6 +1813,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountMinimumRequirementAmount;
 	}
 
+	/**
+	 * Process Discount Limit Total.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function processDiscountLimitTotal($input) {
 		//@note: pwcommerce_discount_maximum_uses_limit_total_toggle: INT checkbox if sent
 		//@note: pwcommerce_discount_maximum_uses_limit_total: INT
@@ -1569,6 +1835,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountLimitTotal;
 	}
 
+	/**
+	 * Process Discount Limit Per Customer.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function processDiscountLimitPerCustomer($input) {
 		//@note: pwcommerce_discount_maximum_uses_limit_per_customer_toggle: INT checkbox if sent
 		//@note: pwcommerce_discount_maximum_uses_limit_per_customer: INT
@@ -1585,6 +1857,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountLimitPerCustomer;
 	}
 
+	/**
+	 * Process Discount Start Date.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function processDiscountStartDate($input) {
 		//@note: pwcommerce_discount_active_dates_start: TEXT
 		$discountStartDate = $this->wire('sanitizer')->text($input->pwcommerce_discount_active_dates_start);
@@ -1596,6 +1874,13 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountStartDate;
 	}
 
+	/**
+	 * Process Discount End Date.
+	 *
+	 * @param mixed $input
+	 * @param mixed $discountStartDate
+	 * @return mixed
+	 */
 	protected function processDiscountEndDate($input, $discountStartDate) {
 		//@note: pwcommerce_discount_active_dates_set_end: INT checkbox if sent
 		//@note: pwcommerce_discount_active_dates_end: TEXT
@@ -1616,6 +1901,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountEndDate;
 	}
 
+	/**
+	 * Process Discount Meta Data.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountMetaData(WireInputData $input) {
 		// @note: nothing to do for order discount
 		$metaData = '';
@@ -1623,6 +1914,12 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $metaData;
 	}
 
+	/**
+	 * Process Input For Discounts Apply To.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processInputForDiscountsApplyTo(WireInputData $input) {
 		// TODO:
 		// PROCESS INPUTS FOR 'FieldtypePWCommerceDiscountsApplyTo'
@@ -1673,12 +1970,24 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 
 	}
 
+	/**
+	 * Get Error For Discounts Apply To.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function getErrorForDiscountsApplyTo(WireInputData $input) {
 		$errorString = $this->_('Missing discount value type');
 		// -----
 		return $errorString;
 	}
 
+	/**
+	 * Process Input For Discounts Eligibility.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processInputForDiscountsEligibility(WireInputData $input) {
 		// TODO:
 		// PROCESS INPUTS FOR 'FieldtypePWCommerceDiscountsEligibility'
@@ -1785,12 +2094,25 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $discountsEligibility;
 	}
 
+	/**
+	 * Process Extra Input Errors.
+	 *
+	 * @param mixed $errors
+	 * @return mixed
+	 */
 	protected function processExtraInputErrors($errors) {
 
 		// nothing to do here but extending classes can add to the errors
 		return $errors;
 	}
 
+	/**
+	 * Get Current Saved Discount Values For Compare.
+	 *
+	 * @param WireData $discount
+	 * @param WireData $currentSavedDiscountValues
+	 * @return mixed
+	 */
 	private function getCurrentSavedDiscountValuesForCompare(WireData $discount, WireData $currentSavedDiscountValues) {
 		$compareCurrentSavedDiscountValues = new WireData();
 		foreach ($discount as $key => $value) {
@@ -1806,6 +2128,13 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 		return $compareCurrentSavedDiscountValues;
 	}
 
+	/**
+	 * Validate Discount Dates.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	private function validateDiscountDates($startDate, $endDate) {
 		$error = "";
 		$startDateTimestamp = strtotime($startDate);
@@ -1832,9 +2161,8 @@ class InputfieldPWCommerceDiscountRenderOrderDiscount extends WireData
 	/**
 	 * Make a string value to represent the discount values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param WireData $item
+	 * @return mixed
 	 */
 	private function toStringInhouse(WireData $item) {
 		$string = implode(": ", $item->getArray());

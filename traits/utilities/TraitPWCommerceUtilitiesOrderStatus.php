@@ -8,12 +8,22 @@ trait TraitPWCommerceUtilitiesOrderStatus
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ORDER STATUS ~~~~~~~~~~~~~~~~~~
 
 
+	/**
+	 * Get Order Line Item Fulfilment Status.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemFulfilmentStatus() {
 		// TODO: UNSURE OF THIS ONE? GET? SET?
 		// 7. STATUSES
 		// 'fulfilment_status' => (int) $value->fulfilmentStatus, // +++
 	}
 
+	/**
+	 * Get Order Line Item Payment Status.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemPaymentStatus() {
 		// TODO: UNSURE OF THIS ONE? GET? SET?
 		// 7. STATUSES
@@ -24,8 +34,8 @@ trait TraitPWCommerceUtilitiesOrderStatus
 	/**
 	 * Return associated array with order, payment and fulfilment statuses names.
 	 *
-	 * @param WireData $order The $order whose combined statuses to return.
-	 * @return array $statuses Associated array with statuses.
+	 * @param WireData $order
+	 * @return mixed
 	 */
 	public function getOrderCombinedStatuses(WireData $order) {
 
@@ -51,6 +61,12 @@ trait TraitPWCommerceUtilitiesOrderStatus
 		return $statuses;
 	}
 
+	/**
+	 * Get Order Status Name.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	public function getOrderStatusName(WireData $order) {
 		// @note: if order is draft then just return draft!
 		if ((int) $order->orderStatus === PwCommerce::ORDER_STATUS_DRAFT) {
@@ -70,6 +86,12 @@ trait TraitPWCommerceUtilitiesOrderStatus
 		}
 	}
 
+	/**
+	 * Get Order Fulfilment Status Name.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	public function getOrderFulfilmentStatusName(WireData $order) {
 		// @note: if order is draft then just return draft!
 		if ((int) $order->orderStatus === PwCommerce::ORDER_STATUS_DRAFT) {
@@ -90,6 +112,12 @@ trait TraitPWCommerceUtilitiesOrderStatus
 		return $orderFulfilmentStatusName;
 	}
 
+	/**
+	 * Get Order Payment Status Name.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	public function getOrderPaymentStatusName(WireData $order) {
 		// @note: if order is draft then just return draft!
 		if ((int) $order->orderStatus === PwCommerce::ORDER_STATUS_DRAFT) {

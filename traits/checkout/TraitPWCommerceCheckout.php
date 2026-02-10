@@ -35,6 +35,11 @@ trait TraitPWCommerceCheckout {
 
 
 
+	/**
+	 * Get Checkout U R L Segments Vars.
+	 *
+	 * @return mixed
+	 */
 	private function getCheckoutURLSegmentsVars() {
 		// the only allowed checkout url segments that render markup!
 		// keys are actual segment and values are class props
@@ -52,6 +57,11 @@ trait TraitPWCommerceCheckout {
 		];
 	}
 
+	/**
+	 * Get Checkout U R L Segments Vars For Session.
+	 *
+	 * @return mixed
+	 */
 	private function getCheckoutURLSegmentsVarsForSession() {
 		// the only allowed checkout url segments that render markup!
 		// keys are this class props and values are expected session names in Order class (and related traits)
@@ -69,6 +79,12 @@ trait TraitPWCommerceCheckout {
 		];
 	}
 
+	/**
+	 * Set Checkout Url Segments.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function setCheckoutUrlSegments($options) {
 		// @NOTE: keys are actual segment and values are class props
 		// e.g. 'successUrlSegment' [$this->successUrlSegment]
@@ -128,9 +144,7 @@ trait TraitPWCommerceCheckout {
 	/**
 	 * Save the final values for checkout url segments to session.
 	 *
-	 * For retrieval by payment classes.
-	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function setCheckoutUrlSegmentsOptionsToSession() {
 		// NOTE: keys are this class props and values are expected session names in Order class (and related traits)
@@ -145,13 +159,25 @@ trait TraitPWCommerceCheckout {
 		}
 	}
 
-	public function render($options = []) {
+	/**
+	 * Render.
+	 *
+	 * @param array $options
+	 * @return string|mixed
+	 */
+	public function render(array $options = []) {
 		// for backward compatibility since PWCommerce 010
 		return $this->renderCheckout($options);
 	}
 
 
-	public function renderCheckout($options = []) {
+	/**
+	 * Render Checkout.
+	 *
+	 * @param array $options
+	 * @return string|mixed
+	 */
+	public function renderCheckout(array $options = []) {
 		// set render options for Checkout.
 		$this->setRenderOptions($options);
 
@@ -240,13 +266,10 @@ trait TraitPWCommerceCheckout {
 	/**
 	 * Set render options for Checkout.
 	 *
-	 * Includes flags on use of custom versus internal form for checkout, etc.
-	 *
-	 * @access private
-	 * @param array $options Options for checkout render.
-	 * @return void
+	 * @param array $options
+	 * @return mixed
 	 */
-	private function setRenderOptions($options = []) {
+	private function setRenderOptions(array $options = []) {
 		$defaultOptions = $this->getDefaultRenderOptions();
 		if (!empty($options)) {
 			$options = array_merge($defaultOptions, $options);
@@ -264,8 +287,7 @@ trait TraitPWCommerceCheckout {
 	/**
 	 * Get default options for checkout form render.
 	 *
-	 * @access private
-	 * @return array $defaultOptions Array with default form render options.
+	 * @return mixed
 	 */
 	private function getDefaultRenderOptions() {
 		// default options for checkout form render
@@ -284,6 +306,11 @@ trait TraitPWCommerceCheckout {
 
 	// --------------
 
+	/**
+	 * Render Form.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderForm() {
 
 		if ($this->isCartEmpty())
@@ -331,6 +358,11 @@ trait TraitPWCommerceCheckout {
 		return $out;
 	}
 
+	/**
+	 * Render Confirmation.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderConfirmation() {
 
 		// if cart is empty for some reason, go to homepage
@@ -463,6 +495,11 @@ trait TraitPWCommerceCheckout {
 		return $out;
 	}
 
+	/**
+	 * Render Shipping Confirmation.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderShippingConfirmation() {
 		// IF NO SESSION; REDIRECT
 		$this->checkOrderIDSession();
@@ -523,6 +560,11 @@ trait TraitPWCommerceCheckout {
 		return $out;
 	}
 
+	/**
+	 * Render Invoice.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderInvoice() {
 		// If we don't have order id, we will try and find it from url
 		// helpful for delayed payment notifications, where we don't have session available TODO?
@@ -542,6 +584,11 @@ trait TraitPWCommerceCheckout {
 		}
 	}
 
+	/**
+	 * Render Post Process.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderPostProcess() {
 
 
@@ -586,6 +633,11 @@ trait TraitPWCommerceCheckout {
 		return $this->session->redirect($finalRedirectURL);
 	}
 
+	/**
+	 * Render Success.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderSuccess() {
 
 
@@ -724,6 +776,11 @@ trait TraitPWCommerceCheckout {
 		return $out;
 	}
 
+	/**
+	 * Render Cancel.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderCancel() {
 
 		$out = '';
@@ -750,11 +807,21 @@ trait TraitPWCommerceCheckout {
 		return $out;
 	}
 
+	/**
+	 * Is Invoice Order.
+	 *
+	 * @return bool
+	 */
 	private function isInvoiceOrder() {
 		return $this->session->isInvoiceOrder;
 	}
 
 
+	/**
+	 * Is Need To Select From Multiple Matched Shipping Rates.
+	 *
+	 * @return bool
+	 */
 	private function isNeedToSelectFromMultipleMatchedShippingRates() {
 
 
@@ -772,6 +839,11 @@ trait TraitPWCommerceCheckout {
 		return $isNeedToSelectFromMultipleMatchedShippingRates;
 	}
 
+	/**
+	 * Get Order Customer Form.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderCustomerForm() {
 		// NOTE: IN 'traits\order\TraitPWCommerceCustomerForm.php'
 		$form = $this->getCustomerForm();
@@ -787,6 +859,12 @@ trait TraitPWCommerceCheckout {
 		return $form;
 	}
 
+	/**
+	 * Set Order Handling Fee Values.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	private function setOrderHandlingFeeValues(WireData $order) {
 		$orderHandlingFeeValues = new WireData();
 		$handlingFeeProperties = ['handlingFeeType', 'handlingFeeValue', 'handlingFee'];
@@ -800,6 +878,11 @@ trait TraitPWCommerceCheckout {
 
 	// process a custom form
 
+	/**
+	 * Init Process Custom Order Customer Form.
+	 *
+	 * @return mixed
+	 */
 	private function initProcessCustomOrderCustomerForm() {
 
 		// @note: in this case, custom form dev has already checked $this->input->post->customerForm
@@ -824,6 +907,11 @@ trait TraitPWCommerceCheckout {
 		}
 	}
 
+	/**
+	 * Check Order I D Session.
+	 *
+	 * @return mixed
+	 */
 	private function checkOrderIDSession() {
 		// IF NO SESSION; REDIRECT
 		// but only if 'session is not lost!'
@@ -835,6 +923,11 @@ trait TraitPWCommerceCheckout {
 		}
 	}
 
+	/**
+	 * Is Order Session Lost.
+	 *
+	 * @return bool
+	 */
 	protected function isOrderSessionLost() {
 		$orderID = $this->session->get(PwCommerce::ORDER_LOST_SESSION_ORDER_ID_NAME);
 		$isSessionLost = !$this->session->orderId && !empty($orderID);

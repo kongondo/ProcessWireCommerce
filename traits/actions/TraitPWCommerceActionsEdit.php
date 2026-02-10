@@ -7,6 +7,12 @@ trait TraitPWCommerceActionsEdit
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ EDIT ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Bulk Edit Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function bulkEditAction($input) {
 
 		$result = [
@@ -87,6 +93,12 @@ trait TraitPWCommerceActionsEdit
 		return $result;
 	}
 
+	/**
+	 * Single Edit Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function singleEditAction($input) {
 		$result = [
 			'notice' => $this->_('Error encountered. No action was taken.'),
@@ -139,6 +151,12 @@ trait TraitPWCommerceActionsEdit
 		return $result;
 	}
 
+	/**
+	 * Single Inline Edit Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function singleInlineEditAction($input) {
 		$result = [
 			'notice' => $this->_('Error encountered. No action was taken.'),
@@ -173,6 +191,11 @@ trait TraitPWCommerceActionsEdit
 
 
 
+	/**
+	 * Action Inventory Inline Edit.
+	 *
+	 * @return mixed
+	 */
 	private function actionInventoryInlineEdit() {
 
 		// TODO: ACCESS CHECKS HERE - FOR FUTURE RELEASE!
@@ -277,6 +300,12 @@ trait TraitPWCommerceActionsEdit
 
 	// ~~~~~~~~~~~~
 
+	/**
+	 * Get Items To Action.
+	 *
+	 * @param string $selector
+	 * @return mixed
+	 */
 	private function getItemsToAction($selector = '') {
 
 		if (!empty($selector)) {

@@ -22,6 +22,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 {
 
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return [
 			'title' => 'PWCommerce Runtime Markup: Fieldtype',
@@ -36,61 +41,141 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * The following functions are defined as replacements to keep this fieldtype out of the DB
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
-
 	public function sanitizeValue(Page $page, Field $field, $value) {
 		return $value;
 	}
 
+	/**
+	 *    sleep Value.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
+	 */
 	public function ___sleepValue(Page $page, Field $field, $value) {
 		return true;
 	}
 
+	/**
+	 * Get Load Query.
+	 *
+	 * @param Field $field
+	 * @param DatabaseQuerySelect $query
+	 * @return mixed
+	 */
 	public function getLoadQuery(Field $field, DatabaseQuerySelect $query) {
 		// prevent loading from DB
 		return $query;
 	}
 
+	/**
+	 *    load Page Field.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function ___loadPageField(Page $page, Field $field) {
 		// generate value at runtime rather than loading from DB
 		return true;
 	}
 
-	//  public function ___savePageField(Page $page, Field $field) {
+	//  /**
+   *    save Page Field.
+   *
+   * @param Page $page
+   * @param Field $field
+   * @return mixed
+   */
+  public function ___savePageField(Page $page, Field $field) {
 	//   // prevent saving of field
 	//   return true;
 	//  }
 
+	/**
+	 *    delete Page Field.
+	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function ___deletePageField(Page $page, Field $field) {
 		// deleting of page field not necessary
 		return true;
 	}
 
+	/**
+	 *    delete Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function ___deleteField(Field $field) {
 		// deleting of field not necessary
 		return true;
 	}
 
+	/**
+	 * Get Database Schema.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function getDatabaseSchema(Field $field) {
 		// no database schema necessary
 		return [];
 	}
 
+	/**
+	 *    create Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function ___createField(Field $field) {
 		// nothing necessary to create the field
 		return true;
 	}
 
+	/**
+	 * Get Match Query.
+	 *
+	 * @param mixed $query
+	 * @param mixed $table
+	 * @param mixed $subfield
+	 * @param mixed $operator
+	 * @param mixed $value
+	 * @return mixed
+	 */
 	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
 		// we don't allow this field to be queried
 		throw new WireException("Field '{$query->field->name}' is runtime and not queryable");
 	}
 
+	/**
+	 *    get Compatible Fieldtypes.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function ___getCompatibleFieldtypes(Field $field) {
 		// no fieldtypes are compatible
 		return new Fieldtypes();
 	}
 
+	/**
+	 * Get Load Query Autojoin.
+	 *
+	 * @param Field $field
+	 * @param DatabaseQuerySelect $query
+	 * @return mixed
+	 */
 	public function getLoadQueryAutojoin(Field $field, DatabaseQuerySelect $query) {
 		// we don't allow this field to be autojoined
 		return null;
@@ -101,8 +186,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Returns a unique name for a repeater page
 	 *
-	 * @return string
-	 *
+	 * @return mixed
 	 */
 	public function getUniqueRepeaterPageName() {
 		// @KONGONDO TODO: DELETE IF NOT IN USE; OTHERWISE RENAME
@@ -113,8 +197,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Get the class for the Inputfield (template method)
 	 *
-	 * @return string
-	 *
+	 * @return mixed
 	 */
 	protected function getInputfieldClass() {
 		// @KONGONDO TODO: AMEND THIS WITH OUR CLASS!
@@ -124,10 +207,9 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Return an InputfieldPWCommerceRuntimeMarkup, ready to be used
 	 *
-	 * @param Page $page Page being edited
-	 * @param Field $field Field that needs an Inputfield
-	 * @return Inputfield
-	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getInputfield(Page $page, Field $field) {
 
@@ -154,6 +236,12 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 		return $inputfield;
 	}
 
+	/**
+	 * Get Runtime Context.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getRuntimeContext($page) {
 		$foundContext = null;
 		if ($page->id) {
@@ -171,6 +259,12 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 		return $foundContext;
 	}
 
+	/**
+	 * Get Context Selector.
+	 *
+	 * @param mixed $context
+	 * @return mixed
+	 */
 	private function getContextSelector($context) {
 		$template = null;
 		$sort = 'sort';
@@ -211,6 +305,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 		return $selector;
 	}
 
+	/**
+	 * Get Allowed Save Templates.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedSaveTemplates() {
 		// TODO: add more!
 		// TODO: not sure we need  'pwcommerce-attribute-option' and 'pwcommerce-gift-card-product-variant' ?? saving happens via a virtual inputfield!
@@ -218,6 +317,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	}
 
 	// for contexts with specific inputfields that need to PREPEND extra content
+	/**
+	 * Get Runtime Context Prepend Content Inputfields.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextPrependContentInputfields() {
 		$appendContents = [
 			// @note: this key has these Inputfields (value) needing/generating extra PREPEND content
@@ -230,6 +334,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	}
 
 	// for contexts with specific inputfields that need to APPEND extra content
+	/**
+	 * Get Runtime Context Append Content Inputfields.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextAppendContentInputfields() {
 		$appendContents = [
 			// @note: this key has these Inputfields (value) needing/generating extra APPEND content
@@ -245,6 +354,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 
 	// for contexts that need to only display limited number of the inputfields on their pages
 	// e.g. for order context, line items pages should not display their titles within the runtime markup here.
+	/**
+	 * Get Runtime Context Limit Inputfields.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextLimitInputfields() {
 		$limitInputfields = [
 			// @note: this key has these LIMITED Inputfields (value) that will be displayed
@@ -256,6 +370,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 
 	// for contexts that dynamically manage the inputfields from their pages to display depending on certain conditions
 	// e.g. for gift-card-product context, for newly added but unsaved items, they DO NOT DISPLAY the image inputfield. In addition, they always hide/remove the title fields.
+	/**
+	 * Get Runtime Context Dynamically Manage Inputfields.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextDynamicallyManageInputfields() {
 		$dynamicallyManageInputfields = [
 			// @note: this key has these Inputfields (value) needing to manage their displayed inputfields dynamically
@@ -267,7 +386,12 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 
 	// for contexts that need to build custom forms to be rendered in InputfieldPWCommerceRuntimeMarkup
 	// e.g. The custom form would contain Alpine JS attributes.
-	// private function getRuntimeContextBuildCustomFormInputfields() {
+	// /**
+  * Get Runtime Context Build Custom Form Inputfields.
+  *
+  * @return mixed
+  */
+ private function getRuntimeContextBuildCustomFormInputfields() {
 	// 	// TODO @NOTE: NOT IN USE FOR NOW
 	// 	$buildCustomFormInputfields = [
 	// 		// @note: this key has these CUSTOM DYNAMIC CONTENT Inputfields (value)
@@ -285,6 +409,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	# @note: 'country' [InputfieldPWCommerceTaxRates.module] is not needed here since it handles its own Ajax Requests in render()
 	# ################################
 	// @note: each context should only return a single Inputfield!
+	/**
+	 * Get Runtime Context Build Blank Item Inputfield.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextBuildBlankItemInputfield() {
 		$buildBlankItemInputfields = [
 			// @note: this key has this Inputfield (value) that returns a blank item on demand (typically a Page of its children's type)
@@ -302,6 +431,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	// for contexts that will process inputs in virtual inputfields.
 	// e.g. for InputfieldPWCommerceAttributeOptions to process new options (i.e., from 'add new item') or delete edited options.
 	// @note: each context should only return a single Inputfield!
+	/**
+	 * Get Runtime Context Virtual Process Input Inputfield.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextVirtualProcessInputInputfield() {
 		$virtualProcessInputInputfields = [
 			// @note: this key has this Inputfield (value) that will process inputs in a virtual inputfield
@@ -317,6 +451,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	// this is mainly useful for edit pages/views that have shared assets, e.g. order and order line items.
 	// also useful for cases when the assets are only needed in runtime markup context.
 	#### TODO @UPDATE: NO LONGER IN USE IN THE INPUTFIELDS! ####
+	/**
+	 * Get Runtime Context Preload Inline Assets.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextPreloadInlineAssets() {
 		$inlineAssetsInputfields = [
 			// @note: this key has these  Inputfields (value) that will need inline assets to be rendered
@@ -332,6 +471,11 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	// this is mainly useful for edit pages/views that have shared assets, e.g. order and order line items.
 	// also useful for cases when the assets are only needed in runtime markup context.
 	#### TODO @UPDATE: NO LONGER IN USE IN THE INPUTFIELDS! ####
+	/**
+	 * Get Runtime Context Preload Assets.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextPreloadAssets() {
 		$inlineAssetsInputfields = [
 			// @note: this key has these  Inputfields (value) that will need inline assets to be rendered
@@ -348,8 +492,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * For contexts that need to send javascript configurations to client-side.
 	 *
-	 * E.g., for order line items running inside runtime markup, configurations need to be sent to client for saved values.
-	 * @return array $javaScriptConfigurationsInputfields Fields to get configurations from.
+	 * @return mixed
 	 */
 	private function getRuntimeContextJavaScriptConfigurations() {
 		$javaScriptConfigurationsInputfields = [
@@ -364,9 +507,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * For contexts that need to be able to delete runtime items.
 	 *
-	 * E.g., for shipping-zone, shipping rates (pages) are deleteable.
-	 * @note: each context should only return a single Inputfield!
-	 * @return array $isDeleteableItems Fields to handle delete of items.
+	 * @return mixed
 	 */
 	private function getRuntimeContextIsDeleteableItems() {
 		$isDeleteableItems = [
@@ -385,10 +526,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * For contexts that need to run post-processing after saving of inputfields.
 	 *
-	 * E.g., for orders, some order values depend on the final values of their order line items
-	 * It means orders have to be post-processed to account for this, e.g. total discounts, etc.
-	 * @note: each context should only return a single Inputfield!
-	 * @return array $isPostProcessingAfterSave Fields to handle post processing after items are saved.
+	 * @return mixed
 	 */
 	private function getRuntimeContextIsPostProcessingAfterSave() {
 		$isPostProcessingAfterSave = [
@@ -402,10 +540,9 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * For product context that need to load variants dynamically using htmx-ajax.
 	 *
-	 * E.g., for use if poduct uses and has variants > 30.
-	 * @param Page $page Page being edited.
-	 * @param Field $field Field of this fieldtype.
-	 * @return bool $isDynamicallyLoadedContent Whether context will dynamically load its content or not.
+	 * @param Page $page
+	 * @param mixed $field
+	 * @return mixed
 	 */
 	private function checkisDynamicallyLoadedContent($page, $field) {
 		$isDynamicallyLoadedContent = false;
@@ -440,16 +577,10 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Given a raw value (value as stored in DB), return the value as it would appear in a Page object
 	 *
-	 * Something to note is that this wakeup function is different than most in that the $value it is given
-	 * is just an array like array('data' => 123, 'parent_id' => 456) -- it doesn't actually contain any of the
-	 * runtimemarkup page data other than saying how many there are and the parent where they are stored. So this
-	 * wakeup function can technically do it's job without even having the $value, unlike most other fieldtypes.
-	 *
 	 * @param Page $page
 	 * @param Field $field
-	 * @param array $value
-	 * @return PageArray|Page $value
-	 *
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___wakeupValue(Page $page, Field $field, $value) {
 
@@ -511,13 +642,10 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Perform output formatting on the value delivered to the API
 	 *
-	 * This method is only used when $page->outputFormatting is true.
-	 *
 	 * @param Page $page
 	 * @param Field $field
-	 * @param PageArray $value
-	 * @return PageArray
-	 *
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___formatValue(Page $page, Field $field, $value) {
 		// TODO?
@@ -528,10 +656,9 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Save the given field from page
 	 *
-	 * @param Page $page Page object to save.
-	 * @param Field $field Field to retrieve from the page.
-	 * @return bool True on success, false on DB save failure.
-	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function ___savePageField(Page $page, Field $field) {
 		if (!$page->id || !$field->id) {
@@ -651,12 +778,9 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 
 	/**
 	 * Set the config option fields for this Field
-	 * These appear in the 'Details' Tab when editing an instance of this Field
 	 *
-	 * @access public
 	 * @param Field $field
-	 * @return Inputfield $inputfields The Inputfield associated with this InputfieldRuntimeMarkup Field.
-	 *
+	 * @return mixed
 	 */
 	public function ___getConfigInputfields(Field $field) {
 		// TODO: @KONGONDO EDIT AS REQUIRED
@@ -689,8 +813,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	 * Just here to fulfill ConfigurableModule interface
 	 *
 	 * @param array $data
-	 * @return InputfieldWrapper
-	 *
+	 * @return mixed
 	 */
 	public function getModuleConfigInputfields(array $data) {
 		if ($data) {
@@ -702,8 +825,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	 * Remove advanced options that aren't supported in variants lister
 	 *
 	 * @param Field $field
-	 * @return InputfieldWrapper
-	 *
+	 * @return mixed
 	 */
 	public function ___getConfigAdvancedInputfields(Field $field) {
 		// TODO: REVISIT THIS?
@@ -717,6 +839,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Install the module
 	 *
+	 * @return mixed
 	 */
 	public function ___install() {
 	}
@@ -724,6 +847,7 @@ class FieldtypePWCommerceRuntimeMarkup extends Fieldtype
 	/**
 	 * Uninstall the module
 	 *
+	 * @return mixed
 	 */
 	public function ___uninstall() {
 	}

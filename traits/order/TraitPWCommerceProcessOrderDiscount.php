@@ -9,6 +9,11 @@ trait TraitPWCommerceProcessOrderDiscount
 
 
 
+	/**
+	 * Update Global Usage Of Redeemed Discounts.
+	 *
+	 * @return mixed
+	 */
 	private function updateGlobalUsageOfRedeemedDiscounts() {
 		// TODO DELETE IF NO LONGER IN USE
 		$pwcommerce = $this->pwcommerce;

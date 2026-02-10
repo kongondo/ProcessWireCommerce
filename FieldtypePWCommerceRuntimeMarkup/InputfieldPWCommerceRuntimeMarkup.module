@@ -21,6 +21,11 @@ namespace ProcessWire;
 
 class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements InputfieldItemList
 {
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return [
 			'title' => 'PWCommerce Runtime Markup: Inputfield',
@@ -131,6 +136,7 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Initialize the runtimemarkup inputfield
 	 *
+	 * @return mixed
 	 */
 	public function init() {
 		// @KONGONDO TODO: DO WE NEED THIS? WHY?
@@ -150,8 +156,7 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Render the repeater items
 	 *
-	 * @return string
-	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -215,8 +220,7 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Render value (no inputs)
 	 *
-	 * @return string
-	 *
+	 * @return mixed
 	 */
 	public function ___renderValue() {
 		// @KONGONDO TODO - DO WE NEED THIS? IF YES, AMEND AS NEEDED
@@ -231,6 +235,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Java Script Configs.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderJavaScriptConfigs() {
 		$data = [
 			'translations' => $this->getTranslatedStrings()
@@ -253,14 +262,10 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Preload all assets used by Inputfields of this type
 	 *
-	 * This ensures all required JS/CSS files are loaded in the original/non-ajax request.
-	 * This should be called only when needed, like if there are 0 items in the repeater
-	 * when ajax-add support enabled.
-	 *
-	 * @param array $fieldIDs Optionally specify the IDs of the Field objects you want to limit preload to.
-	 *
+	 * @param array $fieldIDs
+	 * @return mixed
 	 */
-	protected function preloadInputfieldAssets($fieldIDs = []) {
+	protected function preloadInputfieldAssets(array $fieldIDs = []) {
 
 
 		// load any context specific assets if applicable
@@ -330,12 +335,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Build the form containing the runtime items
 	 *
-	 * @param PageArray $pages Build form for these items.
-	 * @return InputfieldWrapper
-	 * @throws WireException if $this->page or $this->field are set incorrectly
-	 *
+	 * @param mixed $pages
+	 * @param bool $isNew
+	 * @param int $cnt
+	 * @return mixed
 	 */
-	protected function buildForm($pages, $isNew = false, $cnt = 0) {
+	protected function buildForm($pages, bool $isNew = false, $cnt = 0) {
 
 
 
@@ -604,6 +609,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $form;
 	}
 
+	/**
+	 * Process Ajax Request.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	private function processAjaxRequest($input) {
 
 
@@ -700,7 +711,13 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 
 	// TODO @NOTE: NOT IN USE FOR NOW
 	// @NOTE: WOULD REQUIRE input->get AS WELL since input->post in inputfield will be intercepted by processwire
-	// private function processDynamicallyManageInputfieldsAjaxRequest($input) {
+	// /**
+  * Process Dynamically Manage Inputfields Ajax Request.
+  *
+  * @param mixed $input
+  * @return mixed
+  */
+ private function processDynamicallyManageInputfieldsAjaxRequest($input) {
 	// 	// TODO IN FUTURE MIGHT NEED $context?
 	// 	$response = '';
 	// 	if ($this->isRuntimeContextDynamicallyManageInputfields()) {
@@ -722,6 +739,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	// 	return $response;
 	// }
 
+	/**
+	 * Get Runtime Markup Item Wrapper Label.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeMarkupItemWrapperLabel() {
 		$wrapperLabels = [
 			'product' => $this->_('Variant'),
@@ -741,8 +763,7 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	 * Get Inputfields for the given repeater item
 	 *
 	 * @param Page $page
-	 * @return InputfieldWrapper
-	 *
+	 * @return mixed
 	 */
 	protected function getRuntimeItemInputfields(Page $page) {
 
@@ -778,6 +799,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $runtimeInputfields;
 	}
 
+	/**
+	 * Get Options For Limit Fields.
+	 *
+	 * @return mixed
+	 */
 	private function getOptionsForLimitFields() {
 		// @note: some contexts will need only specific fields rendered in runtime markup - we get these via $options.
 		$optionsForLimitFields = $this->isRuntimeContextLimitInputfields() ? $this->runtimeContextLimitInputfields[$this->runtimeContext] : [];
@@ -786,6 +812,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $optionsForLimitFields;
 	}
 
+	/**
+	 * Get Runtime Context Prepend Content.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextPrependContent() {
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -809,6 +840,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $wrapper;
 	}
 
+	/**
+	 * Get Runtime Context Append Content.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextAppendContent() {
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -836,6 +872,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	// get inline assets sources and flags for this context if available
+	/**
+	 * Get Runtime Context Preload Inline Assets.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextPreloadInlineAssets() {
 		$out = "";
 		// loop through the inputfields that will provide the extra inline assets content
@@ -862,6 +903,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	// get assets sources and for this context if available
+	/**
+	 * Get Runtime Context Preload Assets.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextPreloadAssets() {
 		// loop through the inputfields that will provide the extra assets content
 		// these should return an array with assets sources
@@ -895,6 +941,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	// get javascript configuration values for this context if available for given $data.
+	/**
+	 * Get Runtime Context Java Script Configurations.
+	 *
+	 * @param array $data
+	 * @return mixed
+	 */
 	private function getRuntimeContextJavaScriptConfigurations($data) {
 		$script = "";
 		// loop through the inputfields that will provide the extra inline assets content
@@ -911,6 +963,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $script;
 	}
 
+	/**
+	 * Get Runtime Context Inputfield.
+	 *
+	 * @param mixed $inputfieldName
+	 * @return mixed
+	 */
 	private function getRuntimeContextInputfield($inputfieldName) {
 
 		if (strpos($inputfieldName, 'Virtual') !== false) {
@@ -926,6 +984,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	// Get blank item for this context to send back as htmx response in buildForm()
+	/**
+	 * Get Runtime Context Blank Item.
+	 *
+	 * @return mixed
+	 */
 	private function getRuntimeContextBlankItem() {
 		if ($this->isRuntimeContextBuildBlankItem()) {
 			// @note SHOULD BE STRING!
@@ -963,12 +1026,8 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Fetches and instantiates a virtual Inputfield based on given name.
 	 *
-	 * Used by runtimeContexts that need to process some inputs but don't have own installed Inputfields to do this.
-	 * For instance, in the context 'attribute', new attribute options have to be created and existing ones deleted.
-	 *
-	 * @access private
-	 * @param [type] $virtualInputfieldName
-	 * @return Object|Null $inputfield Instance of virtual inputfield if found, else null.
+	 * @param mixed $virtualInputfieldName
+	 * @return mixed
 	 */
 	private function getVirtualInputfield($virtualInputfieldName) {
 
@@ -986,62 +1045,122 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $inputfield;
 	}
 
+	/**
+	 * Get Unique Item Name.
+	 *
+	 * @return mixed
+	 */
 	public function getUniqueItemName() {
 		// @KONGONDO TODO: DELETE IF NOT IN USE; OTHERWISE RENAME
 		static $cnt = 0;
 		return str_replace('.', '-', microtime(true)) . '-' . (++$cnt);
 	}
 
+	/**
+	 * Has Runtime Context Prepend Content.
+	 *
+	 * @return bool
+	 */
 	private function hasRuntimeContextPrependContent() {
 		return isset($this->runtimeContextPrependContentInputfields[$this->runtimeContext]);
 	}
 
+	/**
+	 * Has Runtime Context Append Content.
+	 *
+	 * @return bool
+	 */
 	private function hasRuntimeContextAppendContent() {
 		return isset($this->runtimeContextAppendContentInputfields[$this->runtimeContext]);
 	}
 
 	// if context limits the inputfields to be returned in buildForm()
+	/**
+	 * Is Runtime Context Limit Inputfields.
+	 *
+	 * @return bool
+	 */
 	private function isRuntimeContextLimitInputfields() {
 		return isset($this->runtimeContextLimitInputfields[$this->runtimeContext]);
 	}
 
 	// if context dynamically manages the inputfields to be returned in buildForm()
+	/**
+	 * Is Runtime Context Dynamically Manage Inputfields.
+	 *
+	 * @return bool
+	 */
 	private function isRuntimeContextDynamicallyManageInputfields() {
 		return isset($this->runtimeContextDynamicallyManageInputfields[$this->runtimeContext]);
 	}
 
 	// if context has INLINE assets that need preloading in their inputfields
+	/**
+	 * Has Runtime Context Preload Inline Assets.
+	 *
+	 * @return bool
+	 */
 	private function hasRuntimeContextPreloadInlineAssets() {
 		return isset($this->runtimeContextPreloadInlineAssets[$this->runtimeContext]);
 	}
 
 	// if context has assets that need preloading in their inputfields
+	/**
+	 * Has Runtime Context Preload Assets.
+	 *
+	 * @return bool
+	 */
 	private function hasRuntimeContextPreloadAssets() {
 		return isset($this->runtimeContextPreloadAssets[$this->runtimeContext]);
 	}
 
 	// if context has javascript configurations values that need sending to client
+	/**
+	 * Has Runtime Context Java Script Configurations.
+	 *
+	 * @return bool
+	 */
 	private function hasRuntimeContextJavaScriptConfigurations() {
 		return isset($this->runtimeContextJavaScriptConfigurations[$this->runtimeContext]);
 	}
 	// if context builds own blank item as ajax (htmx) response to 'add new item'
 	// @note: each context should only return a single Inputfield!
+	/**
+	 * Is Runtime Context Build Blank Item.
+	 *
+	 * @return bool
+	 */
 	private function isRuntimeContextBuildBlankItem() {
 		return isset($this->runtimeContextBuildBlankItemInputfield[$this->runtimeContext]);
 	}
 
 	// if context will process $input in a 'virtual inputfield'
 	// e.g. InputfieldPWCommerceAttributeOptions is a virtual field that processes new or deleted options
+	/**
+	 * Has Runtime Context Virtual Process Input.
+	 *
+	 * @return bool
+	 */
 	private function hasRuntimeContextVirtualProcessInput() {
 		return isset($this->runtimeContextVirtualProcessInputInputfield[$this->runtimeContext]);
 	}
 
 	// if context allows deletion of runtime items
+	/**
+	 * Is Runtime Context Deleteable Items.
+	 *
+	 * @return bool
+	 */
 	private function isRuntimeContextDeleteableItems() {
 		return isset($this->runtimeContextIsDeleteableItems[$this->runtimeContext]);
 	}
 
 	// if context run post-processing after processing of its items (e.g. after saving).
+	/**
+	 * Is Runtime Context Post Processing After Save.
+	 *
+	 * @return bool
+	 */
 	private function isRuntimeContextPostProcessingAfterSave() {
 		return isset($this->runtimeContextIsPostProcessingAfterSave[$this->runtimeContext]);
 	}
@@ -1051,12 +1170,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		// @KONGONDO TODO - DO WE NEED THIS? IF YES, AMEND AS NEEDED
 
 		// TODO: DELETE IF NOT IN USE
@@ -1103,6 +1221,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	// any extra content from inputfields that should be PREPENDED to the final markup
+	/**
+	 * Render Runtime Context Prepend Content.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderRuntimeContextPrependContent() {
 		$prependContent = null;
 		if ($this->hasRuntimeContextPrependContent()) {
@@ -1112,6 +1235,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	// any extra content from inputfields that should be APPENDED to the final markup
+	/**
+	 * Render Runtime Context Append Content.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderRuntimeContextAppendContent() {
 		$appendContent = null;
 		if ($this->hasRuntimeContextAppendContent()) {
@@ -1121,6 +1249,11 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	// any INLINE assets content from inputfields that should be added to the final markup
+	/**
+	 * Render Runtime Context Preload Inline Assets.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderRuntimeContextPreloadInlineAssets() {
 		$preloadInlineAssets = null;
 		if ($this->hasRuntimeContextPreloadInlineAssets()) {
@@ -1129,6 +1262,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $preloadInlineAssets;
 	}
 
+	/**
+	 * Render Runtime Context Blank Item.
+	 *
+	 * @param mixed $blankItem
+	 * @return string|mixed
+	 */
 	private function renderRuntimeContextBlankItem($blankItem) {
 
 		// $value = $this->value;// @note: also works
@@ -1142,6 +1281,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $this->buildForm($newPageArray, true, $newCount)->render();
 	}
 
+	/**
+	 * Render Dynamic Loading Content.
+	 *
+	 * @param int $dynamicLoadingContentID
+	 * @return string|mixed
+	 */
 	private function renderDynamicLoadingContent($dynamicLoadingContentID) {
 
 		// get the page that is being dynamically loaded
@@ -1184,12 +1329,23 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 
 
 
+	/**
+	 * Get Original Field Name Minus Suffix.
+	 *
+	 * @param mixed $name
+	 * @return mixed
+	 */
 	private function getOriginalFieldNameMinusSuffix($name) {
 		// i.e. _repeater$page->id
 		// return preg_replace('/_repeater\d+$/', '', $name);
 		return preg_replace('/' . PwCommerce::REPEATER_SUFFIX . '\d+$/', '', $name);
 	}
 
+	/**
+	 * Get Translated Strings.
+	 *
+	 * @return mixed
+	 */
 	private function getTranslatedStrings() {
 		return [
 			'enter_title' => $this->_('please enter a title')
@@ -1204,8 +1360,7 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	 * Process the input from a submitted repeaters field
 	 *
 	 * @param WireInputData $input
-	 * @return $this
-	 *
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -1534,6 +1689,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $this;
 	}
 
+	/**
+	 * Run Virtual Process Input.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	private function runVirtualProcessInput(WireInputData $input) {
 		// @note SHOULD BE STRING!
 		$inputfieldName = $this->runtimeContextVirtualProcessInputInputfield[$this->runtimeContext];
@@ -1553,6 +1714,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		//---------------
 	}
 
+	/**
+	 * Process Input Context Create New Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	private function processInputContextCreateNewItems(WireInputData $input) {
 		// $newItems = $input->pwcommerce_is_new_item;
 		// TODO: look into this! seems this comes up empty in situations where we create a product variant and delete it immediately on first save after apply product variants generation.
@@ -1572,6 +1739,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		return $createdPagesIDs;
 	}
 
+	/**
+	 * Process Input Context Delete Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	private function processInputContextDeleteItems(WireInputData $input) {
 		if (!empty($this->runtimeContextIsDeleteableItems[$this->runtimeContext])) {
 			$inputfieldName = $this->runtimeContextIsDeleteableItems[$this->runtimeContext];
@@ -1583,6 +1756,13 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		}
 	}
 
+	/**
+	 * Process Input Context Amend Existing Items.
+	 *
+	 * @param WireInputData $input
+	 * @param array $createdPagesIDs
+	 * @return mixed
+	 */
 	private function processInputContextAmendExistingItems(WireInputData $input, array $createdPagesIDs = []) {
 
 		// TODO: look into this! with respect to the product variants issue, i.e., seems it comes up empty in situations where we create a product variant and delete it immediately on first save after apply product variants generation.
@@ -1599,6 +1779,12 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		}
 	}
 
+	/**
+	 * Process Input Context Post Process After Save.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	private function processInputContextPostProcessAfterSave(WireInputData $input) {
 		$inputfieldName = $this->runtimeContextIsPostProcessingAfterSave[$this->runtimeContext];
 		// @note: THIS WILL CHECK IF INPUTFIELD IS VIRTUAL VS REAL!!!
@@ -1610,11 +1796,23 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 		}
 	}
 
+	/**
+	 * Is Modify Value For Process Input New Items.
+	 *
+	 * @param WireInputData $input
+	 * @return bool
+	 */
 	private function isModifyValueForProcessInputNewItems(WireInputData $input) {
 		$value = $this->attr('value');
 		return empty($value->count()) && !empty($input->pwcommerce_is_new_item);
 	}
 
+	/**
+	 * Modify Value For Process Input New Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	private function modifyValueForProcessInputNewItems(WireInputData $input) {
 		$value = $this->attr('value');
 		//---------------
@@ -1641,12 +1839,10 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Take a form (InputfieldWrapper) and map the data to a Page that has the same fields
 	 *
-	 * TODO potentially convert this to it's own FormToPage class to avoid duplication between this as ProcessPageEdit
-	 *
 	 * @param InputfieldWrapper $wrapper
 	 * @param Page $page
 	 * @param int $level
-	 *
+	 * @return mixed
 	 */
 	protected function formToPage(InputfieldWrapper $wrapper, Page $page, $level = 0) {
 
@@ -1691,10 +1887,9 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	/**
 	 * Override the default set() to capture the required variables for runtime items.
 	 *
-	 * @param string $key
+	 * @param mixed $key
 	 * @param mixed $value
-	 * @return Inputfield|InputfieldPWCommerceRuntimeMarkup
-	 *
+	 * @return mixed
 	 */
 	public function set($key, $value) {
 		if ($key == 'page') {
@@ -1735,8 +1930,9 @@ class InputfieldPWCommerceRuntimeMarkup extends Inputfield implements Inputfield
 	}
 
 	/**
-	 * @return InputfieldWrapper
+	 *    get Config Inputfields.
 	 *
+	 * @return mixed
 	 */
 	public function ___getConfigInputfields() {
 		$inputfields = parent::___getConfigInputfields();

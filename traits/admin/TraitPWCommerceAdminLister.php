@@ -10,8 +10,7 @@ trait TraitPWCommerceAdminLister
 	/**
 	 * Get the InputfieldSelector instance for this Lister
 	 *
-	 * @return InputfieldSelector
-	 *
+	 * @return mixed
 	 */
 	public function getInputfieldSelector() {
 
@@ -118,6 +117,11 @@ trait TraitPWCommerceAdminLister
 		return $s;
 	}
 
+	/**
+	 * Get Selector Start.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorStart() {
 		$selectorString = $this->selector;
 
@@ -154,12 +158,22 @@ trait TraitPWCommerceAdminLister
 	}
 
 
+	/**
+	 * Set Last Selector For Lister Cookie For Context.
+	 *
+	 * @return mixed
+	 */
 	private function setLastSelectorForListerCookieForContext() {
 		$selectorString = $this->selector;
 		$listerSelectorStringCoookieName = PwCommerce::PWCOMMERCE_LISTER_SELECTOR_STRING_COOKIE_NAME_PREFIX . "_" . $this->wire('sanitizer')->fieldName($this->context);
 		$this->wire('input')->cookie->set($listerSelectorStringCoookieName, $selectorString);
 	}
 
+	/**
+	 * Get Last Selector For Lister Cookie For Context.
+	 *
+	 * @return mixed
+	 */
 	private function getLastSelectorForListerCookieForContext() {
 		$listerSelectorStringCoookieName = PwCommerce::PWCOMMERCE_LISTER_SELECTOR_STRING_COOKIE_NAME_PREFIX . "_" . $this->wire('sanitizer')->fieldName($this->context);
 		$currentListerSelectorStringForContext = $this->wire('input')->cookie->get($listerSelectorStringCoookieName);
@@ -171,10 +185,9 @@ trait TraitPWCommerceAdminLister
 	/**
 	 * Get a Lister session variable
 	 *
-	 * @param string $key
-	 * @param array|string|int $fallback Optional fallback value if session value not present
-	 * @return string|int|array|null
-	 *
+	 * @param mixed $key
+	 * @param mixed $fallback
+	 * @return mixed
 	 */
 	public function sessionGet($key, $fallback = null) {
 		$key = $this->page->name . '_lister_' . $key;

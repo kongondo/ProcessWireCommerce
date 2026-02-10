@@ -7,10 +7,7 @@ trait TraitPWCommerceMainOrder
 	/**
 	 * Gets the session's order.
 	 *
-	 * @note: This is the value of the order page's field 'pwcommerce_order'.
-	 * It is not the order page itself. For that @see getOrderPage()
-	 *
-	 * @return WireData Order values in current order.
+	 * @return mixed
 	 */
 	public function getOrder()
 	{

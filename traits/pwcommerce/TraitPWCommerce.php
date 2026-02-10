@@ -72,6 +72,11 @@ trait TraitPWCommerce
 	use TraitPWCommerceWebhooks;
 
 
+	/**
+	 * Init P W Commerce Traits.
+	 *
+	 * @return mixed
+	 */
 	private function initPWCommerceTraits()
 	{
 		// INIT TRAITS 'INIT' METHODS IF APPLICABLE
@@ -105,6 +110,11 @@ trait TraitPWCommerce
 		}
 	}
 
+	/**
+	 * Get Traits Names.
+	 *
+	 * @return mixed
+	 */
 	private function getTraitsNames()
 	{
 		$traitsFiles = [

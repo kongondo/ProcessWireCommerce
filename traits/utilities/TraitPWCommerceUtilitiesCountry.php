@@ -11,9 +11,7 @@ trait TraitPWCommerceUtilitiesCountry
 	/**
 	 * Get all countries of the world.
 	 *
-	 * @note: This does not filter out shop's shipping zone countries.
-	 *
-	 * @return array $allCountries List of all countries.
+	 * @return mixed
 	 */
 	public function getAllCountries() {
 		require_once __DIR__ . '/../includes/geopolitical/PWCommerceCountries.php';
@@ -26,9 +24,8 @@ trait TraitPWCommerceUtilitiesCountry
 	/**
 	 * Get a single country details by its name.
 	 *
-	 * @note: This does not filter out shop's shipping zone countries.
-	 *
-	 * @return array $matchedCountry Details of country.
+	 * @param mixed $countryName
+	 * @return mixed
 	 */
 	public function getCountryDetails($countryName) {
 		$allCountries = $this->getAllCountries();

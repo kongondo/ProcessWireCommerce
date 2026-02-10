@@ -20,6 +20,11 @@ namespace ProcessWire;
 class InputfieldPWCommerceDiscount extends Inputfield
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Discount: Inputfield',
@@ -38,6 +43,11 @@ class InputfieldPWCommerceDiscount extends Inputfield
 	private $shopCurrencySymbolString = "";
 	private $discountType;
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -47,10 +57,22 @@ class InputfieldPWCommerceDiscount extends Inputfield
 
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
@@ -58,6 +80,7 @@ class InputfieldPWCommerceDiscount extends Inputfield
 	/**
 	 * Render the entire input area for discount
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -94,12 +117,11 @@ class InputfieldPWCommerceDiscount extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		$this->preloadInputfieldAssets();
 		// $scripts = $this->config->js($this->id, $options);
 		// if currency locale set..
@@ -112,10 +134,20 @@ class InputfieldPWCommerceDiscount extends Inputfield
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Preload Inputfield Assets.
+	 *
+	 * @return mixed
+	 */
 	private function preloadInputfieldAssets() {
 		// TODO: DELETE WHEN DONE IF NOT IN USE
 	}
 
+	/**
+	 * Build Form.
+	 *
+	 * @return mixed
+	 */
 	private function buildForm() {
 		/** @var WireData $value */
 		$value = $this->attr('value');
@@ -125,6 +157,11 @@ class InputfieldPWCommerceDiscount extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Markup By Discount Type.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderMarkupByDiscountType() {
 
 		$discountClass = $this->getDiscountTypeClass();
@@ -139,6 +176,11 @@ class InputfieldPWCommerceDiscount extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Get Discount Type Class.
+	 *
+	 * @return mixed
+	 */
 	private function getDiscountTypeClass() {
 		$discountClass = null;
 		$discountType = $this->discountType;
@@ -189,6 +231,11 @@ class InputfieldPWCommerceDiscount extends Inputfield
 
 	}
 
+	/**
+	 * Get Discount Type.
+	 *
+	 * @return mixed
+	 */
 	private function getDiscountType() {
 		/** @var WireData $value */
 		$value = $this->attr('value');
@@ -226,6 +273,11 @@ class InputfieldPWCommerceDiscount extends Inputfield
 	// extra content to be added as assets to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
 	// TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
+	/**
+	 * Get Preload Assets Content.
+	 *
+	 * @return mixed
+	 */
 	public function getPreloadAssetsContent() {
 		// TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE HTMX ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
 		// TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
@@ -241,10 +293,7 @@ class InputfieldPWCommerceDiscount extends Inputfield
 	/**
 	 * For InputfieldPWCommerceRuntimeMarkup.
 	 *
-	 * For when new Shipping Rate is requested by a shipping zone in edit.
-	 * Return a new blank page of this type that is ready for editing and saving.
-	 *
-	 * @return Page $newPage The new blank item.
+	 * @return mixed
 	 */
 	public function getBlankItem() {
 		$newPage = new Page();
@@ -258,6 +307,11 @@ class InputfieldPWCommerceDiscount extends Inputfield
 
 	// ~~~~~~~~~~~~~~
 
+	/**
+	 * Process Ajax Request.
+	 *
+	 * @return mixed
+	 */
 	private function processAjaxRequest() {
 		$discountClass = $this->getDiscountTypeClass();
 		$out = $discountClass->processAjaxRequest();
@@ -268,6 +322,8 @@ class InputfieldPWCommerceDiscount extends Inputfield
 	/**
 	 * Process input for the values sent from the shipping rate for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 

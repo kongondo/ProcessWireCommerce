@@ -55,16 +55,31 @@ trait TraitPWCommerceAdminRenderGeneralSettings
 	# NOTE TraitPWCommerceAdminRender WILL LOAD other sub-classes, e.g. 'TraitPWCommerceAdminRenderGeneralSettingsStandards'
 
 
+	/**
+	 * Get P W Commerce Shop Admin Page.
+	 *
+	 * @return mixed
+	 */
 	protected function getPWCommerceShopAdminPage() {
 		$shop = $this->modules->getModuleID('ProcessPWCommerce');
 		$shopPage = $this->pages->get("template=admin, process=$shop");
 		return $shopPage;
 	}
+	/**
+	 * Get P W Commerce Shop Admin Page I D.
+	 *
+	 * @return mixed
+	 */
 	protected function getPWCommerceShopAdminPageID() {
 		$shopPage = $this->getPWCommerceShopAdminPage();
 		$adminPageID = $shopPage->id;
 		return $adminPageID;
 	}
+	/**
+	 * Get P W Commerce Shopadmin U R L.
+	 *
+	 * @return mixed
+	 */
 	protected function getPWCommerceShopadminURL() {
 		$shopPage = $this->getPWCommerceShopAdminPage();
 		$adminURL = $shopPage->url;

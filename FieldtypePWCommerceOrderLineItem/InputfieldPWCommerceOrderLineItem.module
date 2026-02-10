@@ -19,6 +19,11 @@ namespace ProcessWire;
 
 class InputfieldPWCommerceOrderLineItem extends Inputfield
 {
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return [
 			'title' => 'PWCommerce Order Line Item: Inputfield',
@@ -35,6 +40,11 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 
 
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -48,10 +58,22 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
@@ -59,6 +81,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Render the entire input area for line items
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		// TODO: NEED TO SET! SINCE CALLED BY ORDER!
@@ -78,22 +101,31 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		$this->preloadInputfieldAssets();
 		// $scripts = $this->config->js($this->id, $options);
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
 	// TODO: HERE OR IN RUNTIME MARKUP? I.E., IF EDITING THIS PAGE AS STANDALONE, WOULDN'T NEED HTMX THERE!
+	/**
+	 * Preload Inputfield Assets.
+	 *
+	 * @return mixed
+	 */
 	private function preloadInputfieldAssets() {
 		// TODO: DELETE WHEN DONE IF NOT IN USE
 	}
 
+	/**
+	 * Build Form.
+	 *
+	 * @return mixed
+	 */
 	private function buildForm() {
 
 		/** @var WireData $value */
@@ -158,12 +190,24 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 		return $wrapper->render();
 	}
 
+	/**
+	 * Render Order Line Item Product Thumb.
+	 *
+	 * @param mixed $product
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemProductThumb($product) {
 		// TODO: GENERIC ONE OR NO PREVIEW?
 		$productThumb = !empty($product->productThumbURL) ? "<img src='{$product->productThumbURL}' class='w-1/5 md:w-1/3'>" : $this->_('No Image');
 		return $productThumb;
 	}
 
+	/**
+	 * Render Order Line Item Product Title And S K U.
+	 *
+	 * @param mixed $product
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemProductTitleAndSKU($product) {
 
 		// TODO: change these to the real values!
@@ -182,6 +226,12 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Order Line Item Product Trash.
+	 *
+	 * @param int $pageID
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemProductTrash($pageID) {
 		$out =
 			"<span class='fa fa-trash pwcommerce_order_line_item_delete pwcommerce_trash'></span>" .
@@ -189,11 +239,24 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Order Line Item Product Unit Price.
+	 *
+	 * @param mixed $product
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemProductUnitPrice($product) {
 		$out = "<span>{$product->unitPrice}</span>";
 		return $out;
 	}
 
+	/**
+	 * Render Order Line Item Product Quantity.
+	 *
+	 * @param mixed $product
+	 * @param int $lineItemID
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemProductQuantity($product, $lineItemID) {
 		$options = [
 			'id' => "pwcommerce_order_line_item_quantity{$lineItemID}",
@@ -215,6 +278,12 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Order Line Item Product Total Net Price.
+	 *
+	 * @param mixed $product
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemProductTotalNetPrice($product) {
 		$net = $this->_('Net');
 		$out =
@@ -223,6 +292,13 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Order Line Item Product Edit Discount.
+	 *
+	 * @param mixed $product
+	 * @param int $lineItemID
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemProductEditDiscount($product, $lineItemID) {
 		$addDiscountNote = $this->_('Add item discount');
 		$editDiscountNote = $this->_('Edit item discount');
@@ -253,6 +329,12 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 
 	//----------
 
+	/**
+	 * Render Order Line Item Grid.
+	 *
+	 * @param array $options
+	 * @return string|mixed
+	 */
 	private function renderOrderLineItemGrid($options) {
 		$productThumb = $options['product_thumb'];
 		$productTitleAndSKUMarkup = $options['product_title_and_sku'];
@@ -279,6 +361,13 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 
 	// extra content to be prepended to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
+	/**
+	 * Get Prepend Content.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return mixed
+	 */
 	public function getPrependContent($page, $name) {
 		$pageID = $page->id;
 
@@ -332,6 +421,11 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 		return $wrapper;
 	}
 
+	/**
+	 * Get Custom Build Form.
+	 *
+	 * @return mixed
+	 */
 	public function getCustomBuildForm() {
 
 		// TODO: HAVING ISSUES WITH NON-UNIQUE IDS HERE! E.G. 'pwcommerce_order_line_item_discount_type1211'
@@ -441,11 +535,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup to show if no order line items yet added to order.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for no items found.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormNoOrderLineItemsAddedYetMarkup() {
 		$out = "<template x-if='!\$store.InputfieldPWCommerceOrderStore.order_line_items.length'>" .
@@ -457,11 +547,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup for a line item's product thumb.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for product thumb.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormProductThumbMarkup() {
 		$noProductThumb = $this->_('No Image');
@@ -479,11 +565,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup for a line item's title and sku.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for title and sku.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormProductTitleAndSKUMarkup() {
 		$out = "<span class='block' x-text='product.productTitle'></span>" .
@@ -494,11 +576,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup for a line item's trash can.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for trash can.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormTrashMarkup() {
 		$out = "<span class='fa fa-trash pwcommerce_order_line_item_delete pwcommerce_trash' @click='handleRemoveOrderLineItem(product.id)'></span>";
@@ -508,11 +586,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup for a line item's unit price.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for unit price.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormUnitPriceMarkup() {
 		// $out = "<span x-text='product.unitPrice'></span>";
@@ -523,11 +597,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup for a line item's quantity.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for quantity.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormQuantityMarkup() {
 		//------------------- quantity (InputfieldText)
@@ -564,11 +634,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup for a line item's total net price.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for total net price.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormTotalNetPriceMarkup() {
 		// @note: we are now getting this value via a function for easier reactivity
@@ -582,11 +648,7 @@ class InputfieldPWCommerceOrderLineItem extends Inputfield
 	/**
 	 * Get markup for a line item's discount edit.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for discount edit.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormEditLineItemDiscountMarkup() {
 		$inputfieldPWCommerceOrderRenderDiscounts = new InputfieldPWCommerceOrderRenderDiscounts(new NullPage());
@@ -632,11 +694,7 @@ aria-hidden='false'>" .
 	/**
 	 * Get markup for a line item's product id.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for product id.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormProductIDHiddenMarkup() {
 		//------------------- product_id (InputfieldHidden)
@@ -658,11 +716,7 @@ aria-hidden='false'>" .
 	/**
 	 * Get markup for a line item's is product a variant value.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for is product a variant value.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormProductIsVariantHiddenMarkup() {
 		//------------------- product is variant (InputfieldHidden)
@@ -684,11 +738,7 @@ aria-hidden='false'>" .
 	/**
 	 * Get markup for a line item's discount type.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for discount type.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormDiscountTypeHiddenMarkup() {
 		// @note: the discount_type that will be edited in a modal will trigger the adjustment of this hidden field for this particular variant/product without variant
@@ -711,11 +761,7 @@ aria-hidden='false'>" .
 	/**
 	 * Get markup for a line item's discount value.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for discount value.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormDiscountValueHiddenMarkup() {
 		// @note: the discount_value that will be edited in a modal will trigger the adjustment of this hidden field for this particular variant/product without variant
@@ -738,11 +784,7 @@ aria-hidden='false'>" .
 	/**
 	 * Get markup for a line item's discount value.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for discount value.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormOrderLineItemIDHiddenMarkup() {
 
@@ -771,11 +813,7 @@ aria-hidden='false'>" .
 	/**
 	 * Get markup for new order line items.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for new order line items.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormOrderNewLineItemsHiddenMarkup() {
 
@@ -806,11 +844,7 @@ aria-hidden='false'>" .
 	/**
 	 * Get markup for deleted order line items.
 	 *
-	 * For use by getCustomBuildForm().
-	 * @note: will be built on client using alpine.js
-	 *
-	 * @access private
-	 * @return string $out Markup for deleted order line items.
+	 * @return mixed
 	 */
 	private function getCustomBuildFormOrderDeletedLineItemsHiddenMarkup() {
 
@@ -847,7 +881,7 @@ aria-hidden='false'>" .
 	 * Inline javascript configuration values for ALL line items in an order for given $data.
 	 *
 	 * @param array $data
-	 * @return void
+	 * @return mixed
 	 */
 	public function getJavaScriptConfigurationsContent($data) {
 		// TODO: DELETE IF NOT IN USE
@@ -859,6 +893,12 @@ aria-hidden='false'>" .
 		return "<script>ProcessWire.config.InputfieldPWCommerceOrder = " . json_encode($clientData) . ';</script>';
 	}
 
+	/**
+	 *    process Input.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function ___processInput(WireInputData $input) {
 		// TODO @UPDATE FRIDAY 11 MARCH 2022 -> WITH THE NEW GUI, THIS MIGHT WORK? WE CALL PROCESSINPUT DIRECTLY FROM PWCOMMERCEINPUTFIELDORDER!
 		##############
@@ -870,6 +910,12 @@ aria-hidden='false'>" .
 
 	// ~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Process Input Delete Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processInputDeleteItems(WireInputData $input) {
 		$deleteItems = $input->pwcommerce_is_delete_item;
 		// page IDs are in one hidden inputfield; get the first array item
@@ -916,6 +962,11 @@ aria-hidden='false'>" .
 	//------------------
 	// **** GETTERS AND CALCULATORS ****
 	## ++++++++++++ // TODO - MOVE ALL CALCULATE METHODS TO UTILITIES! #### ++++
+	/**
+	 * Get Fields For Get Raw Original Product.
+	 *
+	 * @return mixed
+	 */
 	private function getFieldsForGetRawOriginalProduct() {
 		return [
 			// to store as original product title at time of purchase
@@ -932,6 +983,13 @@ aria-hidden='false'>" .
 		];
 	}
 	// TODO - MOVE ALL CALCULATE METHODS TO UTILITIES!
+	/**
+	 * Get Order Line Item Product Categories And Settings.
+	 *
+	 * @param mixed $originalProduct
+	 * @param mixed $isVariant
+	 * @return mixed
+	 */
 	private function getOrderLineItemProductCategoriesAndSettings($originalProduct, $isVariant) {
 		$productCategoriesAndSettings = [];
 
@@ -969,6 +1027,12 @@ aria-hidden='false'>" .
 	}
 	// TODO - MOVE ALL CALCULATE METHODS TO UTILITIES!
 	// TODO - CAN IMPORT AN 'ACTION' CLASS HERE SO CAN BE SHARED FOR MANUAL AND AUTOMATIC ORDERS!
+	/**
+	 * Get Calculated Discount Amount.
+	 *
+	 * @param mixed $orderLineItem
+	 * @return mixed
+	 */
 	private function getCalculatedDiscountAmount($orderLineItem) {
 
 		// TODO!
@@ -984,6 +1048,15 @@ aria-hidden='false'>" .
 		return $discountAmount;
 	}
 
+	/**
+	 * Get Calculated Taxes.
+	 *
+	 * @param WireInputData $input
+	 * @param mixed $productSettings
+	 * @param mixed $productCategories
+	 * @param mixed $stock
+	 * @return mixed
+	 */
 	private function getCalculatedTaxes(WireInputData $input, $productSettings, $productCategories, $stock) {
 
 		// TODO WIP!!!
@@ -1053,6 +1126,12 @@ aria-hidden='false'>" .
 		return $calculatedTaxes;
 	}
 
+	/**
+	 * Get Adjusted Unit Prices.
+	 *
+	 * @param mixed $orderLineItem
+	 * @return mixed
+	 */
 	private function getAdjustedUnitPrices($orderLineItem) {
 		// TODO
 
@@ -1076,6 +1155,12 @@ aria-hidden='false'>" .
 	}
 
 	// TODO DELETE IF NOT IN USE
+	/**
+	 * Get Calculated Total Price Values.
+	 *
+	 * @param mixed $orderLineItem
+	 * @return mixed
+	 */
 	private function getCalculatedTotalPriceValues($orderLineItem) {
 
 		$unitPrice = $orderLineItem->unitPrice;
@@ -1106,7 +1191,8 @@ aria-hidden='false'>" .
 	/**
 	 * This helper method prepares subset of values that will be send as JavaScript configuraton values to client.
 	 *
-	 * @return void
+	 * @param mixed $orderLineItemsValues
+	 * @return mixed
 	 */
 	public function getOrderLineItemsConfigValuesForClient($orderLineItemsValues) {
 
@@ -1195,8 +1281,8 @@ aria-hidden='false'>" .
 	/**
 	 * Server-side locale-aware value converted to properly render in HTML5 input of type number.
 	 *
-	 * @param array $orderLineItemsValues Order line item values from which to convert decimal values.
-	 * @return array $orderLineItemsValues Order line item values with converted decimals.
+	 * @param array $orderLineItemsValues
+	 * @return mixed
 	 */
 	private function setLocaleValues(array $orderLineItemsValues) {
 		// line item properties that need decimal conversions
@@ -1222,15 +1308,11 @@ aria-hidden='false'>" .
 	/**
 	 * Make a string value to represent these values that can be used for comparison purposes.
 	 *
-	 * @note We only compare three mutable values with respect to editing an order line item.
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 *
-	 * @access private
-	 * @param integer $editedQuantity The quantity of this line item.
-	 * @param string $editedDiscountType One of 'none|percentage|fixed_applied_once|fixed_applied_per_item' representing discount type.
-	 * @param float $editedDiscountValue Discount value, e.g. 1.5% or €4.99
-	 * @return bool Whether above values are different from their counterpart saved values
-	 *
+	 * @param mixed $editedQuantity
+	 * @param mixed $editedDiscountType
+	 * @param mixed $editedDiscountValue
+	 * @param mixed $orderLineItem
+	 * @return bool
 	 */
 	private function isChangedOrderLineItem($editedQuantity, $editedDiscountType, $editedDiscountValue, $orderLineItem) {
 		//$orderLineItem = $this->attr('value');
@@ -1244,9 +1326,8 @@ aria-hidden='false'>" .
 	/**
 	 * Make a string value to represent these values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param mixed $item
+	 * @return mixed
 	 */
 	private function toStringInhouse($item) {
 		$string = (string) "$item->productID: $item->productTitle: $item->sku: $item->quantity: $item->isVariant: $item->discountType: $item->discountValue: $item->discountAmount: $item->taxName: $item->taxPercentage: $item->taxAmountTotal: $item->unitPrice: $item->unitPriceWithTax: $item->unitPriceDiscounted: $item->unitPriceDiscountedWithTax: $item->totalPrice: $item->totalPriceWithTax: $item->totalPriceDiscounted: $item->totalPriceDiscountedWithTax: $item->totalDiscounts: $item->deliveredDate: $item->status";

@@ -6,6 +6,11 @@ trait TraitPWCommerceUtilitiesAssets
 {
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ASSETS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Assets U R L.
+	 *
+	 * @return mixed
+	 */
 	public function getAssetsURL() {
 		// TODO: CHANGE PROCESS MODULE NAME  IN FINAL! SHOULD BE ProcessPWCommerce!!!
 		// assets URL
@@ -16,6 +21,12 @@ trait TraitPWCommerceUtilitiesAssets
 
 
 
+	/**
+	 * Get Backend Partial Template.
+	 *
+	 * @param mixed $file
+	 * @return mixed
+	 */
 	public function getBackendPartialTemplate($file) {
 		$t = NULL;
 		// $templatePath = __DIR__ . "/templates/" . $file;

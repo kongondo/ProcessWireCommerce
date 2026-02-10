@@ -38,6 +38,12 @@ class PWCommerceAdminRenderInstaller extends WireData
 	// ------------
 	private $xstore;
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		parent::__construct();
 
@@ -82,6 +88,12 @@ class PWCommerceAdminRenderInstaller extends WireData
 		$this->xstore = '$store.ProcessPWCommerceStore';
 	}
 
+	/**
+	 * Render Installer.
+	 *
+	 * @param mixed $status
+	 * @return string|mixed
+	 */
 	public function renderInstaller($status) {
 
 		// just in case statuses botched up!
@@ -121,6 +133,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Configure P W Commerce Markup.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderConfigurePWCommerceMarkup() {
 		$out = "";
 		// @note: render fields below  instead of inside an InputfieldMarkup is fine since in ProcessPwCommerce::renderConfigureInstall() we add the output there to an InputfieldMarkup which is then added to an InputfieldWrapper that we then render.
@@ -205,6 +222,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Complete Removal.
+	 *
+	 * @return string|mixed
+	 */
 	public function renderCompleteRemoval() {
 		$out = $this->renderCompleteRemovalMarkup();
 		// wrap in x-data
@@ -212,6 +234,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Complete Removal Markup.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderCompleteRemovalMarkup() {
 		$out = "";
 		// @note: render fields below  instead of inside an InputfieldMarkup is fine since in ProcessPwCommerce::renderCompleteRemoval() we add the output there to an InputfieldMarkup which is then added to an InputfieldWrapper that we then render.
@@ -258,6 +285,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 	}
 
 	// TODO DO SAME FOR CART TABLE? ALTHOUGH IT IS NOT AS IMPORTANT FOR THIS INSTALLATION NEED? it gets emptied regularly
+	/**
+	 * Order Status Table Already Exists Markup.
+	 *
+	 * @return mixed
+	 */
 	private function orderStatusTableAlreadyExistsMarkup() {
 		$notice = sprintf(__("A table named %s already exists in your database. You will need to either remove or rename it in order for PWCommerce installation to proceed. PWCommerce requires and will install a similarly named table."), PwCommerce::PWCOMMERCE_ORDER_STATUS_TABLE_NAME);
 		$out = "<p>" .
@@ -268,6 +300,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 	}
 
 	// ~~~~~~~~~~~~~
+	/**
+	 * Get First Time P W Commerce Configuration Info Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getFirstTimePWCommerceConfigurationInfoMarkup() {
 		$out = "<div><p>" .
 
@@ -277,6 +314,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Modify P W Commerce Configuration Info Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getModifyPWCommerceConfigurationInfoMarkup() {
 
 		$shopLink =
@@ -298,6 +340,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get P W Commerce Required Features List Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceRequiredFeaturesListMarkup() {
 		$out = '';
 
@@ -353,6 +400,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get P W Commerce Required Features List.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceRequiredFeaturesList() {
 		/*
 
@@ -392,6 +444,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		// --------
 		return $requiredFeaturesList;
 	}
+	/**
+	 * Get P W Commerce Optional Features List Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesListMarkup() {
 		$out = '';
 		$featureString = $this->_('Feature');
@@ -478,6 +535,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get P W Commerce Other Optional Settings List Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOtherOptionalSettingsListMarkup() {
 		$out = '';
 		$settingString = $this->_('Setting');
@@ -766,6 +828,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get P W Commerce Optional Features List.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesList() {
 
 
@@ -893,6 +960,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $optionalFeaturesList;
 	}
 
+	/**
+	 * Get P W Commerce Other Optional Settings List.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOtherOptionalSettingsList() {
 
 		// OTHER OPTIONAL SETTINGS
@@ -933,6 +1005,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $optionalFeaturesList;
 	}
 
+	/**
+	 * Get Custom Shop Root Page Allowed Children Details.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomShopRootPageAllowedChildrenDetails() {
 		$customShopRootPageAllowedChildrenDetails = [
 			// -----------
@@ -952,6 +1029,12 @@ class PWCommerceAdminRenderInstaller extends WireData
 	}
 
 
+	/**
+	 * Get P W Commerce Optional Feature Checkbox.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeatureCheckbox(array $options) {
 
 		$feature = $options['feature'];
@@ -1040,6 +1123,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $field->render();
 	}
 
+	/**
+	 * Get P W Commerce Optional Features Dependencies.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesDependencies() {
 		$dependencies =
 			[
@@ -1051,6 +1139,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $dependencies;
 	}
 
+	/**
+	 * Get P W Commerce Optional Features One Way Dependencies.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesOneWayDependencies() {
 		$oneWayDependencies =
 			[
@@ -1061,6 +1154,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $oneWayDependencies;
 	}
 
+	/**
+	 * Get P W Commerce Optional Features Script Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesScriptMarkup() {
 		$data = [
 			'configure_install_dependencies' => $this->getPWCommerceConfigureInstallOptionalFeaturesDependenciesJSConfigs(),
@@ -1076,6 +1174,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $script;
 	}
 
+	/**
+	 * Get P W Commerce Installed Optional Features J S Configs.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceInstalledOptionalFeaturesJSConfigs() {
 		$installedOptionalFeatures = $this->pwcommerce->getPWCommerceInstalledOptionalFeatures($this->configModuleName);
 		$optionalFeaturesList = $this->getPWCommerceOptionalFeaturesList();
@@ -1090,6 +1193,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $installedOptionalFeaturesForJS;
 	}
 
+	/**
+	 * Get P W Commerce Optional Features Labels J S Configs.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesLabelsJSConfigs() {
 		$optionalFeaturesList = $this->getPWCommerceOptionalFeaturesList();
 		$optionalFeaturesLabelsForJS = [];
@@ -1101,6 +1209,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $optionalFeaturesLabelsForJS;
 	}
 
+	/**
+	 * Get P W Commerce Other Optional Settings Labels J S Configs.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOtherOptionalSettingsLabelsJSConfigs() {
 		$otherOptionalSettingsLabelsForJS = [
 			'categories_are_collections' => $this->_('Categories are Collections'),
@@ -1111,10 +1224,20 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $otherOptionalSettingsLabelsForJS;
 	}
 
+	/**
+	 * Get P W Commerce Configure Install Optional Features Dependencies J S Configs.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceConfigureInstallOptionalFeaturesDependenciesJSConfigs() {
 		return $this->getPWCommerceOptionalFeaturesDependencies();
 	}
 
+	/**
+	 * Get P W Commerce Configure Install Optional Features One Way Dependencies J S Configs.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceConfigureInstallOptionalFeaturesOneWayDependenciesJSConfigs() {
 		return $this->getPWCommerceOptionalFeaturesOneWayDependencies();
 	}
@@ -1122,7 +1245,7 @@ class PWCommerceAdminRenderInstaller extends WireData
 	/**
 	 * Modal for confirm configure install.
 	 *
-	 * @return string $out Modal markup.
+	 * @return mixed
 	 */
 	private function getModalMarkupForConfirmConfigureInstall() {
 
@@ -1190,6 +1313,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Modify Install Features To Action Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getModifyInstallFeaturesToActionMarkup() {
 		$out = "";
 		// first stage install or new: show markup for additions only
@@ -1231,7 +1359,7 @@ class PWCommerceAdminRenderInstaller extends WireData
 	/**
 	 * Modal for confirm complete removal.
 	 *
-	 * @return string $out Modal markup.
+	 * @return mixed
 	 */
 	private function getModalMarkupForConfirmCompleteRemoval() {
 
@@ -1297,6 +1425,11 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Configure Install Is Running Spinner.
+	 *
+	 * @return mixed
+	 */
 	private function getConfigureInstallIsRunningSpinner() {
 		$xstore = $this->xstore;
 		$out =
@@ -1307,29 +1440,59 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $out;
 	}
 
+	/**
+	 * Is P W Commerce Optional Feature Checkbox Requires Handler.
+	 *
+	 * @param mixed $dependent
+	 * @return bool
+	 */
 	private function isPWCommerceOptionalFeatureCheckboxRequiresHandler($dependent) {
 		// array with $key => $value pairs of dependent => dependency
 		$dependencies = $this->getPWCommerceOptionalFeaturesDependencies();
 		return isset($dependencies[$dependent]);
 	}
+	/**
+	 * Is P W Commerce Optional Feature A Dependency.
+	 *
+	 * @param mixed $dependency
+	 * @return bool
+	 */
 	private function isPWCommerceOptionalFeatureADependency($dependency) {
 		// array with $key => $value pairs of dependent => dependency
 		$dependencies = $this->getPWCommerceOptionalFeaturesDependencies();
 		return in_array($dependency, $dependencies);
 	}
 
+	/**
+	 * Is P W Commerce Optional Feature A One Way Dependency.
+	 *
+	 * @param mixed $oneWayDependency
+	 * @return bool
+	 */
 	private function isPWCommerceOptionalFeatureAOneWayDependency($oneWayDependency) {
 		// array with $key => $value pairs of dependent => one-way-dependency
 		$oneWayDependencies = $this->getPWCommerceOptionalFeaturesOneWayDependencies();
 		return !empty($oneWayDependencies[$oneWayDependency]);
 	}
 
+	/**
+	 * Is P W Commerce Optional Feature A One Way Dependent.
+	 *
+	 * @param mixed $oneWayDependent
+	 * @return bool
+	 */
 	private function isPWCommerceOptionalFeatureAOneWayDependent($oneWayDependent) {
 		// array with $key => $value pairs of dependent => one-way-dependency
 		$oneWayDependencies = $this->getPWCommerceOptionalFeaturesOneWayDependencies();
 		return in_array($oneWayDependent, $oneWayDependencies);
 	}
 
+	/**
+	 * Is Optional Feature Installed Admin Render Check.
+	 *
+	 * @param mixed $feature
+	 * @return bool
+	 */
 	private function isOptionalFeatureInstalledAdminRenderCheck($feature) {
 		$isOptionalFeatureInstalled = false;
 		if (!empty($this->isSecondStageInstallConfiguration)) {
@@ -1339,6 +1502,12 @@ class PWCommerceAdminRenderInstaller extends WireData
 		return $isOptionalFeatureInstalled;
 	}
 
+	/**
+	 * Is Other Optional Setting Installed.
+	 *
+	 * @param mixed $setting
+	 * @return bool
+	 */
 	private function isOtherOptionalSettingInstalled($setting) {
 		$isOtherOptionalSettingInstalled = false;
 		if (!empty($this->isSecondStageInstallConfiguration)) {

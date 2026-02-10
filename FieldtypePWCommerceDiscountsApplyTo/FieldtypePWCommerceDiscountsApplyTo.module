@@ -20,6 +20,11 @@ namespace ProcessWire;
 class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Discounts Apply To: Fieldtype',
@@ -46,7 +51,14 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	 * Return the required Inputfield used to populate a field of this type
 	 *
 	 */
-	// public function getInputfield(Page $page, Field $field) {
+	// /**
+  * Get Inputfield.
+  *
+  * @param Page $page
+  * @param Field $field
+  * @return mixed
+  */
+ public function getInputfield(Page $page, Field $field) {
 	// 	$inputfield = $this->wire('modules')->get("InputfieldPWCommerceDiscountsApplyTo");
 	// 	// our inputfield requires a Page and Field
 	// 	// @note: these two are methods in InputfieldPWCommerceDiscountsApplyTo
@@ -60,8 +72,7 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	 *
 	 * @param Page $page
 	 * @param Field $field
-	 * @return WireArray
-	 *
+	 * @return mixed
 	 */
 	public function getBlankValue(Page $page, Field $field) {
 		$wireArray = new WireArray();
@@ -72,10 +83,7 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	/**
 	 * Get a blank single item value of this type, i.e. return a blank WireData
 	 *
-	 * @param Page $page
-	 * @param Field $field
-	 * @return WireData
-	 *
+	 * @return mixed
 	 */
 	public function getBlankRecord() {
 		return new WireData();
@@ -83,7 +91,9 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 
 	/**
 	 * set the config option fields for this Field
-	 * These appear in the 'Details' Tab when editing an instance of this Field
+	 *
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function ___getConfigInputfields(Field $field) {
 		$inputfields = parent::___getConfigInputfields($field);
@@ -95,9 +105,8 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	 *
 	 * @param Page $page
 	 * @param Field $field
-	 * @param string|int|array $value
-	 * @return string|int|array|object $value
-	 *
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___wakeupValue(Page $page, Field $field, $value) {
 
@@ -168,9 +177,8 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	 *
 	 * @param Page $page
 	 * @param Field $field
-	 * @param string|int|array|object $value
-	 * @return array
-	 *
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function ___sleepValue(Page $page, Field $field, $value) {
 
@@ -215,6 +223,10 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	/**
 	 * Given a value, make it clean for storage within a Page
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function sanitizeValue(Page $page, Field $field, $value) {
 
@@ -234,6 +246,10 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	/**
 	 * Format a value for output, called when a Page's outputFormatting is on
 	 *
+	 * @param Page $page
+	 * @param Field $field
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function formatValue(Page $page, Field $field, $value) {
 		// TODO: NOT NEEDED?
@@ -243,6 +259,8 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	/**
 	 * Return the database schema that defines a product property item
 	 *
+	 * @param Field $field
+	 * @return mixed
 	 */
 	public function getDatabaseSchema(Field $field) {
 
@@ -270,6 +288,12 @@ class FieldtypePWCommerceDiscountsApplyTo extends FieldtypeMulti
 	/**
 	 * Method called when the field is database-queried from a selector
 	 *
+	 * @param mixed $query
+	 * @param mixed $table
+	 * @param mixed $subfield
+	 * @param mixed $operator
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
 

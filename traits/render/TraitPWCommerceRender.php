@@ -23,14 +23,10 @@ trait TraitPWCommerceRender
 
 	#####################
 	/**
-	 *
 	 * Returns requested FRONTEND TemplateFile.
-	 * Either customized version from /site/templates/pwcommerce/frontend/
-	 * Or the default one from /site/modules/ProcessWireCommerce/templates/frontend/
 	 *
-	 * @param string filename of required template
-	 * @return TemplateFile requested
-	 *
+	 * @param mixed $filename
+	 * @return mixed
 	 */
 	protected function getPWCommerceTemplate($filename)
 	{
@@ -55,8 +51,8 @@ trait TraitPWCommerceRender
 	/**
 	 * Returns string with price and currency in friendly format
 	 *
-	 * @param float $price
-	 * @return string
+	 * @param mixed $price
+	 * @return mixed
 	 */
 	protected function ___renderPriceAndCurrency($price)
 	{
@@ -66,6 +62,12 @@ trait TraitPWCommerceRender
 		return $priceAndCurrency;
 	}
 
+	/**
+	 * Render Cart Price And Currency.
+	 *
+	 * @param mixed $price
+	 * @return string|mixed
+	 */
 	public function renderCartPriceAndCurrency($price)
 	{
 		// FOR BACKWARDS COMPATIBILITY
@@ -75,8 +77,8 @@ trait TraitPWCommerceRender
 	/**
 	 * Returns price in friendly format
 	 *
-	 * @param float $price
-	 * @return string
+	 * @param mixed $price
+	 * @return mixed
 	 */
 	protected function ___renderPrice($price)
 	{
@@ -91,8 +93,7 @@ trait TraitPWCommerceRender
 	/**
 	 * Renders the current cart in view mode
 	 *
-	 * @return string html markup
-	 *
+	 * @return mixed
 	 */
 	public function viewCart()
 	{
@@ -103,8 +104,7 @@ trait TraitPWCommerceRender
 	/**
 	 * Renders the current cart in edit mode
 	 *
-	 * @return string html markup
-	 *
+	 * @return mixed
 	 */
 	public function editCart()
 	{
@@ -115,6 +115,12 @@ trait TraitPWCommerceRender
 
 	# >>>>>>>>>>>>>>>>>>>>>>>>>> DEPRECATED <<<<<<<<<<<<<<<<<<<<<<<
 
+	/**
+	 * Get Pad Template.
+	 *
+	 * @param mixed $file
+	 * @return mixed
+	 */
 	public function getPadTemplate($file)
 	{
 		return $this->getPWCommerceTemplate($file);

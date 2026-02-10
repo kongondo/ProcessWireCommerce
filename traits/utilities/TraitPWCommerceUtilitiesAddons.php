@@ -10,10 +10,7 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the parent page for custom addons.
 	 *
-	 * @note: non-core payment addons live under payment providers page!
-	 *
-	 * @access public
-	 * @return Page $page The addon parent page.
+	 * @return mixed
 	 */
 	public function getCustomAddonsParentPage() {
 		// get the addons settings page
@@ -26,10 +23,7 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the parent page for custom addons.
 	 *
-	 * @note: non-core payment addons live under payment providers page!
-	 *
-	 * @access public
-	 * @return Page $page The addon parent page.
+	 * @return mixed
 	 */
 	public function getCustomAddonsSettingsPage() {
 		// get the addons parent page
@@ -53,9 +47,7 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get all active addons settings.
 	 *
-	 * @note: this live under a dedicated child page of the main addons parent page.
-	 *
-	 * @return array|null
+	 * @return mixed
 	 */
 	public function getAddonsSettings() {
 		// get the addons parent page
@@ -88,7 +80,7 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Returns array of names of PWCommerce core payment addons.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
 	public function getNamesOfCorePaymentAddons() {
 		return [
@@ -98,6 +90,11 @@ trait TraitPWCommerceUtilitiesAddons
 		];
 	}
 
+	/**
+	 * Get Non Core Payment Providers I Ds.
+	 *
+	 * @return mixed
+	 */
 	public function getNonCorePaymentProvidersIDs() {
 		/** @var array $namesOfCorePaymentAddons */
 		$namesOfCorePaymentAddons = $this->getNamesOfCorePaymentAddons();
@@ -109,6 +106,11 @@ trait TraitPWCommerceUtilitiesAddons
 		return $nonCorePaymentAddonsIDs;
 	}
 
+	/**
+	 * Get Non Core Payment Providers Names.
+	 *
+	 * @return mixed
+	 */
 	public function getNonCorePaymentProvidersNames() {
 		/** @var array $namesOfCorePaymentAddons */
 		$namesOfCorePaymentAddons = $this->getNamesOfCorePaymentAddons();
@@ -118,6 +120,11 @@ trait TraitPWCommerceUtilitiesAddons
 		return $nonCorePaymentAddonsNames;
 	}
 
+	/**
+	 * Get Non Payment Custom Addons I Ds.
+	 *
+	 * @return mixed
+	 */
 	public function getNonPaymentCustomAddonsIDs() {
 		$addonsParent = $this->getCustomAddonsParentPage();
 		$nonPaymentCustomAddonsIDs = $this->wire('pages')->findRaw("check_access=0,template=" . PwCommerce::SETTINGS_TEMPLATE_NAME . ",parent={$addonsParent}", 'id');
@@ -127,6 +134,11 @@ trait TraitPWCommerceUtilitiesAddons
 		return $nonPaymentCustomAddonsIDs;
 	}
 
+	/**
+	 * Get Non Payment Custom Addons Names.
+	 *
+	 * @return mixed
+	 */
 	public function getNonPaymentCustomAddonsNames() {
 		$addonsParent = $this->getCustomAddonsParentPage();
 		$addonsSettingsPageName = 'addons-settings';
@@ -139,6 +151,12 @@ trait TraitPWCommerceUtilitiesAddons
 
 	// TODO DELETE BELOW AS NEEDED
 
+	/**
+	 * Get Non Core Payment Provider Class Name By I D.
+	 *
+	 * @param int $nonCorePaymentProviderID
+	 * @return mixed
+	 */
 	public function getNonCorePaymentProviderClassNameByID($nonCorePaymentProviderID) {
 		$nonCorePaymentAddonClassName = null;
 		$addonsSettings = $this->getAddonsSettings();
@@ -157,12 +175,10 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get addon class by a given addon property.
 	 *
-	 * Property can be name, Class name, title or page ID.
-	 *
-	 * @param string $addonProperty The addon property to get the class by.
-	 * @param string $settingProperty The addon settings key that corresponds to the addon property.
-	 * @param boolean $isClassName Whether $addonProperty is the class name or other property.
-	 * @return object $addonClass The addon Class if found, else null.
+	 * @param mixed $addonProperty
+	 * @param mixed $settingProperty
+	 * @param string $sanitizeType
+	 * @return mixed
 	 */
 	private function getAddonClassByProperty($addonProperty, $settingProperty, $sanitizeType = 'text') {
 		// --------
@@ -181,8 +197,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the Class for a given addon by its name.
 	 *
-	 *
-	 * @return object $addonClass.
+	 * @param mixed $addonName
+	 * @return mixed
 	 */
 	public function getAddonClassByName($addonName) {
 		$property = 'pwcommerce_addon_view_url';
@@ -194,8 +210,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the Class for a given addon by its title.
 	 *
-	 *
-	 * @return object $addonClass.
+	 * @param mixed $addonTitle
+	 * @return mixed
 	 */
 	public function getAddonClassByTitle($addonTitle) {
 		$property = 'pwcommerce_addon_title';
@@ -207,8 +223,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the Class for a given addon by its Class name.
 	 *
-	 *
-	 * @return object $addonClass.
+	 * @param mixed $addonClassName
+	 * @return mixed
 	 */
 	public function getAddonClassByClassName($addonClassName) {
 		$property = 'pwcommerce_addon_class_name';
@@ -220,8 +236,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the Class for a given addon by its page ID.
 	 *
-	 *
-	 * @return object $addonClass.
+	 * @param int $addonPageID
+	 * @return mixed
 	 */
 	public function getAddonClassByPageID($addonPageID) {
 		$property = 'pwcommerce_addon_page_id';
@@ -233,12 +249,10 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get addon configurations by a given addon property.
 	 *
-	 * Property can be name, Class name, title or page ID.
-	 *
-	 * @param string $addonProperty The addon property to get the class by.
-	 * @param string $settingProperty The addon settings key that corresponds to the addon property.
-	 * @param boolean $isClassName Whether $addonProperty is the class name or other property.
-	 * @return array $addonSettings The addon configurations/settings if found, else empty array
+	 * @param mixed $addonProperty
+	 * @param mixed $settingProperty
+	 * @param string $sanitizeType
+	 * @return mixed
 	 */
 	private function getAddonConfigurationsByProperty($addonProperty, $settingProperty, $sanitizeType = 'text') {
 		$addonSettings = [];
@@ -257,8 +271,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the configurations for a given addon by its name.
 	 *
-	 *
-	 * @return array $addonConfigurations.
+	 * @param mixed $addonName
+	 * @return mixed
 	 */
 	public function getAddonConfigurationsByName($addonName) {
 		$property = 'pwcommerce_addon_view_url';
@@ -270,8 +284,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the configurations for a given addon by its Class name.
 	 *
-	 *
-	 * @return array $addonConfigurations.
+	 * @param mixed $addonTitle
+	 * @return mixed
 	 */
 	public function getAddonConfigurationsByTitle($addonTitle) {
 		$property = 'pwcommerce_addon_title';
@@ -283,8 +297,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the configurations for a given addon by its Class name.
 	 *
-	 *
-	 * @return array $addonConfigurations.
+	 * @param mixed $addonClassName
+	 * @return mixed
 	 */
 	public function getAddonConfigurationsByClassName($addonClassName) {
 		$property = 'pwcommerce_addon_class_name';
@@ -296,8 +310,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get the configurations for a given addon by its Class name.
 	 *
-	 *
-	 * @return array $addonConfigurations.
+	 * @param int $addonPageID
+	 * @return mixed
 	 */
 	public function getAddonConfigurationsByPageID($addonPageID) {
 		$property = 'pwcommerce_addon_page_id';
@@ -309,9 +323,9 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Get a single custom addon's settings by matching to a property.
 	 *
-	 * @param string $property The property to filter on.
-	 * @param string $match The value of the property to match.
-	 * @return array $addonSettings Addon settings if matched, else empty array.
+	 * @param mixed $property
+	 * @param mixed $match
+	 * @return mixed
 	 */
 	private function getCustomAddonSettingsByProperty($property, $match) {
 		$addonSettings = [];
@@ -325,6 +339,12 @@ trait TraitPWCommerceUtilitiesAddons
 		return $addonSettings;
 	}
 
+	/**
+	 * Get Addon Class.
+	 *
+	 * @param mixed $addonSettings
+	 * @return mixed
+	 */
 	private function getAddonClass($addonSettings) {
 		$addonClassName = $addonSettings['pwcommerce_addon_class_name'];
 		$files = $this->wire('files');
@@ -351,7 +371,7 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Return path to PWCommerce addons folder.
 	 *
-	 * @return string $addonsPath Path to addons folder.
+	 * @return mixed
 	 */
 	private function getAddonsPath() {
 		$addonsPath = $this->wire('config')->paths->templates . "pwcommerce/addons/";
@@ -361,8 +381,8 @@ trait TraitPWCommerceUtilitiesAddons
 	/**
 	 * Return path to a given addon class file.
 	 *
-	 * @param string $addonClassName Name of addon class whose file path to return.
-	 * @return string $addonClassFilePath File path of given addon class name.
+	 * @param mixed $addonClassName
+	 * @return mixed
 	 */
 	private function getAddonClassFilePath($addonClassName) {
 		$addonsPath = $this->getAddonsPath();
@@ -370,6 +390,12 @@ trait TraitPWCommerceUtilitiesAddons
 		return $addonClassFilePath;
 	}
 
+	/**
+	 * Get Addon Page.
+	 *
+	 * @param int $titleOrNameorID
+	 * @return mixed
+	 */
 	public function getAddonPage($titleOrNameorID) {
 		// first, check if property to match with is an int or text
 		if (ctype_digit($titleOrNameorID)) {
@@ -398,6 +424,13 @@ trait TraitPWCommerceUtilitiesAddons
 		return $addonPage;
 	}
 
+	/**
+	 * Sanitize Addon Property.
+	 *
+	 * @param mixed $addonProperty
+	 * @param mixed $sanitizeType
+	 * @return mixed
+	 */
 	private function sanitizeAddonProperty($addonProperty, $sanitizeType) {
 		$sanitizer = $this->wire('sanitizer');
 		if ($sanitizeType === 'class_name') {
@@ -417,6 +450,12 @@ trait TraitPWCommerceUtilitiesAddons
 		return $addonProperty;
 	}
 
+	/**
+	 * Is Valid Addon View U R L.
+	 *
+	 * @param mixed $addonRenderViewURL
+	 * @return bool
+	 */
 	public function isValidAddonViewURL($addonRenderViewURL) {
 		// view URL must contain at least one letter
 		$isValidAddonViewURL = !empty(preg_match('/[a-zA-Z]/', $addonRenderViewURL));

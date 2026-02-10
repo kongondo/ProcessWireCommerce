@@ -7,10 +7,8 @@ trait TraitPWCommerceOrderLineItem
 	/**
 	 * Gets the session's order line items.
 	 *
-	 * @note: These are the values of the order line items' page's field 'pwcommerce_order_line_item'.
-	 * They are not the order line items' pages themselvesf. For that @see getOrderLineItemsPages()
-	 *
-	 * @return WireArray This order's line items.
+	 * @param mixed $orderPage
+	 * @return mixed
 	 */
 	public function getOrderLineItems($orderPage = null)
 	{
@@ -47,15 +45,11 @@ trait TraitPWCommerceOrderLineItem
 	/**
 	 * Gets the session's order line items pages.
 	 *
-	 * @note: These are the whole order line items' pages including all their fields.
-	 * To get only the 'pwcommerce_order_line_item' portion @see getOrderLineItems()
-	 *
-	 * @access private
-	 * @param Page|Null $orderPage The order page of current order in session.
-	 * @param bool $includeHidden Whether to include hidden order line items pages.
-	 * @return PageArray This order's line items' pages including all their fields.
+	 * @param mixed $orderPage
+	 * @param bool $includeHidden
+	 * @return mixed
 	 */
-	public function getOrderLineItemsPages($orderPage = null, $includeHidden = false)
+	public function getOrderLineItemsPages($orderPage = null, bool $includeHidden = false)
 	{
 
 		// @note: init this just to avoid errors in case no order
@@ -82,13 +76,10 @@ trait TraitPWCommerceOrderLineItem
 	/**
 	 * Set 'calculated' values for given order line item.
 	 *
-	 * Includes tax and discount processing.
-	 *
-	 * @access private
-	 * @param WireData $orderLineItem The WireData to populate with calculated values.
-	 * @param Page $shippingCountry Order customer shipping country for tax calculations.
-	 * @param Page $orderLineItemProductPage The product page associated with this order line item's page.
-	 * @return WireData The order line item with values processed.
+	 * @param WireData $orderLineItem
+	 * @param Page $shippingCountry
+	 * @param Page $orderLineItemProductPage
+	 * @return mixed
 	 */
 	private function setOrderLineItemCalculatedValues(WireData $orderLineItem, Page $shippingCountry, Page $orderLineItemProductPage)
 	{
@@ -128,11 +119,7 @@ trait TraitPWCommerceOrderLineItem
 	/**
 	 * Post-process order line items of completed order
 	 *
-	 * Delete 'abandoned' line items.
-	 * Update quantities of products that track inventory.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function postProcessOrderLineItems()
 	{
@@ -171,6 +158,11 @@ trait TraitPWCommerceOrderLineItem
 		}
 	}
 
+	/**
+	 * Process Order Line Items Detached From Cart.
+	 *
+	 * @return mixed
+	 */
 	private function processOrderLineItemsDetachedFromCart()
 	{
 
@@ -199,6 +191,12 @@ trait TraitPWCommerceOrderLineItem
 		}
 	}
 
+	/**
+	 * Process Existing Line Items Removed From Cart.
+	 *
+	 * @param array $removedProductIDs
+	 * @return mixed
+	 */
 	public function processExistingLineItemsRemovedFromCart(array $removedProductIDs)
 	{
 		// @NOTE: IF WE ARE HERE, IT MEANS BASKET WAS AMENDED POST-ORDER CONFIRMATION
@@ -227,6 +225,13 @@ trait TraitPWCommerceOrderLineItem
 		}
 	}
 
+	/**
+	 * Is Order Line Item Already Exists.
+	 *
+	 * @param mixed $orderLineItemPageName
+	 * @param mixed $orderPage
+	 * @return bool
+	 */
 	private function isOrderLineItemAlreadyExists($orderLineItemPageName, $orderPage)
 	{
 		$isOrderLineItemAlreadyExistsID = $this->wire('pages')->getRaw("template=" . PwCommerce::ORDER_LINE_ITEMS_TEMPLATE_NAME . ", parent={$orderPage}, name={$orderLineItemPageName}", 'id');

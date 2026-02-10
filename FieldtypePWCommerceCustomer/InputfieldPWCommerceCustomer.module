@@ -21,6 +21,11 @@ class InputfieldPWCommerceCustomer extends Inputfield
 {
 
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Customer: Inputfield',
@@ -36,6 +41,11 @@ class InputfieldPWCommerceCustomer extends Inputfield
 	protected $field;
 
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -45,10 +55,22 @@ class InputfieldPWCommerceCustomer extends Inputfield
 
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 
 		$this->field = $field;
@@ -57,6 +79,7 @@ class InputfieldPWCommerceCustomer extends Inputfield
 	/**
 	 * Render the entire input area for customer
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		$buildFormWrapper = $this->buildForm();
@@ -68,12 +91,11 @@ class InputfieldPWCommerceCustomer extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
@@ -82,8 +104,7 @@ class InputfieldPWCommerceCustomer extends Inputfield
 	/**
 	 * Build the form for customer inputs.
 	 *
-	 * @access private
-	 * @return InputfieldWrapper $wrapper The inputfield wrapper with the form objects.
+	 * @return mixed
 	 */
 	private function buildForm() {
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
@@ -94,6 +115,12 @@ class InputfieldPWCommerceCustomer extends Inputfield
 		return $wrapper;
 	}
 
+	/**
+	 * Build Form Customer Main Details.
+	 *
+	 * @param InputfieldWrapper $wrapper
+	 * @return mixed
+	 */
 	private function buildFormCustomerMainDetails(InputfieldWrapper $wrapper) {
 
 		/** @var WireData $value */
@@ -211,6 +238,11 @@ class InputfieldPWCommerceCustomer extends Inputfield
 
 	}
 
+	/**
+	 * Get Note For Customer Registered Status.
+	 *
+	 * @return mixed
+	 */
 	private function getNoteForCustomerRegisteredStatus() {
 		/** @var WireData $customer */
 		$customer = $this->attr('value');
@@ -225,10 +257,8 @@ class InputfieldPWCommerceCustomer extends Inputfield
 	/**
 	 * Check if required customer form values have been filled.
 	 *
-	 * @access private
-	 * @param WireInputData $input The customer POST input.
-	 * @return array $errors Empty or populated array if errors found.
-	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function checkErrors(WireInputData $input) {
 
@@ -254,6 +284,8 @@ class InputfieldPWCommerceCustomer extends Inputfield
 	/**
 	 * Process input for the values sent for the customer (basic info) for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -321,15 +353,20 @@ class InputfieldPWCommerceCustomer extends Inputfield
 	/**
 	 * Make a string value to represent the customer values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param mixed $item
+	 * @return mixed
 	 */
 	private function toStringInhouse($item) {
 		$string = (string) "$item->firstName: $item->middleName: $item->lastName: $item->email: $item->isTaxExempt: $item->userID";
 		return $string;
 	}
 
+	/**
+	 * Update Customer User Email.
+	 *
+	 * @param mixed $customer
+	 * @return mixed
+	 */
 	private function updateCustomerUserEmail($customer) {
 		if (empty($customer->userID)) {
 			return;

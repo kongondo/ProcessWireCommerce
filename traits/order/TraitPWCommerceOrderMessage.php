@@ -4,6 +4,12 @@ namespace ProcessWire;
 
 trait TraitPWCommerceOrderMessage
 {
+	/**
+	 *    send Confirmation.
+	 *
+	 * @param mixed $orderPage
+	 * @return mixed
+	 */
 	public function ___sendConfirmation($orderPage = null)
 	{
 		// if no order page, try to get from session
@@ -127,6 +133,13 @@ trait TraitPWCommerceOrderMessage
 		$orderPage->save();
 	}
 
+	/**
+	 * Add Note.
+	 *
+	 * @param mixed $orderNoteText
+	 * @param mixed $orderPage
+	 * @return mixed
+	 */
 	public function addNote($orderNoteText, $orderPage)
 	{
 		$note = $this->pwcommerce->buildNote($orderNoteText);

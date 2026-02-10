@@ -38,6 +38,12 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function __construct($page) {
 
 		// $this->page = $page;
@@ -64,6 +70,8 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 	/**
 	 * Render the entire input area for order
 	 *
+	 * @param WireData $order
+	 * @return mixed
 	 */
 	public function ___render(WireData $order) {
 		$this->order = $order;
@@ -72,6 +80,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 		return $this->getMainOrderDiscountsSummaryMarkup();
 	}
 
+	/**
+	 * Render Edit Modals.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderEditModals() {
 
 		//---------------
@@ -90,6 +103,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Set Shop Currency Symbol String.
+	 *
+	 * @return mixed
+	 */
 	private function setShopCurrencySymbolString() {
 		// if currency locale set..
 		// grab symbol; we use on price fields description
@@ -102,6 +120,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 
 	// TODO DELETE WHEN DONE
 	// modal for single order line item add/edit discount
+	/**
+	 * Get Modal Markup For Edit Order Line Item Discount.
+	 *
+	 * @return mixed
+	 */
 	private function getModalMarkupForEditOrderLineItemDiscount() {
 		$xstore = "{$this->xstore}.edit_current_order_line_item_discount";
 		//--------------
@@ -136,6 +159,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Edit Order Line Item Discount.
+	 *
+	 * @return mixed
+	 */
 	public function getMarkupForEditOrderLineItemDiscount() {
 		// TODO NEED LINE ITEM!
 		// --------
@@ -298,6 +326,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 
 	// TODO DELETE IF NOT IN USE
 
+	/**
+	 * Get Markup For Edit Order Line Item Discount O L D.
+	 *
+	 * @return mixed
+	 */
 	public function getMarkupForEditOrderLineItemDiscountOLD() {
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -414,6 +447,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Main Order Discounts Summary Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getMainOrderDiscountsSummaryMarkup() {
 
 		// TODO THIS NOW CHANGES FOR THE MAIN ORDER DISCOUNT; NO NEED FOR MODAL! JUST WORK IN TEXT!!!
@@ -522,6 +560,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 	}
 
 	// markup for whole order add/edit discount
+	/**
+	 * Get Markup For Edit Order Main Discount.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForEditOrderMainDiscount() {
 
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
@@ -573,6 +616,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Edit Order Main Discount Type Select Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForEditOrderMainDiscountTypeSelectField() {
 		// TODO RENAME NAME, ETC BELOW AS WE NOW MODEL THE OBJECT DIRECTLY! NOT IN A MODAL!
 		// TODO confirm $xstore!
@@ -616,6 +664,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 
 		return $field;
 	}
+	/**
+	 * Get Markup For Edit Order Main Discount Value Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForEditOrderMainDiscountValueTextField() {
 
 		// TODO RENAME NAME, ETC BELOW AS WE NOW MODEL THE OBJECT DIRECTLY! NOT IN A MODAL!
@@ -680,6 +733,11 @@ class InputfieldPWCommerceOrderRenderDiscounts extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Edit Order Main Discount Info Markup Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForEditOrderMainDiscountInfoMarkupField() {
 		// TODO confirm $xstore!
 		//------------------- order selected discount type + order net price after discount is applied info markup (getInputfieldMarkup)
