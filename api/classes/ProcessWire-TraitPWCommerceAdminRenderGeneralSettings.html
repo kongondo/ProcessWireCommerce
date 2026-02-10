@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+            <title>Documentation</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="../">
+    <link rel="icon" href="images/favicon.ico"/>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/base.css">
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/template.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
+                <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
+        <script src="js/template.js"></script>
+        <script src="js/search.js"></script>
+        <script defer src="js/searchIndex.js"></script>
+    </head>
+<body id="top">
+    <header class="phpdocumentor-header phpdocumentor-section">
+    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">Documentation</a></h1>
+    <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
+    <label class="phpdocumentor-header__menu-icon" for="menu-button">
+        <i class="fas fa-bars"></i>
+    </label>
+    <section data-search-form class="phpdocumentor-search">
+    <label>
+        <span class="visually-hidden">Search for</span>
+        <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2"/>
+            <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3"/>
+        </svg>
+        <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .." disabled />
+    </label>
+</section>
+
+    <nav class="phpdocumentor-topnav">
+    <ul class="phpdocumentor-topnav__menu">
+        </ul>
+</nav>
+</header>
+
+    <main class="phpdocumentor">
+        <div class="phpdocumentor-section">
+            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button" name="sidebar-button" />
+<label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
+    Menu
+</label>
+<aside class="phpdocumentor-column -three phpdocumentor-sidebar">
+                    <section class="phpdocumentor-sidebar__category -namespaces">
+            <h2 class="phpdocumentor-sidebar__category-header">Namespaces</h2>
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="namespaces/processwire.html" class="">ProcessWire</a>
+</h4>
+
+                        </section>
+                <section class="phpdocumentor-sidebar__category -packages">
+            <h2 class="phpdocumentor-sidebar__category-header">Packages</h2>
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="packages/Application.html" class="">Application</a>
+</h4>
+
+                        </section>
+            
+    <section class="phpdocumentor-sidebar__category -reports">
+        <h2 class="phpdocumentor-sidebar__category-header">Reports</h2>
+                <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/deprecated.html">Deprecated</a></h3>
+        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/errors.html">Errors</a></h3>
+        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/markers.html">Markers</a></h3>
+    </section>
+
+    <section class="phpdocumentor-sidebar__category -indices">
+        <h2 class="phpdocumentor-sidebar__category-header">Indices</h2>
+        <h3 class="phpdocumentor-sidebar__root-package"><a href="indices/files.html">Files</a></h3>
+    </section>
+</aside>
+
+            <div class="phpdocumentor-column -nine phpdocumentor-content">
+                                <section>
+                                        <ul class="phpdocumentor-breadcrumbs">
+            <li class="phpdocumentor-breadcrumb"><a href="namespaces/processwire.html">ProcessWire</a></li>
+    </ul>
+
+    <article class="phpdocumentor-element -trait">
+        <h2 class="phpdocumentor-content__title">
+    TraitPWCommerceAdminRenderGeneralSettings
+            <span class="phpdocumentor-trait__extends">
+            uses
+                            <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsCurrency.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsCurrency">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsDateTime">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsFiles.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsFiles">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsGeography.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsGeography">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsImages.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsImages">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsMain.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsMain">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsOrders.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsOrders">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsProducts">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsShipping.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsShipping">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsStandards.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsStandards">trait:short</abbr></a>,                             <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsUserInterface.html"><abbr title="\ProcessWire\TraitPWCommerceAdminRenderGeneralSettingsUserInterface">trait:short</abbr></a>                    </span>
+    </h2>
+
+        <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettings.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php">TraitPWCommerceAdminRenderGeneralSettings.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">41</span>
+
+    </aside>
+
+        
+
+
+
+
+    
+    
+<h3 id="toc">
+    Table of Contents
+    <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h3>
+
+
+
+
+
+
+
+
+
+
+<h4 id="toc-methods">
+    Methods
+    <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#toc-methods" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h4>
+<dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -method -protected">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopAdminPage">getPWCommerceShopAdminPage()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get P W Commerce Shop Admin Page.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -protected">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopAdminPageID">getPWCommerceShopAdminPageID()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get P W Commerce Shop Admin Page I D.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -protected">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopadminURL">getPWCommerceShopadminURL()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get P W Commerce Shopadmin U R L.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsGeography.html#method_getCountries">getCountries()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Countries.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsCurrency.html#method_getCurrencies">getCurrencies()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Currencies.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsCurrency.html#method_getCurrenciesFormats">getCurrenciesFormats()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Currencies Formats.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getDateFormats">getDateFormats()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Date Formats.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsFiles.html#method_getFilesTab">getFilesTab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Files Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsUserInterface.html#method_getGUITab">getGUITab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get G U I Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsImages.html#method_getImagesTab">getImagesTab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Images Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsMain.html#method_getMainTab">getMainTab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Main Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsOrders.html#method_getOrdersTab">getOrdersTab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Orders Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getProductsTab">getProductsTab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Products Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedDefaultProductProperties">getSavedDefaultProductProperties()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Saved Default Product Properties.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedProductProperties">getSavedProductProperties()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Generic method for finding and setting product properties IDs and titles.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedProductWeightProperty">getSavedProductWeightProperty()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Saved Product Weight Property.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsShipping.html#method_getSavedRestOfTheWorldShippingZone">getSavedRestOfTheWorldShippingZone()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Finds saved Rest of The World (ROW) shipping zone.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsShipping.html#method_getShippingTab">getShippingTab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Shipping Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsStandards.html#method_getStandardsTab">getStandardsTab()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Standards Tab.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getTimeFormats">getTimeFormats()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Time Formats.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getTimeZoneIdentifiers">getTimeZoneIdentifiers()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Get Time Zone Identifiers.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks.html#method_isExistAddonsPage">isExistAddonsPage()</a>
+    <span>
+                                &nbsp;: bool    </span>
+</dt>
+<dd>Is Exist Addons Page.</dd>
+
+    </dl>
+
+
+
+
+        
+
+        
+
+            <section class="phpdocumentor-methods">
+        <h3 class="phpdocumentor-elements__header" id="methods">
+            Methods
+            <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#methods" class="headerlink"><i class="fas fa-link"></i></a>
+
+        </h3>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -protected
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getPWCommerceShopAdminPage">
+        getPWCommerceShopAdminPage()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopAdminPage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettings.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php">TraitPWCommerceAdminRenderGeneralSettings.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">63</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get P W Commerce Shop Admin Page.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">protected</span>
+                    <span class="phpdocumentor-signature__name">getPWCommerceShopAdminPage</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -protected
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getPWCommerceShopAdminPageID">
+        getPWCommerceShopAdminPageID()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopAdminPageID" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettings.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php">TraitPWCommerceAdminRenderGeneralSettings.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">73</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get P W Commerce Shop Admin Page I D.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">protected</span>
+                    <span class="phpdocumentor-signature__name">getPWCommerceShopAdminPageID</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -protected
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getPWCommerceShopadminURL">
+        getPWCommerceShopadminURL()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopadminURL" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettings.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php">TraitPWCommerceAdminRenderGeneralSettings.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">83</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get P W Commerce Shopadmin U R L.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">protected</span>
+                    <span class="phpdocumentor-signature__name">getPWCommerceShopadminURL</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getCountries">
+        getCountries()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsGeography.html#method_getCountries" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsGeography.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsgeography.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsGeography.php">TraitPWCommerceAdminRenderGeneralSettingsGeography.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">16</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Countries.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getCountries</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getCurrencies">
+        getCurrencies()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsCurrency.html#method_getCurrencies" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsCurrency.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingscurrency.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsCurrency.php">TraitPWCommerceAdminRenderGeneralSettingsCurrency.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">16</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Currencies.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getCurrencies</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getCurrenciesFormats">
+        getCurrenciesFormats()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsCurrency.html#method_getCurrenciesFormats" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsCurrency.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingscurrency.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsCurrency.php">TraitPWCommerceAdminRenderGeneralSettingsCurrency.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">38</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Currencies Formats.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getCurrenciesFormats</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getDateFormats">
+        getDateFormats()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getDateFormats" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsDateTime.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsdatetime.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsDateTime.php">TraitPWCommerceAdminRenderGeneralSettingsDateTime.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">16</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Date Formats.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getDateFormats</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getFilesTab">
+        getFilesTab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsFiles.html#method_getFilesTab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsFiles.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsfiles.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsFiles.php">TraitPWCommerceAdminRenderGeneralSettingsFiles.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">15</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Files Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getFilesTab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getGUITab">
+        getGUITab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsUserInterface.html#method_getGUITab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsUserInterface.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsuserinterface.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsUserInterface.php">TraitPWCommerceAdminRenderGeneralSettingsUserInterface.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">14</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get G U I Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getGUITab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getImagesTab">
+        getImagesTab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsImages.html#method_getImagesTab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsImages.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsimages.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsImages.php">TraitPWCommerceAdminRenderGeneralSettingsImages.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">15</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Images Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getImagesTab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getMainTab">
+        getMainTab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsMain.html#method_getMainTab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsMain.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsmain.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsMain.php">TraitPWCommerceAdminRenderGeneralSettingsMain.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">14</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Main Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getMainTab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getOrdersTab">
+        getOrdersTab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsOrders.html#method_getOrdersTab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsOrders.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsorders.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsOrders.php">TraitPWCommerceAdminRenderGeneralSettingsOrders.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">15</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Orders Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getOrdersTab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getProductsTab">
+        getProductsTab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getProductsTab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsproducts.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php">TraitPWCommerceAdminRenderGeneralSettingsProducts.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">15</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Products Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getProductsTab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getSavedDefaultProductProperties">
+        getSavedDefaultProductProperties()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedDefaultProductProperties" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsproducts.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php">TraitPWCommerceAdminRenderGeneralSettingsProducts.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">172</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Saved Default Product Properties.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getSavedDefaultProductProperties</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$setting</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$setting</span>
+                : <span class="phpdocumentor-argument-list__argument__type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getSavedProductProperties">
+        getSavedProductProperties()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedProductProperties" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsproducts.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php">TraitPWCommerceAdminRenderGeneralSettingsProducts.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">192</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Generic method for finding and setting product properties IDs and titles.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getSavedProductProperties</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$setting</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$setting</span>
+                : <span class="phpdocumentor-argument-list__argument__type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getSavedProductWeightProperty">
+        getSavedProductWeightProperty()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedProductWeightProperty" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsproducts.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsProducts.php">TraitPWCommerceAdminRenderGeneralSettingsProducts.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">182</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Saved Product Weight Property.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getSavedProductWeightProperty</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$setting</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$setting</span>
+                : <span class="phpdocumentor-argument-list__argument__type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getSavedRestOfTheWorldShippingZone">
+        getSavedRestOfTheWorldShippingZone()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsShipping.html#method_getSavedRestOfTheWorldShippingZone" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsShipping.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsshipping.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsShipping.php">TraitPWCommerceAdminRenderGeneralSettingsShipping.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">67</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Finds saved Rest of The World (ROW) shipping zone.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getSavedRestOfTheWorldShippingZone</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$setting</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$setting</span>
+                : <span class="phpdocumentor-argument-list__argument__type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getShippingTab">
+        getShippingTab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsShipping.html#method_getShippingTab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsShipping.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsshipping.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsShipping.php">TraitPWCommerceAdminRenderGeneralSettingsShipping.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">13</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Shipping Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getShippingTab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getStandardsTab">
+        getStandardsTab()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsStandards.html#method_getStandardsTab" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsStandards.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsstandards.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsStandards.php">TraitPWCommerceAdminRenderGeneralSettingsStandards.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">13</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Standards Tab.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getStandardsTab</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getTimeFormats">
+        getTimeFormats()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getTimeFormats" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsDateTime.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsdatetime.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsDateTime.php">TraitPWCommerceAdminRenderGeneralSettingsDateTime.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">45</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Time Formats.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getTimeFormats</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getTimeZoneIdentifiers">
+        getTimeZoneIdentifiers()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getTimeZoneIdentifiers" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsDateTime.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsdatetime.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsDateTime.php">TraitPWCommerceAdminRenderGeneralSettingsDateTime.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">70</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Get Time Zone Identifiers.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">getTimeZoneIdentifiers</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_isExistAddonsPage">
+        isExistAddonsPage()
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks.html#method_isExistAddonsPage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks.php"><a href="files/traits-admin-traitpwcommerceadminrendergeneralsettingsruntimechecks.html"><abbr title="traits/admin/TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks.php">TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">15</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Is Exist Addons Page.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">isExistAddonsPage</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">bool</span>
+            </section>
+
+</article>
+            </section>
+
+        <div class="phpdocumentor-modal" id="source-view">
+    <div class="phpdocumentor-modal-bg" data-exit-button></div>
+    <div class="phpdocumentor-modal-container">
+        <div class="phpdocumentor-modal-content">
+            <pre style="max-height: 500px; overflow-y: scroll" data-src="files/traits/admin/TraitPWCommerceAdminRenderGeneralSettings.php.txt" class="language-php line-numbers linkable-line-numbers"></pre>
+        </div>
+        <button data-exit-button class="phpdocumentor-modal__close">&times;</button>
+    </div>
+</div>
+
+    <script type="text/javascript">
+        (function () {
+            function loadExternalCodeSnippet(el, url, line) {
+                Array.prototype.slice.call(el.querySelectorAll('pre[data-src]')).forEach((pre) => {
+                    const src = url || pre.getAttribute('data-src').replace(/\\/g, '/');
+                    const language = 'php';
+
+                    const code = document.createElement('code');
+                    code.className = 'language-' + language;
+                    pre.textContent = '';
+                    pre.setAttribute('data-line', line)
+                    code.textContent = 'Loading…';
+                    pre.appendChild(code);
+
+                    var xhr = new XMLHttpRequest();
+
+                    xhr.open('GET', src, true);
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState !== 4) {
+                            return;
+                        }
+
+                        if (xhr.status < 400 && xhr.responseText) {
+                            code.textContent = xhr.responseText;
+                            Prism.highlightElement(code);
+                            d=document.getElementsByClassName("line-numbers");
+                            d[0].scrollTop = d[0].children[1].offsetTop;
+                            return;
+                        }
+
+                        if (xhr.status === 404) {
+                            code.textContent = '✖ Error: File could not be found';
+                            return;
+                        }
+
+                        if (xhr.status >= 400) {
+                            code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                            return;
+                        }
+
+                        code.textContent = '✖ Error: An unknown error occurred';
+                    };
+
+                    xhr.send(null);
+                });
+            }
+
+            const modalButtons = document.querySelectorAll("[data-modal]");
+            const openedAsLocalFile = window.location.protocol === 'file:';
+            if (modalButtons.length > 0 && openedAsLocalFile) {
+                console.warn(
+                    'Viewing the source code is unavailable because you are opening this page from the file:// scheme; ' +
+                    'browsers block XHR requests when a page is opened this way'
+                );
+            }
+
+            modalButtons.forEach(function (trigger) {
+                if (openedAsLocalFile) {
+                    trigger.setAttribute("hidden", "hidden");
+                }
+
+                trigger.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const modal = document.getElementById(trigger.dataset.modal);
+                    if (!modal) {
+                        console.error(`Modal with id "${trigger.dataset.modal}" could not be found`);
+                        return;
+                    }
+                    modal.classList.add("phpdocumentor-modal__open");
+
+                    loadExternalCodeSnippet(modal, trigger.dataset.src || null, trigger.dataset.line)
+                    const exits = modal.querySelectorAll("[data-exit-button]");
+                    exits.forEach(function (exit) {
+                        exit.addEventListener("click", function (event) {
+                            event.preventDefault();
+                            modal.classList.remove("phpdocumentor-modal__open");
+                        });
+                    });
+                });
+            });
+        })();
+    </script>
+
+    </article>
+                                </section>
+                <section class="phpdocumentor-on-this-page__sidebar">
+                                
+    <section class="phpdocumentor-on-this-page__content">
+        <strong class="phpdocumentor-on-this-page__title">On this page</strong>
+
+        <ul class="phpdocumentor-list -clean">
+            <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
+            <li>
+                <ul class="phpdocumentor-list -clean">
+                                                                                <li><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#toc-methods">Methods</a></li>
+                                    </ul>
+            </li>
+                                                <li class="phpdocumentor-on-this-page-section__title">Methods</li>
+            <li>
+                <ul class="phpdocumentor-list -clean">
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopAdminPage">getPWCommerceShopAdminPage()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopAdminPageID">getPWCommerceShopAdminPageID()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#method_getPWCommerceShopadminURL">getPWCommerceShopadminURL()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsGeography.html#method_getCountries">getCountries()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsCurrency.html#method_getCurrencies">getCurrencies()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsCurrency.html#method_getCurrenciesFormats">getCurrenciesFormats()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getDateFormats">getDateFormats()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsFiles.html#method_getFilesTab">getFilesTab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsUserInterface.html#method_getGUITab">getGUITab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsImages.html#method_getImagesTab">getImagesTab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsMain.html#method_getMainTab">getMainTab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsOrders.html#method_getOrdersTab">getOrdersTab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getProductsTab">getProductsTab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedDefaultProductProperties">getSavedDefaultProductProperties()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedProductProperties">getSavedProductProperties()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsProducts.html#method_getSavedProductWeightProperty">getSavedProductWeightProperty()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsShipping.html#method_getSavedRestOfTheWorldShippingZone">getSavedRestOfTheWorldShippingZone()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsShipping.html#method_getShippingTab">getShippingTab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsStandards.html#method_getStandardsTab">getStandardsTab()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getTimeFormats">getTimeFormats()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsDateTime.html#method_getTimeZoneIdentifiers">getTimeZoneIdentifiers()</a></li>
+                                            <li class=""><a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettingsRuntimeChecks.html#method_isExistAddonsPage">isExistAddonsPage()</a></li>
+                                    </ul>
+            </li>
+                    </ul>
+    </section>
+
+                </section>
+                            </div>
+            <section data-search-results class="phpdocumentor-search-results phpdocumentor-search-results--hidden">
+    <section class="phpdocumentor-search-results__dialog">
+        <header class="phpdocumentor-search-results__header">
+            <h2 class="phpdocumentor-search-results__title">Search results</h2>
+            <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
+        </header>
+        <section class="phpdocumentor-search-results__body">
+            <ul class="phpdocumentor-search-results__entries"></ul>
+        </section>
+    </section>
+</section>
+        </div>
+        <a href="classes/ProcessWire-TraitPWCommerceAdminRenderGeneralSettings.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+
+    </main>
+
+    <script>
+        cssVars({});
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
+</body>
+</html>
