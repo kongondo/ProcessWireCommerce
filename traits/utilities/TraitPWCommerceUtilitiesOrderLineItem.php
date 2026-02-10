@@ -99,6 +99,69 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 		// +++++++++
 		// =================
+		// NORMALIZE DISCOUNTS
+		$discountType = $orderLineItem->get('discountType') ?? ($orderLineItem->data['discountType'] ?? null);
+		$discountValue = $orderLineItem->get('discountValue') ?? ($orderLineItem->data['discountValue'] ?? null);
+
+		if (
+			(!$orderLineItem->discounts instanceof WireArray || !$orderLineItem->discounts->count()) &&
+			(!empty($discountType) && is_numeric($discountValue))
+		) {
+			$discount = new WireData();
+			$discount->set('discountType', $discountType);
+			$discount->set('discountValue', $discountValue);
+			$discount->discountType = $discountType;
+			$discount->discountValue = $discountValue;
+
+			$discounts = new WireArray();
+			$discounts->add($discount);
+			$orderLineItem->discounts = $discounts;
+		}
+
+		if (!$orderLineItem->discounts instanceof WireArray) {
+			$orderLineItem->discounts = new WireArray();
+		}
+
+		if (!$orderLineItem->discounts->count() && $orderLineItem->get('pwcommerce_order_discounts')) {
+			$orderLineItem->discounts = $orderLineItem->get('pwcommerce_order_discounts');
+		}
+
+		$structuredDiscounts = [];
+		foreach ($orderLineItem->discounts as $discount) {
+			if (!$discount instanceof WireData) continue;
+			$discount->discountType = $discount->get('discountType');
+			$discount->discountValue = $discount->get('discountValue');
+
+			if (!isset($discount->discountType) || !isset($discount->discountValue) || !is_numeric($discount->discountValue)) continue;
+
+			$structuredDiscounts[] = [
+				'discountType' => $discount->discountType,
+				'discountValue' => $discount->discountValue,
+			];
+		}
+
+		// ===============================
+		// DISCOUNT AMOUNT
+		$basePrice = (float) ($orderLineItem->unitPrice ?? 0);
+		$quantity = (int) ($orderLineItem->quantity ?? 1);
+		$subtotal = $basePrice * $quantity;
+
+		$totalDiscountsAmount = 0;
+		foreach ($orderLineItem->discounts as $discount) {
+			$type = $discount->discountType ?? $discount->get('discountType');
+			$value = $discount->discountValue ?? $discount->get('discountValue');
+
+			if (!in_array($type, ['percentage', 'fixed']) || !is_numeric($value)) continue;
+
+			if ($type === 'percentage') {
+				$totalDiscountsAmount += ($subtotal * $value / 100);
+			} elseif ($type === 'fixed') {
+				$totalDiscountsAmount += $value;
+			}
+		}
+
+		// +++++++++
+		// =================
 		// SET ORDER LINE ITEM TAXABLE SETTING
 		$this->isOrderLineItemTaxable = $this->isOrderLineItemTaxable();
 		// SET TAX RATE IF APPLICABLE
@@ -108,92 +171,75 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		$this->taxPercent = $this->orderLineItemTaxPercent;
 		$this->taxRate = $this->orderLineItemTaxRate;
 		$this->isTaxOverride = $this->isCategoryTaxOverridesApplicable() && $this->isOrderLineItemTaxable ? 1 : 0;
-		$this->quantity = $this->orderLineItem->quantity;
-		$this->unitDisplayPrice = $this->orderLineItem->unitPrice;
-		$this->totalDisplayPrice = $this->orderLineItem->totalPrice;
+		$this->quantity = $orderLineItem->quantity;
+		$this->unitDisplayPrice = $orderLineItem->unitPrice;
+		// ensures the display price is calculated based on the actual display unit price and quantity
+		// ORIGINAL: $this->totalDisplayPrice = $this->orderLineItem->totalPrice;
+
 
 		// #######################
 		# COMPUTATIONS
 		## ********** SET CALCULABLE VALUES FOR ORDER LINE ITEM ********** ##
 
-		# SET VALUES FROM DISPLAY PRICES
+		// SET VALUES FROM DISPLAY PRICES
 		// might or might not include tax
 		$this->unitDisplayPriceMoney = $this->money($this->unitDisplayPrice);
 		// NOTE - WE WORK WITH NET PRICE BELOW! this is to cater for price inc tax situations
 		$this->totalDisplayPriceMoney = $this->unitDisplayPriceMoney->multiply($this->quantity);
+		// add back $this->totalDisplayPrice
+		$this->totalDisplayPrice = $this->getWholeMoneyAmount($this->totalDisplayPriceMoney);
 		// $totalPrice = strval($this->getMoneyTotalAsWholeMoneyAmount($unitDisplayPrice, $quantity));
 
 		# NOTE: values with tax have the suffix 'WithTaxXXX'. Those without don't get this suffix and are considered 'net', unless stated otherwise
 
 		// SET DEFAULTS
+		// adding fallback logic
 		// ++++++++
-		$this->taxAmount = 0; // note: discounts not taxed!
 		$this->taxAmountMoney = $this->getTaxAmount();
-		if (!empty($this->taxAmountMoney)) {
-			$this->taxAmount = $this->getWholeMoneyAmount($this->taxAmountMoney);
-		}
+		$this->taxAmount = $this->taxAmountMoney ? $this->getWholeMoneyAmount($this->taxAmountMoney) : 0; // note: discounts not taxed!
 
 		// ++++++++
 		// (i) schema 'unit_price'
-		$unitPriceBeforeTax = 0;
 		$this->unitPriceBeforeTaxMoney = $this->getUnitPriceBeforeTax();
-		if (!empty($this->unitPriceBeforeTaxMoney)) {
-			$unitPriceBeforeTax = $this->getWholeMoneyAmount($this->unitPriceBeforeTaxMoney);
-		}
+		$unitPriceBeforeTax = $this->unitPriceBeforeTaxMoney ? $this->getWholeMoneyAmount($this->unitPriceBeforeTaxMoney) : $this->unitDisplayPrice; // improved fallback
 
 		// (iii) schema 'unit_price_with_tax'
-		$unitPriceAfterTax = 0;
 		$this->unitPriceAfterTaxMoney = $this->getUnitPriceAfterTax();
-		if (!empty($this->unitPriceAfterTaxMoney)) {
-			$unitPriceAfterTax = $this->getWholeMoneyAmount($this->unitPriceAfterTaxMoney);
-		}
-
+		$unitPriceAfterTax = $this->unitPriceAfterTaxMoney ? $this->getWholeMoneyAmount($this->unitPriceAfterTaxMoney) : $unitPriceBeforeTax; // improved fallback
 
 		// ++++++++
-
 		// (i) schema 'total_price'
-		$totalPriceBeforeTax = 0;
 		$this->totalPriceBeforeTaxMoney = $this->getTotalPriceBeforeTax();
-		if (!empty($this->totalPriceBeforeTaxMoney)) {
-			$totalPriceBeforeTax = $this->getWholeMoneyAmount($this->totalPriceBeforeTaxMoney);
-		}
+		$totalPriceBeforeTax = $this->totalPriceBeforeTaxMoney ? $this->getWholeMoneyAmount($this->totalPriceBeforeTaxMoney) : $unitPriceBeforeTax * $this->quantity; // improved fallback
 
 		// (iii) schema 'total_price_with_tax'
-		$totalPriceAfterTax = 0;
 		$this->totalPriceAfterTaxMoney = $this->getTotalPriceAfterTax();
-		if (!empty($this->totalPriceAfterTaxMoney)) {
-			$totalPriceAfterTax = $this->getWholeMoneyAmount($this->totalPriceAfterTaxMoney);
-		}
-
+		$totalPriceAfterTax = $this->totalPriceAfterTaxMoney ? $this->getWholeMoneyAmount($this->totalPriceAfterTaxMoney) : $unitPriceAfterTax * $this->quantity; // improved fallback
 
 		// ++++++++
-
 		// schema 'total_discounts'
-		$totalDiscountsAmount = 0;
-		$this->totalDiscountsAmountMoney = $this->getTotalDiscountsAmount();
-		if (!empty($this->totalDiscountsAmountMoney)) {
-			$totalDiscountsAmount = $this->getWholeMoneyAmount($this->totalDiscountsAmountMoney);
-		}
-
+		// NOTE, I COULDN'T HAVE IT WORK WITH THE FUNCITON BELOW
+		//    $this->totalDiscountsAmountMoney = $this->getTotalDiscountsAmount();
+		//    $totalDiscountsAmount = $this->totalDiscountsAmountMoney
+		//        ? $this->getWholeMoneyAmount($this->totalDiscountsAmountMoney)
+		//        : 0;
+		$totalDiscountsAmount = min($totalDiscountsAmount, $subtotal);
+		$this->totalDiscountsAmountMoney = $this->money($totalDiscountsAmount);
 
 		// ++++++++
 		// (ii) schema 'total_price_discounted'
-		// if no discount, discounted total before tax equates to total before tax
-		$totalPriceWithDiscountBeforeTax = $totalPriceBeforeTax;
 		$this->totalPriceWithDiscountBeforeTaxMoney = $this->getTotalPriceWithDiscountBeforeTax();
-		if (!empty($this->totalPriceWithDiscountBeforeTaxMoney)) {
-			$totalPriceWithDiscountBeforeTax = $this->getWholeMoneyAmount($this->totalPriceWithDiscountBeforeTaxMoney);
-		}
+		$totalPriceWithDiscountBeforeTax = $this->totalPriceWithDiscountBeforeTaxMoney ? $this->getWholeMoneyAmount($this->totalPriceWithDiscountBeforeTaxMoney) : $totalPriceBeforeTax; // improved fallback
 
 		// (iv) schema 'total_price_discounted_with_tax'
 		// if no discount, discounted total AFTER tax equates to total AFTER tax
-		$totalPriceWithDiscountAfterTax = $totalPriceAfterTax;
-		if ($this->totalPriceWithDiscountBeforeTaxMoney->lessThan($this->totalPriceBeforeTaxMoney)) {
+		$totalPriceWithDiscountAfterTax = $totalPriceAfterTax; // default fallback if no discount
+		if ($this->totalPriceWithDiscountBeforeTaxMoney && $this->totalPriceWithDiscountBeforeTaxMoney->lessThan($this->totalPriceBeforeTaxMoney)) {
 			// DISCOUNT WAS APPLIED (BEFORE TAX)
 			$this->isDiscountApplied = true;
 			// get discounted price with tax
 			$this->totalPriceWithDiscountAfterTaxMoney = $this->getTotalPriceWithDiscountAfterTax();
-			if (!empty($this->totalPriceWithDiscountAfterTaxMoney)) {
+			if ($this->totalPriceWithDiscountAfterTaxMoney) {
 				$totalPriceWithDiscountAfterTax = $this->getWholeMoneyAmount($this->totalPriceWithDiscountAfterTaxMoney);
 			}
 		}
@@ -201,32 +247,31 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// track final price applied after discount removed
 		// $this->taxAmountAfterDiscountMoney was set in getTotalPriceWithDiscountAfterTax()
 		// if line item is taxable
-		$this->taxAmountAfterDiscount = 0; // note: discounts not taxed!
-		if (!empty($this->isDiscountApplied) && $this->isOrderLineItemTaxable) {
-			$this->taxAmountAfterDiscount = $this->getWholeMoneyAmount($this->taxAmountAfterDiscountMoney);
-		}
+		$this->taxAmountAfterDiscount = ($this->isDiscountApplied ?? false) && $this->isOrderLineItemTaxable && $this->taxAmountAfterDiscountMoney
+			? $this->getWholeMoneyAmount($this->taxAmountAfterDiscountMoney)
+			: 0; // note: discounts not taxed!
 
 		// ++++++++
 		// (ii) schema 'unit_price_discounted'
 		// if no discount, discounted unit before tax equates to unit before tax
-		$unitPriceWithDiscountBeforeTax = $unitPriceBeforeTax;
 		$this->unitPriceWithDiscountBeforeTaxMoney = $this->getUnitPriceWithDiscountBeforeTax();
-		if (!empty($this->unitPriceWithDiscountBeforeTaxMoney)) {
-			$unitPriceWithDiscountBeforeTax = $this->getWholeMoneyAmount($this->unitPriceWithDiscountBeforeTaxMoney);
-		}
-
+		$unitPriceWithDiscountBeforeTax = $this->unitPriceWithDiscountBeforeTaxMoney ? $this->getWholeMoneyAmount($this->unitPriceWithDiscountBeforeTaxMoney) : $unitPriceBeforeTax; // improved fallback
 
 		// (iv) schema 'unit_price_discounted_with_tax'
 		// if no discount, discounted unit AFTER tax equates to unit AFTER tax
-		$unitPriceWithDiscountAfterTax = $unitPriceAfterTax;
-		if ($this->unitPriceWithDiscountBeforeTaxMoney->lessThan($this->unitPriceBeforeTaxMoney)) {
+		$unitPriceWithDiscountAfterTax = $unitPriceAfterTax; // default fallback if no discount
+		if ($this->unitPriceWithDiscountBeforeTaxMoney && $this->unitPriceWithDiscountBeforeTaxMoney->lessThan($this->unitPriceBeforeTaxMoney)) {
 			// DISCOUNT WAS APPLIED (BEFORE TAX)
 			// get discounted price with tax
 			$this->unitPriceWithDiscountAfterTaxMoney = $this->getUnitPriceWithDiscountAfterTax();
-			if (!empty($this->unitPriceWithDiscountAfterTaxMoney)) {
+			if ($this->unitPriceWithDiscountAfterTaxMoney) {
 				$unitPriceWithDiscountAfterTax = $this->getWholeMoneyAmount($this->unitPriceWithDiscountAfterTaxMoney);
 			}
 		}
+
+		// ===============================
+		// ASSIGN FINAL VALUES
+		// wire('log')->save('pwcommerce', "[{$orderLineItem->title}] Calculated discountAmount: {$totalDiscountsAmount}");
 
 		// ==========
 
@@ -239,12 +284,12 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// ++++++++++++++++++
 		$orderLineItem->discountAmount = $totalDiscountsAmount;
 		/** @var WireArray $orderLineItemsDiscounts */
-		$orderLineItemsDiscounts = $this->orderLineItem->discounts;
-		if ($orderLineItemsDiscounts instanceof WireArray && !empty($orderLineItemsDiscounts->count())) {
+		$orderLineItemsDiscounts = $orderLineItem->discounts;
+		if ($orderLineItemsDiscounts instanceof WireArray && $orderLineItemsDiscounts->count()) {
 
 			$orderLineItem->totalDiscounts = $orderLineItemsDiscounts->count();
 			// ------
-			if (!empty($this->orderLineItem->isApplyMultipleDiscounts)) {
+			if (!empty($orderLineItem->isApplyMultipleDiscounts)) {
 				// multiple discounts were applied
 				$orderLineItem->discountType = 'multiple';
 			} else {
@@ -271,18 +316,14 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// ------------------
 		// 'tax_amount_total' => (float) $value->taxAmountTotal, // +++
 		// if discount was applied, we get the tax applied after the discount was removed
-		if (!empty($this->isDiscountApplied)) {
-			// discount was applied: get the total tax applied on total price after discount
-			$orderLineItem->taxAmountTotal = $this->taxAmountAfterDiscount;
-		} else {
-			// discount was NOT applied: get the tax applied on total price
-			$orderLineItem->taxAmountTotal = $this->taxAmount;
-		}
+		// if !empty($this->isDiscountApplied): discount was applied: get the total tax applied on total price after discount; else discount was NOT applied: get the tax applied on total price
+		$orderLineItem->taxAmountTotal = !empty($this->isDiscountApplied) ? $this->taxAmountAfterDiscount : $this->taxAmount;
 
 
 		// 'is_tax_override' => (int) $value->isTaxOverride, // +++
 		// $orderLineItem->isTaxOverride = $this->isCategoryTaxOverridesApplicable() && $this->isOrderLineItemTaxable ? 1 : 0;
 		$orderLineItem->isTaxOverride = $this->isTaxOverride;
+
 		// +++++++++++++
 		// 4. UNITS
 		// 'unit_price' => (float) $value->unitPrice, // +++
@@ -296,6 +337,7 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// ------------------
 		// 'unit_price_discounted_with_tax' => (float) $value->unitPriceDiscountedWithTax, // +++
 		$orderLineItem->unitPriceDiscountedWithTax = $unitPriceWithDiscountAfterTax;
+
 		// +++++++++++++
 		// 5. TOTALS
 		// 'total_price' => (float) $value->totalPrice, // +++
@@ -310,10 +352,29 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// 'total_price_discounted_with_tax' => (float) $value->totalPriceDiscountedWithTax, // +++
 		$orderLineItem->totalPriceDiscountedWithTax = $totalPriceWithDiscountAfterTax;
 
+
 		// ------------------
+		// additional checks (logs could be removed)
+		// SAFETY FALLBACK FOR DISPLAY PRICE
+		//    if (!isset($orderLineItem->totalDisplayPrice) || !is_numeric($orderLineItem->totalDisplayPrice)) {
+		//        $orderLineItem->totalDisplayPrice = $orderLineItem->unitPrice * $orderLineItem->quantity ?: 0;
+		//    }
+		if (!isset($orderLineItem->totalDisplayPrice) || !is_numeric($orderLineItem->totalDisplayPrice)) {
+			if (!empty($orderLineItem->unitPrice) && !empty($orderLineItem->quantity)) {
+				$orderLineItem->totalDisplayPrice = $orderLineItem->unitPrice * $orderLineItem->quantity;
+			} else {
+				// wire('log')->save('debug', 'Missing unitPrice or quantity; fallback totalDisplayPrice = 0');
+				$orderLineItem->totalDisplayPrice = 0;
+			}
+		}
+
+		// Check for invalid unit/total prices
+		if (empty($orderLineItem->unitPrice) || empty($orderLineItem->totalPrice)) {
+			// wire('log')->save('debug', 'Line item unit or total price is 0 — checkout may fail. Title: ' . $orderLineItem->title);
+		}
 
 		// +++++++++++++
-		// 6. SHIPMENT TODO: MAYBE NOT HERE? SHOULD BE SEPARATE IF ORDER IS COMPLETE
+		// 6. SHIPMENT
 		// 'delivered_date' => $this->_sanitizeValue($value->deliveredDate), // +++
 		// TODO! - FOR NOW SET AS CURRENT TIME; HOWEVER, IN FUTURE, CHECK WHOLE ORDER STATUS + IF ORDER LINE ITEM IS DOWNLOAD, ETC
 		$orderLineItem->deliveredDate = time();
@@ -327,6 +388,7 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// $orderLineItem->paymentStatus = TODO!;
 		//-------------------------
 		// return the orderLineItem with calculated values now processed
+		// wire('log')->save('pwcommerce', 'getOrderLineItemCalculatedValues() $orderLineItem:' . print_r($orderLineItem, true));
 		return $orderLineItem;
 	}
 

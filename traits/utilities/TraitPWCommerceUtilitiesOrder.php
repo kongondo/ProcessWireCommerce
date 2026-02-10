@@ -214,9 +214,10 @@ trait TraitPWCommerceUtilitiesOrder
 		// i.e. total revenue for month / total sales for month
 
 		// DEFAULT
-		$monthRevenueMoney = $this->money(0);
+		// $monthRevenueMoney = $this->money(0);
 
 		foreach ($months as $monthName) {
+			$monthRevenueMoney = $this->money(0);
 			$isInitialMonthRevenue = true;
 			// get revenue for each order in this month as MONEY
 			if (!empty($monthlySales[$monthName])) {
@@ -573,13 +574,15 @@ trait TraitPWCommerceUtilitiesOrder
 		/** @var WireData $this->order */
 		$this->order = $options['order'];
 
-		/** @var Page $this->page */
+		/** @var Page $this->orderPage */
 		$this->orderPage = $options['order_page'];
+
 
 		if (isset($options['is_for_live_shipping_rate_calculation'])) {
 			/** @var bool $this->isForLiveShippingRateCalculation */
 			$this->isForLiveShippingRateCalculation = $options['is_for_live_shipping_rate_calculation'];
 		}
+
 
 		/** @var array $this->orderLineItems (2D) */
 		// grab order line items for order once for reusability
@@ -607,15 +610,16 @@ trait TraitPWCommerceUtilitiesOrder
 		$isOrderError = false;
 		$noticeTypeText = "";
 		$noticeType = null;
+
 		if (empty($this->isShippingApplicable)) {
 			// shipping not applicable (technically not an error; just a notice)
 			$notice = $this->_("Shipping is not applicable to this order!");
 			$isOrderError = true;
 			$noticeTypeText = "shipping_not_applicable";
 			$noticeType = 'warning';
-		} else if (empty($this->shippingZone)) {
+		} elseif (empty($this->shippingZone)) {
 			// country not in any shipping zone
-			$notice = sprintf(__("The selected order customer shipping country %s has not yet been added to any shipping zone. This has to be done before you can continue editing this order!"), $this->shippingCountry->title);
+			$notice = sprintf(__("The selected order customer shipping country %s has not yet been added to any shipping zone."), $this->shippingCountry->title);
 			$isOrderError = true;
 			$noticeTypeText = "country_not_in_shipping_zone";
 			$noticeType = 'error';
@@ -654,6 +658,19 @@ trait TraitPWCommerceUtilitiesOrder
 			return $this->order;
 		}
 
+		// ---------------------
+		// RAW SUBTOTAL BEFORE ANY DISCOUNTS
+		$rawOrderSubtotalPriceMoney = $this->money(0);
+
+		foreach ($this->orderLineItems as $item) {
+			$isObj = is_object($item);
+			$rawTotal = $isObj
+				? ($item->totalPrice ?? 0)
+				: ($item['total_price'] ?? 0);
+
+			$rawOrderSubtotalPriceMoney = $rawOrderSubtotalPriceMoney->add($this->money($rawTotal));
+		}
+
 		// ------------
 		// GOOD TO CONTINUE
 
@@ -661,12 +678,87 @@ trait TraitPWCommerceUtilitiesOrder
 		// ----------------
 		$order = $this->order;
 
+
 		## ********** SET CALCULABLE VALUES FOR ORDER  ********** ##
 
 		// +++++++++++++
 		// 2. DISCOUNTS
-		// NOTE ORDER DISCOUNTS ARE PROPORTIONATELLY APPLIED ACROSS ALL LINE ITEMS!
-		// nothing to do here
+		if (!$order->discounts instanceof WireArray) {
+			$order->discounts = new WireArray();
+		}
+
+		$discountType = $order->get('discountType') ?? ($order->data['discountType'] ?? null);
+		$discountValue = $order->get('discountValue') ?? ($order->data['discountValue'] ?? null);
+
+		if (!$order->discounts->count() && !empty($discountType) && is_numeric($discountValue)) {
+			$discount = new WireData();
+			$discount->set('discountType', $discountType);
+			$discount->set('discountValue', $discountValue);
+			$order->discounts->add($discount);
+		}
+
+		if (!$order->discounts->count() && $order->get('pwcommerce_order_discounts')) {
+			$order->discounts = $order->get('pwcommerce_order_discounts');
+		}
+
+		// ---------------------
+		// 2.1 SUBTOTAL & TAX BASED ON LINE ITEMS
+
+		$orderSubtotalPriceMoney = $this->money(0);
+		$orderTaxMoney = $this->money(0);
+
+		foreach ($this->orderLineItems as $i => $item) {
+			$isObj = is_object($item);
+
+			$totalPrice = $isObj
+				? ($item->total_price_discounted ?? $item->totalPrice ?? 0)
+				: ($item['total_price_discounted'] ?? $item['total_price'] ?? 0);
+
+			$taxAmount = $isObj ? ($item->taxAmountTotal ?? 0) : ($item['tax_amount_total'] ?? 0);
+
+			$lineTotal = $this->money($totalPrice);
+			$lineTax   = $this->money($taxAmount);
+
+			$orderSubtotalPriceMoney = $orderSubtotalPriceMoney->add($lineTotal);
+			$orderTaxMoney = $orderTaxMoney->add($lineTax);
+		}
+
+		// ---------------------
+		// 2.2. APPLY ORDER DISCOUNTS
+		// ---------------------
+		$discountAmountMoney = $this->money(0);
+		$totalDiscountMoney = $this->money(0);
+
+
+		foreach ($this->order->discounts as $discount) {
+			$type = strtolower(trim($discount->get('discountType')));
+			$value = (float) $discount->get('discountValue');
+
+			if ($type === 'percentage' && $value > 0 && $value <= 100) {
+				//            $discountMoney = $orderSubtotalPriceMoney->multiply(strval($value / 100));
+				$discountMoney = $rawOrderSubtotalPriceMoney->multiply(strval($value / 100));
+
+			} elseif (in_array($type, ['fixed', 'fixed_applied_once'])) {
+				$discountMoney = $this->money($value);
+			} else {
+				continue;
+			}
+
+			$totalDiscountMoney = $totalDiscountMoney->add($discountMoney);
+			$discount->discountAmount = $this->getWholeMoneyAmount($discountMoney);
+		}
+
+		$discountAmountMoney = $totalDiscountMoney;
+		$order->discountAmount = $this->getWholeMoneyAmount($discountAmountMoney);
+		//    $order->discountAmount = (float) $discountAmountMoney->getAmount() / 100;
+		$order->set('discountAmount', $order->discountAmount);
+
+
+		// ---------------------
+		// 2.3. RE-CALCULATE SUBTOTAL AFTER DISCOUNT
+		$orderSubtotalPriceMoney = $orderSubtotalPriceMoney->subtract($discountAmountMoney);
+		$order->subtotalPrice = $this->getWholeMoneyAmount($orderSubtotalPriceMoney);
+
 		// +++++++++++++
 		// 3. SHIPPING
 		// @NOTE
@@ -692,13 +784,30 @@ trait TraitPWCommerceUtilitiesOrder
 		/** @var WireArray $order->matchedShippingRates */
 		$order->matchedShippingRates = $this->getOrderComputedMatchedShippingRates();
 		$order->maximumShippingFee = $this->getZoneMaximumShippingFee();
+
+
+
+
+		// ---------------------
+		// 8. RE-CALCULATE TAX FROM TAX ENGINE (if needed)
+		//  $orderTaxMoney = $this->getOrderTaxMoney();
+		$order->orderTaxAmountTotal = $this->getWholeMoneyAmount($orderTaxMoney);
+		$recalculatedTax = $this->getOrderTaxMoney();
+
 		// +++++++++++++
 		// 4. TOTALS
 		// TODO DELETE WHEN DONE
 		// @note: this is ORDER SUB-TOTAL PRICE/COST (order and line items discounts applied) + SHIPPING + HANDLING + TAX
 		// @UPDATE: THIS NOW CHANGES -> IT IS PRICE/COST OF LINE ITEMS WITHOUT TAX AND OTHER FEES (INCLUDING SHIPPING) BUT MINUS DISCOUNTS; ALSO NOTE, WHOLE ORDER DISCOUNTS NOW ALSO INCLUDED IN LINE ITEMS (PROPORTIONATELY DIVIDED between them)
-		$orderTotalPriceMoney = $this->getOrderTotalPriceMoney();
+		$orderTotalPriceMoney = $orderSubtotalPriceMoney
+			->add($shippingFeeMoney)
+			->add($handlingFeeMoney)
+			->add($orderTaxMoney);
+
 		$order->totalPrice = $this->getWholeMoneyAmount($orderTotalPriceMoney);
+		$order->totalDisplayPrice = $this->getWholeMoneyAmount(
+			$orderTotalPriceMoney->subtract($discountAmountMoney)
+		);
 		//-------------------------
 
 		// 5. RUNTIMES
@@ -707,16 +816,13 @@ trait TraitPWCommerceUtilitiesOrder
 		$order->matchedShippingZoneName = $this->shippingZone->title;
 		// @note: excludes shipping and handling BUT includes taxes + discounts
 		// runtime, e.g. for TraitPWCommerceOrder
-		$orderSubtotalPriceMoney = $this->getOrderSubTotalMoney();
-		$order->subtotalPrice = $this->getWholeMoneyAmount($orderSubtotalPriceMoney);
+		//          $orderSubtotalPriceMoney = $this->getOrderSubTotalMoney();
+		//          $order->subtotalPrice = $this->getWholeMoneyAmount($orderSubtotalPriceMoney);
 
-		// NOTE: DOES NOT INCLUDE TAX ON SHIPPING! THAT IS PART OF THE SHIPPING FEE ALREADY IF APPLICABLE
+		// ---------------------
+		// DEBUG LOG
+		wire('log')->save('pwcommerce', "Final order calculation result:" . print_r($order, true));
 
-		$orderTaxMoney = $this->getOrderTaxMoney();
-		$order->orderTaxAmountTotal = $this->getWholeMoneyAmount($orderTaxMoney);
-		// ----------
-
-		// return the order with calculated values now processed
 		return $order;
 	}
 
