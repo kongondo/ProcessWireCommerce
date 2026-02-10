@@ -22,3 +22,10 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# phpDocumentor
+.phpdoc
+phpDocumentor.phar
+site/api
+vendor_temp
+phpdoc.log

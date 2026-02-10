@@ -26,6 +26,16 @@ https://github.com/kongondo/PWCommerce2Starter
 
 WIP
 
+### API Documentation
+
+To generate the API documentation, run the following command in the root directory:
+
+```bash
+./run_phpdoc.sh
+```
+
+This will download phpDocumentor (if not already present) and generate the documentation in `site/api`.
+
 ## Community Support Forum
 
 https://processwire.com/talk/forum/62-pwcommerce-support/
