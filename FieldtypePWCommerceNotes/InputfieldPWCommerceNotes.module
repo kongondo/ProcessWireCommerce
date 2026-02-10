@@ -20,6 +20,11 @@ namespace ProcessWire;
 class InputfieldPWCommerceNotes extends Inputfield
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Notes: Inputfield',
@@ -38,6 +43,11 @@ class InputfieldPWCommerceNotes extends Inputfield
 	private $isNoNotes; // TODO: EXPERIMENTAL!
 	private $notes;
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -52,11 +62,23 @@ class InputfieldPWCommerceNotes extends Inputfield
 		$this->datetimeFormat = $this->pwcommerce->getDateTimeFormat();
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 
 		$this->field = $field;
@@ -64,6 +86,12 @@ class InputfieldPWCommerceNotes extends Inputfield
 
 	// for classes calling this class externally
 	// e.g. PWCommerceProcessRenderOrders::getSingleViewOrderNotes
+	/**
+	 * Set Notes.
+	 *
+	 * @param WireArray $notes
+	 * @return mixed
+	 */
 	public function setNotes(WireArray $notes) {
 
 		$this->notes = $notes;
@@ -74,6 +102,7 @@ class InputfieldPWCommerceNotes extends Inputfield
 	/**
 	 * Render the entire input area for notes
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -114,15 +143,19 @@ class InputfieldPWCommerceNotes extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Render Notes Column Headers.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderNotesColumnHeaders() {
 		// BUILD ROW HEADERS
 		$out = "";
@@ -150,6 +183,11 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Add New Link.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderAddNewLink() {
 		// @note: in case being used in InputfieldPWCommerceRuntimeMarkup
 		// we strip the '_repeater' off
@@ -170,6 +208,11 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Footer.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderFooter() {
 		//------------------- add new note (InputfieldMarkup)
 		// @note: SINGLE ADD NEW IN FOOTER OF WRAPPER - CAN ONLY HAVE ONE!
@@ -189,7 +232,18 @@ class InputfieldPWCommerceNotes extends Inputfield
 
 	// TODO: OK PASS VARIABLE LIKE THIS? THIS IS INHERITED FROM INPUTFIELD!
 	// TODO: THIS IS THROWING ERROR IN PHP 8 ENVIRONMENTS DUE TO THE OVERLOADING OF renderValue() with $notes!
-	// public function ___renderValue($notes) {
+	// /**
+  *    render Value.
+  *
+  * @param mixed $notes
+  * @return mixed
+  */
+ public function ___renderValue($notes) {
+	/**
+	 *    render Value.
+	 *
+	 * @return mixed
+	 */
 	public function ___renderValue() {
 		// return $this->buildForm($notes, true);
 		return $this->buildForm(true);
@@ -197,8 +251,21 @@ class InputfieldPWCommerceNotes extends Inputfield
 
 	// ~~~~~~~~~~~~~~~
 
-	// private function buildForm($notes, $isRenderValueOnly = false) {
-	private function buildForm($isRenderValueOnly = false) {
+	// /**
+  * Build Form.
+  *
+  * @param mixed $notes
+  * @param bool $isRenderValueOnly
+  * @return mixed
+  */
+ private function buildForm($notes, bool $isRenderValueOnly = false) {
+	/**
+	 * Build Form.
+	 *
+	 * @param bool $isRenderValueOnly
+	 * @return mixed
+	 */
+	private function buildForm(bool $isRenderValueOnly = false) {
 		// TODO: SHOULD WE SHOW SUBSCRIPT ON NOTE, AS ADMIN, SYSTEM, CUSTOMER ETC? maybe under author?
 
 		$notes = $this->notes;
@@ -242,10 +309,11 @@ class InputfieldPWCommerceNotes extends Inputfield
 	/**
 	 * Build a row of inputs representing a single note.
 	 *
-	 * @access private
-	 * @return InputfieldMarkup
+	 * @param WireData $note
+	 * @param bool $isRenderValueOnly
+	 * @return mixed
 	 */
-	private function buildRow(WireData $note, $isRenderValueOnly = false) {
+	private function buildRow(WireData $note, bool $isRenderValueOnly = false) {
 
 		// GET WRAPPER
 		// $wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -323,12 +391,24 @@ class InputfieldPWCommerceNotes extends Inputfield
 		// return $wrapper;
 	}
 
+	/**
+	 * Get No Notes Found Notice Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getNoNotesFoundNoticeMarkup() {
 		$out = "<p id='pwcommerce_notes_no_notes_found'>" . $this->_('Order has no saved notes.') . "</p>";
 		return $out;
 	}
 
-	private function getNoteTextareaField($note, $isRenderValueOnly = false) {
+	/**
+	 * Get Note Textarea Field.
+	 *
+	 * @param mixed $note
+	 * @param bool $isRenderValueOnly
+	 * @return mixed
+	 */
+	private function getNoteTextareaField($note, bool $isRenderValueOnly = false) {
 		//------------------- note text/content/value (getInputfieldTextarea/getInputfieldMarkup)
 		if ($note->type !== 'system' && empty($isRenderValueOnly)) {
 			// non-system note is editable || if not in renderValue() mode
@@ -363,6 +443,12 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Note Date Markup.
+	 *
+	 * @param mixed $noteDate
+	 * @return mixed
+	 */
 	private function getNoteDateMarkup($noteDate) {
 		//  note date
 		$out = "<div class='col-span-full md:col-span-3'>" .
@@ -372,6 +458,12 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Get Note Text Markup.
+	 *
+	 * @param mixed $noteText
+	 * @return mixed
+	 */
 	private function getNoteTextMarkup($noteText) {
 		//  note text
 		$out = "<div class='col-span-full md:col-span-6 md:mr-3'>" .
@@ -380,6 +472,12 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Get Note Text Author.
+	 *
+	 * @param mixed $noteAuthor
+	 * @return mixed
+	 */
 	private function getNoteTextAuthor($noteAuthor) {
 		//  note author
 		$out = "<div class='col-span-full md:col-span-3'>" .
@@ -388,6 +486,12 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Build Note Final Markup.
+	 *
+	 * @param mixed $noteMarkup
+	 * @return mixed
+	 */
 	private function buildNoteFinalMarkup($noteMarkup) {
 
 		$options = [
@@ -405,6 +509,8 @@ class InputfieldPWCommerceNotes extends Inputfield
 	/**
 	 * Process input for the values sent from the notes for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -526,9 +632,8 @@ class InputfieldPWCommerceNotes extends Inputfield
 	/**
 	 * Make a string value to represent these values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param array $items
+	 * @return mixed
 	 */
 	private function toStringInhouse($items) {
 		$a = [];
@@ -542,11 +647,9 @@ class InputfieldPWCommerceNotes extends Inputfield
 	/**
 	 * Compare if input versus saved admin note text are identical.
 	 *
-	 * If not identical, it means the admin note has been edited.
-	 *
-	 * @param string $newNoteText Note text from $input.
-	 * @param string $existingNoteText Existing note text from note object.
-	 * @return boolean Whether the note texts are identical.
+	 * @param mixed $newNoteText
+	 * @param mixed $existingNoteText
+	 * @return bool
 	 */
 	private function isNoteTextChanged($newNoteText, $existingNoteText) {
 		return (string) $newNoteText !== (string) $existingNoteText;
@@ -555,9 +658,8 @@ class InputfieldPWCommerceNotes extends Inputfield
 	/**
 	 * Build the string for the creaeted and last modified date of this note.
 	 *
-	 * @credits: Amended from ProcessPageEdit::buildFormInfo().
-	 * @param WireData $note The note whose created and modified date we are building.
-	 * @return String $date The created and last modified date string.
+	 * @param WireData $note
+	 * @return mixed
 	 */
 	private function getNoteCreatedAndModifiedDatesString(WireData $note) {
 		$unknown = '[?]';
@@ -578,6 +680,12 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $date;
 	}
 
+	/**
+	 * Get Note Author.
+	 *
+	 * @param int $createdUsersID
+	 * @return mixed
+	 */
 	private function getNoteAuthor($createdUsersID) {
 		$out = $this->_('System');
 		$author = $this->wire('users')->get($createdUsersID);
@@ -589,6 +697,11 @@ class InputfieldPWCommerceNotes extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Get New Blank Note.
+	 *
+	 * @return mixed
+	 */
 	private function getNewBlankNote() {
 		$newItem = $this->field->type->getBlankRecord();
 		$newItem->id = (int) microtime(true);

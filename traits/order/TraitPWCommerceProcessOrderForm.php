@@ -6,6 +6,12 @@ trait TraitPWCommerceProcessOrderForm
 {
 
 
+	/**
+	 * Process Customer Form.
+	 *
+	 * @param mixed $form
+	 * @return mixed
+	 */
 	public function processCustomerForm($form) {
 		$form->processInput($this->input->post);
 
@@ -52,7 +58,14 @@ trait TraitPWCommerceProcessOrderForm
 
 	// TODO @KONGONDO ADDITION TO PROCESS A CUSTOM CHECKOUT FORM - E.G. DIFFERENT DEV HAVE DIFFERENT NEEDS AND MAY NOT WANT TO USE THE INBUILT PROCESSWIRE INPUTFIELDS TO CREATE FORMS! - HERE, WE PROCESS SUCH CUSTOM FORMS USING SPECIFIED CRITERIA FOR VALIDATION
 
-	public function processCustomOrderCustomerForm(array $customFormFields, $isUseCustomFormInputNames = false) {
+	/**
+	 * Process Custom Order Customer Form.
+	 *
+	 * @param array $customFormFields
+	 * @param bool $isUseCustomFormInputNames
+	 * @return mixed
+	 */
+	public function processCustomOrderCustomerForm(array $customFormFields, bool $isUseCustomFormInputNames = false) {
 
 		/** @var Array $formErrors */
 		$formErrors = $this->checkCustomOrderCustomerFormForErrors($customFormFields);
@@ -108,7 +121,13 @@ trait TraitPWCommerceProcessOrderForm
 		return $orderCreationResponse;
 	}
 
-	public function processCustomerShippingConfirmation($isCustomForm = false) {
+	/**
+	 * Process Customer Shipping Confirmation.
+	 *
+	 * @param bool $isCustomForm
+	 * @return mixed
+	 */
+	public function processCustomerShippingConfirmation(bool $isCustomForm = false) {
 
 		$response = new WireData();
 		## SANITY CHECKS ##
@@ -208,6 +227,12 @@ trait TraitPWCommerceProcessOrderForm
 		return $response;
 	}
 
+	/**
+	 *    check Custom Order Customer Form For Errors.
+	 *
+	 * @param mixed $customFormFields
+	 * @return mixed
+	 */
 	protected function ___checkCustomOrderCustomerFormForErrors($customFormFields) {
 		// TODO MAKE THIS HOOKABLE SO DEVS CAN CHECK FOR ERRORS FOR THEIR CUSTOM INPUTS AS WELL! E.G. VALID VAT NUMBER!????
 		//
@@ -251,6 +276,13 @@ trait TraitPWCommerceProcessOrderForm
 		return $formErrors;
 	}
 
+	/**
+	 * Get Cleaned Form Value.
+	 *
+	 * @param mixed $value
+	 * @param mixed $inputType
+	 * @return mixed
+	 */
 	private function getCleanedFormValue($value, $inputType) {
 		$cleanedValue = null;
 		$sanitizer = $this->wire('sanitizer');

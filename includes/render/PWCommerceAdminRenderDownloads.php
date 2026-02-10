@@ -23,6 +23,11 @@ class PWCommerceAdminRenderDownloads extends WireData
 
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 
 		return [
@@ -40,6 +45,13 @@ class PWCommerceAdminRenderDownloads extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 
 
@@ -70,11 +82,22 @@ class PWCommerceAdminRenderDownloads extends WireData
 	}
 
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No downloads found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Download Details.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getDownloadDetails($page) {
 		// @note: first works since outputformatting is off!
 		// otherwise, this is a single file field
@@ -94,6 +117,12 @@ class PWCommerceAdminRenderDownloads extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -120,6 +149,11 @@ class PWCommerceAdminRenderDownloads extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -137,6 +171,11 @@ class PWCommerceAdminRenderDownloads extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -145,6 +184,11 @@ class PWCommerceAdminRenderDownloads extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -168,6 +212,12 @@ class PWCommerceAdminRenderDownloads extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -181,6 +231,11 @@ class PWCommerceAdminRenderDownloads extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Unused.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUnused() {
 		// e.g.
 		// SELECT data as download_id
@@ -208,6 +263,11 @@ class PWCommerceAdminRenderDownloads extends WireData
 		return $selector;
 
 	}
+	/**
+	 * Get Selector For Quick Filter No Download File.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoDownloadFile() {
 		$selector = ",pwcommerce_file=''";
 		// ----

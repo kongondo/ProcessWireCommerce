@@ -7,6 +7,12 @@ trait TraitPWCommerceActionsAddons
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ADDONS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Action Addons.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	private function actionAddons($input) {
 
 		$sanitizer = $this->wire('sanitizer');
@@ -144,6 +150,11 @@ trait TraitPWCommerceActionsAddons
 		return $result;
 	}
 
+	/**
+	 * Get Allowed Addon Types.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedAddonTypes() {
 		// TODO ADD MORE AS NEEDED!
 		return [
@@ -152,6 +163,13 @@ trait TraitPWCommerceActionsAddons
 		];
 	}
 
+	/**
+	 * Process Payment Provider Addon Page.
+	 *
+	 * @param mixed $addonClassName
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	private function processPaymentProviderAddonPage($addonClassName, $input) {
 
 		$pages = $this->wire('pages');
@@ -248,6 +266,11 @@ trait TraitPWCommerceActionsAddons
 		return $addonValues;
 	}
 
+	/**
+	 * Action Delete All None Core Payment Addons.
+	 *
+	 * @return mixed
+	 */
 	private function actionDeleteAllNoneCorePaymentAddons() {
 		// TODO THIS NOW CHANGES -> SINCE ADDONS MAIN/PARENT PAGE DOES NOT NOW HAVE OWN SETTINGS, AND SINCE NON-PAYMENT ADDONS NOW HAVE OWN PAGES, IT MEANS WE HAVE NOWHERE CENTRAL TO STORE ALL ADDONS SETTINGS. HENCE, SINCE WE KNOW PWCOMMERCES CORE PAYMENT ADDONS, AND SINCE THIS MIGHT NOT CHANGE FOR LONG OR FOREVER, WE JUST EXCLUDE THEM BY NAME! I.E. 'invoice', 'stripe', and 'paypal'
 		/** @var array $namesOfCorePaymentAddons */
@@ -267,6 +290,13 @@ trait TraitPWCommerceActionsAddons
 		return;
 	}
 
+	/**
+	 * Process Non Payment Custom Addon Page.
+	 *
+	 * @param mixed $addonClassName
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	private function processNonPaymentCustomAddonPage($addonClassName, $input) {
 
 		$pages = $this->wire('pages');
@@ -383,6 +413,12 @@ trait TraitPWCommerceActionsAddons
 		return $addonValues;
 	}
 
+	/**
+	 * Process Addons Settings.
+	 *
+	 * @param array $setttings
+	 * @return mixed
+	 */
 	private function processAddonsSettings(array $setttings) {
 		$currentAddonsSettings = $this->pwcommerce->getAddonsSettings();
 
@@ -422,6 +458,11 @@ trait TraitPWCommerceActionsAddons
 		$page->save('pwcommerce_settings');
 	}
 
+	/**
+	 * Process Addons Page.
+	 *
+	 * @return mixed
+	 */
 	private function processAddonsPage() {
 		// process the settings
 		$input = $this->actionInput; // @note this is $input->post!!
@@ -446,6 +487,12 @@ trait TraitPWCommerceActionsAddons
 		return $notice;
 	}
 
+	/**
+	 * Action Addons Page.
+	 *
+	 * @param mixed $action
+	 * @return mixed
+	 */
 	private function actionAddonsPage($action) {
 		// TODO NEED TO RETURN SOMETHING FOR NOTICES!
 		$pages = $this->wire('pages');

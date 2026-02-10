@@ -16,8 +16,8 @@ trait TraitPWCommerceUtilitiesOrder
 	/**
 	 * Get order ID with prefix and suffix if applicable.
 	 *
-	 * @param Page $page The order page itself.
-	 * @return String $orderNumberWithPrefixAndSuffix The order number with prefix and suffix if used.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	public function getOrderNumberWithPrefixAndSuffix(Page $page) {
 		// TODO: CHECK IF ADD PREFIX/SUFFIX TO ORDER TITLE/NAME!
@@ -37,7 +37,14 @@ trait TraitPWCommerceUtilitiesOrder
 	}
 
 	// TODO: MOVE TO PWCOMMERCE CLASS!!!
-	public function getThisYearsOrders($isRaw = true, $options = []) {
+	/**
+	 * Get This Years Orders.
+	 *
+	 * @param bool $isRaw
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function getThisYearsOrders(bool $isRaw = true, array $options = []) {
 
 		// TODO IF WE DON'T SPECIFY FIELDS HERE, WE WILL GET AN ERROR SINCE PROCESSWIRE WILL ATTEMPT TO SEARCH INPUTFIELDPARLOPERRUNTIMEMARKUP!!! WE NEED A WAY TO TELL IT TO EXCLUDE THAT OR TO AVOID THE DATABASE???!!
 
@@ -63,6 +70,13 @@ trait TraitPWCommerceUtilitiesOrder
 	}
 
 
+	/**
+	 * Get Open Orders Count.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getOpenOrdersCount($startDate = null, $endDate = null) {
 		$fields = 'id';
 		if (empty($startDate) && empty($endDate)) {
@@ -85,6 +99,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $openOrdersCount;
 	}
 
+	/**
+	 * Get Cancelled Orders Count.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getCancelledOrdersCount($startDate = null, $endDate = null) {
 		$fields = 'id';
 		if (empty($startDate) && empty($endDate)) {
@@ -107,6 +128,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $cancelledOrdersCount;
 	}
 
+	/**
+	 * Get Abandoned Checkouts Count.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getAbandonedCheckoutsCount($startDate = null, $endDate = null) {
 		$fields = 'id';
 		if (empty($startDate) && empty($endDate)) {
@@ -128,6 +156,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $abandondedCheckoutsCount;
 	}
 
+	/**
+	 * Get Average Items Per Order Count.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getAverageItemsPerOrderCount($startDate = null, $endDate = null) {
 		$fields = ['pwcommerce_order_line_item' => 'order_line_item', 'parent_id' => 'order_id'];
 		if (empty($startDate) && empty($endDate)) {
@@ -166,6 +201,11 @@ trait TraitPWCommerceUtilitiesOrder
 		return $averageItemsPerOrder;
 	}
 
+	/**
+	 * Get Year Total Sales Count.
+	 *
+	 * @return mixed
+	 */
 	public function getYearTotalSalesCount() {
 		/** @var array $monthsSalesCount */
 		$monthsSalesCount = $this->getMonthsTotalSalesCounts();
@@ -174,6 +214,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $yearSalesCount;
 	}
 
+	/**
+	 * Get Months Total Sales Counts.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getMonthsTotalSalesCounts($startDate = null, $endDate = null) {
 		// get orders/sales (completed orders) for year grouped by month
 		$monthlySales = $this->getThisYearsSalesGroupedByMonth($startDate, $endDate);
@@ -191,6 +238,11 @@ trait TraitPWCommerceUtilitiesOrder
 		return $monthlySalesNumbers;
 	}
 
+	/**
+	 * Get Year Orders Revenue.
+	 *
+	 * @return mixed
+	 */
 	public function getYearOrdersRevenue() {
 		/** @var array $monthsOrdersRevenues */
 		$monthsOrdersRevenues = $this->getMonthsOrdersRevenues();
@@ -202,6 +254,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $yearsOrdersRevenueMoney;
 	}
 
+	/**
+	 * Get Months Orders Revenues.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getMonthsOrdersRevenues($startDate = null, $endDate = null) {
 		// TODO: EITHER HERE OR LATER WE NEED TO COMPUTE AVERAGE FOR YEAR! REMEMBER TO AV BY 12 MONTHS IN THAT CASE
 		// get orders/sales (completed orders) for year grouped by month
@@ -252,6 +311,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $ordersRevenuesPerMonthMonies;
 	}
 
+	/**
+	 * Get Year Orders Revenue Grouped By Country.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getYearOrdersRevenueGroupedByCountry($startDate = null, $endDate = null) {
 		// for fields, we only need the 'order_total_price' from 'pwcommerce_order' and 'shipping_address_country' from 'pwcommerce_order_customer'
 		$fields = ['pwcommerce_order.order_total_price', 'pwcommerce_order_customer.shipping_address_country'];
@@ -320,6 +386,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $yearOrdersRevenueGroupedByCountry;
 	}
 
+	/**
+	 * Get Sort Orders Revenues By Value And Grouped By Limited Countries.
+	 *
+	 * @param mixed $ordersRevenueGroupedByCountry
+	 * @param int $limit
+	 * @return mixed
+	 */
 	private function getSortOrdersRevenuesByValueAndGroupedByLimitedCountries($ordersRevenueGroupedByCountry, $limit = 10) {
 		// @note: limit is total we need EXLCLUDING an 'OTHERS' country grouping if limit is surpassed by count of $ordersRevenueGroupedByCountry
 		// @note: for now we sort DESCENDING only
@@ -354,6 +427,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $ordersRevenueSortedByValueAndGroupedByLimitedCountries;
 	}
 
+	/**
+	 * Get Average Order Values.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getAverageOrderValues($startDate = null, $endDate = null) {
 		//
 		// NOTE: AOV
@@ -419,6 +499,13 @@ trait TraitPWCommerceUtilitiesOrder
 		return $averageOrderValues;
 	}
 
+	/**
+	 * Get This Years Sales Grouped By Month.
+	 *
+	 * @param mixed $startDate
+	 * @param mixed $endDate
+	 * @return mixed
+	 */
 	public function getThisYearsSalesGroupedByMonth($startDate = null, $endDate = null) {
 		$fields = ['pwcommerce_order' => 'order', 'created'];
 		if (empty($startDate) && empty($endDate)) {
@@ -465,10 +552,8 @@ trait TraitPWCommerceUtilitiesOrder
 	/**
 	 * Get the order totals for a specified country.
 	 *
-	 * @note: full country name match here!
-	 *
-	 * @param string $country
-	 * @return float $countryAllOrdersPriceTotal Total price for orders from this country.
+	 * @param mixed $country
+	 * @return mixed
 	 */
 	public function getCountryAllOrdersPriceTotal($country) {
 		// TODO - IN FUTURE, ADD LIMIT NUMBER OF ORDERS, LIMIT TO TIME PERIOD, ETC.
@@ -484,6 +569,13 @@ trait TraitPWCommerceUtilitiesOrder
 	# *******************
 
 
+	/**
+	 * Build Print Order Invoice.
+	 *
+	 * @param Page $orderPage
+	 * @param mixed $templateFile
+	 * @return mixed
+	 */
 	public function buildPrintOrderInvoice(Page $orderPage, $templateFile) {
 		// TODO CONFIRM!
 		// TODO: DELETE WHEN DONE; ALREADY AUTOLOADED IN PwCommerce::ready
@@ -562,10 +654,8 @@ trait TraitPWCommerceUtilitiesOrder
 	/**
 	 * Process 'calculated' values for given order.
 	 *
-	 * Includes tax, shipping and discount processing.
-	 *
-	 * @param array $options Array with options for processing order.
-	 * @return WireData $order The order with values processed.
+	 * @param array $options
+	 * @return mixed
 	 */
 	public function getOrderCalculatedValues(array $options) {
 
@@ -721,7 +811,13 @@ trait TraitPWCommerceUtilitiesOrder
 	}
 
 
-	public function getOrderTotalQuantity($isForShippingRateCalculation = false) {
+	/**
+	 * Get Order Total Quantity.
+	 *
+	 * @param bool $isForShippingRateCalculation
+	 * @return mixed
+	 */
+	public function getOrderTotalQuantity(bool $isForShippingRateCalculation = false) {
 
 		$orderTotalQuantity = 0;
 		// -------------------
@@ -752,13 +848,10 @@ trait TraitPWCommerceUtilitiesOrder
 	/**
 	 * Get current orders SUBTOTAL.
 	 *
-	 * This subtotal is inclusive of order line items discounts  BUT WITHOUT tax, shipping and handling.
-	 * We use it to calculate order total at $this->getOrderTotalPriceMoney().
-	 *
-	 * @access public
-	 * @return \Money\Money $orderSubTotalMoney The order subtotal including taxes and discounts ONLY.
+	 * @param bool $isForShippingRateCalculation
+	 * @return mixed
 	 */
-	public function getOrderSubTotalMoney($isForShippingRateCalculation = false) {
+	public function getOrderSubTotalMoney(bool $isForShippingRateCalculation = false) {
 		// TODO NOTE IF FOR $isForShippingRateCalculation = false IT WILL IGNORE NON-SHIPPABLES
 		$orderSubTotalMoney = $this->getOrderDiscountedSubTotal($isForShippingRateCalculation);
 		// ----------
@@ -774,7 +867,20 @@ trait TraitPWCommerceUtilitiesOrder
 	 * @param float $percentage
 	 * @return float Given percentage converted to a decimal.
 	 */
-	// public function getPercentageAsDecimal($percentage, $scale = 6) {
+	// /**
+  * Get Percentage As Decimal.
+  *
+  * @param mixed $percentage
+  * @param int $scale
+  * @return mixed
+  */
+ public function getPercentageAsDecimal($percentage, $scale = 6) {
+	/**
+	 * Get Percentage As Decimal.
+	 *
+	 * @param mixed $percentage
+	 * @return mixed
+	 */
 	public function getPercentageAsDecimal($percentage) {
 		$percentageAsDecimal = $percentage / PwCommerce::HUNDRED;
 		return $percentageAsDecimal;
@@ -784,6 +890,11 @@ trait TraitPWCommerceUtilitiesOrder
 
 
 
+	/**
+	 * Get Order Total Price Money.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderTotalPriceMoney() {
 		// TODO CHANGE TO MONEY!
 
@@ -829,6 +940,11 @@ trait TraitPWCommerceUtilitiesOrder
 		return $orderTotalPriceMoney;
 	}
 
+	/**
+	 * Get Order Tax Money.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderTaxMoney() {
 		// +++++++++
 		// loop through to get values
@@ -852,12 +968,7 @@ trait TraitPWCommerceUtilitiesOrder
 	/**
 	 * Compute whole order weight.
 	 *
-	 * Assumptions:
-	 * Weights are in kilograms.
-	 * Weight property is set in shop. E.g. the property 'weight' is for product weights.
-	 *
-	 * @access public
-	 * @return float $orderWeight Total weight of order.
+	 * @return mixed
 	 */
 	public function ___getOrderWeight() {
 		// TODO: get all order product ids; then get the products; then get their weights; will need to get parents if variants!; then loop through each and multiply by quantity!

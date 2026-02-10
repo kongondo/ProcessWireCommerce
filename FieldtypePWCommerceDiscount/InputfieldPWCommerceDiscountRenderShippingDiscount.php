@@ -32,6 +32,13 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 	private $isValidDiscountsApplyTo;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @param mixed $field
+	 * @return mixed
+	 */
 	public function __construct($page, $field) {
 		parent::__construct($page, $field);
 		// @NOTE: WE INHERIT BELOW PROPS FROM PARENT CLASS 'InputfieldPWCommerceDiscountRenderOrderDiscount'
@@ -44,6 +51,11 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Set Discount Applies To Countries Mode.
+	 *
+	 * @return mixed
+	 */
 	private function setDiscountAppliesToCountriesMode() {
 		$firstItemDiscountAppliesTo = $this->discountAppliesTo->first();
 		if (!empty($firstItemDiscountAppliesTo)) {
@@ -54,6 +66,7 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 	/**
 	 * Render the entire input area for product discount
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		// @overrides parent::render
@@ -66,6 +79,11 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $out;
 	}
 
+	/**
+	 * Get Discounts Form Header.
+	 *
+	 * @return mixed
+	 */
 	protected function getDiscountsFormHeader() {
 		// @overrides parent::getDiscountsFormHeader
 		$discountTypeHeader =
@@ -75,6 +93,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $discountTypeHeader;
 	}
 
+	/**
+	 * Render Discount Method.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountMethod($wrapper) {
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
 		$wrapper = parent::renderDiscountMethod($wrapper);
@@ -100,6 +124,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Render Discount Value.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountValue($wrapper) {
 		// @overrides parent::renderDiscountValue
 		// TODO WE WILL REPLACE THIS WITH SHIPPING COUNTRIES RADIOS
@@ -114,6 +144,11 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Get Value For Discount Type.
+	 *
+	 * @return mixed
+	 */
 	protected function getValueForDiscountType() {
 		// @overrides parent::getValueForDiscountType
 		// @note though: not in use since this type will always be 'free shipping' in addition, the value will always be 'free shipping', with the caveat of 'exclude shipping above amount'
@@ -123,6 +158,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 	}
 
 	### APPLIES TO ###
+	/**
+	 * Render Discount Applies To.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountAppliesTo($wrapper) {
 		// radio to select applies to type
 		$field = $this->getMarkupForDiscountAppliesToRadioField();
@@ -143,6 +184,11 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Get Markup For Discount Applies To Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountAppliesToRadioField() {
 		//------------------- pwcommerce_discount_applies_to (getInputfieldRadios)
 		//
@@ -175,6 +221,11 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Applies To Selected Countries Text Tags Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountAppliesToSelectedCountriesTextTagsField() {
 		// TODO: WHAT IF COUNTRY IS NOT in any zone? rest of the world?!
 		//------------------- pwcommerce_discount_applies_to_selected_countries (getInputfieldTextTags)
@@ -233,6 +284,11 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Exclude Shipping Rates Over Amount Toggle Checkbox Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountExcludeShippingRatesOverAmountToggleCheckboxField() {
 		//------------------- pwcommerce_discount_exclude_rates_over_certain_amount_toggle (getInputfieldCheckbox)
 // @note: comes from META! @see: FieldtypePWCommerceDiscount::wakeupValue()
@@ -260,6 +316,11 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Exclude Shipping Rates Over Amount Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountExcludeShippingRatesOverAmountTextField() {
 		//------------------- pwcommerce_discount_exclude_rates_over_certain_amount (getInputfieldText)
 		$options = [
@@ -294,6 +355,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 	// @NOTE: PARENT CLASS WILL DO MAIN PROCESSING
 	// HERE WE ONLY PROCESS A FEW INPUTS UNIQUE TO SHIPPING DISCOUNT
 
+	/**
+	 * Process Discount Value Type.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountValueType(WireInputData $input) {
 		// @note: this is always 'free_shipping'
 		// nothing to process; just return the default
@@ -302,6 +369,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $discountValueType;
 	}
 
+	/**
+	 * Process Discount Value.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountValue(WireInputData $input) {
 		// @note: this is always 'free_shipping' hence 100% discount on shipping (bar exclusions)
 		// hence, just return 100
@@ -310,6 +383,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $discountValue;
 	}
 
+	/**
+	 * Process Discount Meta Data.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountMetaData(WireInputData $input) {
 		// @note: only add exclude shipping rates over amount if applicable
 		$metaData = '';
@@ -328,6 +407,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $metaData;
 	}
 
+	/**
+	 * Process Input For Discounts Apply To.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processInputForDiscountsApplyTo(WireInputData $input) {
 
 		// TODO:
@@ -419,6 +504,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Is Valid Exclude Shipping Rate Amount.
+	 *
+	 * @param mixed $input
+	 * @return bool
+	 */
 	private function isValidExcludeShippingRateAmount($input) {
 		$isValidExcludeShippingRateAmount = true;
 		// -----
@@ -432,6 +523,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $isValidExcludeShippingRateAmount;
 	}
 
+	/**
+	 * Get Error For Discounts Apply To.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function getErrorForDiscountsApplyTo($input = NULL) {
 		// TODO
 		// for product discounts, error can be about missing radio (applies to shipping_all_countries or shipping_selected_countries) AND/OR missing IDs in selectize, i.e. missing countries IDs. Hence, need to tailor for these two scenarios!
@@ -454,6 +551,12 @@ class InputfieldPWCommerceDiscountRenderShippingDiscount extends InputfieldPWCom
 		return $errorString;
 	}
 
+	/**
+	 * Process Extra Input Errors.
+	 *
+	 * @param mixed $errors
+	 * @return mixed
+	 */
 	protected function processExtraInputErrors($errors) {
 		// get parent errors and add to them, if applicable
 		$errors = parent::processExtraInputErrors($errors);

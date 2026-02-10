@@ -8,6 +8,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsDateTime
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DATE AND TIME  ~~~~~~~~~~~~~~~~~~
 
 	// @credits: adapted from FieldtypeDatetime::___getConfigInputfields
+	/**
+	 * Get Date Formats.
+	 *
+	 * @return mixed
+	 */
 	private function getDateFormats() {
 
 		$generalSettings = $this->generalSettings;
@@ -32,6 +37,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsDateTime
 	}
 
 	// @credits: FieldtypeDatetime::___getConfigInputfields
+	/**
+	 * Get Time Formats.
+	 *
+	 * @return mixed
+	 */
 	private function getTimeFormats() {
 		$generalSettings = $this->generalSettings;
 		$timeFormats = [];
@@ -52,6 +62,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsDateTime
 		return $timeFormats;
 	}
 
+	/**
+	 * Get Time Zone Identifiers.
+	 *
+	 * @return mixed
+	 */
 	private function getTimeZoneIdentifiers() {
 		$timezones = [];
 		// @note: we need the 'key' otherwise if only value, selectize will send the input as a prefixed index in the array, e.g. _29

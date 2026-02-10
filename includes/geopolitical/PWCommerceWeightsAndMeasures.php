@@ -23,6 +23,7 @@ class PWCommerceWeightsAndMeasures extends WireData
 	/**
 	 * Returns array of weights and measures, metric and imperial.
 	 *
+	 * @return mixed
 	 */
 	public function getWeightsAndMeasures() {
 		$weightsAndMeasures = [

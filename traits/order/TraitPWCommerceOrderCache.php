@@ -4,6 +4,13 @@ namespace ProcessWire;
 
 trait TraitPWCommerceOrderCache {
 
+	/**
+	 * Create Order Cache.
+	 *
+	 * @param Page $orderPage
+	 * @param int $sessionID
+	 * @return bool
+	 */
 	protected function createOrderCache(Page $orderPage, $sessionID): bool {
 		// TODO create an order cache for given order ID + set it to auto expire in 24 hours
 		// TODO will need to first check if it exists or not!
@@ -63,6 +70,14 @@ trait TraitPWCommerceOrderCache {
 		return $isCacheSaved;
 	}
 
+	/**
+	 * Set Order Cache Value.
+	 *
+	 * @param int $orderID
+	 * @param mixed $key
+	 * @param mixed $value
+	 * @return mixed
+	 */
 	protected function setOrderCacheValue(int $orderID, $key, $value) {
 		// TODO ONLY ALLOW VALUES FOR KEY 'payment'
 		// PAYMENT CLASS CAN MUTATE BELOW VALUES AT INDEX 'payment'
@@ -81,6 +96,14 @@ trait TraitPWCommerceOrderCache {
 
 		return $isAmendedCache;
 	}
+	/**
+	 * Track Webhook In Order Cache.
+	 *
+	 * @param int $orderID
+	 * @param mixed $key
+	 * @param array $value
+	 * @return mixed
+	 */
 	protected function trackWebhookInOrderCache(int $orderID, $key, array $value) {
 		// TODO ONLY ALLOW VALUES FOR KEY ['payment']['webhook']
 		// TODO OVERWRITE EXISTING OR SKIP?
@@ -107,6 +130,12 @@ trait TraitPWCommerceOrderCache {
 		return $isAmendedCache;
 	}
 
+	/**
+	 * Update Is Received Webhook.
+	 *
+	 * @param array $orderCache
+	 * @return array
+	 */
 	private function updateIsReceivedWebhook(array $orderCache): array {
 		if (empty($orderCache['is_received_webhook'])) {
 			$orderCache['is_received_webhook'] = true;
@@ -114,6 +143,12 @@ trait TraitPWCommerceOrderCache {
 		return $orderCache;
 	}
 
+	/**
+	 * Get Order Cache.
+	 *
+	 * @param int $orderID
+	 * @return mixed
+	 */
 	protected function getOrderCache(int $orderID) {
 		// TODO get order cache for given order ID
 		$input = $this->wire('input');
@@ -156,17 +191,37 @@ trait TraitPWCommerceOrderCache {
 		return $orderCache;
 	}
 
+	/**
+	 * Renew Order Cache.
+	 *
+	 * @param int $orderID
+	 * @param int $time
+	 * @return mixed
+	 */
 	protected function renewOrderCache(int $orderID, $time = 24) {
 		// TODO renew the expiry of order cache for given order ID
 		// TODO need to check that it exists first!
 
 	}
 
+	/**
+	 * Update Order Cache.
+	 *
+	 * @param int $orderID
+	 * @param mixed $value
+	 * @return mixed
+	 */
 	protected function updateOrderCache(int $orderID, $value) {
 		// TODO update an existing order cache.
 		// TODO not sure what $value could be! string or assoc array!
 	}
 
+	/**
+	 * Delete Order Cache.
+	 *
+	 * @param int $orderID
+	 * @return mixed
+	 */
 	protected function deleteOrderCache(int $orderID) {
 		// TODO delete the order cache for given order
 		$orderCacheName = self::ORDER_CACHE_NAME_PREFIX . "_{$orderID}";
@@ -176,6 +231,12 @@ trait TraitPWCommerceOrderCache {
 		return $isCacheDeleted;
 	}
 
+	/**
+	 * Is Exist Order Cache.
+	 *
+	 * @param int $orderID
+	 * @return bool
+	 */
 	protected function isExistOrderCache(int $orderID): bool {
 		// TODO NOT SURE WE NEED THIS METHOD? CAN JUST USE getOrderCache and see if it returns an array?
 		$isValidOrderCache = false;
@@ -184,6 +245,12 @@ trait TraitPWCommerceOrderCache {
 		return $isValidOrderCache;
 	}
 
+	/**
+	 * Is Alive Order Cache.
+	 *
+	 * @param int $orderID
+	 * @return bool
+	 */
 	protected function isAliveOrderCache(int $orderID) {
 		// TODO - NOT SURE HOW THIS METHOD IS HELPFUL?
 		$isAliveOrderCache = false;
@@ -192,6 +259,13 @@ trait TraitPWCommerceOrderCache {
 		return $isAliveOrderCache;
 	}
 
+	/**
+	 * Is Already Processed Webhook.
+	 *
+	 * @param int $orderID
+	 * @param int $webhookEventID
+	 * @return bool
+	 */
 	protected function isAlreadyProcessedWebhook(int $orderID, $webhookEventID) {
 		// TODO NOTE - PREVENT WEBHOOK REPLAY ATTACK!
 

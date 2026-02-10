@@ -39,6 +39,12 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function __construct($page) {
 
 		$this->page = $page;
@@ -56,6 +62,8 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 	/**
 	 * Render the markup for add products to order
 	 *
+	 * @param mixed $fieldName
+	 * @return mixed
 	 */
 	public function ___render($fieldName) {
 		// @note: we will need this for ajax in renderAddNewProduct()
@@ -63,6 +71,11 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $this->getOrderAddProductsToOrderMarkup();
 	}
 
+	/**
+	 * Render Add New Product.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderAddNewProduct() {
 		$pageID = $this->page->id;
 		$name = $this->name;
@@ -102,6 +115,11 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $wrapper->render();
 	}
 
+	/**
+	 * Render Products Search Results.
+	 *
+	 * @return string|mixed
+	 */
 	public function renderProductsSearchResults() {
 
 		$input = $this->wire('input');
@@ -151,6 +169,11 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Edit Modals.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderEditModals() {
 
 		//---------------
@@ -168,6 +191,11 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 
 	// ~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Order Add Products To Order Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderAddProductsToOrderMarkup() {
 		//------------------- add product(s) to order (getInputfieldButton)
 
@@ -210,8 +238,8 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 	/**
 	 * Build selector for matching products to add to an order as per search query.
 	 *
-	 * @param string $q Sanitized backend user query for use as a selector value in the final selector.
-	 * @return string $combinedSelector The selector that will be passed to a find().
+	 * @param mixed $q
+	 * @return mixed
 	 */
 	private function getSelectorForProductsSearch($q) {
 
@@ -242,8 +270,8 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 	/**
 	 * Get the default selector part for building the selector to find products to add to an order.
 	 *
-	 * @param string $q Sanitized backend-user string to use as a selector value to match products.
-	 * @return string $selector The default selector.
+	 * @param mixed $q
+	 * @return mixed
 	 */
 	private function getSelectorForProductsSearchDefault($q) {
 		// @note: harcoded limit=10 for now TODO?
@@ -255,9 +283,7 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 	/**
 	 * Selector to match ENABLED products that don't use variants that EITHER track inventory AND are in stock OR if not in stock, ALLOW Overselling, OR DON'T track inventory.
 	 *
-	 * @note OR-group selector.
-	 * @access private
-	 * @return string $selector String for above match.
+	 * @return mixed
 	 */
 	private function getSelectorForProductsSearchProductsWithoutVariantsOnly() {
 		// @note: will end up as nested OR-group selector
@@ -269,9 +295,7 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 	/**
 	 * Selector to match products that use variants AND have at least one variant ENABLED that is in stock or allows overselling if this parent product is tracking inventory, or just enabled if this parent product is not tracking inventory.
 	 *
-	 * @note OR-group selector.
-	 * @access private
-	 * @return string $selector String for above match.
+	 * @return mixed
 	 */
 	private function getSelectorForProductsSearchProductsWithVariantsOnly() {
 		// @note: will end up as nested OR-group selector
@@ -285,9 +309,7 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 	/**
 	 * Selector to match ENABLED variants, which, if their PARENT PRODUCT tracks inventory are in stock or if not in stock, allow overselling, OR whose PARENT PRODUCT does not track inventory.
 	 *
-	 * @note OR-group selector.
-	 * @access private
-	 * @return string $selector String for above match.
+	 * @return mixed
 	 */
 	private function getSelectorForProductsSearchVariantsOnly() {
 		// @note: will end up as nested OR-group selector
@@ -296,6 +318,12 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Processed Product Results.
+	 *
+	 * @param mixed $results
+	 * @return mixed
+	 */
 	private function getProcessedProductResults($results) {
 
 		// @note: updated this to check if actual field is a language field!
@@ -382,6 +410,11 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 	}
 
 	// modal for adding products as line items to order
+	/**
+	 * Get Modal Markup For Add Products To Order.
+	 *
+	 * @return mixed
+	 */
 	private function getModalMarkupForAddProductsToOrder() {
 		$searchBox = $this->renderAddNewProduct();
 		$addButton = $this->pwcommerce->getModalActionButton(['x-on:click' => 'addSelectedProductsToOrder']);
@@ -412,6 +445,15 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Select Products For Order Checkbox.
+	 *
+	 * @param mixed $productType
+	 * @param int $productID
+	 * @param mixed $title
+	 * @param mixed $thumb
+	 * @return mixed
+	 */
 	private function getSelectProductsForOrderCheckbox($productType, $productID, $title, $thumb) {
 		$xref = null;
 		if ($productType === 'product_with_variants') {
@@ -456,6 +498,12 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $field->render();
 	}
 
+	/**
+	 * Get Product Thumb.
+	 *
+	 * @param mixed $thumbURL
+	 * @return mixed
+	 */
 	private function getProductThumb($thumbURL) {
 		$productThumb = '';
 		if (!empty($thumbURL)) {
@@ -471,6 +519,12 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $productThumb;
 	}
 
+	/**
+	 * Get Product Thumb U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getProductThumbURL($page) {
 		// TODO: get main products if no variant's? maybe not
 		$productThumbURL = null;
@@ -488,6 +542,14 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $productThumbURL;
 	}
 
+	/**
+	 * Get Product Data.
+	 *
+	 * @param mixed $product
+	 * @param mixed $productType
+	 * @param mixed $currentLanguage
+	 * @return mixed
+	 */
 	private function getProductData($product, $productType, $currentLanguage) {
 		$data = [];
 		$title = $currentLanguage ? $product->title->getLanguageValue($currentLanguage) : $product->title;
@@ -531,6 +593,12 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 
 	// ~~~~~~~~~~~~~~~~
 
+	/**
+	 * Build Response For Product Results.
+	 *
+	 * @param mixed $processedResults
+	 * @return mixed
+	 */
 	private function buildResponseForProductResults($processedResults) {
 		######### // TODO: IF TRACKING INVENTORY, SHOW QUANTITY IN BRACKETS! ######### TODO: future release
 		$responseString = "";
@@ -579,6 +647,12 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 		return $response;
 	}
 
+	/**
+	 * Build J S O N Response For Product Results For Alpine.
+	 *
+	 * @param mixed $xdata
+	 * @return mixed
+	 */
 	private function buildJSONResponseForProductResultsForAlpine($xdata) {
 		$data = [];
 		// PREPARE SAVED ORDER LINE ITEMS DATA TO SEND TO BROWSER FOR USE BY ALPINE JS
@@ -591,6 +665,12 @@ class InputfieldPWCommerceOrderRenderAddProducts extends WireData
 
 	//-------------
 
+	/**
+	 * No Product Results Found.
+	 *
+	 * @param mixed $query
+	 * @return mixed
+	 */
 	private function noProductResultsFound($query) {
 		$query = $this->wire('sanitizer')->entities($query);
 		$info = $this->_("No products found matching the search") . " <span class='font-bold'>{$query}</span>";

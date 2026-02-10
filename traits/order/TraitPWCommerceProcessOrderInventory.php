@@ -9,6 +9,13 @@ trait TraitPWCommerceProcessOrderInventory
 
 
 
+	/**
+	 * Update Order Product Quantities.
+	 *
+	 * @param mixed $productPage
+	 * @param mixed $quantity
+	 * @return mixed
+	 */
 	private function updateOrderProductQuantities($productPage, $quantity)
 	{
 
@@ -48,6 +55,11 @@ trait TraitPWCommerceProcessOrderInventory
 
 
 	// TODO DELETE WHEN DONE
+	/**
+	 * Update Order Products Quantities.
+	 *
+	 * @return mixed
+	 */
 	private function updateOrderProductsQuantities()
 	{
 		// UPDATE PRODUCT QUANTITIES FOR PRODUCTS (including variants) THAT TRACK INVENTORY

@@ -10,7 +10,7 @@ trait TraitPWCommerceUtilitiesCheckout
 	/**
 	 * Get the shop's checkout settings.
 	 *
-	 * @return WireData $generalSettings The general settings.
+	 * @return mixed
 	 */
 	public function getShopCheckoutSettings() {
 		$shopCheckoutSettingsArray = [];

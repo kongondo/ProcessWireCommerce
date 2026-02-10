@@ -26,6 +26,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 
 
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return [
 			'title' => 'PWCommerce Order: Inputfield',
@@ -72,6 +77,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 	private $existingOrderLineItemsIDs;
 
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -92,15 +102,33 @@ class InputfieldPWCommerceOrder extends Inputfield
 		$this->ajaxPostURL = $this->wire('config')->urls->admin . PwCommerce::PWCOMMERCE_SHOP_PAGE_IN_ADMIN_NAME . '/ajax/';
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
 
-	private function getRequiredClasses($requiredClasses = []) {
+	/**
+	 * Get Required Classes.
+	 *
+	 * @param array $requiredClasses
+	 * @return mixed
+	 */
+	private function getRequiredClasses(array $requiredClasses = []) {
 		$allRequiredClasses = [
 			// InputfieldPWCommerceOrderRenderAddProducts.php
 			// for add products to order markup
@@ -163,6 +191,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 		return $classesToLoad;
 	}
 
+	/**
+	 * Load Required Classes.
+	 *
+	 * @param array $requiredClasses
+	 * @return mixed
+	 */
 	private function loadRequiredClasses(array $requiredClasses) {
 
 		if (!empty($requiredClasses)) {
@@ -185,6 +219,7 @@ class InputfieldPWCommerceOrder extends Inputfield
 	/**
 	 * Render the entire input area for order
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -239,12 +274,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		$this->preloadInputfieldAssets();
 		// #####################
 		// load helper classes for InputfieldPWCommerceOrder
@@ -259,11 +293,8 @@ class InputfieldPWCommerceOrder extends Inputfield
 	/**
 	 * Simple utility method to return a markup divider.
 	 *
-	 * Optionally apply CSS classes to the divider.
-	 *
-	 * @access private
 	 * @param string $classes
-	 * @return string $out Markup for divider.
+	 * @return string|mixed
 	 */
 	private function renderMarkupDivider($classes = '') {
 		if (!empty($classes)) {
@@ -281,8 +312,7 @@ class InputfieldPWCommerceOrder extends Inputfield
 	/**
 	 * Build GUI for form in Main tab for Order
 	 *
-	 * @access private
-	 * @return InputfieldWrapper $wrapper Inputfield wrapper with markup.
+	 * @return mixed
 	 */
 	private function buildForm() {
 
@@ -365,6 +395,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 		return $wrapper;
 	}
 
+	/**
+	 * Get Modal Markup For Draft Order Is Not Publishable.
+	 *
+	 * @return mixed
+	 */
 	private function getModalMarkupForDraftOrderIsNotPublishable() {
 		$modalOptions = [
 			'header_text' => $this->_('Order not publishable'),
@@ -375,6 +410,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 		return $this->getModalMarkupForDraftOrderIsNotPublishableORSaveable($modalOptions);
 	}
 
+	/**
+	 * Get Modal Markup For Draft Order Is Not Saveable.
+	 *
+	 * @return mixed
+	 */
 	private function getModalMarkupForDraftOrderIsNotSaveable() {
 		$modalOptions = [
 			'header_text' => $this->_('Order not saveable'),
@@ -385,6 +425,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 		return $this->getModalMarkupForDraftOrderIsNotPublishableORSaveable($modalOptions);
 	}
 
+	/**
+	 * Get Modal Markup For Draft Order Is Not Publishable O R Saveable.
+	 *
+	 * @param mixed $modalOptions
+	 * @return mixed
+	 */
 	private function getModalMarkupForDraftOrderIsNotPublishableORSaveable($modalOptions) {
 		$xstore = $this->xstore;
 		$resetHandler = $modalOptions['reset_handler'];
@@ -420,6 +466,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 	}
 
 	// build script string to send to client with order configuration values
+	/**
+	 * Build Order Config J S For Client.
+	 *
+	 * @return mixed
+	 */
 	private function buildOrderConfigJSForClient() {
 
 		$pageID = $this->page->id;
@@ -453,6 +504,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 
 
 	// order configuration values to send to client-side for JavaScript
+	/**
+	 * Get Order Config Values For Java Script.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderConfigValuesForJavaScript() {
 		$value = $this->attr('value');
 		// we only need a subset of the values
@@ -488,8 +544,8 @@ class InputfieldPWCommerceOrder extends Inputfield
 	/**
 	 * Server-side locale-aware value converted to properly render in HTML5 input of type number.
 	 *
-	 * @param array $orderValues Order values from which to convert decimal values.
-	 * @return array $orderValues Order values with converted decimals.
+	 * @param array $orderValues
+	 * @return mixed
 	 */
 	private function setLocaleValues(array $orderValues) {
 
@@ -517,7 +573,7 @@ class InputfieldPWCommerceOrder extends Inputfield
 	/**
 	 * Build translatable strings for order errors messages for use in JavaScript.
 	 *
-	 * @return array with translatable strings.
+	 * @return mixed
 	 */
 	private function getOrderErrorsStringsForJavaScript() {
 		return [
@@ -548,6 +604,11 @@ class InputfieldPWCommerceOrder extends Inputfield
 	}
 
 	// TODO: DELETE IF NOT IN USE
+	/**
+	 * Preload Inputfield Assets.
+	 *
+	 * @return mixed
+	 */
 	private function preloadInputfieldAssets() {
 		// FieldtypePWCommerceOrderCustomer\InputfieldPWCommerceOrderCustomer.js
 		// we need some functions from InputfieldPWCommerceOrderCustomer.js
@@ -561,6 +622,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 
 	// live order calculations whose results to send back to htmx
 	// called via: ProcessPwCommerce::processCalculateOrderTaxesAndShipping
+	/**
+	 * Process Calculate Order Taxes And Shipping.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function processCalculateOrderTaxesAndShipping($input) {
 
 
@@ -590,6 +657,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 
 	// MARKUP FOR htmx FOR LIVE ORDER CALCULATE SHIPPING & TAXES
 	// @note: called in $this->processCalculateOrderTaxesAndShipping() BUT that method via ProcessPwCommerce::processCalculateOrderTaxesAndShipping
+	/**
+	 * Get Order Matched Shipping Rates Markup.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	private function getOrderMatchedShippingRatesMarkup(WireData $order) {
 
 		/** @var WireArray $matchedShippingRates */
@@ -643,6 +716,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 	}
 
 	// markup if more than one shipping rate was matched
+	/**
+	 * Get Order Matched Shipping Rates Multiple Markup.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	private function getOrderMatchedShippingRatesMultipleMarkup(WireData $order) {
 		/** @var WireArray $matchedShippingRates */
 		$matchedShippingRates = $order->matchedShippingRates;
@@ -703,6 +782,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 	}
 
 	// markup if only one shipping rate was matched
+	/**
+	 * Get Order Matched Shipping Rates Single Markup.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	private function getOrderMatchedShippingRatesSingleMarkup(WireData $order) {
 
 
@@ -742,6 +827,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 
 
 	// @note: for translation's sake
+	/**
+	 * Get Matched Shipping Rates Criteria String.
+	 *
+	 * @param mixed $criteria
+	 * @return mixed
+	 */
 	private function getMatchedShippingRatesCriteriaString($criteria) {
 		$string = "";
 		if ($criteria === 'none') {
@@ -757,6 +848,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 		return $string;
 	}
 
+	/**
+	 * Get Order Hidden Markup For Other Calculated Amounts.
+	 *
+	 * @param WireData $order
+	 * @return mixed
+	 */
 	private function getOrderHiddenMarkupForOtherCalculatedAmounts(WireData $order) {
 		/** @var float $orderTotalPrice */
 
@@ -807,7 +904,8 @@ class InputfieldPWCommerceOrder extends Inputfield
 	/**
 	 * Process input for the values sent for manual order editing.
 	 *
-	 * @note: we handle values for other pages and fields including line items and customer.
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -836,7 +934,22 @@ class InputfieldPWCommerceOrder extends Inputfield
 	}
 
 	// TODO RENAME THIS!
-	// public function processInputPostProcessAfterSave(WireInputData $input, Page $orderPage, $isLiveCalculateOnly = false) {
+	// /**
+  * Process Input Post Process After Save.
+  *
+  * @param WireInputData $input
+  * @param Page $orderPage
+  * @param bool $isLiveCalculateOnly
+  * @return mixed
+  */
+ public function processInputPostProcessAfterSave(WireInputData $input, Page $orderPage, bool $isLiveCalculateOnly = false) {
+	/**
+	 * Process Non Save Live Order.
+	 *
+	 * @param WireInputData $input
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	public function processNonSaveLiveOrder(WireInputData $input, Page $orderPage) {
 
 
@@ -853,6 +966,12 @@ class InputfieldPWCommerceOrder extends Inputfield
 	}
 
 	// ----------------
+	/**
+	 * Is Customer Values For Process Calculable Values Changed.
+	 *
+	 * @param WireInputData $input
+	 * @return bool
+	 */
 	private function isCustomerValuesForProcessCalculableValuesChanged(WireInputData $input) {
 		$incomingCustomerIsTaxExemptValue = (int) $this->input->pwcommerce_order_customer_is_tax_exempt;
 		$incomingShippingAddressCountryID =

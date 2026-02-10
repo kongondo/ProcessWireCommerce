@@ -7,6 +7,11 @@ trait TraitPWCommerceAdminExecute
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ EXECUTES  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Execute.
+	 *
+	 * @return mixed
+	 */
 	public function execute() {
 
 
@@ -22,6 +27,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Orders.
+	 *
+	 * @return mixed
+	 */
 	public function executeOrders() {
 
 		$urlSegment2 = $this->urlSegment2;
@@ -62,6 +72,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Products.
+	 *
+	 * @return mixed
+	 */
 	public function executeProducts() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit product
@@ -85,12 +100,22 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Inventory.
+	 *
+	 * @return mixed
+	 */
 	public function executeInventory() {
 		$out = $this->pagesHandler();
 		//--------------------
 		return $out;
 	}
 
+	/**
+	 * Execute Categories.
+	 *
+	 * @return mixed
+	 */
 	public function executeCategories() {
 
 		// TODO IMPLEMENT IN FUTURE? i.e. prevent direct access of categories (via url) IF USING COLLECTIONS
@@ -134,6 +159,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Collections.
+	 *
+	 * @return mixed
+	 */
 	public function executeCollections() {
 		if (empty($this->isCategoryACollection) || empty($this->isInstalledProductCategoriesFeature)) {
 			// 'COLLECTIONS' term not in use OR 'CATEGORIES' FEATUER NOT INSTALLED; redirect home
@@ -143,6 +173,11 @@ trait TraitPWCommerceAdminExecute
 		return $this->executeCategories();
 	}
 
+	/**
+	 * Execute Tags.
+	 *
+	 * @return mixed
+	 */
 	public function executeTags() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit tag
@@ -166,6 +201,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Attributes.
+	 *
+	 * @return mixed
+	 */
 	public function executeAttributes() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit attribute
@@ -189,6 +229,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Types.
+	 *
+	 * @return mixed
+	 */
 	public function executeTypes() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit type
@@ -212,6 +257,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Brands.
+	 *
+	 * @return mixed
+	 */
 	public function executeBrands() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit brand
@@ -235,6 +285,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Dimensions.
+	 *
+	 * @return mixed
+	 */
 	public function executeDimensions() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit dimension
@@ -258,6 +313,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Properties.
+	 *
+	 * @return mixed
+	 */
 	public function executeProperties() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit property
@@ -282,6 +342,11 @@ trait TraitPWCommerceAdminExecute
 	}
 
 	// --------------
+	/**
+	 * Execute Downloads.
+	 *
+	 * @return mixed
+	 */
 	public function executeDownloads() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit download
@@ -305,6 +370,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Shipping.
+	 *
+	 * @return mixed
+	 */
 	public function executeShipping() {
 		$urlSegment2 = $this->urlSegment2;
 		// handle add or edit shipping zone
@@ -328,6 +398,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Tax Settings.
+	 *
+	 * @return mixed
+	 */
 	public function executeTaxSettings() {
 		$this->headline($this->_("Tax Settings"));
 		$out = $this->pagesHandler();
@@ -338,7 +413,7 @@ trait TraitPWCommerceAdminExecute
 	/**
 	 * Country tax rates
 	 *
-	 * @return string $out Markup of country tax rates.
+	 * @return mixed
 	 */
 	public function executeTaxRates() {
 		$this->headline($this->_("Tax Rates"));
@@ -365,6 +440,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Reports.
+	 *
+	 * @return mixed
+	 */
 	public function executeReports() {
 		// $this->headline($this->_("Reports"));
 		$out = $this->pagesHandler();
@@ -372,6 +452,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute General Settings.
+	 *
+	 * @return mixed
+	 */
 	public function executeGeneralSettings() {
 		$this->headline($this->_("General Settings"));
 		$out = $this->pagesHandler();
@@ -379,6 +464,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Checkout Settings.
+	 *
+	 * @return mixed
+	 */
 	public function executeCheckoutSettings() {
 		$this->headline($this->_("Checkout Settings"));
 		$out = $this->pagesHandler();
@@ -386,6 +476,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Payment Providers.
+	 *
+	 * @return mixed
+	 */
 	public function executePaymentProviders() {
 
 		$this->headline($this->_("Payment Providers"));
@@ -412,6 +507,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Legal Pages.
+	 *
+	 * @return mixed
+	 */
 	public function executeLegalPages() {
 
 		$this->headline($this->_("Legal Pages"));
@@ -438,6 +538,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Addons.
+	 *
+	 * @return mixed
+	 */
 	public function executeAddons() {
 
 		################
@@ -482,6 +587,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Gift Card Products.
+	 *
+	 * @return mixed
+	 */
 	public function executeGiftCardProducts() {
 
 		$this->headline($this->_("Gift Card Products"));
@@ -512,6 +622,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Gift Cards.
+	 *
+	 * @return mixed
+	 */
 	public function executeGiftCards() {
 
 		$this->headline($this->_("Gift Cards"));
@@ -543,6 +658,11 @@ trait TraitPWCommerceAdminExecute
 		return $out;
 	}
 
+	/**
+	 * Execute Discounts.
+	 *
+	 * @return mixed
+	 */
 	public function executeDiscounts() {
 
 		$urlSegment2 = $this->urlSegment2;
@@ -568,7 +688,7 @@ trait TraitPWCommerceAdminExecute
 	/**
 	 * Customers
 	 *
-	 * @return string $out Markup of customers.
+	 * @return mixed
 	 */
 	public function executeCustomers() {
 
@@ -603,7 +723,7 @@ trait TraitPWCommerceAdminExecute
 	/**
 	 * Customer Groups
 	 *
-	 * @return string $out Markup of customer groups.
+	 * @return mixed
 	 */
 	public function executeCustomerGroups() {
 		$this->headline($this->_("Customer Groups"));
@@ -639,11 +759,7 @@ trait TraitPWCommerceAdminExecute
 	/**
 	 * A URL for receiving ajax calls and passing these on for processing.
 	 *
-	 * Actions include editing, inserting in page (adding) uploading, scanning, (un)publishing, (un)locking, trashing or deleting media.
-	 *
-	 * @access public
-	 * @return string $data JSON-encoded string.
-	 *
+	 * @return mixed
 	 */
 	public function executeAjax() {
 
@@ -836,10 +952,7 @@ trait TraitPWCommerceAdminExecute
 	/**
 	 * PWCommerce second-step Installer GUI/page.
 	 *
-	 * Only accessible to Superusers via URL or redirect if new install.
-	 * Renders the GUI for completing or modifying PWCommerce installation.
-	 *
-	 * @return string $out GUI output.
+	 * @return mixed
 	 */
 	public function executeConfigurePWCommerce() {
 		return $this->renderConfigureInstall();
@@ -848,12 +961,7 @@ trait TraitPWCommerceAdminExecute
 	/**
 	 * PWCommerce complete removal GUI/page.
 	 *
-	 * Only accessible to Superusers via URL.
-	 * TODO: for now, url has to be typed in! Must include trailing slash!
-	 * Renders the GUI for completely removing PWCommerce installation.
-	 * This includes templates, fields, pages and attempt to uninstall all its modules.
-	 *
-	 * @return string $out GUI output.
+	 * @return mixed
 	 */
 	public function executeCompleteRemoval() {
 		if (!$this->isSuperUser()) {

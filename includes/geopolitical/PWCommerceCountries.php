@@ -23,10 +23,7 @@ class PWCommerceCountries extends WireData
 	/**
 	 * Get all world countries.
 	 *
-	 * Data are continent, id (ISO), name and territories reference if applicable.
-	 *
-	 * @access public
-	 * @return array $countries Array with countries data.
+	 * @return mixed
 	 */
 	public function getCountries() {
 		$countries = [
@@ -1341,6 +1338,12 @@ class PWCommerceCountries extends WireData
 		return $countries;
 	}
 
+	/**
+	 * Get Country By Code.
+	 *
+	 * @param mixed $countryCode
+	 * @return mixed
+	 */
 	public function getCountryByCode($countryCode) {
 		$foundCountry = null;
 		if (empty($countryCode)) {
@@ -1357,6 +1360,12 @@ class PWCommerceCountries extends WireData
 		return $foundCountry;
 	}
 
+	/**
+	 * Get Country By Name.
+	 *
+	 * @param mixed $countryName
+	 * @return mixed
+	 */
 	public function getCountryByName($countryName) {
 		$foundCountry = null;
 		if (empty($countryName)) {
@@ -1373,6 +1382,12 @@ class PWCommerceCountries extends WireData
 		return $foundCountry;
 	}
 
+	/**
+	 * Get Continent Countries.
+	 *
+	 * @param mixed $continentCode
+	 * @return mixed
+	 */
 	public function getContinentCountries($continentCode) {
 		$foundCountries = null;
 		if (empty($continentCode)) {
@@ -1388,6 +1403,12 @@ class PWCommerceCountries extends WireData
 		return $foundCountries;
 	}
 
+	/**
+	 * Get Country Territories Reference By Code.
+	 *
+	 * @param mixed $countryCode
+	 * @return mixed
+	 */
 	public function getCountryTerritoriesReferenceByCode($countryCode) {
 		$foundCountryTerritoriesReference = null;
 		if (empty($countryCode)) {
@@ -1402,6 +1423,12 @@ class PWCommerceCountries extends WireData
 		return $foundCountryTerritoriesReference;
 	}
 
+	/**
+	 * Get Country Territories Reference By Name.
+	 *
+	 * @param mixed $countryName
+	 * @return mixed
+	 */
 	public function getCountryTerritoriesReferenceByName($countryName) {
 		$foundCountryTerritoriesReference = null;
 		if (empty($countryName)) {
@@ -1416,6 +1443,11 @@ class PWCommerceCountries extends WireData
 		return $foundCountryTerritoriesReference;
 	}
 
+	/**
+	 * Get E U Countries Codes.
+	 *
+	 * @return mixed
+	 */
 	public function getEUCountriesCodes() {
 		$euCountriesCodes = [
 			"AT",
@@ -1450,6 +1482,11 @@ class PWCommerceCountries extends WireData
 		return $euCountriesCodes;
 	}
 
+	/**
+	 * Get E U Countries.
+	 *
+	 * @return mixed
+	 */
 	public function getEUCountries() {
 		$euCountries = [];
 		// ---------
@@ -1463,6 +1500,12 @@ class PWCommerceCountries extends WireData
 		return $euCountries;
 	}
 
+	/**
+	 * Is E U Country.
+	 *
+	 * @param mixed $countryCode
+	 * @return bool
+	 */
 	public function isEUCountry($countryCode) {
 		$isEUCountry = false;
 		if (empty($countryCode)) {

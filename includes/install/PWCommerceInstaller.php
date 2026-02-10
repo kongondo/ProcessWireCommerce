@@ -76,6 +76,12 @@ class PWCommerceInstaller extends WireData {
 	// UNINSTALL
 	private $fieldtypesAndInputfieldsToUninstall = [];
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		parent::__construct();
 		if (is_array($options)) {
@@ -110,6 +116,13 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Configure P W Commerce Install Action.
+	 *
+	 * @param mixed $input
+	 * @param mixed $status
+	 * @return mixed
+	 */
 	public function configurePWCommerceInstallAction($input, $status) {
 
 		// SET VARIABLES
@@ -166,11 +179,22 @@ class PWCommerceInstaller extends WireData {
 
 	## PWCOMMERCE GET RAW CONFIGS FOR  TEMPLATES, FIELDS AND PAGES ##
 
+	/**
+	 * Get P W Commerce Templates Data.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceTemplatesData() {
 		$templatesJSON = file_get_contents(__DIR__ . "/install_data/templates_data.json");
 		return json_decode($templatesJSON, true);
 	}
 
+	/**
+	 * Get P W Commerce Template Data By Name.
+	 *
+	 * @param mixed $templateName
+	 * @return mixed
+	 */
 	private function getPWCommerceTemplateDataByName($templateName) {
 		$templateData = null;
 		if (empty($templateName))
@@ -183,11 +207,22 @@ class PWCommerceInstaller extends WireData {
 		return $templateData;
 	}
 
+	/**
+	 * Get P W Commerce Fields Data.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceFieldsData() {
 		$fieldsJSON = file_get_contents(__DIR__ . "/install_data/fields_data.json");
 		return json_decode($fieldsJSON, true);
 	}
 
+	/**
+	 * Get P W Commerce Field Data By Name.
+	 *
+	 * @param mixed $fieldName
+	 * @return mixed
+	 */
 	private function getPWCommerceFieldDataByName($fieldName) {
 		$fieldData = null;
 		if (empty($fieldName))
@@ -200,6 +235,11 @@ class PWCommerceInstaller extends WireData {
 		return $fieldData;
 	}
 
+	/**
+	 * Get P W Commerce Pages Data.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommercePagesData() {
 		$pagesJSON = file_get_contents(__DIR__ . "/install_data/pages_data.json");
 		return json_decode($pagesJSON, true);
@@ -209,6 +249,11 @@ class PWCommerceInstaller extends WireData {
 
 	## PWCOMMERCE PRE-PROCESS TEMPLATES, FIELDS AND PAGES ##
 
+	/**
+	 * Prepare Templates.
+	 *
+	 * @return mixed
+	 */
 	private function prepareTemplates() {
 		// required templates only -> @note: with the templates data from JSON converted to an array
 		$requiredTemplates = $this->getPWCommerceRequiredTemplates();
@@ -261,6 +306,12 @@ class PWCommerceInstaller extends WireData {
 		$this->templatesToInstall = $templatesToInstall;
 	}
 
+	/**
+	 * Special Pre Process Product Template.
+	 *
+	 * @param mixed $requiredTemplates
+	 * @return mixed
+	 */
 	private function specialPreProcessProductTemplate($requiredTemplates) {
 		//
 		// - Here we pre-process pwcommerce-product template to amend its 'fieldgroupFields' and 'fieldgroupContexts'
@@ -350,6 +401,12 @@ class PWCommerceInstaller extends WireData {
 		return $requiredTemplates;
 	}
 
+	/**
+	 * Removal Pre Process Product Template In Relation To Attributes.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function removalPreProcessProductTemplateInRelationToAttributes($productTemplate) {
 		$relatedFields = ['pwcommerce_product_attributes', 'pwcommerce_variants_fieldset', 'pwcommerce_runtime_markup', 'pwcommerce_variants_fieldset_END'];
 		$relatedContexts = ['pwcommerce_product_attributes', 'pwcommerce_variants_fieldset', 'pwcommerce_runtime_markup', 'pwcommerce_variants_fieldset_END'];
@@ -358,6 +415,12 @@ class PWCommerceInstaller extends WireData {
 		return $productTemplate;
 	}
 
+	/**
+	 * Modify Product Variant Template In Relation To Attributes.
+	 *
+	 * @param mixed $productVariantTemplate
+	 * @return mixed
+	 */
 	private function modifyProductVariantTemplateInRelationToAttributes($productVariantTemplate) {
 		$relatedFields = ['pwcommerce_downloads'];
 		$relatedContexts = ['pwcommerce_downloads'];
@@ -366,12 +429,23 @@ class PWCommerceInstaller extends WireData {
 		return $productVariantTemplate;
 	}
 
+	/**
+	 * Is Downloads In Use.
+	 *
+	 * @return bool
+	 */
 	private function isDownloadsInUse() {
 		$installedOptionalFeatures = $this->pwcommerce->getPWCommerceInstalledOptionalFeatures($this->configModuleName);
 		$isDownloadsInUse = in_array('downloads', $this->optionalFeaturesToInstall) || in_array('downloads', $installedOptionalFeatures);
 		return $isDownloadsInUse;
 	}
 
+	/**
+	 * Removal Pre Process Product Template In Relation To Properties.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function removalPreProcessProductTemplateInRelationToProperties($productTemplate) {
 		$relatedFields = ['pwcommerce_properties_fieldset_tab', 'pwcommerce_product_properties', 'pwcommerce_properties_fieldset_tab_END'];
 		$relatedContexts = ['pwcommerce_properties_fieldset_tab', 'pwcommerce_product_properties', 'pwcommerce_properties_fieldset_tab_END'];
@@ -380,6 +454,12 @@ class PWCommerceInstaller extends WireData {
 		return $productTemplate;
 	}
 
+	/**
+	 * Removal Pre Process Product Template In Relation To Classification.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function removalPreProcessProductTemplateInRelationToClassification($productTemplate) {
 		$relatedFields = ['pwcommerce_classification_fieldset_tab', 'pwcommerce_type', 'pwcommerce_brand', 'pwcommerce_categories', 'pwcommerce_tags', 'pwcommerce_classification_fieldset_tab_END',];
 		$relatedContexts = ['pwcommerce_classification_fieldset_tab', 'pwcommerce_type', 'pwcommerce_brand', 'pwcommerce_categories', 'pwcommerce_tags', 'pwcommerce_classification_fieldset_tab_END',];
@@ -388,6 +468,12 @@ class PWCommerceInstaller extends WireData {
 		return $productTemplate;
 	}
 
+	/**
+	 * Removal Pre Process Product Template In Relation To Downloads.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function removalPreProcessProductTemplateInRelationToDownloads($productTemplate) {
 		$relatedFields = ['pwcommerce_downloads'];
 		$relatedContexts = ['pwcommerce_downloads'];
@@ -396,6 +482,12 @@ class PWCommerceInstaller extends WireData {
 		return $productTemplate;
 	}
 
+	/**
+	 * Modify Product Variant Template In Relation To Downloads.
+	 *
+	 * @param mixed $productVariantTemplate
+	 * @return mixed
+	 */
 	private function modifyProductVariantTemplateInRelationToDownloads($productVariantTemplate) {
 		$relatedFields = ['pwcommerce_downloads'];
 		$relatedContexts = ['pwcommerce_downloads'];
@@ -404,6 +496,14 @@ class PWCommerceInstaller extends WireData {
 		return $productVariantTemplate;
 	}
 
+	/**
+	 * Removal Pre Process Product Template Fieldgroup Fields And Fieldgroup Contexts.
+	 *
+	 * @param mixed $productTemplate
+	 * @param array $relatedFields
+	 * @param array $relatedContexts
+	 * @return mixed
+	 */
 	private function removalPreProcessProductTemplateFieldgroupFieldsAndFieldgroupContexts($productTemplate, array $relatedFields, array $relatedContexts) {
 		$productTemplateFieldgroupFields = $productTemplate['fieldgroupFields'];
 		$productTemplateFieldgroupContexts = $productTemplate['fieldgroupContexts'];
@@ -431,6 +531,11 @@ class PWCommerceInstaller extends WireData {
 		return $productTemplate;
 	}
 
+	/**
+	 * Is Install Product Classification Feature.
+	 *
+	 * @return bool
+	 */
 	private function isInstallProductClassificationFeature() {
 		$classificationFeatures = ['product_categories', 'product_tags', 'product_types', 'product_brands'];
 		$productClassificationFeaturesToInstall = array_intersect($classificationFeatures, $this->optionalFeaturesToInstall);
@@ -439,6 +544,11 @@ class PWCommerceInstaller extends WireData {
 
 	// ~~~~~~~~~~~~~
 
+	/**
+	 * Prepare Fields.
+	 *
+	 * @return mixed
+	 */
 	private function prepareFields() {
 
 		// TODO: FOR FUTURE RELEASE CONSIDER IF ATTRIBUTES NOT ADDED IN FIRST INSTALL BUT ADDED IN MODIFY INSTALL, DO WE ENABLE PRODUCT VARIANTS THEN?
@@ -607,6 +717,12 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Is Optional Feature Field Still In Use.
+	 *
+	 * @param mixed $fieldName
+	 * @return bool
+	 */
 	private function isOptionalFeatureFieldStillInUse($fieldName) {
 		// check if shared optional features fields that are due to be removed are still in use
 		// e.g. pwcommerce_classification_fieldset_tab
@@ -625,6 +741,11 @@ class PWCommerceInstaller extends WireData {
 		return $isOptionalFeatureFieldStillInUse;
 	}
 
+	/**
+	 * Prepare Pages.
+	 *
+	 * @return mixed
+	 */
 	private function preparePages() {
 		// PREPARE PAGES TO INSTALL
 		// get all pages!
@@ -669,11 +790,7 @@ class PWCommerceInstaller extends WireData {
 	/**
 	 * Returns array of required features with nested arrays of the templates they need/install.
 	 *
-	 * In turn, it means the fields at the template 'fieldgroupFields' (getPWCommerceTemplatesData)
-	 * will also be installed.
-	 *
-	 * @access private
-	 * @return array Of required features keys and their templates.
+	 * @return mixed
 	 */
 	private function getPWCommerceRequiredFeatures() {
 		// TODO ADD TO LIST IF NEEDED!
@@ -705,6 +822,11 @@ class PWCommerceInstaller extends WireData {
 		];
 	}
 
+	/**
+	 * Get P W Commerce Required Templates.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceRequiredTemplates() {
 		// FIRST GET ALL REQUIRED FEATURES
 		$requiredFeatures = $this->getPWCommerceRequiredFeatures();
@@ -730,6 +852,13 @@ class PWCommerceInstaller extends WireData {
 	}
 
 	// TODO DELETE IF NOT IN USE
+	/**
+	 * My Callback.
+	 *
+	 * @param mixed $a
+	 * @param mixed $b
+	 * @return mixed
+	 */
 	public function myCallback($a, $b) {
 		$aParentTemplates = $a['parentTemplates'];
 		$bParentTemplates = $b['parentTemplates'];
@@ -745,6 +874,12 @@ class PWCommerceInstaller extends WireData {
 		return (count($a['parentTemplates']) < count($b["parentTemplates"])) ? 1 : -1;
 	}
 
+	/**
+	 * Is Required Template.
+	 *
+	 * @param mixed $templateName
+	 * @return bool
+	 */
 	private function isRequiredTemplate($templateName) {
 		return isset($this->getPWCommerceRequiredTemplates()[$templateName]);
 	}
@@ -752,15 +887,17 @@ class PWCommerceInstaller extends WireData {
 	/**
 	 * Names of required fields that might also be in use in optional templates.
 	 *
-	 * These need to be skipped when modifying installs.
-	 * They should not be removed or re-added.
-	 *
-	 * @return array Array of shared required fields.
+	 * @return mixed
 	 */
 	private function getPWCommerceSharedRequiredFields() {
 		return ['title', 'pwcommerce_description', 'pwcommerce_images', 'pwcommerce_settings', 'pwcommerce_runtime_markup', 'pwcommerce_product_stock', 'pwcommerce_order_customer'];
 	}
 
+	/**
+	 * Get P W Commerce Required Pages.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceRequiredPages() {
 		// TODO ADD TO LIST IF NEEDED!
 		return [
@@ -777,6 +914,11 @@ class PWCommerceInstaller extends WireData {
 
 	## PWCOMMERCE OPTIONAL FEATURES, TEMPLATES, FIELDS AND PAGES ##
 
+	/**
+	 * Process Optional Features.
+	 *
+	 * @return mixed
+	 */
 	private function processOptionalFeatures() {
 
 		$input = $this->actionInput;
@@ -873,13 +1015,7 @@ class PWCommerceInstaller extends WireData {
 	/**
 	 * Returns key=>value pairs of feature => templates for optional features.
 	 *
-	 * This means that if the optional feature has been selected for installation.
-	 * the templates in the value will also be installed.
-	 * In turn, it means the fields at the template 'fieldgroupFields' (getPWCommerceTemplatesData)
-	 * will also be installed.
-	 *
-	 * @access private
-	 * @return array Of feature=>templates pairs.
+	 * @return mixed
 	 */
 	private function getPWCommerceOptionalFeatures() {
 		// TODO ADD TO LIST IF NEEDED!
@@ -962,6 +1098,11 @@ class PWCommerceInstaller extends WireData {
 		];
 	}
 
+	/**
+	 * Get P W Commerce Optional Templates.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalTemplates() {
 		// FIRST GET ALL OPTIONAL FEATURES
 		$optionalFeatures = $this->getPWCommerceOptionalFeatures();
@@ -982,12 +1123,23 @@ class PWCommerceInstaller extends WireData {
 
 	// TODO DO WE NEED SIMILAR FOR CUSTOMER GROUPS AND CUSTOMERS?
 
+	/**
+	 * Get P W Commerce Optional Features Templates Dependencies.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesTemplatesDependencies() {
 		return [
 			'product_properties' => 'product_dimensions'
 		];
 	}
 
+	/**
+	 * Get P W Commerce Optional Template Feature Name.
+	 *
+	 * @param mixed $templateName
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalTemplateFeatureName($templateName) {
 		$optionalTemplateFeatureName = null;
 		// FIRST GET ALL OPTIONAL FEATURES
@@ -1006,9 +1158,7 @@ class PWCommerceInstaller extends WireData {
 	/**
 	 * Returns an array of product optional features and the product fields that depend on them.
 	 *
-	 * The fields will only be installed if the optional product features are selected for installation.
-	 *
-	 * @return array with key=>values of product_optional_feature => product_fields.
+	 * @return mixed
 	 */
 	private function getPWCommerceOptionalFeaturesProductFieldsDependencies() {
 		// TODO ADD TO LIST IF NEEDED!
@@ -1073,10 +1223,21 @@ class PWCommerceInstaller extends WireData {
 		];
 	}
 
+	/**
+	 * Get P W Commerce Optional Features Product Fields Dependencies To Install.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesProductFieldsDependenciesToInstall() {
 		return array_intersect_key($this->getPWCommerceOptionalFeaturesProductFieldsDependencies(), array_flip($this->optionalFeaturesToInstall));
 	}
 
+	/**
+	 * Is P W Commerce Product Optional Field.
+	 *
+	 * @param mixed $fieldName
+	 * @return bool
+	 */
 	private function isPWCommerceProductOptionalField($fieldName) {
 		$productOptionalFieldsNames = $this->getPWCommerceOptionalFeaturesProductFieldsDependencies();
 		$isProductOptionalField = false;
@@ -1090,6 +1251,12 @@ class PWCommerceInstaller extends WireData {
 		return $isProductOptionalField;
 	}
 
+	/**
+	 * Is P W Commerce Product Optional Field Selected For Install.
+	 *
+	 * @param mixed $fieldName
+	 * @return bool
+	 */
 	private function isPWCommerceProductOptionalFieldSelectedForInstall($fieldName) {
 		$productOptionalFieldsNamesToInstall = $this->getPWCommerceOptionalFeaturesProductFieldsDependenciesToInstall();
 		$isProductOptionalFieldToInstall = false;
@@ -1103,6 +1270,11 @@ class PWCommerceInstaller extends WireData {
 		return $isProductOptionalFieldToInstall;
 	}
 
+	/**
+	 * Get P W Commerce Optional Pages.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalPages() {
 		// TODO ADD TO LIST IF NEEDED!
 		// TODO DELETE IF NOT IN USE, ELSE USE THE TITLE AND TEMPLATE IN VALUES FORMAT SIMILAR TO REQUIRED PAGES
@@ -1122,12 +1294,22 @@ class PWCommerceInstaller extends WireData {
 		];
 	}
 
+	/**
+	 * Get P W Commerce Optional Roles.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalRoles() {
 		return [
 			'customers' => 'pwcommerce-customer'
 		];
 	}
 
+	/**
+	 * Process One Way Dependency Optional Features.
+	 *
+	 * @return mixed
+	 */
 	private function processOneWayDependencyOptionalFeatures() {
 
 		// TODO @UPDATE -> MAYBE JUST ALTER $this->fieldsToInstall or $this->removedOptionalFeaturesFieldsToUninstal
@@ -1295,6 +1477,11 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Get P W Commerce Optional Features One Way Dependencies Data.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceOptionalFeaturesOneWayDependenciesData() {
 		$oneWayDependenciesData =
 			[
@@ -1320,6 +1507,11 @@ class PWCommerceInstaller extends WireData {
 	// configure install of features, templates, fields and pages
 
 	// TODO NEED TO DIFFERENTIATE BETWEEN FIRST TIME VS MODIFY INSTALLS!
+	/**
+	 * Run Installer.
+	 *
+	 * @return mixed
+	 */
 	private function runInstaller() {
 
 		// TODO => IF ATTRIBUTES FEATURE NOT INSTALLED, PRODUCT SHOULD NOT HAVE RUNTIME MARKUP; JUST UNSET IT FROM ITS TEMPLATES FIELDGROUPS;
@@ -1413,6 +1605,11 @@ class PWCommerceInstaller extends WireData {
 		$this->checkModifyPWCommerceSpecialCustomTables();
 	}
 
+	/**
+	 * Create P W Commerce Fields.
+	 *
+	 * @return mixed
+	 */
 	private function createPWCommerceFields() {
 		if (empty($this->fieldsToInstall))
 			return;
@@ -1443,6 +1640,11 @@ class PWCommerceInstaller extends WireData {
 		$this->message($notice);
 	}
 
+	/**
+	 * Set P W Commerce Fieldtype Page Fields Extra Settings.
+	 *
+	 * @return mixed
+	 */
 	private function setPWCommerceFieldtypePageFieldsExtraSettings() {
 		// TODO @note: for now just loop through all available fields and skip non-FieldtypePage ones
 		foreach ($this->getPWCommerceFieldsData() as $fieldName => $fieldData) {
@@ -1468,6 +1670,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Create P W Commerce Templates.
+	 *
+	 * @return mixed
+	 */
 	private function createPWCommerceTemplates() {
 		if (empty($this->templatesToInstall))
 			return;
@@ -1529,6 +1736,11 @@ class PWCommerceInstaller extends WireData {
 		$this->message($notice);
 	}
 
+	/**
+	 * Set P W Commerce Templates Allowed Parents And Children.
+	 *
+	 * @return mixed
+	 */
 	private function setPWCommerceTemplatesAllowedParentsAndChildren() {
 		// SET FAMILY SETTINGS FOR PWCOMMERCE TEMPLATES
 		if (empty($this->templatesToInstall))
@@ -1558,6 +1770,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Create P W Commerce Pages.
+	 *
+	 * @return mixed
+	 */
 	private function createPWCommercePages() {
 		if (empty($this->pagesToInstall))
 			return;
@@ -1652,6 +1869,11 @@ class PWCommerceInstaller extends WireData {
 		$this->message($notice);
 	}
 
+	/**
+	 * Check Modify P W Commerce Special Custom Tables.
+	 *
+	 * @return mixed
+	 */
 	private function checkModifyPWCommerceSpecialCustomTables() {
 		// CHECK IF WE NEED TO CREATE OR DROP SPECIAL CUSTOM TABLES
 		// these tables depend on selected pwcommerce features
@@ -1678,6 +1900,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Create P W Commerce Custom Tables.
+	 *
+	 * @return mixed
+	 */
 	private function createPWCommerceCustomTables() {
 		// ONLY RUN IF IN FIRST STAGE CONFIGURE INSTALL
 		if ($this->isSecondStageInstallConfiguration)
@@ -1698,6 +1925,12 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Create P W Commerce Special Custom Tables.
+	 *
+	 * @param mixed $tablesNames
+	 * @return mixed
+	 */
 	private function createPWCommerceSpecialCustomTables($tablesNames) {
 
 		foreach ($tablesNames as $tableName) {
@@ -1714,6 +1947,12 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Create P W Commerce Custom Table.
+	 *
+	 * @param mixed $tableName
+	 * @return mixed
+	 */
 	private function createPWCommerceCustomTable($tableName) {
 
 		// ----------------
@@ -1749,6 +1988,12 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Drop P W Commerce Special Custom Tables.
+	 *
+	 * @param mixed $tablesNames
+	 * @return mixed
+	 */
 	private function dropPWCommerceSpecialCustomTables($tablesNames) {
 
 		foreach ($tablesNames as $tableName) {
@@ -1761,10 +2006,21 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Drop Table.
+	 *
+	 * @param mixed $tableName
+	 * @return mixed
+	 */
 	private function dropTable($tableName) {
 		$this->wire('database')->exec("DROP TABLE `" . $tableName . "`");
 	}
 
+	/**
+	 * Create P W Commerce Optional Roles.
+	 *
+	 * @return mixed
+	 */
 	private function createPWCommerceOptionalRoles() {
 		$optionalRoles = $this->getPWCommerceOptionalRoles();
 		$roles = $this->wire('roles');
@@ -1779,6 +2035,11 @@ class PWCommerceInstaller extends WireData {
 
 	## PWCOMMERCE RUN PARTIAL MODIFICATION INSTALLER ##
 
+	/**
+	 * Special Partial Modification Post Process Product Template.
+	 *
+	 * @return mixed
+	 */
 	public function specialPartialModificationPostProcessProductTemplate() {
 		// get the names of the features that are special to products
 		// we want the values at KEYS
@@ -1867,6 +2128,12 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Addition Post Process Product Template In Relation To Attributes.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function additionPostProcessProductTemplateInRelationToAttributes($productTemplate) {
 
 		$fieldgroup = $productTemplate->fieldgroup;
@@ -1911,6 +2178,11 @@ class PWCommerceInstaller extends WireData {
 		$this->additionPostProcessProductVariantTemplateInRelationToAttributes();
 	}
 
+	/**
+	 * Addition Post Process Product Variant Template In Relation To Attributes.
+	 *
+	 * @return mixed
+	 */
 	private function additionPostProcessProductVariantTemplateInRelationToAttributes() {
 
 		$productVariantTemplateName = 'pwcommerce-product-variant';
@@ -1964,6 +2236,12 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Addition Post Process Product Template In Relation To Properties.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function additionPostProcessProductTemplateInRelationToProperties($productTemplate) {
 
 		$fieldgroup = $productTemplate->fieldgroup;
@@ -1997,6 +2275,12 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Addition Post Process Product Template In Relation To Classification.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function additionPostProcessProductTemplateInRelationToClassification($productTemplate) {
 
 		$fieldgroup = $productTemplate->fieldgroup;
@@ -2091,6 +2375,12 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Addition Post Process Product Template In Relation To Downloads.
+	 *
+	 * @param mixed $productTemplate
+	 * @return mixed
+	 */
 	private function additionPostProcessProductTemplateInRelationToDownloads($productTemplate) {
 
 		$fieldgroup = $productTemplate->fieldgroup;
@@ -2135,6 +2425,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Addition Post Process Product Variant Template In Relation To Downloads.
+	 *
+	 * @return mixed
+	 */
 	private function additionPostProcessProductVariantTemplateInRelationToDownloads() {
 
 		$productVariantTemplateName = 'pwcommerce-product-variant';
@@ -2164,6 +2459,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Special Modification Process Added One Way Dependency Fields.
+	 *
+	 * @return mixed
+	 */
 	private function specialModificationProcessAddedOneWayDependencyFields() {
 		if (!empty($this->addedOneWayDependencyFields)) {
 			// process templates with ADDED one-way dependent fields
@@ -2182,6 +2482,11 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Special Modification Process Removed One Way Dependency Fields.
+	 *
+	 * @return mixed
+	 */
 	private function specialModificationProcessRemovedOneWayDependencyFields() {
 
 		if (!empty($this->removedOneWayDependencyFields)) {
@@ -2214,6 +2519,11 @@ class PWCommerceInstaller extends WireData {
 
 	## PWCOMMERCE RUN PARTIAL MODIFICATION UNINSTALLER ##
 
+	/**
+	 * Partial Modification Of P W Commerce Removal Action.
+	 *
+	 * @return mixed
+	 */
 	public function partialModificationOfPWCommerceRemovalAction() {
 		// @note:
 		// pages to remove:
@@ -2242,6 +2552,11 @@ class PWCommerceInstaller extends WireData {
 		$this->partialPostRemovalModificationOfProcessCustomShopRootSettings();
 	}
 
+	/**
+	 * Partial Modification Of P W Commerce Delete Pages.
+	 *
+	 * @return mixed
+	 */
 	private function partialModificationOfPWCommerceDeletePages() {
 		// @note: this will set $this->removedOptionalFeaturesTemplatesToUninstall as well
 		$this->prepareRemovedOptionalFeaturesTemplatesNames();
@@ -2255,6 +2570,11 @@ class PWCommerceInstaller extends WireData {
 		$this->deletePages($removedOptionalFeaturesParentPages);
 	}
 
+	/**
+	 * Get Main Shop Pages Selector For Partial Modification Of P W Commerce Delete Pages.
+	 *
+	 * @return mixed
+	 */
 	private function getMainShopPagesSelectorForPartialModificationOfPWCommerceDeletePages() {
 		$removedOptionalFeaturesTemplatesNamesSelector = $this->getRemovedOptionalFeaturesTemplatesNamesSelector();
 		$isUseCustomShopRootPage = $this->pwcommerce->isOtherOptionalSettingInstalled(PwCommerce::PWCOMMERCE_IS_USE_CUSTOM_SHOP_ROOT_PAGE_SETTING_NAME);
@@ -2278,6 +2598,11 @@ class PWCommerceInstaller extends WireData {
 		return $removedOptionalFeaturesParentPagesSelector;
 	}
 
+	/**
+	 * Prepare Removed Optional Features Templates Names.
+	 *
+	 * @return mixed
+	 */
 	private function prepareRemovedOptionalFeaturesTemplatesNames() {
 		$optionalFeatures = $this->getPWCommerceOptionalFeatures();
 		$optionalFeaturesTemplates = array_intersect_key($optionalFeatures, array_flip($this->removedOptionalFeatures));
@@ -2291,11 +2616,21 @@ class PWCommerceInstaller extends WireData {
 		$this->removedOptionalFeaturesTemplatesToUninstall = $removedOptionalFeaturesTemplatesToUninstall;
 	}
 
+	/**
+	 * Get Removed Optional Features Templates Names Selector.
+	 *
+	 * @return mixed
+	 */
 	private function getRemovedOptionalFeaturesTemplatesNamesSelector() {
 		// ------------
 		return implode("|", $this->removedOptionalFeaturesTemplatesToUninstall);
 	}
 
+	/**
+	 * Partial Modification Of P W Commerce Delete Templates And Fieldgroups.
+	 *
+	 * @return mixed
+	 */
 	private function partialModificationOfPWCommerceDeleteTemplatesAndFieldgroups() {
 		$templates = $this->wire('templates');
 		$removedOptionalFeaturesTemplatesNames = $this->removedOptionalFeaturesTemplatesToUninstall;
@@ -2306,6 +2641,11 @@ class PWCommerceInstaller extends WireData {
 		$this->deleteTemplatesAndFieldgroups($removedOptionalFeaturesTemplates);
 	}
 
+	/**
+	 * Partial Modification Of P W Commerce Delete Fields.
+	 *
+	 * @return mixed
+	 */
 	private function partialModificationOfPWCommerceDeleteFields() {
 		if (empty($this->removedOptionalFeaturesFieldsToUninstall))
 			return;
@@ -2319,6 +2659,11 @@ class PWCommerceInstaller extends WireData {
 		// IF FEATURE REMOVED IS 'product_attributes', WE NEED TO REMOVE 'pwcommerce_runtime_markup' FROM 'pwcommerce-product'
 	}
 
+	/**
+	 * Partial Modification Of P W Commerce Delete Roles.
+	 *
+	 * @return mixed
+	 */
 	private function partialModificationOfPWCommerceDeleteRoles() {
 		$optionalRoles = $this->getPWCommerceOptionalRoles();
 		$roles = $this->wire('roles');
@@ -2330,6 +2675,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Partial Post Removal Modification Or Removal Of P W Commerce Templates.
+	 *
+	 * @return mixed
+	 */
 	private function partialPostRemovalModificationOrRemovalOfPWCommerceTemplates() {
 		// IF ATTRIBUTES FEATURE REMOVED
 		if (in_array('product_attributes', $this->removedOptionalFeatures)) {
@@ -2355,6 +2705,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Partial Post Removal Modification Of Process Custom Shop Root Settings.
+	 *
+	 * @return mixed
+	 */
 	private function partialPostRemovalModificationOfProcessCustomShopRootSettings() {
 		// IF FEATURE RELATING TO CUSTOM SHOP ROOT PAGE 'PARENT PAGES' has been removed
 		// we need to remove the parent from configs for custom shop root page
@@ -2384,6 +2739,11 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Process Other Optional Settings.
+	 *
+	 * @return mixed
+	 */
 	private function processOtherOptionalSettings() {
 		// Categories refered to as collections
 		// pwcommerce_is_category_collection
@@ -2525,6 +2885,12 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Process Other Optional Settings Categories As Collections.
+	 *
+	 * @param mixed $incomingIsCategoryACollection
+	 * @return mixed
+	 */
 	private function processOtherOptionalSettingsCategoriesAsCollections($incomingIsCategoryACollection) {
 
 		// TODO NOT IN USE FOR NOW; THIS IS BECAUSE ONE MIGHT HAVE INSTALLED CATEGORIES BUT THE MODULE CONFIGS NOT YET SAVED; THE CONFIGS ARE SAVED AFTER ALL RUNINSTALLER OPERATIONS OF WHICH THIS IS PART (VIA $this->processOtherOptionalSettings())
@@ -2579,7 +2945,20 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
-	// private function processOtherOptionalSettingsCustomShopRootPage($incomingIsUseCustomShopRootPage, $incomingCustomShopRootPageID, $incomingCustomShopRootPageChildren) {
+	// /**
+  * Process Other Optional Settings Custom Shop Root Page.
+  *
+  * @param mixed $incomingIsUseCustomShopRootPage
+  * @param int $incomingCustomShopRootPageID
+  * @param mixed $incomingCustomShopRootPageChildren
+  * @return mixed
+  */
+ private function processOtherOptionalSettingsCustomShopRootPage($incomingIsUseCustomShopRootPage, $incomingCustomShopRootPageID, $incomingCustomShopRootPageChildren) {
+	/**
+	 * Process Other Optional Settings Custom Shop Root Page.
+	 *
+	 * @return mixed
+	 */
 	private function processOtherOptionalSettingsCustomShopRootPage() {
 
 		$pages = $this->wire('pages');
@@ -2693,6 +3072,11 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Revert Custom Shop Root Page Values.
+	 *
+	 * @return mixed
+	 */
 	private function revertCustomShopRootPageValues() {
 
 		$installedOtherOptionalSettings = $this->pwcommerce->getPWCommerceInstalledOtherOptionalSettings($this->configModuleName);
@@ -2759,10 +3143,9 @@ class PWCommerceInstaller extends WireData {
 	/**
 	 * Process root page values for some pwcommerce parent pages.
 	 *
-	 * Caters for both changing the shop root page to a custom page or reversing changes back to default root page.
-	 * @param array $parentPagesItems Selected feauture names representing PWCommerce parent pages whose parent and allowed templates to change to match given shop root page.
-	 * @param int $shopRootPageID ID of a non-pwcommerce page to use as custom shop root page or id of the default root pageif reversing changes.
-	 * @return void
+	 * @param mixed $parentPagesItems
+	 * @param int $shopRootPageID
+	 * @return mixed
 	 */
 	private function processCustomShopRootPageParentItemsValues($parentPagesItems, $shopRootPageID) {
 
@@ -2834,6 +3217,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Get Custom Shop Root Page Allowed Children Details.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomShopRootPageAllowedChildrenDetails() {
 		$customShopRootPageAllowedChildrenDetails = $this->pwcommerce->getCustomShopRootPageAllowedChildrenDetails();		// ------
 		return $customShopRootPageAllowedChildrenDetails;
@@ -2843,6 +3231,11 @@ class PWCommerceInstaller extends WireData {
 
 	## PWCOMMERCE RUN UNINSTALLER ##
 
+	/**
+	 * Complete Removal Of P W Commerce Action.
+	 *
+	 * @return mixed
+	 */
 	public function completeRemovalOfPWCommerceAction() {
 		// REMOVE PAGES
 		$this->completeRemovalOfPWCommerceDeletePages();
@@ -2881,6 +3274,11 @@ class PWCommerceInstaller extends WireData {
 		return $result;
 	}
 
+	/**
+	 * Complete Removal Of P W Commerce Delete Pages.
+	 *
+	 * @return mixed
+	 */
 	private function completeRemovalOfPWCommerceDeletePages() {
 		// find pwcommerce pages to remove
 		// we get this by finding and including all the children of the shop admin page
@@ -2911,6 +3309,11 @@ class PWCommerceInstaller extends WireData {
 		$this->deleteTrashedPWCommercePages();
 	}
 
+	/**
+	 * Get Main Shop Pages Selector For Complete Removal Of P W Commerce Delete Pages.
+	 *
+	 * @return mixed
+	 */
 	private function getMainShopPagesSelectorForCompleteRemovalOfPWCommerceDeletePages() {
 		$mainShopPagesSelector = "id={$this->shopAdminPWCommerceRootPageID},include=all";
 
@@ -2946,6 +3349,12 @@ class PWCommerceInstaller extends WireData {
 		return $mainShopPagesSelector;
 	}
 
+	/**
+	 * Delete Pages.
+	 *
+	 * @param PageArray $pages
+	 * @return mixed
+	 */
 	private function deletePages(PageArray $pages) {
 		foreach ($pages as $page) {
 			// deal with locked pages first, if any
@@ -2959,6 +3368,12 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Delete Page And Descendants.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function deletePageAndDescendants(Page $page) {
 		// deal with locked pages first, if any
 		if ($page->isLocked()) {
@@ -2978,6 +3393,11 @@ class PWCommerceInstaller extends WireData {
 		$this->wire('pages')->uncacheAll();
 	}
 
+	/**
+	 * Find Pages To Delete.
+	 *
+	 * @return mixed
+	 */
 	private function findPagesToDelete() {
 		$availableTemplatesNames = $this->getPWCommerceAvailableParentTemplatesNames();
 		$availableTemplatesNamesSelector = implode("|", $availableTemplatesNames);
@@ -2987,6 +3407,12 @@ class PWCommerceInstaller extends WireData {
 	}
 
 
+	/**
+	 * Find Locked Children Pages.
+	 *
+	 * @param mixed $parentPage
+	 * @return mixed
+	 */
 	private function findLockedChildrenPages($parentPage) {
 		$lockedChildren = $this->pwcommerce->findRaw("has_parent={$parentPage},include=all,status>=" . Page::statusLocked, 'id');
 		// $lockedChildren = $this->wire('pages')->findRaw("parent={$parentPage},status>=" . Page::statusLocked, 'id');
@@ -2994,6 +3420,12 @@ class PWCommerceInstaller extends WireData {
 		return $lockedChildren;
 	}
 
+	/**
+	 * Unlock Locked Children Pages.
+	 *
+	 * @param array $lockedChildrenIDs
+	 * @return mixed
+	 */
 	private function unlockLockedChildrenPages(array $lockedChildrenIDs) {
 		$lockedChildrenIDsSelector = implode("|", $lockedChildrenIDs);
 		// we don't expect any parent page to have more than 200 children!
@@ -3007,6 +3439,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Get P W Commerce Installed Optional Features Parent Template Names.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceInstalledOptionalFeaturesParentTemplateNames() {
 		$installedOptionalFeaturesParentTemplateNames = [];
 		$prefix = "pwcommerce-";
@@ -3031,6 +3468,11 @@ class PWCommerceInstaller extends WireData {
 
 	}
 
+	/**
+	 * Get P W Commerce Required Features Parent Templates Names.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceRequiredFeaturesParentTemplatesNames() {
 		return [
 			// 'products'
@@ -3052,6 +3494,11 @@ class PWCommerceInstaller extends WireData {
 	}
 
 
+	/**
+	 * Get P W Commerce Available Parent Templates Names.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceAvailableParentTemplatesNames() {
 		$pwcommerceRequiredTemplatesNames = $this->getPWCommerceRequiredFeaturesParentTemplatesNames();
 		$pwcommerceOptionalFeaturesTemplatesNames = $this->getPWCommerceInstalledOptionalFeaturesParentTemplateNames();
@@ -3060,6 +3507,11 @@ class PWCommerceInstaller extends WireData {
 		return $availableTemplatesNames;
 	}
 
+	/**
+	 * Delete Trashed P W Commerce Pages.
+	 *
+	 * @return mixed
+	 */
 	private function deleteTrashedPWCommercePages() {
 		$trashedPWCommercePages = $this->findTrashedPWCommercePages();
 		if ($trashedPWCommercePages->count()) {
@@ -3067,6 +3519,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Find Trashed P W Commerce Pages.
+	 *
+	 * @return mixed
+	 */
 	private function findTrashedPWCommercePages() {
 		$templatesNamesSelector = $this->getPWCommerceTemplatesNamesSelector();
 		$trashedPWCommercePages = $this->wire('pages')->find("template={$templatesNamesSelector}, include=all, has_parent=" . $this->wire('config')->trashPageID);
@@ -3074,6 +3531,11 @@ class PWCommerceInstaller extends WireData {
 		return $trashedPWCommercePages;
 	}
 
+	/**
+	 * Complete Removal Of P W Commerce Delete Templates And Fieldgroups.
+	 *
+	 * @return mixed
+	 */
 	private function completeRemovalOfPWCommerceDeleteTemplatesAndFieldgroups() {
 		// TODO DELETE WHEN DONE
 		// $pwcommerceTemplatesNames = array_keys($this->getPWCommerceTemplatesData());
@@ -3085,18 +3547,34 @@ class PWCommerceInstaller extends WireData {
 		$this->deleteTemplatesAndFieldgroups($pwcommerceTemplates);
 	}
 
+	/**
+	 * Get P W Commerce Templates Names.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceTemplatesNames() {
 		$pwcommerceTemplatesNames = array_keys($this->getPWCommerceTemplatesData());
 
 		return $pwcommerceTemplatesNames;
 	}
 
+	/**
+	 * Get P W Commerce Templates Names Selector.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceTemplatesNamesSelector() {
 		$pwcommerceTemplatesNames = $this->getPWCommerceTemplatesNames();
 		$templatesNamesSelector = implode("|", $pwcommerceTemplatesNames);
 		return $templatesNamesSelector;
 	}
 
+	/**
+	 * Delete Templates And Fieldgroups.
+	 *
+	 * @param TemplatesArray $templates
+	 * @return mixed
+	 */
 	private function deleteTemplatesAndFieldgroups(TemplatesArray $templates) {
 		foreach ($templates as $template) {
 			$fieldgroup = $template->fieldgroup;
@@ -3110,6 +3588,11 @@ class PWCommerceInstaller extends WireData {
 
 	// ~~~~~~~~~~~~~~~~
 
+	/**
+	 * Complete Removal Of P W Commerce Delete Fields.
+	 *
+	 * @return mixed
+	 */
 	private function completeRemovalOfPWCommerceDeleteFields() {
 		$pwcommerceFieldsNames = array_keys($this->getPWCommerceFieldsData());
 		$fieldsNamesSelector = implode("|", $pwcommerceFieldsNames);
@@ -3123,6 +3606,12 @@ class PWCommerceInstaller extends WireData {
 		$this->deleteFields(($pwcommerceFields));
 	}
 
+	/**
+	 * Prepare P W Commerce Fieldtypes And Inputfields For Complete Removal.
+	 *
+	 * @param FieldsArray $fields
+	 * @return mixed
+	 */
 	private function preparePWCommerceFieldtypesAndInputfieldsForCompleteRemoval(FieldsArray $fields) {
 
 		$fieldtypesAndInputfieldsToUninstall = [];
@@ -3146,7 +3635,14 @@ class PWCommerceInstaller extends WireData {
 		$this->fieldtypesAndInputfieldsToUninstall = $fieldtypesAndInputfieldsToUninstall;
 	}
 
-	private function deleteFields(FieldsArray $fields, $isRemoveFromProductFieldgroup = false) {
+	/**
+	 * Delete Fields.
+	 *
+	 * @param FieldsArray $fields
+	 * @param bool $isRemoveFromProductFieldgroup
+	 * @return mixed
+	 */
+	private function deleteFields(FieldsArray $fields, bool $isRemoveFromProductFieldgroup = false) {
 
 		$productVariantFieldgroup = null;
 		if (!empty($isRemoveFromProductFieldgroup)) {
@@ -3190,7 +3686,7 @@ class PWCommerceInstaller extends WireData {
 	/**
 	 * Uninstall pwcommerce fieldtype and inputfield modules during complete removal action.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	private function completeRemovalOfPWCommerceUninstallFields() {
 		// loop through all PWCommerce Fields and remove only Custom PWCommerce Fieldtypes and their Inputfields
@@ -3206,10 +3702,21 @@ class PWCommerceInstaller extends WireData {
 	}
 
 	// TODO: DELETE IF NOT IN USE
+	/**
+	 * Filter P W Commerce Fieldtypes.
+	 *
+	 * @param mixed $type
+	 * @return mixed
+	 */
 	private function filterPWCommerceFieldtypes($type) {
 		return strpos($type, 'PWCommerce') !== false;
 	}
 
+	/**
+	 * Complete Removal Of P W Commerce Drop Custom Tables.
+	 *
+	 * @return mixed
+	 */
 	private function completeRemovalOfPWCommerceDropCustomTables() {
 		$pwcommerceCustomTableNames = $this->getNamesOfPWCommerceCustomTables();
 		// TODO CONFIRM WORKS!
@@ -3224,6 +3731,11 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Get Names Of P W Commerce Custom Tables.
+	 *
+	 * @return mixed
+	 */
 	private function getNamesOfPWCommerceCustomTables() {
 		return [
 			PwCommerce::PWCOMMERCE_ORDER_STATUS_TABLE_NAME,
@@ -3231,12 +3743,22 @@ class PWCommerceInstaller extends WireData {
 		];
 	}
 
+	/**
+	 * Get Names Of P W Commerce Special Custom Tables.
+	 *
+	 * @return mixed
+	 */
 	private function getNamesOfPWCommerceSpecialCustomTables() {
 		return [
 			PwCommerce::PWCOMMERCE_DOWNLOAD_CODES_TABLE_NAME,
 		];
 	}
 
+	/**
+	 * Get S Q L For Order Status Table.
+	 *
+	 * @return mixed
+	 */
 	private function getSQLForOrderStatusTable() {
 		$table = PwCommerce::PWCOMMERCE_ORDER_STATUS_TABLE_NAME;
 		// TODO: REFACTOR TO READ FROM FILE?
@@ -3289,6 +3811,11 @@ class PWCommerceInstaller extends WireData {
 		return $sql;
 	}
 
+	/**
+	 * Get S Q L For Order Cart Table.
+	 *
+	 * @return mixed
+	 */
 	private function getSQLForOrderCartTable() {
 		$table = PwCommerce::PWCOMMERCE_ORDER_CART_TABLE_NAME;
 		// TODO: REFACTOR TO READ FROM FILE?
@@ -3323,6 +3850,11 @@ class PWCommerceInstaller extends WireData {
 		return $sql;
 	}
 
+	/**
+	 * Get S Q L For Download Codes Table.
+	 *
+	 * @return mixed
+	 */
 	private function getSQLForDownloadCodesTable() {
 		$table = PwCommerce::PWCOMMERCE_DOWNLOAD_CODES_TABLE_NAME;
 		// TODO: REFACTOR TO READ FROM FILE?
@@ -3357,6 +3889,11 @@ class PWCommerceInstaller extends WireData {
 		return $sql;
 	}
 
+	/**
+	 * Complete Removal Of P W Commerce Delete Roles.
+	 *
+	 * @return mixed
+	 */
 	private function completeRemovalOfPWCommerceDeleteRoles() {
 		$optionalRoles = $this->getPWCommerceOptionalRoles();
 		$roles = $this->wire('roles');
@@ -3369,16 +3906,31 @@ class PWCommerceInstaller extends WireData {
 		}
 	}
 
+	/**
+	 * Invalidate P W Commerce Find Anything Cache.
+	 *
+	 * @return mixed
+	 */
 	private function invalidatePWCommerceFindAnythingCache() {
 		$this->wire('cache')->delete(PwCommerce::FIND_ANYTHING_TEMPLATES_CACHE_NAME);
 	}
 
+	/**
+	 * Get P W Commerce Installed Optional Features.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceInstalledOptionalFeatures() {
 		$configs = $this->pwcommerce->getPWCommerceModuleConfigs($this->configModuleName);
 	}
 
 	// ~~~~~~~~~~~~~~
 
+	/**
+	 * Is Site Multilingual.
+	 *
+	 * @return bool
+	 */
 	private function isSiteMultilingual() {
 		return !empty($this->wire('languages'));
 	}

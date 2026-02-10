@@ -35,6 +35,12 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 	private $ajaxPostURL;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function __construct($page) {
 
 		$this->page = $page;
@@ -54,6 +60,8 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 	/**
 	 * Render the input area for order taxes and totals
 	 *
+	 * @param WireData $order
+	 * @return mixed
 	 */
 	public function ___render(WireData $order) {
 		$this->order = $order;
@@ -61,6 +69,11 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 		return $this->getOrderTotalsMarkup();
 	}
 
+	/**
+	 * Get Order Totals Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderTotalsMarkup() {
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
 		// checkbox for 'use custom shipping' fee
@@ -70,6 +83,11 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 		return $wrapper->render();
 	}
 
+	/**
+	 * Get Checkbox For Order Do Not Charge Taxes.
+	 *
+	 * @return mixed
+	 */
 	private function getCheckboxForOrderDoNotChargeTaxes() {
 		$xstoreOrderWholeData = "{$this->xstore}.order_whole_data";
 
@@ -101,6 +119,11 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Order Totals Breakdown.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForOrderTotalsBreakdown() {
 		// $order = $this->order;
 		// $xstoreOrderWholeData = "{$this->xstore}.order_whole_data";
@@ -154,6 +177,11 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 	################
 
 	// TODO MOVE TO TOTALS SECTION!
+	/**
+	 * Get Order Subtotal Summary Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderSubtotalSummaryMarkup() {
 
 		$xstoreClient = $this->xstoreClient;
@@ -173,6 +201,11 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Order Taxes Summary Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderTaxesSummaryMarkup() {
 
 		$xstoreClient = $this->xstoreClient;
@@ -204,6 +237,11 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Order Total Summary Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderTotalSummaryMarkup() {
 		// TODO SORT OUT CURRENCY PREFIX BELOW!
 		$xstoreOrderWholeData = "{$this->xstore}.order_whole_data";
@@ -222,6 +260,11 @@ class InputfieldPWCommerceOrderRenderTotals extends WireData
 	}
 
 	// TODO AMEND/DELETE IF NO LONGER IN USE
+	/**
+	 * Get Main Order Calculate Shipping And Taxes Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getMainOrderCalculateShippingAndTaxesMarkup() {
 		// TODO - WORK ON 'SAVE TO CALCULATE SHIPPING and TAXES' after changes made to order
 		$xstore = $this->xstore;

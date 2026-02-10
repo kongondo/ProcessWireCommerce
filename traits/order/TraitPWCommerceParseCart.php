@@ -8,6 +8,11 @@ trait TraitPWCommerceParseCart
 
 	// called by TraitPWCommerceSaveOrder::saveOrder
 
+	/**
+	 *    parse Cart.
+	 *
+	 * @return mixed
+	 */
 	public function ___parseCart() {
 
 		// =============

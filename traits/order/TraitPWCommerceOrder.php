@@ -62,6 +62,11 @@ trait TraitPWCommerceOrder
 	private $isUseCustomFormInputNames;
 	protected $cart;
 
+	/**
+	 *  init Trait P W Commerce Order.
+	 *
+	 * @return mixed
+	 */
 	protected function _initTraitPWCommerceOrder()
 	{
 

@@ -23,6 +23,11 @@ trait TraitPWCommercePayment {
 	protected $paymentProviderID;
 	// public $isLostOrderSession = false;
 
+	/**
+	 * Get Customer Order Form Payment Providers.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomerOrderFormPaymentProviders() {
 
 		$activePaymentProvidersRadioOptions = [];
@@ -53,7 +58,7 @@ trait TraitPWCommercePayment {
 	/**
 	 * Returns path to Payment Class file, checking if core vs non-core payment addon.
 	 *
-	 * @return string $path;
+	 * @return mixed
 	 */
 	private function getPaymentClassFilePath() {
 		if (!empty($this->isNonCorePaymentProvider())) {
@@ -69,7 +74,8 @@ trait TraitPWCommercePayment {
 	/**
 	 * Returns class name of Payment Class file, checking if core vs non-core payment addon.
 	 *
-	 * @return string $path;
+	 * @param mixed $paymentProviderTitle
+	 * @return mixed
 	 */
 	private function getPaymentClassName($paymentProviderTitle) {
 		if (!empty($this->isNonCorePaymentProvider())) {
@@ -84,11 +90,22 @@ trait TraitPWCommercePayment {
 	}
 
 	// @note: important to call after $this->paymentProviderID has been set!
+	/**
+	 * Is Non Core Payment Provider.
+	 *
+	 * @return bool
+	 */
 	private function isNonCorePaymentProvider() {
 		$nonCorePaymentProvidersIDs = $this->pwcommerce->getNonCorePaymentProvidersIDs();
 		return in_array((int) $this->paymentProviderID, $nonCorePaymentProvidersIDs);
 	}
 
+	/**
+	 * Set Payment Provider.
+	 *
+	 * @param int $paymentProviderPageID
+	 * @return mixed
+	 */
 	private function setPaymentProvider($paymentProviderPageID) {
 
 		$input = $this->wire('input');
@@ -153,6 +170,13 @@ trait TraitPWCommercePayment {
 
 	}
 
+	/**
+	 * Get Payment Provider Page I D From Order Cache.
+	 *
+	 * @param int $orderID
+	 * @param int $cartOrderID
+	 * @return int
+	 */
 	private function getPaymentProviderPageIDFromOrderCache($orderID, $cartOrderID): int {
 		$paymentProviderPageID = 0;
 
@@ -166,6 +190,13 @@ trait TraitPWCommercePayment {
 		return $paymentProviderPageID;
 	}
 
+	/**
+	 * Validate And Get Order Cache.
+	 *
+	 * @param int $orderID
+	 * @param int $cartOrderID
+	 * @return mixed
+	 */
 	private function validateAndGetOrderCache($orderID, $cartOrderID) {
 		// first, verify we have this order and it is still in abandoned state
 		// $orderPageID = (int) $this->pwcommerce->getRaw("template=order,id={$orderID}, pwcommerce_order.id={$cartOrderID}", 'id');
@@ -192,6 +223,12 @@ trait TraitPWCommercePayment {
 		return $orderCache;
 	}
 
+	/**
+	 * Get New Payment Class.
+	 *
+	 * @param string $class
+	 * @return mixed
+	 */
 	private function getNewPaymentClass(string $class) {
 
 		// $fields = 'name';
@@ -259,10 +296,20 @@ trait TraitPWCommercePayment {
 		// return $paymentClass2;
 	}
 
+	/**
+	 * Get Payment Class.
+	 *
+	 * @return mixed
+	 */
 	public function getPaymentClass() {
 		return $this->paymentClass;
 	}
 
+	/**
+	 * Process Payment.
+	 *
+	 * @return mixed
+	 */
 	private function processPayment() {
 		// NOTE this is a private method; meaning, it is called only within this class; it is called after successful captureorder!
 
@@ -307,6 +354,11 @@ trait TraitPWCommercePayment {
 
 	}
 
+	/**
+	 * Post Process Payment.
+	 *
+	 * @return mixed
+	 */
 	public function postProcessPayment() {
 		// TODO TESTING ONLY! DELETE WHEN DONE
 		$input = $this->wire('input');
@@ -363,8 +415,8 @@ trait TraitPWCommercePayment {
 	/**
 	 * Process Delayed/Invoice Payments.
 	 *
-	 * @param int $orderID Order ID from URL Segment 2.
-	 * @return WireData $invoiceCreationResponse
+	 * @param mixed $orderID
+	 * @return mixed
 	 */
 	public function processInvoice($orderID = null) {
 
@@ -468,7 +520,13 @@ trait TraitPWCommercePayment {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PAYMENT ~~~~~~~~~~~~~~~~~~
 
-	public function getActivePaymentProviders($isGetSettingsAsWell = false) {
+	/**
+	 * Get Active Payment Providers.
+	 *
+	 * @param bool $isGetSettingsAsWell
+	 * @return mixed
+	 */
+	public function getActivePaymentProviders(bool $isGetSettingsAsWell = false) {
 		// TODO: RETURN ARRAY OR WIREARRAY?
 		// @note: active payment providers are published pages. inactive ones are unpublished
 		// ----------
@@ -509,6 +567,11 @@ trait TraitPWCommercePayment {
 		return $paymentProviders;
 	}
 
+	/**
+	 * Is Shop Accepts Invoice Payments.
+	 *
+	 * @return bool
+	 */
 	public function isShopAcceptsInvoicePayments() {
 		// TODO FOR NOW WE ONLY CHECK IF INVOICE PAYMENT IS ACTIVE (published) - IN FUTURE MIGHT ADD SETTING IN CHECKOUT AS WELL
 		$fields = 'id';
@@ -517,6 +580,11 @@ trait TraitPWCommercePayment {
 		return !empty((int) $invoicePayment);
 	}
 
+	/**
+	 * Is Shop Use Payment Providers Feature.
+	 *
+	 * @return bool
+	 */
 	public function isShopUsePaymentProvidersFeature() {
 		$fields = 'id';
 		$paymentProvidersParentPage = $this->wire('pages')->getRaw("template=" . PwCommerce::PAYMENT_PROVIDERS_TEMPLATE_NAME, $fields);
@@ -526,6 +594,12 @@ trait TraitPWCommercePayment {
 
 	// ~~~~~~~~~~~~~~
 
+	/**
+	 * Run P W Commerce Payment.
+	 *
+	 * @param HookEvent $event
+	 * @return mixed
+	 */
 	public function runPWCommercePayment($event) {
 
 		// $entireURL = $event->arguments(0);
@@ -566,6 +640,11 @@ trait TraitPWCommercePayment {
 		}
 	}
 
+	/**
+	 * Is Order Already Paid.
+	 *
+	 * @return bool
+	 */
 	private function isOrderAlreadyPaid() {
 
 		// WE END UP HERE TYPICALLY IN LOST SESSIONS SITUATIONS
@@ -598,6 +677,12 @@ trait TraitPWCommercePayment {
 		return $isOrderPaid;
 	}
 
+	/**
+	 * Handle Order Is Already Paid.
+	 *
+	 * @param int $orderID
+	 * @return mixed
+	 */
 	private function handleOrderIsAlreadyPaid($orderID) {
 
 		// ==============

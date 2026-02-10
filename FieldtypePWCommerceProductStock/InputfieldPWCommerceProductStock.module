@@ -22,6 +22,11 @@ namespace ProcessWire;
 class InputfieldPWCommerceProductStock extends Inputfield
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Product Stock: Inputfield',
@@ -56,6 +61,11 @@ class InputfieldPWCommerceProductStock extends Inputfield
 	// -----
 	private $shopCurrencySymbolString = "";
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -80,14 +90,31 @@ class InputfieldPWCommerceProductStock extends Inputfield
 		$this->ajaxPostURL = $this->wire('config')->urls->admin . PwCommerce::PWCOMMERCE_SHOP_PAGE_IN_ADMIN_NAME . '/ajax/';
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
 
+	/**
+	 * Set Price Values.
+	 *
+	 * @return mixed
+	 */
 	private function setPriceValues() {
 		// @NOTE: THESE ARE JUST FOR BACKEND DISPLAY PURPOSES! Hence 'wrong' values will be displayed
 		// e.g. if sale price is > normal price!
@@ -124,6 +151,7 @@ class InputfieldPWCommerceProductStock extends Inputfield
 	/**
 	 * Render the entire input area for product properties
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -166,12 +194,11 @@ class InputfieldPWCommerceProductStock extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		// if currency locale set..
 		// grab symbol; we use on price fields description
 		$shopCurrencySymbolString = $this->pwcommerce->renderShopCurrencySymbolString();
@@ -182,6 +209,11 @@ class InputfieldPWCommerceProductStock extends Inputfield
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Render Edit Modals.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderEditModals() {
 		$pageID = $this->page->id;
 
@@ -219,6 +251,11 @@ class InputfieldPWCommerceProductStock extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Build Variants Tabs.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderBuildVariantsTabs() {
 
 		$xstore = $this->xstore;
@@ -296,6 +333,11 @@ EOT;
 		return $wrapper->render();
 	}
 
+	/**
+	 * Build Form.
+	 *
+	 * @return mixed
+	 */
 	private function buildForm() {
 
 		// TODO: WE'LL NEED TO DYNAMICALLY SHOW ENABLE INPUT ONLY ON VARIANT PAGES; QUANTITY WILL BE ON PRODUCT IF NO VARIANTS, ELSE ON VARIANTS;  SAME FOR BACKORDERS; PRICES WILL BE ON BOTH AS WELL AS SKU
@@ -596,6 +638,13 @@ EOT;
 
 	// build single row of the grid of attribute -> attribute-options for generating variants.
 	// $page here is an attribute page selected in the product page's attribute page ref field.
+	/**
+	 * Build Product Attribute And Options Row.
+	 *
+	 * @param mixed $attribute
+	 * @param mixed $attributeOptionsInExistingVariants
+	 * @return mixed
+	 */
 	private function buildProductAttributeAndOptionsRow($attribute, $attributeOptionsInExistingVariants) {
 
 		// $out = "<select class='input-tags'></select/>";
@@ -612,6 +661,13 @@ EOT;
 		return $out;
 	}
 
+	/**
+	 * Build Product Attribute Options.
+	 *
+	 * @param mixed $attribute
+	 * @param mixed $attributeOptionsInExistingVariants
+	 * @return mixed
+	 */
 	private function buildProductAttributeOptions($attribute, $attributeOptionsInExistingVariants) {
 
 		$attributeID = $attribute->id;
@@ -693,6 +749,11 @@ EOT;
 	// TODO - BUILD PREVIEW FOR VARIANTS BASED ON SELECTED ATTRIBUTE OPTIONS
 	// TODO: alpine js - it!!!
 	// TODO: MIGHT RENAME METHOD + SPLIT IT UP!
+	/**
+	 * Build Product Variants Preview.
+	 *
+	 * @return mixed
+	 */
 	private function buildProductVariantsPreview() {
 
 		$xstore = $this->xstore;
@@ -830,6 +891,11 @@ EOT;
 		return $out;
 	}
 
+	/**
+	 * Get Generate Variants Preview Button.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsPreviewButton() {
 		$label = $this->_('Generate Preview');
 		$options = [
@@ -857,11 +923,21 @@ EOT;
 		return $field->render();
 	}
 
+	/**
+	 * Get Extra Generate Variants Info.
+	 *
+	 * @return mixed
+	 */
 	private function getExtraGenerateVariantsInfo() {
 		$out = $this->_('Click the preview button to generate a preview of the variants that will be created based on your current selections. Remove any variants that you do not wish to be generated. When happy with your edits, click the apply button to start the process of creating variants. This might take a while depending on the number of variants that will be created based on the product attributes and their respective options. Please be patient.');
 		return $out;
 	}
 
+	/**
+	 * Get Generate Variants Selected Options I Ds Hidden Input.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsSelectedOptionsIDsHiddenInput() {
 		//------------------- product variant preview: SELECTED OPTIONS IDs (getInputfieldHidden)
 		$field = $this->pwcommerce->getInputfieldHidden();
@@ -875,6 +951,11 @@ EOT;
 		return $field->render();
 	}
 
+	/**
+	 * Get Generate Variants Enabled Checkbox.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsEnabledCheckbox() {
 		//------------------- product variant preview: ENABLED (getInputfieldCheckbox)
 		$options = [
@@ -899,6 +980,11 @@ EOT;
 		return $field->render();
 	}
 
+	/**
+	 * Get Generate Variants Enabled Status Hidden Input.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsEnabledStatusHiddenInput() {
 		//------------------- product variant enabled status: ENABLED STATUS (getInputfieldHidden)
 		// @note: we use this hidden inputfield to track enabled/disabled status of variants
@@ -917,6 +1003,11 @@ EOT;
 	}
 
 	// TODO DELETE WHEN DONE: WE NOW GRAB TITLES ON THE SERVER USING VARIANTS IDs
+	/**
+	 * Get Generate Variants Title Hidden Input.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsTitleHiddenInput() {
 		//------------------- product variant preview: PRICE (getInputfieldText)
 		// @note: we use this hidden inputfield to save the generated titles of variants.
@@ -933,6 +1024,11 @@ EOT;
 		return $field->render();
 	}
 
+	/**
+	 * Get Generate Variants Price Text Input.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsPriceTextInput() {
 
 		//------------------- product variant preview: (getInputfieldText)
@@ -965,6 +1061,11 @@ EOT;
 		return $field->render();
 	}
 
+	/**
+	 * Get Generate Variants S K U Text Input.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsSKUTextInput() {
 		//------------------- product variant preview: SKU (getInputfieldText)
 		$options = [
@@ -989,6 +1090,11 @@ EOT;
 		return $field->render();
 	}
 
+	/**
+	 * Get Generate Variants Trash Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsTrashMarkup() {
 		$trashTitle = $this->_('remove variant');
 		$out =
@@ -996,6 +1102,11 @@ EOT;
 		return $out;
 	}
 
+	/**
+	 * Get Generate Variants Is Creating Spinner.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateVariantsIsCreatingSpinner() {
 		$out = "<span class='fa fa-fw fa-spin fa-spinner ml-1'></span>";
 		return $out;
@@ -1006,6 +1117,13 @@ EOT;
 	// extra content to be prepended to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
 	// @note: we send in $page since this getting called from another inputfield, e.g. InputfieldPWCommerceRuntimeMarkup
+	/**
+	 * Get Prepend Content.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return mixed
+	 */
 	public function getPrependContent($page, $name) {
 
 		// @note: ONLY PREPEND CONTENT IF PRODUCT 'USES' VARIANTS
@@ -1128,6 +1246,12 @@ EOT;
 	// extra content to be added as inline asset to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
 	// TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
+	/**
+	 * Get Preload Inline Assets Content.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function getPreloadInlineAssetsContent($page) {
 		// TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE ALPINE ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
 		// TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
@@ -1148,6 +1272,11 @@ EOT;
 	// extra content to be added as assets to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
 	// TODO: DELETE METHOD IF NO LONGER NEEDED AS SCRIPT IS ADDED VIA PROCESSPWCOMMERCE!
+	/**
+	 * Get Preload Assets Content.
+	 *
+	 * @return mixed
+	 */
 	public function getPreloadAssetsContent() {
 		// TODO: conditionally add below if in SHOP CONTEXT ONLY! I.E., WE NEED TO BE IN PROCESS EDIT MODULE! OR DON'T ADD BELOW AT ALL? SINCE WE NOW HAVE HTMX ADDED VIA PROCESS MODULE? OTHERWISE WE GET ERRORS IN JS WHEN EDITING THE PAGE NATURALLY
 		// TODO - RELATED TO ABOVE, DO WE SHOW WARNING TO SUPERUSER / USER IF THEY ARE EDITING A SHOP PAGE OUTSIDE THE SHOP CONTEXT? I.E., NOT ALL FEATURES AVAILABLE OR DISALBE THEM? DISABLING MAYBE IN THE FUTURE? BUT MIGHT CONFUSE IF NO WARNING?
@@ -1158,6 +1287,11 @@ EOT;
 		];
 	}
 	// modal for generating or editing products variants builds
+	/**
+	 * Get Modal Markup For Build Product Variants.
+	 *
+	 * @return mixed
+	 */
 	private function getModalMarkupForBuildProductVariants() {
 
 		$xstore = $this->xstore;
@@ -1235,6 +1369,11 @@ EOT;
 	// TODO: MIGHT RENAME METHOD
 	// TODO: rename if will have different generate view versus setup!!!
 	// TODO: loop through + add htmx attributes!
+	/**
+	 * Get Generate Product Variants Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getGenerateProductVariantsMarkup() {
 
 		// $pageID = $this->page->id;
@@ -1279,10 +1418,20 @@ EOT;
 
 	// get the PageArray of the product attributes for this product
 	// these are in the page ref field pwcommerce_product_attributes
+	/**
+	 * Get Product Attributes.
+	 *
+	 * @return mixed
+	 */
 	private function getProductAttributes() {
 		return $this->page->pwcommerce_product_attributes;
 	}
 
+	/**
+	 * Get Product Existing Variants Options.
+	 *
+	 * @return mixed
+	 */
 	private function getProductExistingVariantsOptions() {
 		$existingVariantsOptions = $this->wire('pages')->findRaw(
 			"parent={$this->page}",
@@ -1300,6 +1449,11 @@ EOT;
 	// for alpine js comparison of string made up of options IDs that make up a variant
 	// e.g. 1234,2456,7890 -> black,large,cotton
 	// used to display 'existing variant' message if regenerating variants and product has existing ones
+	/**
+	 * Get Formmatted Existing Variants Options I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getFormmattedExistingVariantsOptionsIDs() {
 		$formattedExistingVariantsOptionsIDs = [];
 		$existingVariantsOptions = $this->getProductExistingVariantsOptions();
@@ -1318,6 +1472,13 @@ EOT;
 	}
 
 	// TODO: DELETE WHEN DONE
+	/**
+	 * Get Attribute Options In Existing Variants.
+	 *
+	 * @param mixed $existingVariants
+	 * @param int $attributeID
+	 * @return mixed
+	 */
 	private function getAttributeOptionsInExistingVariants($existingVariants, $attributeID) {
 		$attributeOptions = [];
 
@@ -1346,11 +1507,23 @@ EOT;
 
 	//~~~~~~~~~~~~~
 
+	/**
+	 * Check Has Existing Variants.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function checkHasExistingVariants($page) {
 		$variant = $this->wire('pages')->getRaw("template=pwcommerce-product-variant,parent_id={$page->id}", 'id');
 		return $variant;
 	}
 
+	/**
+	 * Get Multilingual Product Title For Generate Variants.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getMultilingualProductTitleForGenerateVariants($page) {
 		$languageStringsArray = [];
 		if ($this->wire('languages')) {
@@ -1371,6 +1544,8 @@ EOT;
 	/**
 	 * Process input for the values sent from the product properties for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -1414,6 +1589,12 @@ EOT;
 		}
 	}
 
+	/**
+	 * Process Input Delete Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processInputDeleteItems(WireInputData $input) {
 		$deleteItems = $input->pwcommerce_is_delete_item;
 		// page IDs are in one hidden inputfield; get the first array item
@@ -1460,9 +1641,8 @@ EOT;
 	/**
 	 * Make a string value to represent the stock values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param mixed $item
+	 * @return mixed
 	 */
 	private function toStringInhouse($item) {
 		if (!empty($this->isUseSaleAndNormalPriceFields)) {
@@ -1479,6 +1659,11 @@ EOT;
 	}
 
 	// check if current page is a product variant
+	/**
+	 * Is Product Variant.
+	 *
+	 * @return bool
+	 */
 	private function isProductVariant() {
 		return $this->page->template->name === 'pwcommerce-product-variant';
 	}
@@ -1486,6 +1671,12 @@ EOT;
 	// check if current page is a product AND it uses variants
 	// @note: use here means the setting is enabled
 	// it does not check if variants have actually been created or not
+	/**
+	 * Is Using Variants.
+	 *
+	 * @param Page $page
+	 * @return bool
+	 */
 	private function isUsingVariants($page) {
 		//   $page = $this->page; // TODO: so we can reuse with externally provided page (e.g. from InputfieldRuntimeMarkup), now passing as parameter
 		if ($page->template->name !== 'pwcommerce-product') {
@@ -1496,6 +1687,11 @@ EOT;
 		return !empty($settings->useVariants);
 	}
 
+	/**
+	 * Get Inputfield Strings.
+	 *
+	 * @return mixed
+	 */
 	private function getInputfieldStrings() {
 
 		// append currency symbol string if available
@@ -1581,6 +1777,11 @@ EOT;
 		return $strings;
 	}
 
+	/**
+	 * Get Inputfield Strings Type.
+	 *
+	 * @return mixed
+	 */
 	private function getInputfieldStringsType() {
 		$types = [
 			'pwcommerce-product' => 'product',
@@ -1592,6 +1793,12 @@ EOT;
 		return $type;
 	}
 
+	/**
+	 * Get Is Price Field Required.
+	 *
+	 * @param string $priceFieldType
+	 * @return mixed
+	 */
 	private function getIsPriceFieldRequired($priceFieldType = 'price_or_sale_price') {
 
 		$isPriceFieldRequired = false;

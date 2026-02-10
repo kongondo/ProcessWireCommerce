@@ -8,6 +8,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsGeography
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ GEOGRAPHY  ~~~~~~~~~~~~~~~~~~
 
 	// reformatted countries for selection in inputfieldtexttags (shop currency)
+	/**
+	 * Get Countries.
+	 *
+	 * @return mixed
+	 */
 	private function getCountries() {
 		$formattedCountries = [];
 		$countries = $this->countries->getCountries();

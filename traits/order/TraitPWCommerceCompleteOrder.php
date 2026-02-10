@@ -3,6 +3,11 @@
 namespace ProcessWire;
 
 trait TraitPWCommerceCompleteOrder {
+	/**
+	 * Get Completed Order.
+	 *
+	 * @return mixed
+	 */
 	public function getCompletedOrder() {
 
 		$response = new WireData();
@@ -123,6 +128,11 @@ trait TraitPWCommerceCompleteOrder {
 		return $response;
 	}
 
+	/**
+	 * Complete Order.
+	 *
+	 * @return mixed
+	 */
 	private function completeOrder() {
 		// @note: at this point $input->post has been emptied
 
@@ -200,6 +210,11 @@ trait TraitPWCommerceCompleteOrder {
 		return $orderPage;
 	}
 
+	/**
+	 * Remove Order Sessions.
+	 *
+	 * @return mixed
+	 */
 	private function removeOrderSessions() {
 		// @note: called by getCompletedOrder()
 		$sessionNames = [

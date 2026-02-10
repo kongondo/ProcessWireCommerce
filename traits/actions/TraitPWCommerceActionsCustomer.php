@@ -8,6 +8,12 @@ trait TraitPWCommerceActionsCustomer
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CUSTOMER ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Add New Customer Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	private function addNewCustomerAction($input) {
 
 		// TODO CONFIRM STILL NEEDED?
@@ -211,15 +217,34 @@ trait TraitPWCommerceActionsCustomer
 		return $result;
 	}
 
+	/**
+	 * Is Valid Email Address.
+	 *
+	 * @param mixed $emailAddress
+	 * @return bool
+	 */
 	private function isValidEmailAddress($emailAddress) {
 		$sanitizedEmailAddress = $this->wire('sanitizer')->email($emailAddress);
 		return !empty($sanitizedEmailAddress);
 	}
 
+	/**
+	 * Is Matched Email Addresses.
+	 *
+	 * @param mixed $emailAddress
+	 * @param mixed $confirmEmailAddress
+	 * @return bool
+	 */
 	private function isMatchedEmailAddresses($emailAddress, $confirmEmailAddress) {
 		return $emailAddress === $confirmEmailAddress;
 	}
 
+	/**
+	 * Is Duplicate Customer Email Address.
+	 *
+	 * @param mixed $validatedEmailAddress
+	 * @return bool
+	 */
 	private function isDuplicateCustomerEmailAddress($validatedEmailAddress) {
 		$isDuplicateCustomerEmailAddress = false;
 		$template = $this->getContextAddNewItemTemplate(); // Template|Null
@@ -233,11 +258,23 @@ trait TraitPWCommerceActionsCustomer
 		return $isDuplicateCustomerEmailAddress;
 	}
 
+	/**
+	 * Is Create Customer Account.
+	 *
+	 * @return bool
+	 */
 	private function isCreateCustomerAccount() {
 		$isCreateCustomerAccount = (int) $this->actionInput->get('pwcommerce_add_new_item_customer_create_account');
 		return !empty($isCreateCustomerAccount);
 	}
 
+	/**
+	 * Create New User For Customer.
+	 *
+	 * @param mixed $customerEmail
+	 * @param mixed $tempPass
+	 * @return mixed
+	 */
 	private function createNewUserForCustomer($customerEmail, $tempPass) {
 
 		$result = [
@@ -269,6 +306,13 @@ trait TraitPWCommerceActionsCustomer
 
 	}
 
+	/**
+	 * Set New User To Customer.
+	 *
+	 * @param Page $page
+	 * @param User $newUser
+	 * @return void
+	 */
 	private function setNewUserToCustomer(Page $page, User $newUser): void {
 		$customer = $page->get(PwCommerce::CUSTOMER_FIELD_NAME);
 		$customer->set('userID', $newUser->id);
@@ -278,6 +322,11 @@ trait TraitPWCommerceActionsCustomer
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ EMAIL CUSTOMER  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Action Send Email Customer.
+	 *
+	 * @return mixed
+	 */
 	private function actionSendEmailCustomer() {
 		$input = $this->actionInput;
 		$customerRegistrationRequest = (int) $input->pwcommerce_customer_registration_request_button;
@@ -291,6 +340,11 @@ trait TraitPWCommerceActionsCustomer
 
 	}
 
+	/**
+	 * Email Customer.
+	 *
+	 * @return mixed
+	 */
 	private function emailCustomer() {
 
 		$result = [
@@ -386,6 +440,11 @@ trait TraitPWCommerceActionsCustomer
 		return $result;
 	}
 
+	/**
+	 *    email Customer Registration Request.
+	 *
+	 * @return mixed
+	 */
 	protected function ___emailCustomerRegistrationRequest() {
 
 		$result = [
@@ -515,6 +574,12 @@ trait TraitPWCommerceActionsCustomer
 
 	}
 
+	/**
+	 *    email Customer Registration Request Subject.
+	 *
+	 * @param mixed $shopName
+	 * @return mixed
+	 */
 	protected function ___emailCustomerRegistrationRequestSubject($shopName) {
 		// TODO MAKE CONFIGURABLE! or hookable!
 		if (!empty($shopName)) {
@@ -525,6 +590,11 @@ trait TraitPWCommerceActionsCustomer
 		return $emailSubject;
 	}
 
+	/**
+	 * Get Customer Page.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomerPage() {
 		$input = $this->actionInput;
 		$customerPageID = (int) $input->pwcommerce_email_customer_customer_id;
@@ -533,6 +603,12 @@ trait TraitPWCommerceActionsCustomer
 		return $customerPage;
 	}
 
+	/**
+	 * Get Special Redirect Param String.
+	 *
+	 * @param mixed $customerPage
+	 * @return mixed
+	 */
 	private function getSpecialRedirectParamString($customerPage) {
 		$specialRedirect = "/view/?id={$customerPage->id}";
 		// -------
@@ -541,6 +617,13 @@ trait TraitPWCommerceActionsCustomer
 
 	// ALSO USED BY InputfieldPWCommerceCustomer
 
+	/**
+	 * Update Customer Title.
+	 *
+	 * @param mixed $customer
+	 * @param Page $page
+	 * @return void
+	 */
 	protected function updateCustomerTitle($customer, $page): void {
 		$languages = $this->wire('languages');
 		$sanitizer = $this->wire('sanitizer');
@@ -591,6 +674,13 @@ trait TraitPWCommerceActionsCustomer
 		}
 	}
 
+	/**
+	 * Update Customer User Name.
+	 *
+	 * @param WireData $customer
+	 * @param Page $page
+	 * @return void
+	 */
 	private function updateCustomerUserName(WireData $customer, Page $page): void {
 		if (empty($customer->userID)) {
 			return;

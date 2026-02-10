@@ -7,6 +7,11 @@ trait TraitPWCommerceActionsOrder
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ORDER ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Action Order.
+	 *
+	 * @return mixed
+	 */
 	private function actionOrder() {
 		$items = $this->items;
 
@@ -37,6 +42,12 @@ trait TraitPWCommerceActionsOrder
 			}*/
 	}
 
+	/**
+	 * Get New Order Title.
+	 *
+	 * @param mixed $inputTitle
+	 * @return mixed
+	 */
 	private function getNewOrderTitle($inputTitle) {
 		$title = "";
 		if (!empty($inputTitle)) {
@@ -51,6 +62,11 @@ trait TraitPWCommerceActionsOrder
 		return $title;
 	}
 
+	/**
+	 * Get Order Action Notice.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderActionNotice() {
 		$orderActionNotices = [
 			// TODO:@UPDATE: SATURDAY 22 APRIL 2023 -> REMOVED THESE FROM BULK EDIT SINCE WE NOW HANDLE ALL STATUSES; THE LIST IS LONG HENCE DOING THIS IN SINGLE ORDER VIEW

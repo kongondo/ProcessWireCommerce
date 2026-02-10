@@ -34,7 +34,18 @@ class InputfieldPWCommerceAttributeOptions extends WireData
 	 * @param Page $page The current Attribute page this virtual field was called from.
 	 *
 	 */
-	//  public function __construct(Page $page) { // TODO; DELETE IF NOT IN USE
+	//  /**
+   *   construct.
+   *
+   * @param Page $page
+   * @return mixed
+   */
+  public function __construct(Page $page) { // TODO; DELETE IF NOT IN USE
+	/**
+	 *   construct.
+	 *
+	 * @return mixed
+	 */
 	public function __construct() {
 
 
@@ -43,11 +54,25 @@ class InputfieldPWCommerceAttributeOptions extends WireData
 
 	// extra content to be  to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
+	/**
+	 * Get Append Content.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return mixed
+	 */
 	public function getAppendContent($page, $name) {
 		// @note: $name and $page here are provided by the requesting method, e.g. runtime markup module
 		return $this->renderFooter($page, $name);
 	}
 
+	/**
+	 * Render Footer.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return string|mixed
+	 */
 	private function renderFooter($page, $name) {
 		// @note: $name and $page here are provided by the requesting method, e.g. runtime markup module
 		$pageID = $page->id;
@@ -83,6 +108,13 @@ class InputfieldPWCommerceAttributeOptions extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Render Add New Link.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return string|mixed
+	 */
 	protected function renderAddNewLink($page, $name) {
 		// @note: $name and $page here are provided by the requesting method, e.g. runtime markup module
 		$pageID = $page->id;
@@ -111,10 +143,7 @@ class InputfieldPWCommerceAttributeOptions extends WireData
 	/**
 	 * For InputfieldPWCommerceRuntimeMarkup.
 	 *
-	 * For when new Attribute Option is requested by an attribute in edit.
-	 * Return a new blank page of this type that is ready for editing and saving.
-	 *
-	 * @return Page $newPage The new blank item.
+	 * @return mixed
 	 */
 	public function getBlankItem() {
 		$newPage = new Page();
@@ -131,13 +160,20 @@ class InputfieldPWCommerceAttributeOptions extends WireData
 
 	/**
 	 * Process input for the values sent to create new options for this attribute page.
-	 * @note: We only handle new or to be deleted options pages here!
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 		// @note: CREATE NEW ATTRIBUTE OPTIONS is now called DIRECTLY, ONCE from inside InputfieldPWCommerceRuntimeMarkup::processInput for real pwcommerce Inputfields
 	}
 
+	/**
+	 * Process Input Create New Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processInputCreateNewItems(WireInputData $input) {
 		$newItems = $input->pwcommerce_is_new_item;
 		if (!empty($newItems)) {
@@ -205,6 +241,12 @@ class InputfieldPWCommerceAttributeOptions extends WireData
 		}
 	}
 
+	/**
+	 * Process Input Delete Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processInputDeleteItems(WireInputData $input) {
 		$deleteItems = $input->pwcommerce_is_delete_item;
 		// page IDs are in one hidden inputfield; get the first array item

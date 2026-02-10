@@ -20,6 +20,14 @@ namespace ProcessWire;
 
 trait TraitPWCommerceOrderStatus
 {
+	/**
+	 * Set Order Statuses After Order Completion.
+	 *
+	 * @param mixed $orderStatus
+	 * @param mixed $paymentStatus
+	 * @param mixed $fulfilmentStatus
+	 * @return mixed
+	 */
 	private function setOrderStatusesAfterOrderCompletion($orderStatus, $paymentStatus, $fulfilmentStatus)
 	{
 		// get the order page
@@ -66,6 +74,11 @@ trait TraitPWCommerceOrderStatus
 	// 7000 - 9999 => OTHER {7XXX, 8XXX, 9XXX}
 	//
 
+	/**
+	 * Get Statuses.
+	 *
+	 * @return mixed
+	 */
 	public function getStatuses()
 	{
 		// TODO NEED TO MAKE USE OF THESE IN INPUTFIELDSELECTOR IN DASHBOARDS TO SHOW FRIENDLY FIELDS AND MAKE QUERYABLE INSTEAD OF USING STATUS CODES -> FUTURE RELEASE!
@@ -157,6 +170,12 @@ trait TraitPWCommerceOrderStatus
 		return $statuses;
 	}
 
+	/**
+	 * Get Order Status By Status Code.
+	 *
+	 * @param mixed $code
+	 * @return mixed
+	 */
 	public function getOrderStatusByStatusCode($code)
 	{
 		$status = null;
@@ -168,6 +187,11 @@ trait TraitPWCommerceOrderStatus
 		return $status;
 	}
 
+	/**
+	 * Get Order Only Statuses.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderOnlyStatuses()
 	{
 		# -> 1000 - 2999 => ORDER {1XXX, 2XXX} <-
@@ -180,6 +204,11 @@ trait TraitPWCommerceOrderStatus
 		); //------
 		return $orderOnlyStatuses;
 	}
+	/**
+	 * Get Payment Only Statuses.
+	 *
+	 * @return mixed
+	 */
 	public function getPaymentOnlyStatuses()
 	{
 		# -> 3000 - 4999 => ORDER {3XXX, 4XXX} <-
@@ -192,6 +221,11 @@ trait TraitPWCommerceOrderStatus
 		); //------
 		return $paymentOnlyStatuses;
 	}
+	/**
+	 * Get Fulfilment Only Statuses.
+	 *
+	 * @return mixed
+	 */
 	public function getFulfilmentOnlyStatuses()
 	{
 		#  -> 5000 - 6999 => ORDER {5XXX, 6XXX} <-
@@ -204,6 +238,11 @@ trait TraitPWCommerceOrderStatus
 		); //------
 		return $fulfilmentOnlyStatuses;
 	}
+	/**
+	 * Get Statuses Descriptions.
+	 *
+	 * @return mixed
+	 */
 	public function getStatusesDescriptions()
 	{
 		// @note: for TRANSLATION & convenience: final values stored in Database when PWCommerce is installed!
@@ -354,6 +393,12 @@ trait TraitPWCommerceOrderStatus
 		return $statuses;
 	}
 
+	/**
+	 * Get Order Description By Status Code.
+	 *
+	 * @param mixed $code
+	 * @return mixed
+	 */
 	public function getOrderDescriptionByStatusCode($code)
 	{
 		$statusDescription = null;
@@ -365,6 +410,12 @@ trait TraitPWCommerceOrderStatus
 		return $statusDescription;
 	}
 
+	/**
+	 * Get Order Status Type String By Status Code.
+	 *
+	 * @param mixed $code
+	 * @return mixed
+	 */
 	public function getOrderStatusTypeStringByStatusCode($code)
 	{
 		// here we get the translated string for status type
@@ -387,6 +438,12 @@ trait TraitPWCommerceOrderStatus
 		return $statusTypeString;
 	}
 
+	/**
+	 * Get Order Status Type By Status Code.
+	 *
+	 * @param mixed $code
+	 * @return mixed
+	 */
 	public function getOrderStatusTypeByStatusCode($code)
 	{
 		// here we get the key fo the status type
@@ -409,6 +466,11 @@ trait TraitPWCommerceOrderStatus
 		return $statusType;
 	}
 
+	/**
+	 * Order Status Types.
+	 *
+	 * @return mixed
+	 */
 	public function orderStatusTypes()
 	{
 		return [
@@ -422,22 +484,42 @@ trait TraitPWCommerceOrderStatus
 	// SELECT FROM DATABASE
 	// TODO - SELECT * WHERE ID=XXXX LIMIT 1 -> NEED ONLY ONE ROW
 
+	/**
+	 * Get Order Status Abandoned Definition.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderStatusAbandonedDefinition()
 	{
 		return $this->getOrderStatusDefinitionFromDatabaseByStatusCode(PwCommerce::ORDER_STATUS_ABANDONED);
 	}
 
+	/**
+	 * Get Order Status Open Definition.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderStatusOpenDefinition()
 	{
 		// @NOTE: SAME AS 'PENDING'!
 		return $this->getOrderStatusDefinitionFromDatabaseByStatusCode(PwCommerce::ORDER_STATUS_OPEN);
 	}
 
+	/**
+	 * Get Order Status Cancelled Definition.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderStatusCancelledDefinition()
 	{
 		return $this->getOrderStatusDefinitionFromDatabaseByStatusCode(PwCommerce::ORDER_STATUS_CANCELLED);
 	}
 
+	/**
+	 * Get Order Status Completed Definition.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderStatusCompletedDefinition()
 	{
 		return $this->getOrderStatusDefinitionFromDatabaseByStatusCode(PwCommerce::ORDER_STATUS_COMPLETED);
@@ -446,11 +528,7 @@ trait TraitPWCommerceOrderStatus
 	/**
 	 * Get all order statuses definitions from the database.
 	 *
-	 * These are saved in the custom DB table 'pwcommerce_order_status'.
-	 *
-	 * @access public
-	 * @return array $statuses All statuses definitions.
-	 *
+	 * @return mixed
 	 */
 	public function getAllOrderStatusDefinitionsFromDatabase()
 	{
@@ -470,12 +548,8 @@ trait TraitPWCommerceOrderStatus
 	/**
 	 * Get the order status definition of a given order status code from the database.
 	 *
-	 * This is saved in the custom DB table 'pwcommerce_order_status'.
-	 *
-	 * @access public
-	 * @param int $code The order status code whose definitions to return.
-	 * @return stdClass $status Status definition of given order status code.
-	 *
+	 * @param mixed $code
+	 * @return mixed
 	 */
 	public function getOrderStatusDefinitionFromDatabaseByStatusCode($code)
 	{
@@ -495,6 +569,12 @@ trait TraitPWCommerceOrderStatus
 		return $statusDefinition;
 	}
 
+	/**
+	 * Is Valid Status Code.
+	 *
+	 * @param mixed $code
+	 * @return bool
+	 */
 	public function isValidStatusCode($code)
 	{
 		$code = (int) $code;
@@ -508,10 +588,7 @@ trait TraitPWCommerceOrderStatus
 	/**
 	 * Create the a custom database table for storing order statuses definitions.
 	 *
-	 * Table is named 'pwcommerce_order_status'
-	 *
-	 * @access public
-	 *
+	 * @return mixed
 	 */
 	public function createOrderStatusDatabaseTable()
 	{
@@ -543,13 +620,7 @@ trait TraitPWCommerceOrderStatus
 	/**
 	 * Check if an order status already already exists in this database.
 	 *
-	 * Our custom table is named 'pwcommerce_order_status'.
-	 * We attempt to fetch one row from the table.
-	 * If we get back an array, it means the table exists, so we will subsequently abort installation of PWCommerce.
-	 *
-	 * @access public
-	 * @return array|null $result If table found return array, else Null.
-	 *
+	 * @return bool
 	 */
 	public function isExistOrderStatusDatabaseTable()
 	{
@@ -558,6 +629,14 @@ trait TraitPWCommerceOrderStatus
 		return $database->tableExists($table);
 	}
 
+	/**
+	 * Insert Order Statuses On Install.
+	 *
+	 * @param mixed $statusCode
+	 * @param mixed $statusName
+	 * @param mixed $statusDescription
+	 * @return mixed
+	 */
 	public function insertOrderStatusesOnInstall($statusCode, $statusName, $statusDescription)
 	{
 
@@ -599,10 +678,7 @@ trait TraitPWCommerceOrderStatus
 	/**
 	 * Drop custom PWCommerce order status Database Table.
 	 *
-	 * This is the table 'pwcommerce_order_status' which we created on install.
-	 *
-	 * @access public
-	 *
+	 * @return mixed
 	 */
 	public function dropOrderStatusDatabaseTable()
 	{
