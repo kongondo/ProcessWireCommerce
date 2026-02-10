@@ -40,9 +40,10 @@ trait TraitPWCommerceMoney
 
 	/**
 	 * Create Money Object from given whole amount and currency.
-	 * @param float $amount Whole amount to create Money from.
-	 * @param string $currency Currency for the money. Defaults to shop currency.
-	 * @return object Money\Money object.
+	 *
+	 * @param float $amount
+	 * @param string $currency
+	 * @return mixed
 	 */
 	public function money(float $amount, string $currency = '') {
 		$this->currency = $currency;
@@ -66,12 +67,22 @@ trait TraitPWCommerceMoney
 		return $money;
 	}
 
+	/**
+	 * Currencies.
+	 *
+	 * @return mixed
+	 */
 	public function currencies() {
 		$currencies = new ISOCurrencies();
 		// ------
 		return $currencies;
 	}
 
+	/**
+	 * Inter National Money Formatter.
+	 *
+	 * @return mixed
+	 */
 	public function interNationalMoneyFormatter() {
 		$currencies = $this->currencies();
 		// $vars = get_class_vars(get_class($currencies));
@@ -89,6 +100,12 @@ trait TraitPWCommerceMoney
 	}
 
 
+	/**
+	 * Formatted Money.
+	 *
+	 * @param float $amount
+	 * @return mixed
+	 */
 	public function formattedMoney(float $amount) {
 		$moneyFormatter = $this->interNationalMoneyFormatter();
 		$money = $this->money($amount);
@@ -97,6 +114,12 @@ trait TraitPWCommerceMoney
 		return $formattedMoney;
 	}
 
+	/**
+	 * Get Whole Money Amount.
+	 *
+	 * @param mixed $money
+	 * @return float
+	 */
 	public function getWholeMoneyAmount($money): float {
 		// NOTE: WE DIVIDE BY 100 SINCE getAmount() returns units (pence, cents, etc) AND ALSO AS a string
 		$wholeMoneyAmount = (float) ($money->getAmount() / PwCommerce::HUNDRED);
@@ -104,6 +127,13 @@ trait TraitPWCommerceMoney
 		return $wholeMoneyAmount;
 	}
 
+	/**
+	 * Get Money Total As Whole Money Amount.
+	 *
+	 * @param float $unitAmount
+	 * @param int $quantity
+	 * @return mixed
+	 */
 	public function getMoneyTotalAsWholeMoneyAmount(float $unitAmount, int $quantity) {
 
 		$unitAmountMoney = $this->money($unitAmount);
@@ -118,6 +148,11 @@ trait TraitPWCommerceMoney
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CURRENCY ~~~~~~~~~~~~~~~~~~
 
 	#####################
+	/**
+	 * Get Shop Currency.
+	 *
+	 * @return mixed
+	 */
 	public function getShopCurrency() {
 		// TODO CONFIRM WORKS!
 		$shopCurrencyData = $this->getShopCurrencyData();
@@ -136,13 +171,9 @@ trait TraitPWCommerceMoney
 	/**
 	 * Return a given value formatted as a currency per shop's currency.
 	 *
-	 *  @note: This uses the saved shop's currency 'locale' and not necessarily the user's locale!
-	 *
-	 * @access public
-	 * @see https://www.php.net/manual/en/numberformatter.formatcurrency.php
-	 * @param integer $value Value to format as a currency.
-	 * @param array $shopCurrencyData Currency data for the shop (currency, code, country, etc).
-	 * @return string|integer Formatted value or raw value if shop currency not saved yet.
+	 * @param mixed $amount
+	 * @param string $currency
+	 * @return mixed
 	 */
 	public function getValueFormattedAsCurrencyForShop($amount, string $currency = '') {
 
@@ -186,8 +217,7 @@ trait TraitPWCommerceMoney
 	/**
 	 * Get the shop's currency data according to its saved shop currency value.
 	 *
-	 * @access public
-	 * @return array $shopCurrencyData Array with shop currency data or empty if shop currency not yet saved.
+	 * @return mixed
 	 */
 	public function getShopCurrencyData() {
 		$shopCurrencyData = [];
@@ -215,12 +245,7 @@ trait TraitPWCommerceMoney
 	/**
 	 * Get the shop's currency locale according to saved shop currency format value.
 	 *
-	 * This determines decimal points and thousands separator in currency formating.
-	 * Format is generally 'language-id-COUNTRY-ID', e.g. 'en-GB'
-	 * Done via JavaScript.
-	 *
-	 * @access public
-	 * @return string $shopCurrencyFormat String that is shop currency locale/format.
+	 * @return mixed
 	 */
 	public function getShopCurrencyLocale() {
 		$generalSettings = $this->getShopGeneralSettings();
@@ -242,12 +267,8 @@ trait TraitPWCommerceMoney
 	/**
 	 * Convert floats with non "." decimal points to use "." decimal point according to locale.
 	 *
-	 * For use in price and percentage fields.
-	 * HTML5 number input type requires "." as the decimal
-	 * @credits: Borrowed from ProcessWire InputfieldFloat
-	 * @param float|string $value
-	 * @return string|float Returns string representation of float when value was converted
-	 *
+	 * @param mixed $value
+	 * @return mixed
 	 */
 	public function localeConvertValue($value) {
 
@@ -278,8 +299,8 @@ trait TraitPWCommerceMoney
 	/**
 	 * Return amount in cents using bcmul of BC Math extension.
 	 *
-	 * @param float $amount
-	 * @return int amount in cents with correct precision applied.
+	 * @param mixed $amount
+	 * @return mixed
 	 */
 	public function getAmountInCents($amount) {
 		$amountMoney = $this->money($amount);
@@ -287,6 +308,11 @@ trait TraitPWCommerceMoney
 		return $amount;
 	}
 
+	/**
+	 * Get P W Commerce Currencies Class.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceCurrenciesClass() {
 		$currencies = $this->getPWCommerceClassByName('PWCommerceCurrencies');
 		return $currencies;

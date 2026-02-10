@@ -20,6 +20,11 @@ namespace ProcessWire;
 class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Product Shipping Fee Settings: Inputfield',
@@ -37,6 +42,11 @@ class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 	// -----
 	private $shopCurrencySymbolString = "";
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -46,10 +56,22 @@ class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
@@ -57,6 +79,7 @@ class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 	/**
 	 * Render the entire input area for product properties
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -69,12 +92,11 @@ class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		// if currency locale set..
 		// grab symbol; we use on price fields description
 		$shopCurrencySymbolString = $this->pwcommerce->renderShopCurrencySymbolString();
@@ -85,6 +107,11 @@ class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Build Form.
+	 *
+	 * @return mixed
+	 */
 	private function buildForm() {
 
 		/** @var WireData $value */
@@ -191,6 +218,8 @@ class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 	/**
 	 * Process input for the values sent from the product properties for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -218,9 +247,8 @@ class InputfieldPWCommerceShippingFeeSettings extends Inputfield
 	/**
 	 * Make a string value to represent the shipping fee settings values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param mixed $item
+	 * @return mixed
 	 */
 	private function toStringInhouse($item) {
 		$string = (string) "$item->handlingFeeType: $item->handlingFeeValue: $item->maximumShippingFee";

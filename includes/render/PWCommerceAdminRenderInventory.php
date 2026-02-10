@@ -29,6 +29,12 @@ class PWCommerceAdminRenderInventory extends WireData
 	private $isQuickFilterShowVariantsOnly;
 	private $quickFilterValue;
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		if (is_array($options)) {
 			$this->adminURL = $options['admin_url'];
@@ -41,6 +47,12 @@ class PWCommerceAdminRenderInventory extends WireData
 	}
 
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	protected function renderResults($selector = null) {
 
 		// INVENTORY VIEW REQUIRES A SPECIAL SELECTOR
@@ -124,6 +136,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Single Inline Edit Results.
+	 *
+	 * @param int $pageID
+	 * @return string|mixed
+	 */
 	public function renderSingleInlineEditResults($pageID) {
 		$page = $this->wire('pages')->get((int) $pageID);
 		// TODO: IF NO PAGE FOUND? REDIRECT?!!!
@@ -143,8 +161,8 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Build table row attrs for htmx response after single inline edit of inventory item.
 	 *
-	 * @param array $attrs Array with the attributes and values for the row.
-	 * @return string $out Attribute and values for the tr element.
+	 * @param array $attrs
+	 * @return mixed
 	 */
 	private function getSingleInlineEditResultsTableRowAttrs(array $attrs) {
 		$out = "";
@@ -161,8 +179,8 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Build table row cells for htmx response after single inline edit of inventory item.
 	 *
-	 * @param array $cells Array with the values to build row cells <td>.
-	 * @return string $out Table row cells for the tr element.
+	 * @param array $cells
+	 * @return mixed
 	 */
 	private function getSingleInlineEditResultsTableRowCells(array $cells) {
 		$out = "";
@@ -174,6 +192,12 @@ class PWCommerceAdminRenderInventory extends WireData
 	}
 
 	// ~~~~~~~~~~
+	/**
+	 * Build Inventory Selector.
+	 *
+	 * @param mixed $selectorString
+	 * @return mixed
+	 */
 	private function buildInventorySelector($selectorString) {
 
 		$finalSelectorArray = [];
@@ -293,6 +317,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $finalSelectorString;
 	}
 
+	/**
+	 * Get Selector For Products Without Variants Only.
+	 *
+	 * @param mixed $extraSelectorString
+	 * @return mixed
+	 */
 	private function getSelectorForProductsWithoutVariantsOnly($extraSelectorString = null) {
 		$extraQuickFilterVariantSelector = '';
 
@@ -313,6 +343,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Variants Only.
+	 *
+	 * @param mixed $extraSelectorString
+	 * @return mixed
+	 */
 	private function getSelectorForVariantsOnly($extraSelectorString = null) {
 
 		$extraQuickFilterProductSelector = '';
@@ -338,12 +374,22 @@ class PWCommerceAdminRenderInventory extends WireData
 	}
 	// ~~~~~~~~~~
 
+	/**
+	 * Pagination Options.
+	 *
+	 * @return mixed
+	 */
 	public function paginationOptions() {
 		//------------
 		$paginationOptions = ['base_url' => $this->adminURL . 'inventory/', 'ajax_post_url' => $this->adminURL . 'ajax/'];
 		return $paginationOptions;
 	}
 
+	/**
+	 * Get Custom Lister Settings.
+	 *
+	 * @return mixed
+	 */
 	protected function getCustomListerSettings() {
 		return [
 			'label' => $this->_('Filter Inventory'),
@@ -358,6 +404,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		$selectAllCheckboxName = "pwcommerce_bulk_edit_selected_items_all";
@@ -378,6 +429,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table.
+	 *
+	 * @param mixed $pages
+	 * @return mixed
+	 */
 	private function getResultsTable($pages) {
 
 		$out = "";
@@ -404,6 +461,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getResultsTableRow(Page $page) {
 		$pageID = $page->id;
 		$checkBoxesName = "pwcommerce_bulk_edit_selected_items[]";
@@ -462,6 +525,12 @@ class PWCommerceAdminRenderInventory extends WireData
 	}
 
 
+	/**
+	 * Get S K U Title And Inline Edit Markup.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getSKUTitleAndInlineEditMarkup($page) {
 		// $stock = $page->pwcommerce_product_stock;
 		$stock = $page->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -492,6 +561,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Quantity And Inline Edit Markup.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getQuantityAndInlineEditMarkup($page) {
 		// $stock = $page->pwcommerce_product_stock;
 		$stock = $page->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -520,6 +595,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Oversell And Inline Edit Markup.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getOversellAndInlineEditMarkup($page) {
 		// $stock = $page->pwcommerce_product_stock;
 		$stock = $page->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -547,6 +628,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Enabled And Inline Edit Markup.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEnabledAndInlineEditMarkup($page) {
 		// $stock = $page->pwcommerce_product_stock;
 		$stock = $page->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -577,11 +664,8 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Get a text input for use in inline-edit of an inventory item.
 	 *
-	 * @note: Uses alpine.js.
-	 *
-	 * @access private
 	 * @param array $options
-	 * @return string Rendered input markup.
+	 * @return mixed
 	 */
 	private function getInventoryInlineEditInput($options) {
 
@@ -617,11 +701,8 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Get a checkbox for use in inline-edit of an inventory item.
 	 *
-	 * @note: Uses alpine.js.
-	 *
-	 * @access private
 	 * @param array $options
-	 * @return string Rendered checkbox markup.
+	 * @return mixed
 	 */
 	private function getInventoryInlineEditCheckbox($options) {
 		$defaultOptions = [
@@ -658,8 +739,8 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Get markup for product without variant's or variant's sku, title and edit product link.
 	 *
-	 * @param Page $page The product Page whose markup to build.
-	 * @return string $out The markup for the sku, title and edit link.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	private function getSKUAndEditItemTitle(Page $page) {
 
@@ -729,6 +810,12 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemURL(Page $page) {
 		// if page is locked, don't show edit URL
 		if ($page->isLocked()) {
@@ -739,6 +826,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getBulkEditActionsPanel() {
 		// TODO USE 'APPLY INLINE-EDITS' HERE? PROBLEM IS WOULD NEED TO SELECT ITEMS FIRST! - OTHERWISE INCONSISTENT WITH OTHER ACTIONS
 		$actions = [
@@ -766,6 +858,14 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @param mixed $xref
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name, $xref = null) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",
@@ -791,9 +891,9 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Get boolean yes/no string depending on given value.
 	 *
-	 * @param integer $value The saved DB value for one of either 'allowBackorders' or 'enabled'.
-	 * @param string $property One of either 'allowBackorders' or 'enabled'.
-	 * @return string $out Final alpine.js-ed markup for boolean values.
+	 * @param mixed $value
+	 * @param mixed $property
+	 * @return mixed
 	 */
 	private function getBooleanString($value, $property) {
 		$yes = $this->_('Yes');
@@ -812,14 +912,20 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Spinner markup for htmx request for inline edit
 	 *
-	 * @param integer $pageID The ID of the inventory item in this row.
-	 * @return string $out Markup of spinner.
+	 * @param int $pageID
+	 * @return mixed
 	 */
 	private function getInlineEditSpinner($pageID) {
 		$out = "<span id='pwcommerce_inventory_row_spinner_{$pageID}' class='fa fa-fw fa-spin fa-spinner ml-1 htmx-indicator'></span>";
 		return $out;
 	}
 
+	/**
+	 * Get Inline Edit Icons.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getInlineEditIcons($page) {
 		$out = "";
 
@@ -870,9 +976,7 @@ class PWCommerceAdminRenderInventory extends WireData
 	/**
 	 * Hidden input to store IDs of inventory items that have been edited via inline-edit.
 	 *
-	 * Value is set by alpine.js based off a store value.
-	 *
-	 * @return string Rendered markup of the hidden input.
+	 * @return mixed
 	 */
 	private function getHiddenInputForTrackingEditedInventoryItems() {
 		//------------------- edited_inventory_items_ids (getInputfieldHidden)
@@ -891,6 +995,11 @@ class PWCommerceAdminRenderInventory extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -930,6 +1039,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -938,6 +1052,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return array
+	 */
 	protected function getSelectorForQuickFilter(): array {
 		$input = $this->wire('input');
 
@@ -980,6 +1099,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $selectorArray;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive() {
 		$quickFilterValue = $this->quickFilterValue;
 		$stockFieldName = PwCommerce::PRODUCT_STOCK_FIELD_NAME;
@@ -1012,6 +1136,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $selectorArray;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Sales.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterSales() {
 		$quickFilterValue = $this->quickFilterValue;
 		// e.g.
@@ -1094,6 +1223,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $selectorArray;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Inventory.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterInventory() {
 		$quickFilterValue = $this->quickFilterValue;
 		// 'tracks_inventory', 'out_of_stock', 'low_inventory', 'allows_backorders', 'no_sku'
@@ -1153,6 +1287,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $selectorArray;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Shipping.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterShipping() {
 		$quickFilterValue = $this->quickFilterValue;
 		// 'physical' | 'physical_no_shipping' | 'digital' | 'service'
@@ -1187,6 +1326,11 @@ class PWCommerceAdminRenderInventory extends WireData
 		return $selectorArray;
 	}
 
+	/**
+	 * Get Selector For Quick Filter No Image.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoImage() {
 		$noImageSelector = "pwcommerce_images=''";
 		$selectorArray = [

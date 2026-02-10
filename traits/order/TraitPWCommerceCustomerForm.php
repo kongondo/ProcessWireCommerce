@@ -4,6 +4,12 @@ namespace ProcessWire;
 
 trait TraitPWCommerceCustomerForm
 {
+	/**
+	 * Check Inbuilt Order Customer Form For Errors.
+	 *
+	 * @param mixed $form
+	 * @return mixed
+	 */
 	private function checkInbuiltOrderCustomerFormForErrors($form) {
 		// TODO @see: https://processwire.com/talk/topic/4659-customizing-error-messages-for-inputfields/
 
@@ -64,6 +70,11 @@ trait TraitPWCommerceCustomerForm
 		return $formErrors;
 	}
 
+	/**
+	 * Get Customer Form.
+	 *
+	 * @return mixed
+	 */
 	public function getCustomerForm() {
 
 		//-----------
@@ -153,6 +164,12 @@ trait TraitPWCommerceCustomerForm
 		return $form;
 	}
 
+	/**
+	 * Get Inputfield For Customer Form.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function getInputfieldForCustomerForm($options) {
 		$type = $options['type'];
 
@@ -174,6 +191,11 @@ trait TraitPWCommerceCustomerForm
 		return $field;
 	}
 
+	/**
+	 * Get Customer Order Form Shipping Countries.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomerOrderFormShippingCountries() {
 		$shippingCountries = $this->pwcommerce->getShippingCountries();
 		// -----------
@@ -187,6 +209,11 @@ trait TraitPWCommerceCustomerForm
 	}
 
 
+	/**
+	 * Get Order Customer Fields.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderCustomerFields() {
 		$countrySelectOptions = $this->getCustomerOrderFormShippingCountries();
 		return [
@@ -363,6 +390,11 @@ trait TraitPWCommerceCustomerForm
 		];
 	}
 
+	/**
+	 * Get Order Customer Billing Fields.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderCustomerBillingFields() {
 		$orderCustomerFields = $this->getOrderCustomerFields();
 		$orderCustomerBillingFieldsNames = [];

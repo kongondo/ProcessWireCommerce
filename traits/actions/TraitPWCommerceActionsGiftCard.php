@@ -7,6 +7,12 @@ trait TraitPWCommerceActionsGiftCard
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ GIFT CARD ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Manually Issue Gift Card.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function manuallyIssueGiftCard($input) {
 		$result = [
 			'notice' => $this->_('Error encountered. No action was taken.'),
@@ -37,6 +43,12 @@ trait TraitPWCommerceActionsGiftCard
 		return $result;
 	}
 
+	/**
+	 * Send Gift Card Code To Customer.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function sendGiftCardCodeToCustomer(array $options) {
 
 		$shopGeneralSettings = $this->pwcommerce->getshopGeneralSettings();
@@ -89,10 +101,8 @@ trait TraitPWCommerceActionsGiftCard
 	/**
 	 * Create and manually issue a new gift card.
 	 *
-	 *
-	 * @access private
-	 * @param WireInputData $input
-	 * @return array $result Outcome of the creation action.
+	 * @param mixed $input
+	 * @return mixed
 	 */
 	private function addNewManualIssueGiftCardAction($input) {
 

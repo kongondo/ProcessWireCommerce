@@ -34,6 +34,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 	private $xstore;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		if (is_array($options)) {
 			$this->adminURL = $options['admin_url'];
@@ -49,7 +55,8 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Render single customer view headline to append to the Process headline in PWCommerce.
 	 *
-	 * @return string $out Headline string to append to the main Process headline.
+	 * @param Page $customerPage
+	 * @return string|mixed
 	 */
 	public function renderViewItemHeadline(Page $customerPage) {
 		$headline = $this->_('View customer');
@@ -62,8 +69,9 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	/**
 	 * Render the markup for a single customer view.
-	 * @param Page $customerPage The customer page being viewed.
-	 * @return string Rendered markup.
+	 *
+	 * @param Page $customerPage
+	 * @return string|mixed
 	 */
 	public function renderViewItem(Page $customerPage) {
 
@@ -95,6 +103,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $wrapper->render();
 	}
 
+	/**
+	 * Build View Customer.
+	 *
+	 * @return mixed
+	 */
 	private function buildViewCustomer() {
 
 		// TODO ADD AOV IN A FUTURE RELEASE
@@ -123,8 +136,8 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Get markup of a single address for a customer.
 	 *
-	 * @access private
-	 * @return string $out Markup of a single customer address content.
+	 * @param mixed $customerAddress
+	 * @return mixed
 	 */
 	private function getMarkupForSingleAddressOfCustomer($customerAddress) {
 
@@ -153,6 +166,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	}
 
+	/**
+	 * Get Customer Address Types Labels.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomerAddressTypesLabels() {
 		return [
 			// shipping
@@ -164,6 +182,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		];
 	}
 
+	/**
+	 * Get Markup For Customer Name.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerName() {
 		$customerPage = $this->customerPage;
 		$customer = $customerPage->get(PwCommerce::CUSTOMER_FIELD_NAME);
@@ -190,6 +213,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Customer Email.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerEmail() {
 		$customer = $this->customerPage->get(PwCommerce::CUSTOMER_FIELD_NAME);
 		$out = "<span class='block'>{$customer->email}</span>";
@@ -197,6 +225,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Customer Registered Status.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerRegisteredStatus() {
 		$customerStatusTexts = $this->getCustomerStatusTexts();
 		$registeredCustomer = $customerStatusTexts['customer_with_account'];
@@ -207,6 +240,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Customer Status Texts.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomerStatusTexts() {
 		return [
 			'customer_with_account' => $this->_('Customer with account.'),
@@ -214,6 +252,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		];
 	}
 
+	/**
+	 * Is Registered Customer.
+	 *
+	 * @param mixed $customerPage
+	 * @return bool
+	 */
 	private function isRegisteredCustomer($customerPage) {
 		$customer = $customerPage->get(PwCommerce::CUSTOMER_FIELD_NAME);
 		$user = $this->wire('users')->get($customer->userID);
@@ -222,6 +266,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return !$user instanceof NullPage;
 	}
 
+	/**
+	 * Get Markup For Customer Actions.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerActions() {
 		$out = "<div class='flex items-center mt-10 mb-5'>";
 		// ACTION: EDIT CUSTOMER
@@ -253,6 +302,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Customer Actions Edit.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerActionsEdit() {
 
 		$out = "";
@@ -283,6 +337,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 	}
 
 
+	/**
+	 * Get Markup For Customer Actions Send Registration Request.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerActionsSendRegistrationRequest() {
 
 		$out = "";
@@ -314,6 +373,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	}
 
+	/**
+	 * Get Markup For Customer Actions Send Email.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerActionsSendEmail() {
 
 		$options = [
@@ -338,6 +402,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Customer Actions Notes.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerActionsNotes() {
 		$out = "";
 		if (empty($this->isRegisteredCustomer($this->customerPage))) {
@@ -351,6 +420,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 	}
 
 
+	/**
+	 * Get Markup For Customer Addresses.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerAddresses() {
 		$customerAddresses = $this->customerPage->get(PwCommerce::CUSTOMER_ADDRESSES_FIELD_NAME);
 		$out = "<hr><h3 class='pwcommerce_override_processwire_heading_margin_top'>" . $this->_('Addresses') . "</h3>";
@@ -364,6 +438,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Customer Orders.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForCustomerOrders() {
 		$out = "<h3 class='pwcommerce_override_processwire_heading_margin_top'>" . $this->_('Latest Orders') . "</h3>";
 		/** @var PageArray $customerOrders */
@@ -382,7 +461,14 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
-	private function getCustomerOrders($customerPage, $isRaw = false) {
+	/**
+	 * Get Customer Orders.
+	 *
+	 * @param mixed $customerPage
+	 * @param bool $isRaw
+	 * @return mixed
+	 */
+	private function getCustomerOrders($customerPage, bool $isRaw = false) {
 		$customer = $customerPage->get(PwCommerce::CUSTOMER_FIELD_NAME);
 		if (!empty($isRaw)) {
 			// FIND RAW
@@ -396,6 +482,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $customerOrders;
 	}
 
+	/**
+	 * Get Markup For Single Order Of Customer.
+	 *
+	 * @param mixed $customerOrder
+	 * @return mixed
+	 */
 	private function getMarkupForSingleOrderOfCustomer($customerOrder) {
 		$shopDateFormat = $this->pwcommerce->getShopDateFormat();
 
@@ -425,9 +517,7 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Builds a custom add new page/item for adding a new customer.
 	 *
-	 * Returns InputfieldForm that includes form inputs needed to create new customer.
-	 *
-	 * @return InputfieldForm $form Add new page Form.
+	 * @return mixed
 	 */
 	public function getCustomAddNewItemForm() {
 		/** @var InputfieldForm $form */
@@ -489,6 +579,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $form;
 	}
 
+	/**
+	 * Get Custom Add New Item Form Description.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormDescription() {
 		$description = $this->_('Please specify some required details for the new customer. Once created, you will be able to add more details including shipping and billing addresses.');
 
@@ -507,6 +602,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Custom Add New Item Form Email.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormEmail() {
 
 		$options = [
@@ -551,6 +651,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Custom Add New Item Form First Name.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormFirstName() {
 		$options = [
 			'id' => "pwcommerce_add_new_item_first_name",
@@ -569,6 +674,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Custom Add New Item Form Middle Name.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormMiddleName() {
 		$options = [
 			'id' => "pwcommerce_add_new_item_middle_name",
@@ -586,6 +696,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Custom Add New Item Form Last Name.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormLastName() {
 		$options = [
 			'id' => "pwcommerce_add_new_item_last_name",
@@ -604,6 +719,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Custom Add New Item Form Create Account Checkbox.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormCreateAccountCheckbox() {
 		//------------------- create customer account for this new customer (getInputfieldCheckbox)
 		$options = [
@@ -621,6 +741,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Custom Add New Item Form Required Hidden Input.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormRequiredHiddenInput() {
 		//------------------- is_ready_to_save (getInputfieldHidden)
 		// ADD REQUIRED HIDDEN INPUT
@@ -630,6 +755,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Custom Add New Item Form Save Button.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormSaveButton() {
 		$disabled = "!{$this->xstore}.is_matched_confirm_customer_email";
 		$opacityClass = "!{$this->xstore}.is_matched_confirm_customer_email ? 'opacity-50' : ''";
@@ -650,6 +780,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 	}
 
 
+	/**
+	 * Get Custom Add New Item Form Save And Publish Button.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomAddNewItemFormSaveAndPublishButton() {
 		$disabled = "!{$this->xstore}.is_matched_confirm_customer_email";
 		$opacityClass = "!{$this->xstore}.is_matched_confirm_customer_email ? 'opacity-50' : ''";
@@ -672,6 +807,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	// ~~~~~~~~~~
 
+	/**
+	 * Get Single View Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getSingleViewTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		return [
@@ -690,6 +830,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	// ~~~~~~~~~~
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		$selectAllCheckboxName = "pwcommerce_bulk_edit_selected_items_all";
@@ -731,6 +876,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $headers;
 	}
 
+	/**
+	 * Get Results Table.
+	 *
+	 * @param mixed $pages
+	 * @return mixed
+	 */
 	protected function getResultsTable($pages) {
 		return $this->getTable($pages);
 	}
@@ -738,10 +889,9 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Render table with order line items for single view or several orders for bulk edit view
 	 *
-	 * @access protected
-	 * @param PageArray $pages Order pages.
-	 * @param string $usage Whether to render single view order or bulk order edit GUI.
-	 * @return string $out The markup for the table.
+	 * @param mixed $pages
+	 * @param string $usage
+	 * @return mixed
 	 */
 	protected function ___getTable($pages, $usage = 'customers_bulk_edit_view') {
 		$notFoundMessage = $this->_('No customers found.');
@@ -773,7 +923,19 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
-	// private function getLatestOrdersTableRow(Page $page) {
+	// /**
+  * Get Latest Orders Table Row.
+  *
+  * @param Page $page
+  * @return mixed
+  */
+ private function getLatestOrdersTableRow(Page $page) {
+	/**
+	 *    get Single View Table Row.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	protected function ___getSingleViewTableRow(Page $page) {
 		$order = $page->pwcommerce_order;
 		$orderTotalPriceFormattedAsShopCurrency = $this->pwcommerce->getValueFormattedAsCurrencyForShop($order->totalPrice);
@@ -795,6 +957,13 @@ class PWCommerceAdminRenderCustomers extends WireData
 			$orderTotalPriceFormattedAsShopCurrency,
 		];
 	}
+	/**
+	 * Get Order Combined Statuses Array.
+	 *
+	 * @param WireData $order
+	 * @param array $excludeStatuses
+	 * @return array
+	 */
 	private function getOrderCombinedStatusesArray(WireData $order, array $excludeStatuses = []): array {
 		$statuses = $this->pwcommerce->getOrderCombinedStatuses($order);
 		// --------
@@ -811,6 +980,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $statuses;
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getResultsTableRow($page) {
 
 		$checkBoxesName = "pwcommerce_bulk_edit_selected_items[]";
@@ -857,6 +1032,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get View Customer.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getViewCustomer($page) {
 
 		// ++++++
@@ -883,6 +1064,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 *    get View Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function ___getViewItemURL($page) {
 
 		$customer = $page->get(PwCommerce::CUSTOMER_FIELD_NAME);
@@ -901,6 +1088,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	}
 
+	/**
+	 * Get Edit Item Title.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemTitle($page) {
 		// get the edit URL if item is unlocked
 		$out = $this->getEditItemURL($page);
@@ -922,6 +1115,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	protected function getEditItemURL($page) {
 		// if page is locked, don't show edit URL
 		if ($page->isLocked()) {
@@ -936,13 +1135,19 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Build the string for the last created date of this order page.
 	 *
-	 * @param Page $page The order page whose created date we are building.
-	 * @return String The last created date string.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	private function getCreatedDate($page) {
 		return $this->pwcommerce->getCreatedDate($page);
 	}
 
+	/**
+	 * Get Order Combined Statuses Text.
+	 *
+	 * @param array $statusesArray
+	 * @return string
+	 */
 	private function getOrderCombinedStatusesText(array $statusesArray): string {
 		// --------
 		// here we combine order payment status and fulfilment status
@@ -954,6 +1159,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $statusesText;
 	}
 
+	/**
+	 * Get Concat Customer Names.
+	 *
+	 * @param mixed $customer
+	 * @return mixed
+	 */
 	private function getConcatCustomerNames($customer) {
 		$customerNamesString = '';
 		if (!empty($customer)) {
@@ -967,6 +1178,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $customerNamesString;
 	}
 
+	/**
+	 * Get Customer Account Status Text.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	protected function getCustomerAccountStatusText(Page $page) {
 		$registeredCustomer = $this->_('Registered account');
 		$guestCustomer = $this->_('No account');
@@ -977,6 +1194,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Customer Orders Totals.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	protected function getCustomerOrdersTotals($page) {
 		/** @var array $customerOrders */
 		$customerOrders = $this->getCustomerOrders($page, $isRaw = true);
@@ -1002,6 +1225,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $customerOrdersTotals;
 	}
 
+	/**
+	 * Get Customer Primary Shipping Address.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomerPrimaryShippingAddress(WireData|null $customerAddress) {
 
 		if (empty($customerAddress)) {
@@ -1024,6 +1252,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	}
 
+	/**
+	 * Get Customer Primary Shipping Address Properties.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomerPrimaryShippingAddressProperties() {
 		return [
 			'addressLineOne',
@@ -1035,6 +1268,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		];
 	}
 
+	/**
+	 * Get Customer Customer Groups.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getCustomerCustomerGroups(Page $page) {
 		$customerGroups = $page->get(PwCommerce::CUSTOMER_GROUPS_FIELD_NAME);
 
@@ -1050,6 +1289,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -1072,6 +1317,13 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",
@@ -1100,7 +1352,7 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Modal for email customer
 	 *
-	 * @return string $out Modal markup.
+	 * @return mixed
 	 */
 	private function getModalMarkupForEmailCustomer() {
 
@@ -1155,6 +1407,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Email Customer Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getEmailCustomerMarkup() {
 
 		$emailCustomerMarkup = $this->getMarkupForEmailCustomerParts();
@@ -1173,6 +1430,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Email Customer Parts.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForEmailCustomerParts() {
 
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
@@ -1211,6 +1473,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	########################
 
+	/**
+	 * Get Markup Email Customer To And From Emails Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupEmailCustomerToAndFromEmailsMarkup() {
 		$shopEmail = $this->pwcommerce->getShopFromEmail();
 		if (empty($shopEmail)) {
@@ -1238,6 +1505,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	}
 
+	/**
+	 * Get Markup For Email Subject Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForEmailSubjectTextField() {
 
 		$options = [
@@ -1257,6 +1529,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Email Body R T E Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForEmailBodyRTEField() {
 
 
@@ -1295,8 +1572,7 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Get hidden markup to set customer id of the customer to send an email to.
 	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @return mixed
 	 */
 	private function getHiddenMarkupForCustomerID() {
 		//------------------- email_customer_customer_order_id (getInputfieldHidden)
@@ -1313,8 +1589,8 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Get hidden markup to track type of email to send.
 	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @param string $emailActionType
+	 * @return mixed
 	 */
 	private function getHiddenMarkupForEmailCustomerType($emailActionType = 'send_customer_email') {
 		//------------------- email_customer_customer_order_id (getInputfieldHidden)
@@ -1330,8 +1606,7 @@ class PWCommerceAdminRenderCustomers extends WireData
 	/**
 	 * Get hidden markup to track type of email to send.
 	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @return mixed
 	 */
 	private function getHiddenMarkupForRequiredField() {
 		//------------------- pwcommerce_is_ready_to_save (getInputfieldHidden)
@@ -1348,6 +1623,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 	}
 
 
+	/**
+	 * Render Modal Markup For Email Customer Send Button.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderModalMarkupForEmailCustomerSendButton() {
 		$emailCustomerURL = "{$this->adminURL}customers/email-message/";
 		$applyButtonOptions = [
@@ -1361,7 +1641,8 @@ class PWCommerceAdminRenderCustomers extends WireData
 	}
 	/**
 	 * Get rendered button for the modal for actioning a selected order status.
-	 * @return string $cancelButton.
+	 *
+	 * @return string
 	 */
 	private function renderModalMarkupForEmailCustomerCancelButton(): string {
 		$cancelButton = $this->pwcommerce->getModalActionButton(['x-on:click' => 'resetEmailAndCloseModal'], 'cancel');
@@ -1371,6 +1652,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -1391,6 +1677,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -1399,6 +1690,11 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -1425,6 +1721,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -1438,6 +1740,12 @@ class PWCommerceAdminRenderCustomers extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Account.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterAccount($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'registered') {
@@ -1452,12 +1760,22 @@ class PWCommerceAdminRenderCustomers extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Not In Customer Group.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNotInCustomerGroup() {
 		$selector = "," . PwCommerce::CUSTOMER_GROUPS_FIELD_NAME . "=''";
 		// ----
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter No Order.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoOrder() {
 		// e.g.
 		// SELECT email

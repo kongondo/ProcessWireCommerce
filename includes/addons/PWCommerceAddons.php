@@ -23,30 +23,28 @@ interface PWCommerceAddons
   /**
    * Returns addon type.
    *
-   * Must be one of PWCommerce pre-defined types.
-   * @see documentation.
-   * @return string $type
+   * @return mixed
    */
   public function getType();
 
   /**
    * Returns addon class name.
    *
-   * @return string $className.
+   * @return mixed
    */
   public function getClassName();
 
   /**
    * Returns user-friendly title of this addon.
    *
-   * @return string $title.
+   * @return mixed
    */
   public function getTitle();
 
   /**
    * Returns short description of this addon.
    *
-   * @return string $description.
+   * @return mixed
    */
   public function getDescription();
 }

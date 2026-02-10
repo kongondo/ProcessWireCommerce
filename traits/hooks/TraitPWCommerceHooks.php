@@ -34,27 +34,65 @@ trait TraitPWCommerceHooks
 
 	#### ORDERS ####
 
+	/**
+	 *    order Saved Hook.
+	 *
+	 * @param Page $orderPage
+	 * @param PageArray $orderLineItemsPages
+	 * @param WireArray $orderLineItems
+	 * @return mixed
+	 */
 	public function ___orderSavedHook(Page $orderPage, PageArray $orderLineItemsPages, WireArray $orderLineItems) {
 		// This is here only for hooking
 
 	}
 
 	// TODO DEPRECATED!
+	/**
+	 *    order Saved.
+	 *
+	 * @param Page $orderPage
+	 * @param PageArray $orderLineItemsPages
+	 * @param WireArray $orderLineItems
+	 * @return mixed
+	 */
 	public function ___orderSaved(Page $orderPage, PageArray $orderLineItemsPages, WireArray $orderLineItems) {
 		// This is here only for hooking
 	}
 
 	#### ORDER STATUSES ####
 
+	/**
+	 *    manually Set Order Status Action Hook.
+	 *
+	 * @param mixed $orderPage
+	 * @param mixed $statusName
+	 * @param mixed $statusCode
+	 * @return mixed
+	 */
 	public function ___manuallySetOrderStatusActionHook($orderPage, $statusName, $statusCode) {
 	}
 
 	#### PAYMENT GATEWAYS  ####
 
+	/**
+	 *    is Successful Payment Capture Hook.
+	 *
+	 * @param object $response
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function ___isSuccessfulPaymentCaptureHook(object $response, array $options) {
 		// This is here only for hooking
 	}
 
+	/**
+	 *    order Completed Hook.
+	 *
+	 * @param Page $orderPage
+	 * @param WireArray $orderLineItems
+	 * @return mixed
+	 */
 	public function ___orderCompletedHook(Page $orderPage, WireArray $orderLineItems) {
 		// This is here only for hooking
 	}

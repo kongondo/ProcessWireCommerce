@@ -20,6 +20,11 @@ namespace ProcessWire;
 class InputfieldPWCommerceTaxOverrides extends Inputfield
 {
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Tax Overrides: Inputfield',
@@ -40,6 +45,11 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 	// for checking if a country has territories (provinces, states, etc) set up
 	private $hasTerritories;
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -50,10 +60,22 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
@@ -61,6 +83,7 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 	/**
 	 * Render the entire input area for tax overrides
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -88,12 +111,11 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		$this->preloadInputfieldAssets();
 		// init locations for location select dropdown
 		$locations = $this->getLocations();
@@ -103,6 +125,11 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Render Add New Link.
+	 *
+	 * @return string|mixed
+	 */
 	protected function renderAddNewLink() {
 		$name = $this->attr('name');
 		$adminEditURL = $this->wire('config')->urls->admin . "page/edit/";
@@ -117,6 +144,11 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Footer.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderFooter() {
 
 		//------------------- add new tax override (InputfieldMarkup)
@@ -136,6 +168,11 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 		return $wrapper->render();
 	}
 
+	/**
+	 * Preload Inputfield Assets.
+	 *
+	 * @return mixed
+	 */
 	private function preloadInputfieldAssets() {
 		// if no override items, we need to preload InputfieldPageAutocomplete assets.
 		// @note: $this->name = pwcommerce_tax_overrides
@@ -152,6 +189,11 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 		}
 	}
 
+	/**
+	 * Build Form.
+	 *
+	 * @return mixed
+	 */
 	private function buildForm() {
 
 		/** @var WireArray $value */
@@ -172,8 +214,10 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 	/**
 	 * Build a row of inputs representing a single tax override.
 	 *
-	 * @access private
-	 * @return InputfieldWrapper
+	 * @param WireData $override
+	 * @param mixed $n
+	 * @param string $newClass
+	 * @return mixed
 	 */
 	private function buildRow(WireData $override, $n, $newClass = '') {
 
@@ -324,6 +368,11 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 		return $wrapper;
 	}
 
+	/**
+	 * Get Locations.
+	 *
+	 * @return mixed
+	 */
 	private function getLocations() {
 		// TODO: use findRaw to get parents children + add parent at top
 		$page = $this->page;
@@ -336,6 +385,8 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 	/**
 	 * Process input for the values sent from the tax overrides for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -428,9 +479,8 @@ class InputfieldPWCommerceTaxOverrides extends Inputfield
 	/**
 	 * Make a string value to represent these values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param array $items
+	 * @return mixed
 	 */
 	private function toStringInhouse($items) {
 		$a = [];

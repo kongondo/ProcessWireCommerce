@@ -40,6 +40,12 @@ class PWCommerceAdminRenderAddons extends WireData
 
 	// ----------
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		parent::__construct();
 		if (is_array($options)) {
@@ -78,6 +84,11 @@ class PWCommerceAdminRenderAddons extends WireData
 
 	}
 
+	/**
+	 * Set All Addons Names.
+	 *
+	 * @return mixed
+	 */
 	private function setAllAddonsNames() {
 		// @note: we need to preserve keys!
 		$allAddonsNames = $this->paymentAddonsNames + $this->nonPaymentCustomAddonsNames;
@@ -86,6 +97,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		$this->allAddonsNames = $allAddonsNames;
 	}
 
+	/**
+	 * Set Addon Class.
+	 *
+	 * @param mixed $addonViewURL
+	 * @return mixed
+	 */
 	private function setAddonClass($addonViewURL) {
 
 		if (empty($this->pwcommerce->isValidAddonViewURL($addonViewURL))) {
@@ -166,12 +183,17 @@ class PWCommerceAdminRenderAddons extends WireData
 	/**
 	 * Render single order view headline to append to the Process headline in PWCommerce.
 	 *
-	 * @return string $out Headline string to append to the main Process headline.
+	 * @return string|mixed
 	 */
 	public function renderViewItemHeadline() {
 		$headline = $this->getCustomAddonRender(true);
 		return $headline;
 	}
+	/**
+	 * Render View Item.
+	 *
+	 * @return string|mixed
+	 */
 	public function renderViewItem() {
 
 		// get whole render for custom addon
@@ -218,6 +240,12 @@ class PWCommerceAdminRenderAddons extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	protected function renderResults($selector = null) {
 
 		if ($this->wire('config')->ajax) {
@@ -261,6 +289,11 @@ class PWCommerceAdminRenderAddons extends WireData
 	}
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		$selectAllCheckboxName = "pwcommerce_bulk_edit_selected_items_all";
@@ -280,6 +313,11 @@ class PWCommerceAdminRenderAddons extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsTable() {
 		$out = "";
 		if (is_dir($this->addonsPath)) {
@@ -333,6 +371,11 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Addons List.
+	 *
+	 * @return mixed
+	 */
 	private function getAddonsList() {
 		$path = $this->addonsPath;
 
@@ -376,6 +419,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $addonsList;
 	}
 
+	/**
+	 * Build Addons List.
+	 *
+	 * @param mixed $addonsClassesList
+	 * @return mixed
+	 */
 	private function buildAddonsList($addonsClassesList) {
 		$addonsList = [];
 		// we only allow these addon types
@@ -478,6 +527,13 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $addonsList;
 	}
 
+	/**
+	 * Build Extra Addon Inputs Markup.
+	 *
+	 * @param mixed $addonClassName
+	 * @param mixed $addonValues
+	 * @return mixed
+	 */
 	private function buildExtraAddonInputsMarkup($addonClassName, $addonValues) {
 		$out = "";
 		// --------
@@ -573,6 +629,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Addon Class.
+	 *
+	 * @param mixed $addonClassName
+	 * @return mixed
+	 */
 	private function getAddonClass($addonClassName) {
 		$addonClassFilePath = $this->addonsPath . "{$addonClassName}/{$addonClassName}.php";
 
@@ -589,6 +651,11 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $addonClass;
 	}
 
+	/**
+	 * Get Allowed Addon Types.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedAddonTypes() {
 		// TODO ADD MORE AS NEEDED!
 		return [
@@ -597,6 +664,11 @@ class PWCommerceAdminRenderAddons extends WireData
 		];
 	}
 
+	/**
+	 * Get Addons User Friendly Types.
+	 *
+	 * @return mixed
+	 */
 	private function getAddonsUserFriendlyTypes() {
 		// TODO ADD MORE AS NEEDED
 		return [
@@ -605,6 +677,13 @@ class PWCommerceAdminRenderAddons extends WireData
 		];
 	}
 
+	/**
+	 * Get Addon Title.
+	 *
+	 * @param mixed $addonClassName
+	 * @param mixed $addonValues
+	 * @return mixed
+	 */
 	private function getAddonTitle($addonClassName, $addonValues) {
 		// TODO - ALSO ADD CHECK FOR 'is_addon_locked'? not easy since only active addons are in addons settings/
 		$out = $addonValues['title'];
@@ -625,6 +704,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Custom Addon View U R L.
+	 *
+	 * @param mixed $addonValues
+	 * @return mixed
+	 */
 	private function getCustomAddonViewURL($addonValues) {
 		// TODO FOR NOW 'LOCKED' STATUS NOT IN USE; NOT SURE ABOUT ITS NEED
 		// TODO: CHECK IF UNLOCKED FIRST!??
@@ -636,6 +721,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Payment Addon Edit U R L.
+	 *
+	 * @param mixed $addonTitle
+	 * @return mixed
+	 */
 	private function getPaymentAddonEditURL($addonTitle) {
 		$addonID = $this->getAddonID($addonTitle);
 
@@ -648,6 +739,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Addon I D.
+	 *
+	 * @param mixed $addonTitle
+	 * @return mixed
+	 */
 	private function getAddonID($addonTitle) {
 		// non-core payment addons
 		$addonsNames = $this->allAddonsNames;
@@ -665,6 +762,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $addonID;
 	}
 
+	/**
+	 * Get Addon Type.
+	 *
+	 * @param mixed $addonType
+	 * @return mixed
+	 */
 	private function getAddonType($addonType) {
 		$allAddonTypes = $this->getAddonsUserFriendlyTypes();
 		// @note: we can assume user friendly name exists since we only allowed pre-defined addon types
@@ -674,6 +777,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Addon Description.
+	 *
+	 * @param mixed $description
+	 * @return mixed
+	 */
 	private function getAddonDescription($description) {
 		$out = $this->wire('sanitizer')->purify($description);
 		if (empty(preg_match('/\S/', $out))) {
@@ -683,6 +792,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Is Addon Active.
+	 *
+	 * @param mixed $addonTitle
+	 * @return bool
+	 */
 	private function isAddonActive($addonTitle) {
 		$addonsNames = $this->allAddonsNames;
 		// -------------
@@ -691,6 +806,11 @@ class PWCommerceAdminRenderAddons extends WireData
 		return in_array($addonName, $addonsNames);
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getBulkEditActionsPanel() {
 		$actions = [
 			// @note: means published
@@ -714,6 +834,14 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @param mixed $xref
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name, $xref = null) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",
@@ -736,6 +864,11 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $field->render();
 	}
 
+	/**
+	 * Get Redirect U R L.
+	 *
+	 * @return mixed
+	 */
 	private function getRedirectURL() {
 		if (!empty($this->adminURL)) {
 			// redirect to /shop/addons/
@@ -748,7 +881,13 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $redirectURL;
 	}
 
-	private function getCustomAddonRender($isOnlyTitle = false) {
+	/**
+	 * Get Custom Addon Render.
+	 *
+	 * @param bool $isOnlyTitle
+	 * @return mixed
+	 */
+	private function getCustomAddonRender(bool $isOnlyTitle = false) {
 
 		// TODO PASS OPTIONS to render()? SUCH AS?
 		// TODO @update we pass to the class's setAddonPage
@@ -774,6 +913,13 @@ class PWCommerceAdminRenderAddons extends WireData
 	################# PROCESS FORMS ######################
 	// @NOTE: NOT ALL ADDONS NEED TO PROCESS FORMS
 
+	/**
+	 * Process Form.
+	 *
+	 * @param InputfieldForm $form
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processForm(InputfieldForm $form, WireInputData $input) {
 
 		// #####################
@@ -802,6 +948,12 @@ class PWCommerceAdminRenderAddons extends WireData
 		$this->addonClass->processForm($form, $input);
 	}
 
+	/**
+	 * Handle Addon Ajax Request.
+	 *
+	 * @param mixed $selector
+	 * @return mixed
+	 */
 	private function handleAddonAjaxRequest($selector) {
 		$out = "";
 		$sanitizer = $this->wire('sanitizer');
@@ -851,6 +1003,11 @@ class PWCommerceAdminRenderAddons extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Ajax Error Message.
+	 *
+	 * @return mixed
+	 */
 	private function getAjaxErrorMessage() {
 		$out = $this->_("Sorry we could not process your request.");
 		$out = "<div><p>{$out}</p></div>";

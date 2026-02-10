@@ -7,6 +7,14 @@ trait TraitPWCommerceUtilitiesMessage
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MESSAGE ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Build Note.
+	 *
+	 * @param mixed $noteText
+	 * @param string $noteType
+	 * @param int $userID
+	 * @return mixed
+	 */
 	public function buildNote($noteText, $noteType = 'system', $userID = 0) {
 		$note = new WireData();
 		$note->text = $noteText;
@@ -24,6 +32,12 @@ trait TraitPWCommerceUtilitiesMessage
 		return $note;
 	}
 
+	/**
+	 * Send Email.
+	 *
+	 * @param mixed $emailOptions
+	 * @return mixed
+	 */
 	public function sendEmail($emailOptions) {
 
 		// array|string $to, string $from, string $subject, string $body

@@ -33,6 +33,12 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 
 	// =============
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function __construct($page) {
 
 		$this->page = $page;
@@ -45,10 +51,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Get and set InputfieldPWCommerceOrderLineItem to a class property.
 	 *
-	 * For convenience / reuse.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function setInputfieldOrderLineItem() {
 		$inputfieldName = "InputfieldPWCommerceOrderLineItem";
@@ -59,6 +62,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Render the entire input area for order
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		return $this->getOrderLineItemsMarkup();
@@ -67,10 +71,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Get markup for the line items in this order.
 	 *
-	 * @note: will include AlpineJS markup.
-	 *
-	 * @access private
-	 * @return string $out Markup for order line items.
+	 * @return mixed
 	 */
 	private function getOrderLineItemsMarkup() {
 
@@ -100,6 +101,11 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 
 	## ~~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Markup For Order Line Items For Alpine J S.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForOrderLineItemsForAlpineJS() {
 		$out = $this->inputfieldOrderLineItem->getCustomBuildForm();
 
@@ -111,6 +117,11 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Order Line Items Config Values For Client.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemsConfigValuesForClient() {
 		$lineItemsArray = $this->getMainOrderLineItemsArray();
 
@@ -123,10 +134,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Get hidden markup to store CSV of IDs of order's line items.
 	 *
-	 * To help determine original items removed when saving order.
-	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @return mixed
 	 */
 	private function getMainOrderHiddenMarkupForExistingLineItemsIDs() {
 		$orderLineItemsIDsCSV = $this->getMainOrderLineItemsIDs();
@@ -146,10 +154,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Get hidden markup to store CSV of Product IDs of order's LIVE line items that are currently present in an unsaved order.
 	 *
-	 * To help with calculate shipping AND totals in place without saving.
-	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @return mixed
 	 */
 	private function getMainOrderHiddenMarkupForCurrentLiveOrderLineItemsProductsIDs() {
 		//------------------- order_current_in_edit_line_items_ids (getInputfieldHidden)
@@ -168,12 +173,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Get hidden markup to store CSV of IDs of order's LIVE EXISTING and NEW line items that are currently present in an unsaved order.
 	 *
-	 * This is because existing items will have their quantity and discount inputs name suffixed with the line item ID. We need these values for in place calculate shipping.
-	 * @note: for newly ADDED but UNSAVED LIVE line items, this also works since they temporarily use their PRODUCT ID as their line item ID, hence their suffixes will also be correct.
-	 * These values help with calculating shipping AND totals in place without saving.
-	 *
-	 * @access private
-	 * @return string rendered value of hidden field.
+	 * @return mixed
 	 */
 	private function getMainOrderHiddenMarkupForCurrentLiveOrderLineItemsIDs() {
 		//------------------- order_live_order_line_items_ids (getInputfieldHidden)
@@ -192,8 +192,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Build CSV of IDs of this order's line items.
 	 *
-	 * @access private
-	 * @return string $orderLineItemsIDsCSV CSV of IDs of order line items.
+	 * @return mixed
 	 */
 	private function getMainOrderLineItemsIDs() {
 
@@ -204,11 +203,8 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Find all order line items for this page.
 	 *
-	 * By default, return only their IDs.
-	 *
-	 * @access private
-	 * @param array|string $fields The fields to return for the line items.
-	 * @return array $orderLineItemsIDs Array of IDs of this order's line items.
+	 * @param string $fields
+	 * @return mixed
 	 */
 	private function getMainOrderLineItemsRaw($fields = 'id') {
 		// $orderLineItemsIDs = $this->wire('pages')->findRaw("parent_id={$this->page->id},include=all", 'id');
@@ -220,7 +216,7 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 	/**
 	 * Get the line items for this order page
 	 *
-	 * @return PageArray
+	 * @return mixed
 	 */
 	private function getMainOrderLineItems() {
 		// TODO, OK?
@@ -231,6 +227,11 @@ class InputfieldPWCommerceOrderRenderLineItems extends WireData
 		return $lineItemsPages;
 	}
 
+	/**
+	 * Get Main Order Line Items Array.
+	 *
+	 * @return mixed
+	 */
 	private function getMainOrderLineItemsArray() {
 
 		// ----------

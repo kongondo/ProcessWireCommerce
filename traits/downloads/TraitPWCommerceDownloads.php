@@ -24,6 +24,11 @@ trait TraitPWCommerceDownloads
 	private $downloadsCodesTable;
 	private $isDownloadsFeatureInstalled;
 
+	/**
+	 *  init Trait P W Commerce Downloads.
+	 *
+	 * @return mixed
+	 */
 	protected function _initTraitPWCommerceDownloads() {
 		// TODO NEEDED IN BACKEND AS WELL?
 		$this->downloadsCodesTable = PwCommerce::PWCOMMERCE_DOWNLOAD_CODES;
@@ -38,6 +43,12 @@ trait TraitPWCommerceDownloads
 	 *
 	 */
 	// TODO DELETE WHEN DONE OR AMMEND; NOT NEEDED AS OUR DOWNLOADS ARE PAGES!
+	/**
+	 * Get Download By I D.
+	 *
+	 * @param int $id
+	 * @return mixed
+	 */
 	public function getDownloadByID($id) {
 		$download = null;
 		if (empty($this->isDownloadsFeatureInstalled)) {
@@ -61,9 +72,8 @@ trait TraitPWCommerceDownloads
 	/**
 	 * Fetches single download from download page using a download code.
 	 *
-	 * @param string download code
-	 * @return WireData object containing required download
-	 *
+	 * @param mixed $code
+	 * @return mixed
 	 */
 	public function getDownloadByCode($code) {
 		if (empty($this->isDownloadsFeatureInstalled)) {
@@ -85,6 +95,12 @@ trait TraitPWCommerceDownloads
 	}
 
 	// Creates random token between 6-16 chars long with prefix if wanted
+	/**
+	 * Create Code.
+	 *
+	 * @param string $prefix
+	 * @return mixed
+	 */
 	public function createCode($prefix = '') {
 		$bits = rand(3, 8);
 		return $prefix . bin2hex(openssl_random_pseudo_bytes($bits));
@@ -93,17 +109,12 @@ trait TraitPWCommerceDownloads
 	/**
 	 * Creates and saves new download code into database. Pretty low level, so make sure the code is unique
 	 *
-	 * TODO: Should we actually check here if $code already exists and return false or something?
-	 * TODO: We should probably return here something - final code or true|false?
-	 *
-	 * @param string $code the download code string - usually something like KSADHEAS32
-	 * @param WireData $download object
-	 * @param int $orderId Optional order id, which ties this download code into certain order
-	 * @param int $maxDownloads Optional maximum amount this code can be used. 0 for unlimited use
-	 * @param string $enddate strtotime compatible string for latest datetime this code can be used. Defaults to null, which means no time limit
-	 *
+	 * @param WireData $download
+	 * @param int $orderID
+	 * @param bool $code
+	 * @return mixed
 	 */
-	public function createDownloadCode(WireData $download, $orderID = 0, $code = false) {
+	public function createDownloadCode(WireData $download, $orderID = 0, bool $code = false) {
 
 		if (empty($code))
 			$code = $this->createCode($orderID . "-");
@@ -129,6 +140,11 @@ trait TraitPWCommerceDownloads
 		return $code;
 	}
 
+	/**
+	 *  download.
+	 *
+	 * @return mixed
+	 */
 	private function _download() {
 		// TODO
 
@@ -142,10 +158,8 @@ trait TraitPWCommerceDownloads
 	/**
 	 * Sends the downloadable file to browser, based on the code. Also increments the download count in pwcommerce_download_codes table
 	 *
-	 * @param string $code the download code string - usually something like KSADHEAS32
-	 *
-	 * @return false or exists after sending the downloadable file to the browser
-	 *
+	 * @param mixed $code
+	 * @return mixed
 	 */
 	public function downloadFromCode($code) {
 
@@ -208,10 +222,8 @@ trait TraitPWCommerceDownloads
 	/**
 	 * Sends the downloadable file to browser, based on the download id.
 	 *
-	 * @param int $id of the download.
-	 *
-	 * @return void Exits after sending the downloadable file to the browser.
-	 *
+	 * @param int $id
+	 * @return mixed
 	 */
 	public function download($id) {
 
@@ -236,7 +248,19 @@ trait TraitPWCommerceDownloads
 	}
 	// ---------------------------
 	// TODO @KONGONDO AMENDMENT
-	// public function findDownloadsFromOrder(PWCommerceOrder $order) {
+	// /**
+  * Find Downloads From Order.
+  *
+  * @param PWCommerceOrder $order
+  * @return mixed
+  */
+ public function findDownloadsFromOrder(PWCommerceOrder $order) {
+	/**
+	 * Find Downloads From Order I D.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	public function findDownloadsFromOrderID(Page $orderPage) {
 		if (empty($this->isDownloadsFeatureInstalled)) {
 			// DOWNLOADS FEATURE NOT INSTALLED: ABORT
@@ -257,9 +281,9 @@ trait TraitPWCommerceDownloads
 	/**
 	 * Create download codes for downloads for a given order.
 	 *
-	 * @param WireData $order Order to create downloads codes for.
-	 * @param WireArray $orderLineItems Order Line Items in the Order whose downloads to create downloads from.
-	 * @return array $downloads Array with created download codes.
+	 * @param WireData $order
+	 * @param WireArray $orderLineItems
+	 * @return mixed
 	 */
 	public function createDownloadCodesForOrder(WireData $order, WireArray $orderLineItems) {
 		if (empty($this->isDownloadsFeatureInstalled)) {
@@ -341,8 +365,8 @@ trait TraitPWCommerceDownloads
 	/**
 	 * Get download codes for an order using order ID.
 	 *
-	 * @param int $orderID The ID of the order whose download codes to fetch.
-	 * @return array $codes Array with the download codes.
+	 * @param int $orderID
+	 * @return mixed
 	 */
 	public function getDownloadCodesByOrderID($orderID) {
 		if (empty($this->isDownloadsFeatureInstalled)) {
@@ -382,6 +406,12 @@ trait TraitPWCommerceDownloads
 		return $codes;
 	}
 
+	/**
+	 * Get Download U R L.
+	 *
+	 * @param mixed $code
+	 * @return mixed
+	 */
 	private function getDownloadURL($code) {
 		$http = ($this->config->https) ? "https://" : "http://";
 		return $http . $this->config->httpHost . $this->config->urls->root . "pwcommerce/d/?code=" . $code;

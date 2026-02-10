@@ -11,6 +11,11 @@ trait TraitPWCommerceUtilitiesInstall
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INSTALL ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Custom Shop Root Page Allowed Children Details.
+	 *
+	 * @return mixed
+	 */
 	public function getCustomShopRootPageAllowedChildrenDetails() {
 		$customShopRootPageAllowedChildrenDetails = [
 			// -----------
@@ -33,10 +38,22 @@ trait TraitPWCommerceUtilitiesInstall
 
 	## PWCOMMERCE CONFIGS AND INSTALL ##
 
+	/**
+	 * Get P W Commerce Module Configs.
+	 *
+	 * @param mixed $configModuleName
+	 * @return mixed
+	 */
 	public function getPWCommerceModuleConfigs($configModuleName) {
 		return $this->wire('modules')->getConfig($configModuleName);
 	}
 
+	/**
+	 * Get P W Commerce Module Configs Raw.
+	 *
+	 * @param mixed $configModuleName
+	 * @return mixed
+	 */
 	private function getPWCommerceModuleConfigsRaw($configModuleName) {
 		$pwcommerceModuleConfigs = [];
 
@@ -81,7 +98,14 @@ trait TraitPWCommerceUtilitiesInstall
 
 	}
 
-	public function getPWCommerceInstalledOptionalFeatures($configModuleName, $isUseRawSQL = false) {
+	/**
+	 * Get P W Commerce Installed Optional Features.
+	 *
+	 * @param mixed $configModuleName
+	 * @param bool $isUseRawSQL
+	 * @return mixed
+	 */
+	public function getPWCommerceInstalledOptionalFeatures($configModuleName, bool $isUseRawSQL = false) {
 		$installedOptionalFeatures = [];
 		if (!empty($isUseRawSQL)) {
 			// for use in TraitPWCommerceProcessNavigation::postProcessNavItemsForDropdown
@@ -98,6 +122,12 @@ trait TraitPWCommerceUtilitiesInstall
 		return $installedOptionalFeatures;
 	}
 
+	/**
+	 * Get P W Commerce Installed Other Optional Settings.
+	 *
+	 * @param mixed $configModuleName
+	 * @return mixed
+	 */
 	public function getPWCommerceInstalledOtherOptionalSettings($configModuleName) {
 		$pwcommerceModuleConfigs = $this->getPWCommerceModuleConfigs($configModuleName);
 		$installedOtherOptionalSettings = [];
@@ -108,10 +138,22 @@ trait TraitPWCommerceUtilitiesInstall
 		return $installedOtherOptionalSettings;
 	}
 
+	/**
+	 * Set P W Commerce Module Configs.
+	 *
+	 * @param array $data
+	 * @param mixed $configModuleName
+	 * @return mixed
+	 */
 	public function setPWCommerceModuleConfigs($data, $configModuleName) {
 		$this->wire('modules')->saveConfig($configModuleName, $data);
 	}
 
+	/**
+	 * Get P W Commerce Optional Features.
+	 *
+	 * @return mixed
+	 */
 	public function getPWCommerceOptionalFeatures() {
 		// TODO ADD TO LIST IF NEEDED!
 		return [
@@ -133,6 +175,12 @@ trait TraitPWCommerceUtilitiesInstall
 		];
 	}
 
+	/**
+	 * Is Exist P W Commerce Custom Table.
+	 *
+	 * @param mixed $customTableName
+	 * @return bool
+	 */
 	public function isExistPWCommerceCustomTable($customTableName) {
 		return $this->wire('database')->tableExists($customTableName);
 	}

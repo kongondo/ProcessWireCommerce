@@ -41,6 +41,13 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 	// @kongondo TODO
 	private $paypalConfigs;
 
+	/**
+	 *   construct.
+	 *
+	 * @param array $paypalConfigs
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function __construct(array $paypalConfigs, array $options = []) {
 
 		parent::__construct();
@@ -64,10 +71,13 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 
 	// 2. Set up your server to receive a call from the client
 	/**
-	 *This is the sample function to create an order. It uses the
-	 *JSON body returned by buildRequestBody() to create an order.
+	 * This is the sample function to create an order. It uses the
+	 *
+	 * @param WireData $createOrderValues
+	 * @param bool $debug
+	 * @return mixed
 	 */
-	protected function createOrder(WireData $createOrderValues, $debug = false) {
+	protected function createOrder(WireData $createOrderValues, bool $debug = false) {
 		$this->createOrderValues = $createOrderValues;
 
 		// -----------------
@@ -119,14 +129,13 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 
 	// 2. Set up your server to receive a call from the client
 	/**
-	 *This function can be used to capture an order payment by passing the approved
-	 *order ID as argument.
+	 * This function can be used to capture an order payment by passing the approved
 	 *
-	 *@param $orderId
-	 *@param $debug
-	 *@return
+	 * @param mixed $orderId
+	 * @param bool $debug
+	 * @return mixed
 	 */
-	protected function captureOrder($orderId, $debug = false) {
+	protected function captureOrder($orderId, bool $debug = false) {
 
 		// TODO DELETE WHEN DONE
 		// $request = new OrdersCaptureRequest($orderId);
@@ -171,7 +180,14 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 		return $response;
 	}
 
-	protected function isSuccessfulPaymentCapture($response, $options = []) {
+	/**
+	 * Is Successful Payment Capture.
+	 *
+	 * @param mixed $response
+	 * @param array $options
+	 * @return bool
+	 */
+	protected function isSuccessfulPaymentCapture($response, array $options = []) {
 		$isSuccessfulPaymentCapture = false;
 		// expected order values
 		$expectedOrderID = $options['expected_order_id'];
@@ -221,6 +237,11 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 		return $isSuccessfulPaymentCapture;
 	}
 
+	/**
+	 * Render.
+	 *
+	 * @return string|mixed
+	 */
 	protected function render() {
 
 		if ($this->getTotalAmount() <= 0) {
@@ -256,11 +277,7 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 	/**
 	 * Get the fields data to be used to build the backend settings form for PayPal.
 	 *
-	 * For use in PWCommerce admin backend.
-	 * @see documentation for required structure of the schema.
-	 *
-	 * @access protected
-	 * @return array Array of fields configurations.
+	 * @return mixed
 	 */
 	protected function getFieldsSchema() {
 		$schema = [
@@ -323,19 +340,39 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 	# === IMPLEMENTED INTERFACE CLASS METHODS === #
 	// @see PWCommerceAddons.php
 
+	/**
+	 * Get Class Name.
+	 *
+	 * @return mixed
+	 */
 	public function getClassName() {
 		$className = "PWCommercePaymentPayPal";
 		return $className;
 	}
 
+	/**
+	 * Get Type.
+	 *
+	 * @return mixed
+	 */
 	public function getType() {
 		return "payment";
 	}
 
+	/**
+	 * Get Title.
+	 *
+	 * @return mixed
+	 */
 	public function getTitle() {
 		return $this->_("PayPal");
 	}
 
+	/**
+	 * Get Description.
+	 *
+	 * @return mixed
+	 */
 	public function getDescription() {
 		$description = $this->_("PayPal is an online payment system that makes paying for things online and sending and receiving money safe and secure. Check out faster, safer and more easily with PayPal, the service that lets you pay, send money, and accept payments without having to enter your financial details each time.");
 		return $description;
@@ -348,8 +385,8 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 
 	/**
 	 * Returns PayPal HTTP client instance with environment that has access
-	 * credentials context. Use this instance to invoke PayPal APIs, provided the
-	 * credentials have access.
+	 *
+	 * @return mixed
 	 */
 	public function client() {
 		// return new PayPalHttpClient(PwCommerce::environment());
@@ -359,7 +396,8 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 
 	/**
 	 * Set up and return PayPal PHP SDK environment with PayPal access credentials.
-	 * This sample uses SandboxEnvironment. In production, use ProductionEnvironment.
+	 *
+	 * @return mixed
 	 */
 	public function environment() {
 		// ----
@@ -385,6 +423,11 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 	}
 
 	// TODO: DELETE IF NOT IN USE
+	/**
+	 * Get Sandbox Credentials.
+	 *
+	 * @return mixed
+	 */
 	private function getSandboxCredentials() {
 		$credentials = [
 			'client_id' => '',
@@ -394,6 +437,11 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 		return $credentials;
 	}
 
+	/**
+	 * Get Live Credentials.
+	 *
+	 * @return mixed
+	 */
 	private function getLiveCredentials() {
 		$credentials = [
 			'client_id' => '',
@@ -403,6 +451,11 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 		return $credentials;
 	}
 
+	/**
+	 * Get Client I D.
+	 *
+	 * @return mixed
+	 */
 	private function getClientID() {
 		// TODO: NEED TO CHECK FOR EMPTIES, HANDLE ERRORS! BUT CAN DO THAT IN CONSTRUCT MAYBE?
 		$paypalConfigs = $this->paypalConfigs;
@@ -413,8 +466,8 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 
 	/**
 	 * Setting up the JSON request body for creating the order with minimum request body. The intent in the
-	 * request body should be "AUTHORIZE" for authorize intent flow.
 	 *
+	 * @return mixed
 	 */
 	private function buildRequestBody() {
 		// @see: https://developer.paypal.com/docs/checkout/standard/integrate/
@@ -462,6 +515,11 @@ class PWCommercePaymentPayPal extends PWCommercePayment implements PWCommerceAdd
 
 	##############################
 
+	/**
+	 * Get Failure Reason.
+	 *
+	 * @return mixed
+	 */
 	public function getFailureReason() {
 		return $this->session->paypalError;
 	}

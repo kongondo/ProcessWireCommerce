@@ -15,8 +15,8 @@ trait TraitPWCommerceAdminNavigation
 	/**
 	 * Hook to modify breadcrumb in certain contexts and sub-contexts.
 	 *
-	 * @param HookEvent $event The Process::breadcrumb HookEvent.
-	 * @return void
+	 * @param HookEvent $event
+	 * @return mixed
 	 */
 	public function modifyBreadcrumb(HookEvent $event) {
 
@@ -42,6 +42,11 @@ trait TraitPWCommerceAdminNavigation
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MENUS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Menu.
+	 *
+	 * @return mixed
+	 */
 	private function getMenu() {
 
 		$out = "";
@@ -158,6 +163,11 @@ trait TraitPWCommerceAdminNavigation
 		return $out;
 	}
 
+	/**
+	 * Get Menu Items.
+	 *
+	 * @return mixed
+	 */
 	private function getMenuItems() {
 
 		// SPECIAL FOR CATEGORIES
@@ -374,6 +384,12 @@ trait TraitPWCommerceAdminNavigation
 		return $menuItems;
 	}
 
+	/**
+	 * Is Skip Menu Item.
+	 *
+	 * @param mixed $featureName
+	 * @return bool
+	 */
 	private function isSkipMenuItem($featureName) {
 		$isSkipMenuItem = true;
 		// check if menu item is for an optional feature and if that feature is installed
@@ -391,9 +407,7 @@ trait TraitPWCommerceAdminNavigation
 	/**
 	 * Get value for selected property for alpine js for our panel menu.
 	 *
-	 * Enables menu items with children to be in opened state when viewing their pages.
-	 *
-	 * @return string $selected The selected value (parent item context).
+	 * @return mixed
 	 */
 	private function getSelectedXrefForMenu() {
 		$selected = null;
@@ -415,6 +429,11 @@ trait TraitPWCommerceAdminNavigation
 		return $selected;
 	}
 
+	/**
+	 * Get Menu Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getMenuPanel() {
 
 		$out = "";
@@ -457,6 +476,11 @@ trait TraitPWCommerceAdminNavigation
 		return $out;
 	}
 
+	/**
+	 * Set Is Show Addons Menu Item.
+	 *
+	 * @return mixed
+	 */
 	private function setIsShowAddonsMenuItem() {
 		$this->isShowAddonsMenuItem = $this->isSuperUser() && $this->pwcommerce->isShopAllowAddons();
 	}
@@ -464,11 +488,8 @@ trait TraitPWCommerceAdminNavigation
 	/**
 	 * Output JSON list of navigation items for this (intended to for ajax use)
 	 *
-	 * For 2.5+ admin themes
-	 *
 	 * @param array $options
-	 * @return string
-	 *
+	 * @return mixed
 	 */
 	public function ___executeNavJSON(array $options = []) {
 		$this->shopPage = $this->pages->get('process=ProcessPWCommerce');
@@ -511,6 +532,11 @@ trait TraitPWCommerceAdminNavigation
 
 		return json_encode($data);
 	}
+	/**
+	 * Get Products Data List For Nav J S O N.
+	 *
+	 * @return mixed
+	 */
 	private function getProductsDataListForNavJSON() {
 		$shopPage = $this->shopPage;
 		// SPECIAL FOR CATEGORIES
@@ -603,6 +629,11 @@ trait TraitPWCommerceAdminNavigation
 		return $dataList;
 	}
 
+	/**
+	 * Get Customers Data List For Nav J S O N.
+	 *
+	 * @return mixed
+	 */
 	private function getCustomersDataListForNavJSON() {
 		$shopPage = $this->shopPage;
 		// @NOTE: this will not be accessed if features not installed
@@ -640,6 +671,11 @@ trait TraitPWCommerceAdminNavigation
 		// ----------
 		return $dataList;
 	}
+	/**
+	 * Get Taxes Data List For Nav J S O N.
+	 *
+	 * @return mixed
+	 */
 	private function getTaxesDataListForNavJSON() {
 		$shopPage = $this->shopPage;
 		return [
@@ -654,6 +690,11 @@ trait TraitPWCommerceAdminNavigation
 		];
 	}
 
+	/**
+	 * Get Settings Data List For Nav J S O N.
+	 *
+	 * @return mixed
+	 */
 	private function getSettingsDataListForNavJSON() {
 		$shopPage = $this->shopPage;
 		$dataList = [
@@ -719,6 +760,11 @@ trait TraitPWCommerceAdminNavigation
 
 	# ~~~~~~~~~~~~
 
+	/**
+	 * Get Nav Items For Dropdown.
+	 *
+	 * @return mixed
+	 */
 	public function getNavItemsForDropdown() {
 		// @NOTE: NEEDS THE PAGE '/shop/pwcommerce/' TO BE 'HIDDEN'!!!
 		// @NOTE: @see ___executeNavJSON() for 'navJSON' values
@@ -802,6 +848,12 @@ trait TraitPWCommerceAdminNavigation
 		return $navItemsForDropdown;
 	}
 
+	/**
+	 * Post Process Nav Items For Dropdown.
+	 *
+	 * @param mixed $navItemsForDropdown
+	 * @return mixed
+	 */
 	private function postProcessNavItemsForDropdown($navItemsForDropdown) {
 
 		$installedOptionalFeatures = $this->pwcommerce->getPWCommerceInstalledOptionalFeatures(PwCommerce::PWCOMMERCE_PROCESS_MODULE, $isUseRawSQL = true);

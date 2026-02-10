@@ -25,6 +25,12 @@ class PWCommerceAdminRenderProducts extends WireData
 	private $assetsURL;
 	private $stock;
 
+	/**
+	 *   construct.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	public function __construct($options) {
 		$this->assetsURL = $options['assets_url'];
 	}
@@ -34,9 +40,7 @@ class PWCommerceAdminRenderProducts extends WireData
 	/**
 	 * Builds a custom add new page/item for adding a new product.
 	 *
-	 * Returns InputfieldForm that includes form inputs needed to create new product.
-	 *
-	 * @return InputfieldForm $form Add new page Form.
+	 * @return mixed
 	 */
 	public function getCustomAddNewItemForm() {
 		/** @var InputfieldForm $form */
@@ -125,6 +129,11 @@ class PWCommerceAdminRenderProducts extends WireData
 	}
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// THUMB
@@ -140,6 +149,13 @@ class PWCommerceAdminRenderProducts extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 
 		$this->stock = $stock = $page->get(PwCommerce::PRODUCT_STOCK_FIELD_NAME);
@@ -162,11 +178,22 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No products found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Product Thumb.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getProductThumb($page) {
 		$firstImage = $page->pwcommerce_images->first();
 
@@ -190,6 +217,12 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Extra Statuses.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	protected function extraStatuses($page) {
 
 		$productSettings = $page->get(PwCommerce::PRODUCT_SETTINGS_FIELD_NAME);
@@ -221,6 +254,12 @@ class PWCommerceAdminRenderProducts extends WireData
 
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -245,6 +284,12 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Product Quantity String.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getProductQuantityString($page) {
 
 		$out = "";
@@ -298,6 +343,11 @@ class PWCommerceAdminRenderProducts extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -334,6 +384,11 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -342,6 +397,11 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 
@@ -378,6 +438,12 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$productSettingsFieldName = PwCommerce::PRODUCT_SETTINGS_FIELD_NAME;
 		$stockFieldName = PwCommerce::PRODUCT_STOCK_FIELD_NAME;
@@ -397,6 +463,12 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Sales.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterSales($quickFilterValue) {
 
 		// e.g.
@@ -509,12 +581,23 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Variants.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterVariants() {
 		$selector = "," . PwCommerce::PRODUCT_SETTINGS_FIELD_NAME . ".use_variants=1,children.count>0";
 		// ----
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Inventory.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterInventory($quickFilterValue) {
 
 		// ============
@@ -550,6 +633,12 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Shipping.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterShipping($quickFilterValue) {
 		// 'physical' | 'physical_no_shipping' | 'digital' | 'service'
 		$productSettingsFieldName = PwCommerce::PRODUCT_SETTINGS_FIELD_NAME;
@@ -569,6 +658,11 @@ class PWCommerceAdminRenderProducts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter No Image.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoImage() {
 		$selector = ",pwcommerce_images=''";
 		// ----
