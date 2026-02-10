@@ -24,7 +24,7 @@ https://github.com/kongondo/PWCommerce2Starter
 
 ## Documentation
 
-WIP
+Documentation is available at: https://kongondo.github.io/ProcessWireCommerce/
 
 ### API Documentation
 
