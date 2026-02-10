@@ -26,8 +26,6 @@ https://github.com/kongondo/PWCommerce2Starter
 
 WIP
 
-https://docs.kongondo.com/
-
 ## Community Support Forum
 
 https://processwire.com/talk/forum/62-pwcommerce-support/
