@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/contributing/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/contributing/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/admin/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/admin/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/admin/products/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/admin/products/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/developer/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/developer/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/developer/api-reference/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/developer/api-reference/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/frontend/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/frontend/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/frontend/api-variables/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/frontend/api-variables/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/frontend/fetching-products/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/frontend/fetching-products/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
     <url>
-         <loc>https://your-site.github.io/ProcessPWCommerce/frontend/js-disabled/</loc>
+         <loc>https://kongondo.github.io/ProcessWireCommerce/frontend/js-disabled/</loc>
          <lastmod>2026-02-10</lastmod>
     </url>
 </urlset>
