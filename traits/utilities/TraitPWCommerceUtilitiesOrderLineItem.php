@@ -38,7 +38,14 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ORDER LINE ITEMS ~~~~~~~~~~~~~~~~~~
 
-	public function getThisYearsOrderLineItems($isRaw = true, $options = []) {
+	/**
+	 * Get This Years Order Line Items.
+	 *
+	 * @param bool $isRaw
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function getThisYearsOrderLineItems(bool $isRaw = true, array $options = []) {
 		// TODO WILL NEED TO ADD STATUS COMPLETE TO SELECTOR!
 		// $endOflastYearDate = $endOflastYear->getTimestamp();
 		// $startOfNextYearDate = $startOfNextYear->getTimestamp();
@@ -68,10 +75,8 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	/**
 	 * Process 'calculated' values for given order line item.
 	 *
-	 * Includes tax and discount processing.
-	 *
-	 * @param array $options Array with options for processing order line item.
-	 * @return WireData $orderLineItem The order line item with values processed.
+	 * @param array $options
+	 * @return mixed
 	 */
 	public function getOrderLineItemCalculatedValues(array $options) {
 
@@ -333,6 +338,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	# TAX #
 
 
+	/**
+	 * Get Tax Amount.
+	 *
+	 * @return mixed
+	 */
 	private function getTaxAmount() {
 		############
 		$taxAmountMoney = NULL;
@@ -391,6 +401,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 	# UNITS #
 
+	/**
+	 * Get Unit Price Before Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getUnitPriceBeforeTax() {
 		// (i) schema 'unit_price'
 		$unitPriceBeforeTaxMoney = NULL;
@@ -419,6 +434,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		return $unitPriceBeforeTaxMoney;
 	}
 
+	/**
+	 * Get Unit Price After Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getUnitPriceAfterTax() {
 		// (iii) schema 'unit_price_with_tax'
 		$unitPriceAfterTaxMoney = NULL;
@@ -485,6 +505,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	}
 
 
+	/**
+	 * Get Unit Price With Discount Before Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getUnitPriceWithDiscountBeforeTax() {
 		// (ii) schema 'unit_price_discounted'
 		// this was already computed. Since it has no tax, we just divide by quantity to get unit price discounted
@@ -494,6 +519,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		return $unitPriceWithDiscountBeforeTaxMoney;
 	}
 
+	/**
+	 * Get Unit Price With Discount After Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getUnitPriceWithDiscountAfterTax() {
 		// (iv) schema 'unit_price_discounted_with_tax'
 		// if no tax, this will be equal to 'discounted BEFORE tax money'
@@ -513,6 +543,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	# TOTALS #
 
 
+	/**
+	 * Get Total Price Before Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getTotalPriceBeforeTax() {
 		// NOTE: $this->unitPriceBeforeTaxMoney has already determined if price was ex or inc tax
 		// could also use pwcommerce_price_total here, but would have to go through the inc vs ex tax with that
@@ -572,6 +607,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	}
 
 
+	/**
+	 * Get Total Price After Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getTotalPriceAfterTax() {
 		// (iii) schema 'total_price_with_tax'
 		$totalPriceAfterTaxMoney = NULL;
@@ -623,6 +663,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 	}
 
+	/**
+	 * Get Total Price With Discount Before Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getTotalPriceWithDiscountBeforeTax() {
 		// (ii) schema 'total_price_discounted'
 		// if no discount, discounted total before tax equates to total before tax
@@ -636,6 +681,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		return $totalPriceWithDiscountBeforeTaxMoney;
 	}
 
+	/**
+	 * Get Total Price With Discount After Tax.
+	 *
+	 * @return mixed
+	 */
 	private function getTotalPriceWithDiscountAfterTax() {
 		// (iv) schema 'total_price_discounted_with_tax'
 		// if no tax, this will be equal to 'discounted BEFORE tax money'
@@ -655,6 +705,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	}
 
 	# DISCOUNT #
+	/**
+	 * Get Total Discounts Amount.
+	 *
+	 * @return mixed
+	 */
 	private function getTotalDiscountsAmount() {
 		// schema 'total_discounts'
 		// @note: this is the total amout of discounts that have been applied to the order line item
@@ -669,7 +724,14 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 	# UTILITIES #
 
-	private function getNetPriceIfPriceInclusiveTax($priceInclusiveTax, $isReturnMoney = true) {
+	/**
+	 * Get Net Price If Price Inclusive Tax.
+	 *
+	 * @param mixed $priceInclusiveTax
+	 * @param bool $isReturnMoney
+	 * @return mixed
+	 */
+	private function getNetPriceIfPriceInclusiveTax($priceInclusiveTax, bool $isReturnMoney = true) {
 		// if unit price has tax included, get PRICE PORTION WITHOUT TAX
 		// Net: (Amount / 100+TAX PERCENT) * 100
 		// e.g. if VAT is 20%, Net: (Amount / 120) * 100
@@ -694,6 +756,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 	################
 
+	/**
+	 * Get Order Line Item Delivered Date.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemDeliveredDate() {
 		// TODO: UNSURE OF THIS ONE? GET? SET?
 		// 6. SHIPMENT TODO: MAYBE NOT HERE? SHOULD BE SEPARATE IF ORDER IS COMPLETE
@@ -701,22 +768,42 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	}
 
 
+	/**
+	 * Get Order Line Item Product.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemProduct() {
 		return $this->productOrVariantPage;
 	}
 
+	/**
+	 * Get Order Line Item Product Settings.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemProductSettings() {
 		$orderLineItemProduct = $this->getOrderLineItemProduct();
 
 		return $orderLineItemProduct['settings'];
 	}
 
+	/**
+	 * Get Order Line Item Product Categories.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderLineItemProductCategories() {
 		$orderLineItemProduct = $this->getOrderLineItemProduct();
 		return isset($orderLineItemProduct['categories']) ? $orderLineItemProduct['categories'] : [];
 	}
 
 
+	/**
+	 * Get Line Items For Order.
+	 *
+	 * @return mixed
+	 */
 	public function getLineItemsForOrder() {
 		// TODO - THIS SHOULD BE GETTING ITEMS THAT ARE CURRENTLY IN ORDER EDIT VIEW! NOT NECESSARILY SAVED ONES! THAT MEANS CHECKING IDS IN INPUT! OR BEING PASSED LINE ITEMS HERE!
 		if ($this->order->isLiveCalculateOnly) {
@@ -745,6 +832,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		return $orderLineItems;
 	}
 
+	/**
+	 * Get Line Items From Order In Session.
+	 *
+	 * @return array
+	 */
 	private function getLineItemsFromOrderInSession(): array {
 
 		$fields = ['pwcommerce_order_line_item' => 'line_item', 'id'];
@@ -767,6 +859,11 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		return $orderLineItems;
 	}
 
+	/**
+	 * Get Products I Ds In Line Items For Order.
+	 *
+	 * @return mixed
+	 */
 	public function getProductsIDsInLineItemsForOrder() {
 
 		// @note: productID saved at 'data' column in the schema!
@@ -779,10 +876,7 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 	/**
 	 * Find the products for line items in the order.
 	 *
-	 * @note: MAINLY for use for incomplete/in-progress orders.
-	 *
-	 * @access public
-	 * @return PageArray $products Product pages for line items.
+	 * @return mixed
 	 */
 	public function getProductsPagesInLineItemsForOrder() {
 		$lineItemsProductsIDs = $this->getProductsIDsInLineItemsForOrder();
@@ -796,6 +890,12 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 	# ***********
 
+	/**
+	 * Get Single Order Line Item Quantity In Order.
+	 *
+	 * @param int $productID
+	 * @return mixed
+	 */
 	public function getSingleOrderLineItemQuantityInOrder($productID) {
 		$quantity = 0; // TODO DEFAULT 0 OR 1?
 		foreach ($this->orderLineItems as $orderLineItem) {

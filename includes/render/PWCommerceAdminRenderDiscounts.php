@@ -27,6 +27,12 @@ class PWCommerceAdminRenderDiscounts extends WireData
 	// the full prefix to the ALPINE JS store used by this Class
 	private $xstore;
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		if (is_array($options)) {
 			$this->xstoreProcessPWCommerce = $options['xstoreProcessPWCommerce'];
@@ -36,6 +42,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 	}
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders() {
 		return [
 			// TITLE
@@ -51,11 +62,23 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		];
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords() {
 		$noResultsTableRecords = $this->_('No discounts found.');
 		return $noResultsTableRecords;
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle) {
 
 		// ---------
@@ -103,6 +126,12 @@ class PWCommerceAdminRenderDiscounts extends WireData
 	}
 
 
+	/**
+	 * Get Discount Type String.
+	 *
+	 * @param WireData $discount
+	 * @return mixed
+	 */
 	private function getDiscountTypeString(WireData $discount) {
 
 		$amountOffProducts = $this->_('Amount off Products');
@@ -177,6 +206,13 @@ class PWCommerceAdminRenderDiscounts extends WireData
 
 	}
 
+	/**
+	 * Get Discount Status String.
+	 *
+	 * @param Page $page
+	 * @param WireData $discount
+	 * @return mixed
+	 */
 	private function getDiscountStatusString(Page $page, WireData $discount) {
 		$startDateTimestamp = (int) $discount->discountStartDate;
 		$endDateTimestamp = (int) $discount->discountEndDate;
@@ -211,6 +247,12 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL) {
 
 		$label = $this->_('Add new discount');
@@ -252,7 +294,7 @@ class PWCommerceAdminRenderDiscounts extends WireData
 	/**
 	 * Modal for MANUAL issue of Gift Cards.
 	 *
-	 * @return string $out Modal markup.
+	 * @return mixed
 	 */
 	private function getModalMarkupForCreateDiscount() {
 		// ## CREATE DISCOUNT SELECT TYPE MODALs MARKUP  ##
@@ -300,6 +342,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Add Discount Select Type Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getAddDiscountSelectTypeMarkup() {
 		$selectDiscountTypeMarkup = $this->getMarkupForDiscountSelectTypeParts();
 		//----------------
@@ -316,6 +363,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Discount Select Type Parts.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountSelectTypeParts() {
 
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
@@ -442,6 +494,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 
 	}
 
+	/**
+	 * Render Modal Markup For Create Discount Add Button.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderModalMarkupForCreateDiscountAddButton() {
 		# ALPINE JS #
 		$xstore = $this->xstore;
@@ -462,7 +519,8 @@ class PWCommerceAdminRenderDiscounts extends WireData
 	}
 	/**
 	 * Get rendered button for the modal for actioning a selected order status.
-	 * @return string $cancelButton.
+	 *
+	 * @return string
 	 */
 	private function renderModalMarkupForCreateDiscountCancelButton(): string {
 		$cancelButton = $this->pwcommerce->getModalActionButton(['x-on:click' => 'resetDiscountSelectTypeAndCloseModal'], 'cancel');
@@ -471,6 +529,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -506,6 +569,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -514,6 +582,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -537,6 +610,12 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 
 		$currentTime = date('Y-m-d H:i:s', time());
@@ -572,6 +651,12 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Usage.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUsage($quickFilterValue) {
 		$selector = '';
 		// -------
@@ -593,6 +678,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Unused.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUnused() {
 		// e.g.
 		// SELECT discount_id
@@ -622,6 +712,12 @@ class PWCommerceAdminRenderDiscounts extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Least Or Most Used.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterLeastOrMostUsed($quickFilterValue) {
 
 
@@ -679,6 +775,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Nearly Used Up.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNearlyUsedUp() {
 		// e.g.
 		// 	SELECT
@@ -759,6 +860,11 @@ class PWCommerceAdminRenderDiscounts extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Used Up.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterUsedUp() {
 		// e.g.
 		// SELECT pages_id as discount_id, code, global_usage, limit_total
@@ -814,6 +920,12 @@ class PWCommerceAdminRenderDiscounts extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Discount Type.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterDiscountType($quickFilterValue) {
 
 		$selector = "," . PwCommerce::DISCOUNT_FIELD_NAME . ".discount_type=";

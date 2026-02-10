@@ -30,26 +30,61 @@ trait TraitPWCommerceShipping
 
 	# TODO - USE BELOW NEW METHODS
 
+	/**
+	 * Get Cart Shipping Fees.
+	 *
+	 * @return mixed
+	 */
 	public function getCartShippingFees() {
 		// calculate shipping fee
 		// calculate handling fee
 	}
 
+	/**
+	 * Get Cart Matched Shipping Rates.
+	 *
+	 * @return mixed
+	 */
 	public function getCartMatchedShippingRates() {
 
 	}
 
+	/**
+	 * Get Cart Shipping Fee Money.
+	 *
+	 * @return mixed
+	 */
 	public function getCartShippingFeeMoney() {
 	}
+	/**
+	 * Get Cart Handling Fee Money.
+	 *
+	 * @return mixed
+	 */
 	public function getCartHandlingFeeMoney() {
 	}
 
+	/**
+	 * Get Cart Percentage Handling Fee.
+	 *
+	 * @return mixed
+	 */
 	public function getCartPercentageHandlingFee() {
 	}
 
+	/**
+	 * Is Shipping Taxable.
+	 *
+	 * @return bool
+	 */
 	public function isShippingTaxable() {
 	}
 
+	/**
+	 * Get Cart Tax Amount On Shipping.
+	 *
+	 * @return mixed
+	 */
 	public function getCartTaxAmountOnShipping() {
 	}
 
@@ -60,6 +95,12 @@ trait TraitPWCommerceShipping
 
 
 
+	/**
+	 * Add Shippable Status To Line Items.
+	 *
+	 * @param array $orderLineItems
+	 * @return mixed
+	 */
 	private function addShippableStatusToLineItems(array $orderLineItems) {
 
 		// @note: we want to get shipping type for products represented in line items
@@ -149,8 +190,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Does the current order use a custom handling fee?
 	 *
-	 * @access public
-	 * @return boolean Whether current order uses a custom handling fee
+	 * @return bool
 	 */
 	public function isCustomHandlingFee() {
 		return (int) $this->order->isCustomHandlingFee === 1;
@@ -159,8 +199,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get current order's handling fee type.
 	 *
-	 * @access public
-	 * @return string $handlingFeeType Current order's handling fee type.
+	 * @return mixed
 	 */
 	public function getOrderHandlingFeeType() {
 
@@ -181,8 +220,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get current order's handling fee value.
 	 *
-	 * @access public
-	 * @return float $handlingFeeValue Current order's handling fee value.
+	 * @return mixed
 	 */
 	public function getOrderHandlingFeeValue() {
 
@@ -203,10 +241,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get current order's handling fee amount.
 	 *
-	 * @note: Calculated based on handling fee type and value.
-	 *
-	 * @access public
-	 * @return float $handlingFeeValue Current order's handling fee amount.
+	 * @return mixed
 	 */
 	public function getOrderHandlingFeeMoney() {
 		// TODO CHANGE TO RETURN MONEY
@@ -245,11 +280,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get the order's matched shipping zone's handling fee type.
 	 *
-	 * Used in cases where a manual handling fee type has not been set.
-	 * This is the usual case. Manual handling fee properties can only be set in manual orders.
-	 *
-	 * @access public
-	 * @return string Order's matched shipping zone's handling fee type.
+	 * @return mixed
 	 */
 	public function getZoneHandlingFeeType() {
 		return $this->shippingZone->get(PwCommerce::SHIPPING_FEE_SETTINGS_FIELD_NAME)->handlingFeeType;
@@ -258,11 +289,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get the order's matched shipping zone's handling fee value.
 	 *
-	 * Used in cases where a manual handling fee value has not been set.
-	 * This is the usual case. Manual handling fee properties can only be set in manual orders.
-	 *
-	 * @access public
-	 * @return string Order's matched shipping zone's handling fee value.
+	 * @return mixed
 	 */
 	public function getZoneHandlingFeeValue() {
 		return $this->shippingZone->get(PwCommerce::SHIPPING_FEE_SETTINGS_FIELD_NAME)->handlingFeeValue;
@@ -271,10 +298,9 @@ trait TraitPWCommerceShipping
 	/**
 	 * Calculate the current order's percentage handling fee amount.
 	 *
-	 * @access public
-	 * @param float $handlingFeeValue The determined handling fee value as a percent;
-	 * @param float $orderNetPrice The order subtotal/net price (pre-tax, pre-shipping and pre-handling fee)
-	 * @return \Money\Money $handlingFeeMoney The calculated handling fee amount.
+	 * @param mixed $handlingFeeValue
+	 * @param mixed $orderDiscountedNetPriceMoney
+	 * @return mixed
 	 */
 	public function calculatePercentageHandlingFee($handlingFeeValue, $orderDiscountedNetPriceMoney) {
 		// TODO CONFIRM MONEY
@@ -293,7 +319,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Does the current order use a custom shipping fee?
 	 *
-	 * @return boolean Whether current order uses a custom shipping fee
+	 * @return bool
 	 */
 	public function isCustomShippingFee() {
 		return (int) $this->order->isCustomShippingFee === 1;
@@ -302,10 +328,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Calculate the shipping to charge for the current order.
 	 *
-	 * This takes into account: matched shipping zone; matched shipping zone rates; maximum shipping fee for zone; charge taxes on shipping and custom shipping.
-	 *
-	 * @access public
-	 * @return \Money\Money $shippingAmount Shipping amount to charge on order.
+	 * @return mixed
 	 */
 	public function getOrderShippingFeeMoney() {
 
@@ -410,6 +433,11 @@ trait TraitPWCommerceShipping
 	# ==============================
 
 
+	/**
+	 * Is Shop Have At Least One Shipping Zone.
+	 *
+	 * @return bool
+	 */
 	public function isShopHaveAtLeastOneShippingZone() {
 		// get at least one PUBLISHED shipping zone
 		$oneShippingZoneID = (int) $this->wire('pages')->getRaw("template=" . PwCommerce::SHIPPING_ZONE_TEMPLATE_NAME . ",status!=unpublished", 'id');
@@ -419,6 +447,11 @@ trait TraitPWCommerceShipping
 
 
 
+	/**
+	 * Is Shipping Applicable On Order.
+	 *
+	 * @return bool
+	 */
 	private function isShippingApplicableOnOrder() {
 		$lineItemsProductsIDs = $this->getProductsIDsInLineItemsForOrder();
 		// ------
@@ -434,6 +467,12 @@ trait TraitPWCommerceShipping
 
 
 
+	/**
+	 * Is Shippable Physical Product.
+	 *
+	 * @param Page $product
+	 * @return bool
+	 */
 	public function isShippablePhysicalProduct(Page $product) {
 		// determine if product is a variant or main product (without variants)
 		$isVariant = $this->isVariant($product);
@@ -443,6 +482,11 @@ trait TraitPWCommerceShipping
 		return $productSettings->shippingType === 'physical';
 	}
 
+	/**
+	 * Is Order Customer Shipping Address In The E U.
+	 *
+	 * @return bool
+	 */
 	public function isOrderCustomerShippingAddressInTheEU() {
 		// GET COUNTRIES CLASS
 		$pwcommerceCountries = $this->getPWCommerceClassByName('PWCommerceCountries');
@@ -453,6 +497,11 @@ trait TraitPWCommerceShipping
 
 		return $isShippingCountryInTheEU;
 	}
+	/**
+	 * Is Order Customer Shipping Address In Shop Country.
+	 *
+	 * @return bool
+	 */
 	public function isOrderCustomerShippingAddressInShopCountry() {
 		// GET COUNTRIES CLASS
 		$pwcommerceCountries = $this->getPWCommerceClassByName('PWCommerceCountries');
@@ -470,6 +519,11 @@ trait TraitPWCommerceShipping
 
 	# ***************
 
+	/**
+	 * Get Lines Items For Live Shipping Rate Calculation.
+	 *
+	 * @return array
+	 */
 	private function getLinesItemsForLiveShippingRateCalculation(): array {
 		// TODO: NEED TO REVISIT THIS! THIS IS BECAUSE WE CANNOT DETERMINE DISCOUNTED PRICES AT THIS POINT IN TIME; HENCE WE ASSUME 'total_price_discounted_with_tax' IS EQUAL TO 'total_price'! it is also difficult since no taxes have been applied yet! this issue only affects price-based live rates; these depend on 'getOrderLineItemsSubTotalNetDiscountedPriceAmount()'
 		$orderLineItems = [];
@@ -513,6 +567,11 @@ trait TraitPWCommerceShipping
 	}
 	# ==============================
 
+	/**
+	 * Get Shipping Countries.
+	 *
+	 * @return mixed
+	 */
 	public function getShippingCountries() {
 		$allShippingZoneCountries = [];
 		// TODO: FINDRAW OR FIND?
@@ -584,6 +643,11 @@ trait TraitPWCommerceShipping
 		return $allShippingZoneCountries;
 	}
 
+	/**
+	 * Get Shop Rest Of The World Shipping Zone I D.
+	 *
+	 * @return mixed
+	 */
 	public function getShopRestOfTheWorldShippingZoneID() {
 		$restOfTheWorldShippingZoneID = 0;
 		if ($this->isShopHaveRestOfTheWorldShippingZone()) {
@@ -595,11 +659,21 @@ trait TraitPWCommerceShipping
 
 	// check if shop uses a rest of the world shipping zone
 	// @see notes in shop general settings
+	/**
+	 * Is Shop Have Rest Of The World Shipping Zone.
+	 *
+	 * @return bool
+	 */
 	public function isShopHaveRestOfTheWorldShippingZone() {
 		$generalSettings = $this->getShopGeneralSettings();
 		return !empty($generalSettings->rest_of_the_world_shipping_zone);
 	}
 
+	/**
+	 * Get Rest Of The World Shipping Zone.
+	 *
+	 * @return mixed
+	 */
 	public function getRestOfTheWorldShippingZone() {
 		$restOfTheWorldShippingZone = [];
 		$restOfTheWorldShippingZoneID = $this->getShopRestOfTheWorldShippingZoneID();
@@ -616,8 +690,8 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get the shipping zone for a given country.
 	 *
-	 * @param Page|integer $country Country Page or page ID whose shipping zone to find.
-	 * @return Page|null $shippingZone Page if found, else null.
+	 * @param mixed $country
+	 * @return mixed
 	 */
 	public function getOrderCustomerCountryShippingZone($country) {
 		// TODO CHANGE THIS! IF NO SHIPPING ZONE FOUND, NEXT CHECK IF ROW IN USE AND IF SO, GET THAT ZONE!
@@ -648,9 +722,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get the order's matched shipping zone's maximum shipping fee value.
 	 *
-	 *
-	 * @access public
-	 * @return float Order's matched shipping zone's maximum shipping fee value.
+	 * @return mixed
 	 */
 	public function getZoneMaximumShippingFee() {
 		return $this->shippingZone->get(PwCommerce::SHIPPING_FEE_SETTINGS_FIELD_NAME)->maximumShippingFee;
@@ -659,8 +731,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get shipping rates for order's matched shipping zone.
 	 *
-	 * @access public
-	 * @return null|WireArray $rates WireArray with rates if found, else null.
+	 * @return mixed
 	 */
 	public function getZoneShippingRates() {
 		$rates = null;
@@ -679,9 +750,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get shipping rates pages for order's matched shipping zone.
 	 *
-	 * @note: rates pages are child pages of the shipping zone page.
-	 * @access public
-	 * @return PageArray|null Shipping zone child pages (rates) if found, else null.
+	 * @return mixed
 	 */
 	public function getZoneShippingRatesPages() {
 		$ratesPages = null;
@@ -698,10 +767,8 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get a shipping rate by its page ID.
 	 *
-	 * @note: rates pages are child pages of the shipping zone page.
-	 * @access public
-	 * @param int $ratePageID The ID of the rate page.
-	 * @return WireData|null Shipping rate if found, else null.
+	 * @param int $ratePageID
+	 * @return mixed
 	 */
 	public function getShippingRateByID($ratePageID) {
 		$ratePage = $this->wire('pages')->get("template=" . PwCommerce::SHIPPING_RATE_TEMPLATE_NAME . ",id={$ratePageID}");
@@ -712,10 +779,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get compute matched shipping rates for given order.
 	 *
-	 * These are matched according to the shipping zone for the shipping country.
-	 *
-	 * @access protected
-	 * @return WireArray  $matchedRates.
+	 * @return mixed
 	 */
 	protected function getOrderComputedMatchedShippingRates() {
 
@@ -829,11 +893,8 @@ trait TraitPWCommerceShipping
 	/**
 	 * Get matched shipping rates for given order.
 	 *
-	 * These are already matched.
-	 * Here we just fetch them without computing.
-	 *
-	 * @access protected
-	 * @return WireArray  $matchedRates.
+	 * @param Page $orderPage
+	 * @return mixed
 	 */
 	protected function getOrderMatchedShippingRates(Page $orderPage) {
 		$orderCalculatedShippingValues = $this->getOrderShippingValues($orderPage);
@@ -844,8 +905,8 @@ trait TraitPWCommerceShipping
 	/**
 	 * Match a condition-based rate for the shipping zone for this order.
 	 *
-	 * @param string $context One of 'weight', 'price' or 'quantity' for their respective rates.
-	 * @return null|WireArray $matches Matched rates if found, else null.
+	 * @param mixed $context
+	 * @return mixed
 	 */
 	public function getConditionBasedRatesMatches($context) {
 		$matches = null;
@@ -902,7 +963,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Return a WireArray with weight-based rates for the current order shipping zone.
 	 *
-	 * @return WireArray $weightBasedRates The weight-based rates.
+	 * @return mixed
 	 */
 	public function getZoneWeightBasedRates() {
 		/** @var WireArray $allRates */
@@ -924,7 +985,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Return a WireArray with price-based rates for the current order shipping zone.
 	 *
-	 * @return WireArray $priceBasedRates The price-based rates.
+	 * @return mixed
 	 */
 	public function getZonePriceBasedRates() {
 		/** @var WireArray $allRates */
@@ -947,7 +1008,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Return a WireArray with quantity-based rates for the current order shipping zone.
 	 *
-	 * @return WireArray $quantityBasedRates The quantity-based rates.
+	 * @return mixed
 	 */
 	public function getZoneQuantityBasedRates() {
 		/** @var WireArray $allRates */
@@ -969,7 +1030,7 @@ trait TraitPWCommerceShipping
 	/**
 	 * Return a WireArray with flat-based rates for the current order shipping zone.
 	 *
-	 * @return WireArray $flatRates The flat-based rates.
+	 * @return mixed
 	 */
 	public function getZoneFlatRates() {
 		/** @var WireArray $allRates */
@@ -990,12 +1051,24 @@ trait TraitPWCommerceShipping
 
 	#######################################
 
+	/**
+	 * Is Valid Shipping Rate I D For Order.
+	 *
+	 * @param int $orderSelectedShippingRateID
+	 * @return bool
+	 */
 	private function isValidShippingRateIDForOrder($orderSelectedShippingRateID) {
 		/** @var array $matchedShippingZoneRatesIDs */
 		$matchedShippingZoneRatesIDs = $this->session->matchedShippingZoneRatesIDs;
 		return in_array($orderSelectedShippingRateID, $matchedShippingZoneRatesIDs);
 	}
 
+	/**
+	 * Set Order Page P W Commerce Order Shipping Values.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function setOrderPagePWCommerceOrderShippingValues(Page $orderPage) {
 		// GET CALCULATED SHIPPING VALUES
 		/** @var WireData $order */
@@ -1075,6 +1148,11 @@ trait TraitPWCommerceShipping
 	}
 
 
+	/**
+	 * Get Validated Pre Selected Matched Shipping Rate.
+	 *
+	 * @return mixed
+	 */
 	private function getValidatedPreSelectedMatchedShippingRate() {
 		$validPreselectedMatchedShippingRateID = 0;
 		$preSelectedMatchedShippingRateID = (int) $this->wire('input')->post->order_selected_shipping_rate;
@@ -1094,6 +1172,13 @@ trait TraitPWCommerceShipping
 		return $validPreselectedMatchedShippingRateID;
 	}
 
+	/**
+	 * Get Single Matched Shipping Rate.
+	 *
+	 * @param WireArray $matchedShippingRates
+	 * @param int $preSelectedMatchedShippingRateID
+	 * @return WireData
+	 */
 	private function getSingleMatchedShippingRate(WireArray $matchedShippingRates, int $preSelectedMatchedShippingRateID): WireData {
 		// first check if we have a preselected (e.g. via ajax) shipping rate
 		if (!empty($preSelectedMatchedShippingRateID)) {
@@ -1109,6 +1194,12 @@ trait TraitPWCommerceShipping
 
 
 	// TODO CONFIRM STILL NEEDED
+	/**
+	 * Get Order Handling Fee Values.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	public function getOrderHandlingFeeValues(Page $orderPage) {
 		$handlingFeeValues = new WireData();
 		$handlingFeeProperties = ['handlingFeeType', 'handlingFeeValue', 'handlingFee'];
@@ -1121,6 +1212,12 @@ trait TraitPWCommerceShipping
 		return $handlingFeeValues;
 	}
 
+	/**
+	 * Get Order Shipping Values.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function getOrderShippingValues(Page $orderPage) {
 		// TODO: WE NEED THIS AGAIN IN parseCart(); should we save to memory? or just call again? latter for now
 		$shippingCountry = $this->wire('pages')->get((int) $this->session->shippingAddressCountryID);
@@ -1148,6 +1245,12 @@ trait TraitPWCommerceShipping
 	# reprocessOrderValuesAfterShippingConfirmation
 
 	# ~~~~~~~~~~~~~~
+	/**
+	 * Reprocess Order Values After Shipping Confirmation.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function reprocessOrderValuesAfterShippingConfirmation(Page $orderPage) {
 		// @TODO: WE NEED THIS AGAIN IN parseCart(); should we save to memory? or just call again? latter for now
 		$shippingCountry = $this->wire('pages')->get((int) $this->session->shippingAddressCountryID);

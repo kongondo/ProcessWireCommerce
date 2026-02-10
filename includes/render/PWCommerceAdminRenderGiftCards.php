@@ -50,6 +50,12 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	public $giftCardPage;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		parent::__construct();
 		// TODO????
@@ -84,6 +90,12 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		}
 	}
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	public function renderResults($selector = null) {
 
 		$input = $this->wire('input');
@@ -153,8 +165,7 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	/**
 	 * Get the options for building the form to manually issue a Gift Card for use in ProcessPWCommerce.
 	 *
-	 * @access public
-	 * @return array array with options for the form.
+	 * @return mixed
 	 */
 	public function getAddNewItemOptions() {
 		return [
@@ -163,6 +174,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		];
 	}
 
+	/**
+	 * Pagination Options.
+	 *
+	 * @return mixed
+	 */
 	public function paginationOptions() {
 		$adminURL = '';
 		// TODO: WE WILL ALWAYS HAVE AN ADMIN URL, BUT JUST SANITY CHECK!
@@ -175,6 +191,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $paginationOptions;
 	}
 
+	/**
+	 * Get Custom Lister Settings.
+	 *
+	 * @return mixed
+	 */
 	public function getCustomListerSettings() {
 		return [
 			'label' => $this->_('Filter Gift Cards'),
@@ -188,6 +209,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	private function getResultsTableHeaders() {
 		// TODO: DO WE USE TW CLASSES HERE?
 		$selectAllCheckboxName = "pwcommerce_bulk_edit_selected_items_all";
@@ -211,7 +237,22 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		];
 	}
 
-	//  public function getResultsTable($items, array $headerRow, array $rows, $options = []) {
+	//  /**
+   * Get Results Table.
+   *
+   * @param array $items
+   * @param array $headerRow
+   * @param array $rows
+   * @param array $options
+   * @return mixed
+   */
+  public function getResultsTable($items, array $headerRow, array $rows, array $options = []) {
+	/**
+	 * Get Results Table.
+	 *
+	 * @param mixed $pages
+	 * @return mixed
+	 */
 	private function getResultsTable($pages) {
 
 		$out = "";
@@ -264,6 +305,12 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 
 
+	/**
+	 * Get Edit Item Title.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemTitle($page) {
 		// get the edit URL if item is unlocked
 		$out = $this->getEditItemURL($page);
@@ -285,6 +332,12 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemURL($page) {
 		// TODO: CHECK IF UNLOCKED FIRST!
 		$adminURL = $this->options['admin_url'];
@@ -303,6 +356,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	}
 
 
+	/**
+	 * Get Gift Card End Date.
+	 *
+	 * @return mixed
+	 */
 	private function getGiftCardEndDate(string|null $endDate) {
 		$endDateTimestamp = (int) $endDate;
 		$dateFormat = $this->pwcommerce->getShopDateOnlyFormat();
@@ -320,6 +378,12 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Gift Card Balance.
+	 *
+	 * @param WireData $giftCard
+	 * @return mixed
+	 */
 	private function getGiftCardBalance(WireData $giftCard) {
 		$balanceAsCurrency = $this->pwcommerce->getValueFormattedAsCurrencyForShop($giftCard->balance);
 		$denominationAsCurrency = $this->pwcommerce->getValueFormattedAsCurrencyForShop($giftCard->denomination);
@@ -330,6 +394,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	}
 
 	// TODO delete since not possible!
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getBulkEditActionsPanel() {
 		// TODO: wip!
 		// TODO: NOT IN USE FOR NOW; WILL ADD IN LATER RELEASES
@@ -376,6 +445,14 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @param mixed $xref
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name, $xref = null) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",
@@ -398,6 +475,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 		return $field->render();
 	}
+	/**
+	 * Get Issue Gift Card Button Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getIssueGiftCardButtonMarkup() {
 
 		// TODO -> THIS NEEDS TO BE A LINK to the page to manually issue gift card
@@ -442,7 +524,8 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	/**
 	 * Render single gift card view headline to append to the Process headline in PWCommerce.
 	 *
-	 * @return string $out Headline string to append to the main Process headline.
+	 * @param Page $giftCardPage
+	 * @return string|mixed
 	 */
 	public function renderViewItemHeadline(Page $giftCardPage) {
 		$headline = $this->_('View gift card');
@@ -457,8 +540,9 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 	/**
 	 * Render the markup for a single gift card view.
-	 * @param Page $giftCardPage The gift card page being viewed.
-	 * @return string Rendered markup.
+	 *
+	 * @param Page $giftCardPage
+	 * @return string|mixed
 	 */
 	public function renderViewItem(Page $giftCardPage) {
 
@@ -492,6 +576,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $wrapper->render();
 	}
 
+	/**
+	 * Build View Gift Card.
+	 *
+	 * @return mixed
+	 */
 	private function buildViewGiftCard() {
 		$out =
 			// gift card (main)
@@ -506,6 +595,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		// -------
 		return $out;
 	}
+	/**
+	 * Render Gift Card Main.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderGiftCardMain() {
 
 		// TODO THINK ABOUT ADDING FUNCTION TO TOP-UP GIFT CARD + SEND EMAIL NOTIFICATION
@@ -551,6 +645,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Gift Card Activities.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderGiftCardActivities() {
 		$giftCardPage = $this->giftCardPage;
 		/** @var WireArray $giftCardActitivities */
@@ -597,6 +696,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Gift Card Notes.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderGiftCardNotes() {
 		// TODO - TO ADD IN FUTURE!
 		$out = "";
@@ -608,7 +712,7 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	/**
 	 * Modal for MANUAL issue of Gift Cards.
 	 *
-	 * @return string $out Modal markup.
+	 * @return mixed
 	 */
 	private function getModalMarkupForManualIssueGiftCard() {
 		// ## ORDER MARK AS MODALs MARKUP  ##
@@ -697,6 +801,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Modal Markup For Manual Issue Gift Card Send Button.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderModalMarkupForManualIssueGiftCardSendButton() {
 		# ALPINE JS #
 		$xstore = $this->xstore;
@@ -747,7 +856,8 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	}
 	/**
 	 * Get rendered button for the modal for actioning a selected order status.
-	 * @return string $cancelButton.
+	 *
+	 * @return string
 	 */
 	private function renderModalMarkupForManualIssueGiftCardCancelButton(): string {
 		$cancelButton = $this->pwcommerce->getModalActionButton(['x-on:click' => 'resetManualIssueGiftCardAndCloseModal'], 'cancel');
@@ -758,9 +868,7 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	/**
 	 * XXXXXXX
 	 *
-	 * Returns InputfieldForm that includes form inputs needed to create new country.
-	 *
-	 * @return InputfieldForm $form Add new page Form.
+	 * @return mixed
 	 */
 	public function getCustomAddNewItemForm() {
 		$form = $this->pwcommerce->getInputfieldForm();
@@ -853,6 +961,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	}
 
 
+	/**
+	 * Get Manually Issue Gift Card Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getManuallyIssueGiftCardMarkup() {
 
 
@@ -914,6 +1027,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	}
 
 	// markup for whole issue gift card
+	/**
+	 * Get Markup For Manually Issue Gift Card Parts.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardParts() {
 
 		// GET WRAPPER FOR ALL INPUTFIELDS HERE
@@ -1020,6 +1138,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Email Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardEmailTextField() {
 		// TODO RENAME NAME, ETC BELOW
 
@@ -1093,6 +1216,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Denomination Mode Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardDenominationModeRadioField() {
 
 		$radioOptionsDenominationMode = [
@@ -1130,6 +1258,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Denominations Select Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardDenominationsSelectField() {
 		// TODO RENAME NAME, ETC BELOW
 		// TODO confirm $xstore!
@@ -1207,6 +1340,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Denomination Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardDenominationTextField() {
 
 		$description = sprintf(__("Custom value for the gift card to issue%s."), $this->shopCurrencySymbolString);
@@ -1251,6 +1389,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Set Expiration Date Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardSetExpirationDateRadioField() {
 
 		$radioOptionsSetExpirationDate = [
@@ -1292,7 +1435,18 @@ class PWCommerceProcessRenderGiftCards extends WireData
 	}
 
 	// TODO DELETE WHEN DONE; NO LONGER USING START DATE!
-	// private function getMarkupForManuallyIssueGiftCardDateField($mode = 'start') {
+	// /**
+  * Get Markup For Manually Issue Gift Card Date Field.
+  *
+  * @param string $mode
+  * @return mixed
+  */
+ private function getMarkupForManuallyIssueGiftCardDateField($mode = 'start') {
+	/**
+	 * Get Markup For Manually Issue Gift Card Date Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardDateField() {
 		// TODO RENAME NAME, ETC BELOW
 
@@ -1388,6 +1542,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Copy Gift Card Code Button Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getCopyGiftCardCodeButtonMarkup() {
 		$options = [
 			'label' => $this->_('Copy Gift Card Code'),
@@ -1409,6 +1568,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Button Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardButtonField() {
 
 
@@ -1447,6 +1611,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		# -----
 		return $field;
 	}
+	/**
+	 * Get Markup For Manually Issue Gift Card Admin Note Textarea Field.
+	 *
+	 * @return InputfieldTextarea
+	 */
 	private function getMarkupForManuallyIssueGiftCardAdminNoteTextareaField(): InputfieldTextarea {
 
 		//------------------- note text/content/value (getInputfieldTextarea)
@@ -1478,6 +1647,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 	########################
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Email Subject Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardEmailSubjectTextField() {
 		// TODO RENAME NAME, ETC BELOW
 
@@ -1546,6 +1720,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Email Body R T E Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardEmailBodyRTEField() {
 
 
@@ -1589,6 +1768,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Manually Issue Gift Card Dates Error Strings.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardDatesErrorStrings() {
 		// SCRIPT for Issue Gift Card Error Strings Configs for ALPINE JS
 		// TODO: important that this is INIT'd on time!
@@ -1597,6 +1781,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		// --------
 		return $out;
 	}
+	/**
+	 * Get Manually Issue Gift Card Dates Error Strings Script.
+	 *
+	 * @return mixed
+	 */
 	private function getManuallyIssueGiftCardDatesErrorStringsScript() {
 		// TODO REPHRASE?
 		$errorStringsArray = [
@@ -1622,6 +1811,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 
 	// TODO DELETE THIS AS NO LONGER IN USE OR RETAIN?
+	/**
+	 * Get Markup For Manually Issue Gift Card Modal.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForManuallyIssueGiftCardModal() {
 
 
@@ -1713,6 +1907,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Render Build Issue Gift Card Body.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderBuildIssueGiftCardBody() {
 		// TODO ADD GC VALUE AND CURRENCY SYMBOL TO GC TO ISSUE!
 		$currencySymbol = "";
@@ -1754,6 +1953,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Issue Gift Card Dependent Inputs Alpine Attributes.
+	 *
+	 * @return mixed
+	 */
 	private function getIssueGiftCardDependentInputsAlpineAttributes() {
 		// @note: here since shared by three inputs + button
 		$xstoreIssueGiftCardData = "{$this->xstore}.manually_issue_gift_card_data";
@@ -1767,12 +1971,22 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		];
 	}
 
+	/**
+	 * Is Issuing Gift Cards Possible.
+	 *
+	 * @return bool
+	 */
 	private function isIssuingGiftCardsPossible() {
 		$singleIssuableGiftCardProductVariant = $this->getGiftCardProductVariants(true);
 
 		return !empty($singleIssuableGiftCardProductVariant);
 	}
 
+	/**
+	 * Get Markup For Not Possible To Issue Gift Cards.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForNotPossibleToIssueGiftCards() {
 		$label = ucwords($this->issueGiftCardLink);
 		$warning1 = $this->_('It is currently not possible to issue a Gift Card from this Gift Card Product.');
@@ -1787,7 +2001,13 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $out;
 	}
 
-	private function getGiftCardProductVariants($isGetSingle = false) {
+	/**
+	 * Get Gift Card Product Variants.
+	 *
+	 * @param bool $isGetSingle
+	 * @return mixed
+	 */
+	private function getGiftCardProductVariants(bool $isGetSingle = false) {
 		# --------
 		// $selector = "template=" . PwCommerce::GIFT_CARD_PRODUCT_VARIANT_TEMPLATE_NAME . ",parent_id={$this->page->id},". PwCommerce::PRODUCT_STOCK_FIELD_NAME . ".price>0,status<" . Page::statusTrash;
 
@@ -1825,6 +2045,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 	// TODO @UPDATE - NO LONGER IN USE SINCE JULY 2023; MANUALLY ISSUED GIFT CARDS ARE NOT LINKED TO GIFT CARD PRODUCTS!
 	// TODO DELETE IF NOT IN USE
+	/**
+	 * Is Ready To Issue Gift Cards.
+	 *
+	 * @return bool
+	 */
 	private function isReadyToIssueGiftCards() {
 		// CHECK IF WE HAVE AT LEAST ONE GIFT CARD PRODUCT AVAILABLE
 		// @NOTE: WE FIND AT LEAST ONE PUBLISHED GIFT CARD VARIANT with a denomination!
@@ -1854,6 +2079,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 	# >>>>>>>>>>>>>>>>>>> AJAX <<<<<<<<<<<<<<<<<<<
 
+	/**
+	 * Handle Ajax Manual Issuge Gift Card Code.
+	 *
+	 * @return mixed
+	 */
 	private function handleAjaxManualIssugeGiftCardCode() {
 		// TODO: DO WE REALLY NEED A SEPARATE METHOD? LET BE FOR NOW (FOR CONSISTENCY WITH ProcessRenderOrders)
 		$out = $this->processAjaxGetRequestForManualIssugeGiftCardCode();
@@ -1863,6 +2093,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 	}
 
+	/**
+	 * Process Ajax Get Request For Manual Issuge Gift Card Code.
+	 *
+	 * @return mixed
+	 */
 	private function processAjaxGetRequestForManualIssugeGiftCardCode() {
 		$code = $this->pwcommerce->pwcommerceGiftCards->getUniqueGiftCardCode();
 		// $out = "<p>{$code}</p>"
@@ -1873,6 +2108,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ QUICK FILTERS  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 *    get Quick Filters Values.
+	 *
+	 * @return mixed
+	 */
 	protected function ___getQuickFiltersValues() {
 		$filters = [
 			// reset/all
@@ -1888,6 +2128,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $filters;
 	}
 
+	/**
+	 * Get Allowed Quick Filter Values.
+	 *
+	 * @return mixed
+	 */
 	private function getAllowedQuickFilterValues() {
 		// filters array
 		/** @var array $filters */
@@ -1896,6 +2141,11 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $allowedQuickFilterValues;
 	}
 
+	/**
+	 * Get Selector For Quick Filter.
+	 *
+	 * @return mixed
+	 */
 	protected function getSelectorForQuickFilter() {
 		$input = $this->wire('input');
 		$selector = '';
@@ -1922,6 +2172,12 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Active.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterActive($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'active') {
@@ -1935,6 +2191,12 @@ class PWCommerceProcessRenderGiftCards extends WireData
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter Account.
+	 *
+	 * @param mixed $quickFilterValue
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterAccount($quickFilterValue) {
 		$selector = '';
 		if ($quickFilterValue === 'registered') {
@@ -1949,12 +2211,22 @@ class PWCommerceProcessRenderGiftCards extends WireData
 
 	}
 
+	/**
+	 * Get Selector For Quick Filter Not In Customer Group.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNotInCustomerGroup() {
 		$selector = "," . PwCommerce::CUSTOMER_GROUPS_FIELD_NAME . "=''";
 		// ----
 		return $selector;
 	}
 
+	/**
+	 * Get Selector For Quick Filter No Order.
+	 *
+	 * @return mixed
+	 */
 	private function getSelectorForQuickFilterNoOrder() {
 		// e.g.
 		// SELECT email

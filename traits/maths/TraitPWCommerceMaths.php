@@ -20,6 +20,14 @@ trait TraitPWCommerceMaths
 {
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MATHS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Math Add.
+	 *
+	 * @param mixed $leftOperand
+	 * @param mixed $rightOperand
+	 * @param int $scale
+	 * @return mixed
+	 */
 	public function mathAdd($leftOperand, $rightOperand, $scale = 2) {
 		// BCMATH EXPECTS STRING VALUES
 		$leftOperand = strval($leftOperand);
@@ -29,6 +37,14 @@ trait TraitPWCommerceMaths
 		return (float) $sum;
 	}
 
+	/**
+	 * Math Subtract.
+	 *
+	 * @param mixed $leftOperand
+	 * @param mixed $rightOperand
+	 * @param int $scale
+	 * @return mixed
+	 */
 	public function mathSubtract($leftOperand, $rightOperand, $scale = 2) {
 		// BCMATH EXPECTS STRING VALUES
 		$leftOperand = strval($leftOperand);
@@ -38,6 +54,14 @@ trait TraitPWCommerceMaths
 		return (float) $difference;
 	}
 
+	/**
+	 * Math Multiply.
+	 *
+	 * @param mixed $leftOperand
+	 * @param mixed $rightOperand
+	 * @param int $scale
+	 * @return mixed
+	 */
 	public function mathMultiply($leftOperand, $rightOperand, $scale = 2) {
 		// BCMATH EXPECTS STRING VALUES
 		$leftOperand = strval($leftOperand);
@@ -47,6 +71,14 @@ trait TraitPWCommerceMaths
 		return (float) $product;
 	}
 
+	/**
+	 * Math Divide.
+	 *
+	 * @param mixed $dividend
+	 * @param mixed $divisor
+	 * @param int $scale
+	 * @return mixed
+	 */
 	public function mathDivide($dividend, $divisor, $scale = 2) {
 		// BCMATH EXPECTS STRING VALUES
 		$dividend = strval($dividend);
@@ -56,6 +88,14 @@ trait TraitPWCommerceMaths
 		return (float) $quotient;
 	}
 
+	/**
+	 * Math Compare.
+	 *
+	 * @param mixed $leftOperand
+	 * @param mixed $rightOperand
+	 * @param int $scale
+	 * @return mixed
+	 */
 	public function mathCompare($leftOperand, $rightOperand, $scale = 2) {
 		// BCMATH EXPECTS STRING VALUES
 		$leftOperand = strval($leftOperand);

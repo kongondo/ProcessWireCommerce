@@ -28,6 +28,11 @@ trait TraitPWCommerceCart
 	protected $items; //WireArray keeping items
 
 
+	/**
+	 * Get Cart For Processing.
+	 *
+	 * @return mixed
+	 */
 	public function getCartForProcessing() {
 		// rename this method
 		# ++++++++++++++
@@ -61,6 +66,11 @@ trait TraitPWCommerceCart
 
 	}
 
+	/**
+	 * Get Cart Sub Total Money.
+	 *
+	 * @return mixed
+	 */
 	public function getCartSubTotalMoney() {
 		/** @var WireArray $cart */
 		$cart = $this->getCartForProcessing();
@@ -77,6 +87,11 @@ trait TraitPWCommerceCart
 		// ========
 		return $cartSubTotalMoney;
 	}
+	/**
+	 * Get Cart Sub Total.
+	 *
+	 * @return mixed
+	 */
 	public function getCartSubTotal() {
 		$cartMoney = $this->getCartSubTotalMoney();
 		$cartSubTotalAmount = $this->getWholeMoneyAmount($cartMoney);
@@ -84,18 +99,43 @@ trait TraitPWCommerceCart
 
 	}
 
+	/**
+	 * Get Cart Total Money.
+	 *
+	 * @return mixed
+	 */
 	public function getCartTotalMoney() {
 	}
 
+	/**
+	 * Get Cart Total.
+	 *
+	 * @return mixed
+	 */
 	public function getCartTotal() {
 	}
 
+	/**
+	 * Get Cart Tax Money.
+	 *
+	 * @return mixed
+	 */
 	public function getCartTaxMoney() {
 	}
 
+	/**
+	 * Get Cart Tax.
+	 *
+	 * @return mixed
+	 */
 	public function getCartTax() {
 	}
 
+	/**
+	 * Get Cart Shipping.
+	 *
+	 * @return mixed
+	 */
 	public function getCartShipping() {
 	}
 
@@ -114,7 +154,7 @@ trait TraitPWCommerceCart
 	/**
 	 * Get cart with final titles and prices calculated
 	 *
-	 * @return array containg cart items
+	 * @return mixed
 	 */
 	public function ___getCart() {
 		// ==============
@@ -175,6 +215,12 @@ trait TraitPWCommerceCart
 	}
 
 	// @KONGONDO ADDITION
+	/**
+	 * Get Product Thumb.
+	 *
+	 * @param Page $product
+	 * @return mixed
+	 */
 	private function getProductThumb(Page $product) {
 
 		$thumb = null;
@@ -186,6 +232,12 @@ trait TraitPWCommerceCart
 		return $thumb;
 	}
 
+	/**
+	 * Get Product Thumb U R L.
+	 *
+	 * @param Page $product
+	 * @return mixed
+	 */
 	private function getProductThumbURL(Page $product) {
 
 		$thumb = $this->getProductThumb($product);
@@ -199,7 +251,7 @@ trait TraitPWCommerceCart
 	/**
 	 * Get cart in raw database format
 	 *
-	 * @return array cart items
+	 * @return mixed
 	 */
 	public function getCartRaw() {
 		$tableName = PwCommerce::PWCOMMERCE_CART_TABLE_NAME;
@@ -228,8 +280,8 @@ trait TraitPWCommerceCart
 	/**
 	 * Get quantity based on product id, includes all variations too
 	 *
-	 * @param int $product_id
-	 * @return int quantity of products in cart
+	 * @param mixed $product_id
+	 * @return mixed
 	 */
 	public function getProductQuantityFromCart($product_id) {
 		$sql = "SELECT quantity FROM " . PwCommerce::PWCOMMERCE_CART_TABLE_NAME . " WHERE session_id = :session_id AND product_id = :product_id";
@@ -250,6 +302,11 @@ trait TraitPWCommerceCart
 
 	// ~~~~~~~~~~~~~~~~~
 
+	/**
+	 *  prepare Add.
+	 *
+	 * @return mixed
+	 */
 	private function _prepareAdd() {
 		// TODO - DO WE REALLY NEED THIS METHOD? WHAT DOES IT CHECK?!!!
 		$id = (int) $this->input->post->product_id;
@@ -280,11 +337,21 @@ trait TraitPWCommerceCart
 		// TODO TESTING NEW SPECIAL ADD FOR LIVE STOCK CHECKER
 	}
 
+	/**
+	 *  prepare Remove.
+	 *
+	 * @return mixed
+	 */
 	private function _prepareRemove() {
 		$id = (int) $this->input->post->product_id;
 		$this->remove($id);
 	}
 
+	/**
+	 *  prepare Update Cart.
+	 *
+	 * @return mixed
+	 */
 	private function _prepareUpdateCart() {
 		$products = $this->input->post->pwcommerce_cart_products;
 		$rem_products = $this->input->post->pwcommerce_cart_remove_product;
@@ -296,9 +363,10 @@ trait TraitPWCommerceCart
 	/**
 	 * Add product into cart. If same product already exists in cart, then update quantity
 	 *
-	 * @param int $product_id
+	 * @param mixed $product_id
 	 * @param int $quantity
-	 * @return bool true on success
+	 * @param int $variation_id
+	 * @return mixed
 	 */
 	public function ___addProduct($product_id, $quantity = 1, $variation_id = 0) {
 		// TODO - USE TRY/CATCH?
@@ -360,11 +428,10 @@ trait TraitPWCommerceCart
 
 	/**
 	 * Updates session reference in database. This is required when user logs in and
-	 * ProcessWire creates new session.
 	 *
-	 * @param string $old_session current session id that is saved into database for the cart
-	 * @param string $new_session new session that will replace the current session id
-	 *
+	 * @param mixed $old_session
+	 * @param mixed $new_session
+	 * @return mixed
 	 */
 	public function updateSession($old_session, $new_session) {
 		$sql = "UPDATE " . PwCommerce::PWCOMMERCE_CART_TABLE_NAME . " SET session_id = :new_session WHERE session_id = :old_session OR user_id = :user_id";
@@ -379,13 +446,12 @@ trait TraitPWCommerceCart
 	/**
 	 * Updates product quantity.
 	 *
-	 * @param int $cart_row_id
-	 * @param int $quantity
-	 * @param bool $addQty add the quantity on top of existing or update exact value
-	 *
-	 * @return bool true if success
+	 * @param mixed $cart_row_id
+	 * @param mixed $quantity
+	 * @param bool $addQty
+	 * @return mixed
 	 */
-	public function ___updateProduct($cart_row_id, $quantity, $addQty = false) {
+	public function ___updateProduct($cart_row_id, $quantity, bool $addQty = false) {
 		$quantity = (int) $quantity;
 
 		if ($quantity == 0) {
@@ -441,11 +507,10 @@ trait TraitPWCommerceCart
 
 	/**
 	 * Add new product into cart.
-	 * New product is item that has not yet been added to the cart.
 	 *
-	 * @param int $product_id
-	 * @param int $quantity
-	 * @return NULL
+	 * @param mixed $product_id
+	 * @param mixed $quantity
+	 * @return mixed
 	 */
 	public function ___addNewProduct($product_id, $quantity) {
 		// NOTE: FOR NEWLY ADD ITEMS. FOR UPDATE CART, @see ___updateProduct
@@ -465,7 +530,16 @@ trait TraitPWCommerceCart
 
 	}
 
-	public function ___add($id, $quantity = 1, $redirect = false, $variation_id = 0) {
+	/**
+	 *    add.
+	 *
+	 * @param int $id
+	 * @param int $quantity
+	 * @param bool $redirect
+	 * @param int $variation_id
+	 * @return mixed
+	 */
+	public function ___add($id, $quantity = 1, bool $redirect = false, $variation_id = 0) {
 
 
 		// TODO @KONGONDO NOT SURE IF WE NEED THIS VARIATION_ID SINCE OUR VARIATIONS ARE INDEPENDENT PAGES
@@ -502,6 +576,12 @@ trait TraitPWCommerceCart
 		}
 	}
 
+	/**
+	 *    remove.
+	 *
+	 * @param int $id
+	 * @return mixed
+	 */
 	public function ___remove($id) {
 
 
@@ -514,10 +594,11 @@ trait TraitPWCommerceCart
 	/**
 	 * Remove product from cart
 	 *
-	 * @param int $cart_row_id ID of item in cart.
-	 * @param bool $isDeleteFromOrder Also delete associated order line item page if it exists.
+	 * @param mixed $cart_row_id
+	 * @param bool $isDeleteFromOrder
+	 * @return mixed
 	 */
-	public function ___removeProduct($cart_row_id, $isDeleteFromOrder = false) {
+	public function ___removeProduct($cart_row_id, bool $isDeleteFromOrder = false) {
 		if (!empty($isDeleteFromOrder)) {
 			// delete associated order line item page if it exists. this can happen if customer had already started checkout process
 			$this->deleteProductFromOrder($cart_row_id);
@@ -531,6 +612,12 @@ trait TraitPWCommerceCart
 	}
 
 	// TODO @kongondo
+	/**
+	 * Delete Product From Order.
+	 *
+	 * @param mixed $cart_row_id
+	 * @return mixed
+	 */
 	private function deleteProductFromOrder($cart_row_id) {
 
 		// First, get the product. We need its ID to get associated line item
@@ -580,6 +667,8 @@ trait TraitPWCommerceCart
 
 	/**
 	 * Empty the whole cart
+	 *
+	 * @return mixed
 	 */
 	public function ___emptyCart() {
 		$sql = "DELETE FROM " . PwCommerce::PWCOMMERCE_CART_TABLE_NAME . " WHERE session_id = :session_id";
@@ -591,8 +680,7 @@ trait TraitPWCommerceCart
 	/**
 	 * Get number of items in cart. Gives actual quantity, so might be more than there are items in cart.
 	 *
-	 * @see $this->getNumberOfTitles()
-	 * @return int
+	 * @return mixed
 	 */
 	public function getQuantity() {
 		$count = 0;
@@ -606,8 +694,7 @@ trait TraitPWCommerceCart
 	/**
 	 * Get number of unique titles in cart.
 	 *
-	 * @see $this->getQuantity()
-	 * @return int
+	 * @return mixed
 	 */
 	public function getNumberOfTitles() {
 		return count($this->getCartRaw());
@@ -616,7 +703,7 @@ trait TraitPWCommerceCart
 	/**
 	 * Get total amount from cart.
 	 *
-	 * @return float total amount of the cart
+	 * @return mixed
 	 */
 	public function getTotalAmount() {
 		$amount = 0;
@@ -630,9 +717,8 @@ trait TraitPWCommerceCart
 	 * Check if there is enough stock left for required product and quantity
 	 *
 	 * @param Page $product
-	 * @param int $quantity
-	 *
-	 * @return bool true if there is enough stock
+	 * @param mixed $quantity
+	 * @return mixed
 	 */
 	public function ___checkStock(Page $product, $quantity) {
 		// TODO: IMPLEMENT TOGETHER WITH ALLOW BACK ORDERS - ALSO, PWCOMMERCE 2 FIELD IS IN PRODUCT STOCK
@@ -649,10 +735,9 @@ trait TraitPWCommerceCart
 	/**
 	 * Check if certain product is already in cart
 	 *
-	 * @param int $product_id
-	 * @param string $variation_id
-	 *
-	 * @return int|false returns $cart_row_id if there is exact match already in cart
+	 * @param mixed $product_id
+	 * @param int $variation_id
+	 * @return mixed
 	 */
 	public function ___checkIfProductInCart($product_id, $variation_id = 0) {
 
@@ -676,8 +761,8 @@ trait TraitPWCommerceCart
 	/**
 	 * When given $cart_row_id, it returns product page
 	 *
-	 * @param int $cart_row_id
-	 * @return Page $product
+	 * @param mixed $cart_row_id
+	 * @return mixed
 	 */
 	public function ___getProduct($cart_row_id) {
 		$sql = "SELECT product_id FROM " . PwCommerce::PWCOMMERCE_CART_TABLE_NAME . " WHERE id = :id LIMIT 1";
@@ -699,7 +784,7 @@ trait TraitPWCommerceCart
 	 * Returns product price - method specifially for hooking.
 	 *
 	 * @param Page $product
-	 * @return float price of the product
+	 * @return mixed
 	 */
 	public function ___getProductPrice(Page $product) {
 		// --------------
@@ -718,9 +803,10 @@ trait TraitPWCommerceCart
 	 * Return product title - method specifially for hooking.
 	 *
 	 * @param Page $product
-	 * @return string product title
+	 * @param bool $lang
+	 * @return mixed
 	 */
-	public function ___getProductTitle(Page $product, $lang = false) {
+	public function ___getProductTitle(Page $product, bool $lang = false) {
 		if ($lang) {
 			return $product->getLanguageValue($lang, 'title');
 		}
@@ -731,6 +817,15 @@ trait TraitPWCommerceCart
 
 
 
+	/**
+	 * Check Live Stock.
+	 *
+	 * @param int $productID
+	 * @param int $quantity
+	 * @param int $intervalValue
+	 * @param string $intervalType
+	 * @return array
+	 */
 	public function checkLiveStock(int $productID, int $quantity = 1, int $intervalValue = 1, string $intervalType = 'day'): array {
 		$intervalType = $this->wire('sanitizer')->fieldName($intervalType);
 
@@ -796,10 +891,24 @@ trait TraitPWCommerceCart
 
 	}
 
+	/**
+	 * Get Product Count In All Carts.
+	 *
+	 * @param int $productID
+	 * @param int $intervalValue
+	 * @param string $intervalType
+	 * @return mixed
+	 */
 	private function getProductCountInAllCarts(int $productID, int $intervalValue, string $intervalType) {
 		return $this->processQueryProductCountInAllCarts($productID, $intervalValue, $intervalType);
 	}
 
+	/**
+	 * Get Product Stock.
+	 *
+	 * @param int $productID
+	 * @return mixed
+	 */
 	private function getProductStock($productID) {
 		$fields = ['title', 'pwcommerce_product_stock' => 'stock'];
 		$productStock = $this->getRaw("id={$productID}", $fields);
@@ -808,6 +917,13 @@ trait TraitPWCommerceCart
 		}
 	}
 
+	/**
+	 *    add Product Get Array.
+	 *
+	 * @param int $id
+	 * @param int $quantity
+	 * @return mixed
+	 */
 	public function ___addProductGetArray($id, $quantity = 1) {
 
 
@@ -848,11 +964,26 @@ trait TraitPWCommerceCart
 
 	}
 
-	// public function ___updateCart($products = null, $rem_products = null) {
+	// /**
+  *    update Cart.
+  *
+  * @param mixed $products
+  * @param mixed $rem_products
+  * @return mixed
+  */
+ public function ___updateCart($products = null, $rem_products = null) {
 	// TODO @KONGONDO AMENDMENT $isRedirect!
 	// @note: for some htmx cases, we don't need to redirect; we use $isRedirect argument for this
 
-	public function ___updateCart($products = null, $rem_products = null, $isRedirect = true) {
+	/**
+	 *    update Cart.
+	 *
+	 * @param mixed $products
+	 * @param mixed $rem_products
+	 * @param bool $isRedirect
+	 * @return mixed
+	 */
+	public function ___updateCart($products = null, $rem_products = null, bool $isRedirect = true) {
 
 		$removedProductIDs = [];
 		$errors = [];
@@ -906,6 +1037,11 @@ trait TraitPWCommerceCart
 		}
 	}
 
+	/**
+	 * Is Order Already Confirmed.
+	 *
+	 * @return bool
+	 */
 	private function isOrderAlreadyConfirmed() {
 		return $this->getOrderPage() instanceof Page;
 	}
@@ -916,11 +1052,7 @@ trait TraitPWCommerceCart
 	/**
 	 * Update database schema
 	 *
-	 * This method applies incremental updates until latest schema version isf
-	 * reached, while also keeping schema_version config setting up to date.
-	 *
-	 * Thanks to Teppo Koivula for inspiration and code on how to handle this!
-	 *
+	 * @return mixed
 	 */
 	private function updateDatabaseSchema() {
 		// TODO - DELETE WHEN DONE; NOT NEEDED AS IN PWCOMMERCE 2, WE DON'T USE THIS COLUMN; NO SPECIAL VARIATION ID; THEY ARE ALL JUST PRODUCTS
@@ -943,6 +1075,13 @@ trait TraitPWCommerceCart
 		}
 	}
 
+	/**
+	 *    upgrade.
+	 *
+	 * @param mixed $fromVersion
+	 * @param mixed $toVersion
+	 * @return mixed
+	 */
 	public function ___upgrade($fromVersion, $toVersion) {
 		return;
 		// @KONDONGO -> DELETE AS WE WON'T NEED THIS!
@@ -960,6 +1099,11 @@ trait TraitPWCommerceCart
 		}
 	}
 
+	/**
+	 * Install.
+	 *
+	 * @return mixed
+	 */
 	public function install() {
 		$sql = <<<_END
 
@@ -980,6 +1124,11 @@ _END;
 		$sth->execute();
 	}
 
+	/**
+	 * Uninstall.
+	 *
+	 * @return mixed
+	 */
 	public function uninstall() {
 		$sth = $this->database->prepare("DROP TABLE `$this->dbname`");
 		$sth->execute();
@@ -990,10 +1139,7 @@ _END;
 	/**
 	 * Gets the session's order total amount (value).
 	 *
-	 * This is minus shipping or taxes.
-	 * @note: Alias for PWCommerceCart::getTotalAmount
-	 *
-	 * @return float total amount of the cart.
+	 * @return mixed
 	 */
 	public function getOrderTotalAmount() {
 		// TODO RENAME THIS METHOD? TO BE CLEAR NO TAXES?

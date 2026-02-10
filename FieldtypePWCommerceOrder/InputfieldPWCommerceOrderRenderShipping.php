@@ -42,6 +42,12 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function __construct($page) {
 
 		$this->page = $page;
@@ -65,6 +71,8 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 	/**
 	 * Render the input area for order shipping
 	 *
+	 * @param WireData $order
+	 * @return mixed
 	 */
 	public function ___render(WireData $order) {
 		$this->order = $order;
@@ -79,6 +87,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $this->getOrderShippingSummaryMarkup();
 	}
 
+	/**
+	 * Get Order Shipping Summary Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderShippingSummaryMarkup() {
 
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -176,6 +189,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $wrapper->render();
 	}
 
+	/**
+	 * Get Button For Order Calculate Shipping.
+	 *
+	 * @return mixed
+	 */
 	private function getButtonForOrderCalculateShipping() {
 
 		//------------------- calculate shipping (getInputfieldButton)
@@ -218,6 +236,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Info For Order Calculate Shipping.
+	 *
+	 * @return mixed
+	 */
 	private function getInfoForOrderCalculateShipping() {
 		$description = $this->_("During order creation, in order to see the calculated shipping and handling for this order, please ensure that you have entered customer details including the country. You also need to add at least one product item to the order. You can then click on the button to calculate shipping. The button will not work if the above requirements are not met. Alternatively, save the order with the customer details entered and shipping and handling will also be calculated and saved. If you wish to use custom shipping and/or handling fees, please do so below.");
 		$options = [
@@ -235,6 +258,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Info For Order Calculate Shipping Button Disabled.
+	 *
+	 * @return mixed
+	 */
 	private function getInfoForOrderCalculateShippingButtonDisabled() {
 		$xstore = $this->xstore;
 		$error = $this->_("You need to add at least one product item to this order and specify a shipping country in order for the 'Calculate shipping and taxes' button to work.");
@@ -254,6 +282,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Area For Displaying Matched Shipping Rates.
+	 *
+	 * @return mixed
+	 */
 	private function getAreaForDisplayingMatchedShippingRates() {
 
 		// we will display matched shipping rate(s) or errors in this area/markup
@@ -280,6 +313,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Spinner For Order Calculate Shipping.
+	 *
+	 * @return mixed
+	 */
 	private function getSpinnerForOrderCalculateShipping() {
 		$indicator = "htmx-indicator";
 		$out = "<span class='{$indicator} fa fa-fw fa-spin fa-spinner'></span>";
@@ -287,6 +325,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Info For Order Shipping Zone Calculated Handling Fee.
+	 *
+	 * @return mixed
+	 */
 	private function getInfoForOrderShippingZoneCalculatedHandlingFee() {
 
 		$xstore = $this->xstore;
@@ -315,6 +358,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Checkbox For Order Use Custom Handling Fee.
+	 *
+	 * @return mixed
+	 */
 	private function getCheckboxForOrderUseCustomHandlingFee() {
 		// TODO - CHECK CSS AND PADDING HERE! ADJACENT INPUT NOT SYMMETRIC
 		// $xstoreOrderWholeData = "{$this->xstore}.order_whole_data";
@@ -345,6 +393,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Text Input For Order Custom Handling Fee.
+	 *
+	 * @return mixed
+	 */
 	private function getTextInputForOrderCustomHandlingFee() {
 
 		$xstoreOrderWholeData = "{$this->xstore}.order_whole_data";
@@ -384,6 +437,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 
 	// >>>>>>>>>>>>>
 
+	/**
+	 * Get Info For Order Shipping Zone Calculated Shipping Fee.
+	 *
+	 * @return mixed
+	 */
 	private function getInfoForOrderShippingZoneCalculatedShippingFee() {
 
 		$xstore = $this->xstore;
@@ -419,6 +477,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Checkbox For Order Use Custom Shipping Fee.
+	 *
+	 * @return mixed
+	 */
 	private function getCheckboxForOrderUseCustomShippingFee() {
 
 		// $xstoreOrderWholeData = "{$this->xstore}.order_whole_data";
@@ -449,6 +512,11 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Text Input For Order Custom Shipping Fee.
+	 *
+	 * @return mixed
+	 */
 	private function getTextInputForOrderCustomShippingFee() {
 
 		$xstoreOrderWholeData = "{$this->xstore}.order_whole_data";

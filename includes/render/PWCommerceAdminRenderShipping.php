@@ -32,6 +32,12 @@ class PWCommerceAdminRenderShipping extends WireData
 	private $restOfTheWorldShippingZoneID;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null) {
 		if (is_array($options)) {
 			$this->adminURL = $options['admin_url'];
@@ -43,6 +49,11 @@ class PWCommerceAdminRenderShipping extends WireData
 		$this->setRestOfTheWorldShippingZoneID();
 	}
 
+	/**
+	 * Set Rest Of The World Shipping Zone I D.
+	 *
+	 * @return mixed
+	 */
 	private function setRestOfTheWorldShippingZoneID() {
 		$this->restOfTheWorldShippingZoneID = $this->pwcommerce->getShopRestOfTheWorldShippingZoneID();
 
@@ -50,6 +61,12 @@ class PWCommerceAdminRenderShipping extends WireData
 
 	}
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	public function renderResults($selector = null) {
 
 		// enforce to string for strpos for PHP 8+
@@ -101,10 +118,7 @@ class PWCommerceAdminRenderShipping extends WireData
 	/**
 	 * Return markup for Rest of the World Shipping Zone.
 	 *
-	 * If a Rest of the World shipping zone is specified in Shop General Settings.
-	 * This will display list of existing shop countries that have not yet been added to any shipping zone.
-	 *
-	 * @return string $out Markup for rest of the world countries.
+	 * @return string|mixed
 	 */
 	protected function renderRestOfTheWorldShippingCountries() {
 
@@ -128,6 +142,11 @@ class PWCommerceAdminRenderShipping extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Rest Of The World Countries.
+	 *
+	 * @return mixed
+	 */
 	private function getRestOfTheWorldCountries() {
 		$pages = $this->wire('pages');
 		// TODO - LIMIT HERE??? or find raw??/
@@ -176,8 +195,7 @@ class PWCommerceAdminRenderShipping extends WireData
 	/**
 	 * Get the options for building the form to add a new Shipping Zone for use in ProcessPWCommerce.
 	 *
-	 * @access public
-	 * @return array array with options for the form.
+	 * @return mixed
 	 */
 	public function getAddNewItemOptions() {
 		return [
@@ -186,12 +204,23 @@ class PWCommerceAdminRenderShipping extends WireData
 		];
 	}
 
+	/**
+	 * Pagination Options.
+	 *
+	 * @return mixed
+	 */
 	public function paginationOptions() {
 		//------------
 		$paginationOptions = ['base_url' => $this->adminURL . 'shipping/', 'ajax_post_url' => $this->adminURL . 'ajax/'];
 		return $paginationOptions;
 	}
 
+	/**
+	 * Get Results Markup.
+	 *
+	 * @param mixed $pages
+	 * @return mixed
+	 */
 	private function getResultsMarkup($pages) {
 
 		$out = "";
@@ -208,6 +237,12 @@ class PWCommerceAdminRenderShipping extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Shipping Zone Details.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getShippingZoneDetails($page) {
 
 		//------------
@@ -285,6 +320,12 @@ class PWCommerceAdminRenderShipping extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item Title.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemTitle($page) {
 		// get the edit URL if item is unlocked
 		$out = $this->getEditItemURL($page);
@@ -306,6 +347,12 @@ class PWCommerceAdminRenderShipping extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getEditItemURL($page) {
 		// if page is locked, don't show edit URL
 		if ($page->isLocked()) {
@@ -316,6 +363,11 @@ class PWCommerceAdminRenderShipping extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @return mixed
+	 */
 	private function getBulkEditActionsPanel() {
 		$actions = [
 			'publish' => $this->_('Publish'),
@@ -340,6 +392,14 @@ class PWCommerceAdminRenderShipping extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Checkbox.
+	 *
+	 * @param int $id
+	 * @param mixed $name
+	 * @param mixed $xref
+	 * @return mixed
+	 */
 	private function getBulkEditCheckbox($id, $name, $xref = null) {
 		$options = [
 			'id' => "pwcommerce_bulk_edit_checkbox{$id}",

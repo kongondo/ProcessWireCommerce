@@ -4,7 +4,14 @@ namespace ProcessWire;
 
 trait TraitPWCommerceCaptureOrder {
 
-	public function captureOrder($paymentOrderID = 0, $debug = false) {
+	/**
+	 * Capture Order.
+	 *
+	 * @param int $paymentOrderID
+	 * @param bool $debug
+	 * @return mixed
+	 */
+	public function captureOrder($paymentOrderID = 0, bool $debug = false) {
 		// TODO TESTING ONLY! DELETE WHEN DONE
 		$input = $this->wire('input');
 
@@ -66,6 +73,12 @@ trait TraitPWCommerceCaptureOrder {
 		return $response;
 	}
 
+	/**
+	 * Is Successful Payment Capture.
+	 *
+	 * @param mixed $response
+	 * @return bool
+	 */
 	public function isSuccessfulPaymentCapture($response) {
 
 		// IF ORDER SESSION IS 'LOST'

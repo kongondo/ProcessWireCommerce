@@ -41,7 +41,18 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 	 * @param Page $page The current Gift Card Product page this virtual field was called from.
 	 *
 	 */
-	//  public function __construct(Page $page) { // TODO; DELETE IF NOT IN USE
+	//  /**
+   *   construct.
+   *
+   * @param Page $page
+   * @return mixed
+   */
+  public function __construct(Page $page) { // TODO; DELETE IF NOT IN USE
+	/**
+	 *   construct.
+	 *
+	 * @return mixed
+	 */
 	public function __construct() {
 
 
@@ -53,6 +64,13 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 	// extra content to PRE-PEND to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
 	# TODO @NOTE WE USE THIS TO OPEN AND INTERACT WITH MODAL TO MANUALLY ISSUE GC IN THE BACKEN
+	/**
+	 * Get Prepend Content.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return mixed
+	 */
 	public function getPrependContent($page, $name) {
 		$pageID = $page->id;
 
@@ -113,6 +131,13 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 
 	// extra content to APPEND to InputfieldPWCommerceRuntimeMarkup with respect to this field
 	// @note: TODO: we MIGHT still handle any JS interactions here!
+	/**
+	 * Get Append Content.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return mixed
+	 */
 	public function getAppendContent($page, $name) {
 		// @note: $name and $page here are provided by the requesting method, e.g. runtime markup module
 
@@ -120,6 +145,13 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		return $this->renderFooter($page, $name);
 	}
 
+	/**
+	 * Render Footer.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return string|mixed
+	 */
 	private function renderFooter($page, $name) {
 		// @note: $name and $page here are provided by the requesting method, e.g. runtime markup module
 		$pageID = $page->id;
@@ -172,6 +204,12 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Gift Card Product Variants Parent Title.
+	 *
+	 * @param Page $parentPage
+	 * @return mixed
+	 */
 	private function getGiftCardProductVariantsParentTitle(Page $parentPage) {
 		$languages = $this->wire('languages');
 		if ($languages) {
@@ -189,6 +227,13 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		return $title;
 	}
 
+	/**
+	 * Render Add New Link.
+	 *
+	 * @param Page $page
+	 * @param mixed $name
+	 * @return string|mixed
+	 */
 	protected function renderAddNewLink($page, $name) {
 		// @note: $name and $page here are provided by the requesting method, e.g. runtime markup module
 		$pageID = $page->id;
@@ -218,10 +263,7 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 	/**
 	 * For InputfieldPWCommerceRuntimeMarkup.
 	 *
-	 * For when new Gift Card Product Variant is requested by an gift card product in edit.
-	 * Return a new blank page of this type that is ready for editing and saving.
-	 *
-	 * @return Page $newPage The new blank item.
+	 * @return mixed
 	 */
 	public function getBlankItem() {
 		$newPage = new Page();
@@ -238,17 +280,9 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 	/**
 	 * For InputfieldPWCommerceRuntimeMarkup.
 	 *
-	 * For Gift Card Product Variants.
-	 * We need to remove 'title' inputfields.
-	 * We will handle this in processInputCreateNewItems() for new items.
-	 * For existing items, we will handle if denomination changes TODO.
-	 * For 'image' inputfields, we need to remove IF ITEM IS NEW.
-	 * This is because we cannot upload images until the page is first saved.
-	 * Instead, we add own markup about upload GCPV image after save.
-	 *
 	 * @param InputfieldWrapper $inputfields
 	 * @param Page $page
-	 * @return void
+	 * @return mixed
 	 */
 	public function getDynamicallyManagedInputfields(InputfieldWrapper $inputfields, Page $page) {
 
@@ -283,6 +317,12 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		return $inputfields;
 	}
 
+	/**
+	 * Get Temporary Message For Variant Image.
+	 *
+	 * @param int $width
+	 * @return mixed
+	 */
 	private function getTemporaryMessageForVariantImage($width = 100) {
 		$out =
 			"<div class='pt-2.5'><p><i class='fa fa-camera' aria-hidden='true'></i> " .
@@ -306,6 +346,13 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 
 	// ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Is Gift Card Variant Page Already Exists.
+	 *
+	 * @param mixed $parent
+	 * @param mixed $denomination
+	 * @return bool
+	 */
 	private function isGiftCardVariantPageAlreadyExists($parent, $denomination) {
 		// first check if page already exists (under this parent)
 
@@ -315,6 +362,11 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		return !empty($pageIDExists);
 	}
 	// ~~~~~~~~~~~~~~~~~~
+	/**
+	 * Get Preload Assets Content.
+	 *
+	 * @return mixed
+	 */
 	public function getPreloadAssetsContent() {
 		// SET THIS VIRTUAL INPUTFIELD'S js for loading via runtime markup
 		$url = $this->wire('config')->urls->siteModules;
@@ -325,20 +377,34 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 	// ~~~~~~~~~~~~~~~~~~
 
 	// TODO: NOT IN USE FOR NOW
-	// public function processAjaxRequest(WireInput $input, Page $page) {
+	// /**
+  * Process Ajax Request.
+  *
+  * @param WireInput $input
+  * @param Page $page
+  * @return mixed
+  */
+ public function processAjaxRequest(WireInput $input, Page $page) {
 
 	// }
 	// ~~~~~~~~~~~~~~~~~~
 
 	/**
 	 * Process input for the values sent to create new variants for this gift card product page.
-	 * @note: We only handle new or to be deleted variants pages here!
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 		// @note: CREATE NEW GIFT CARD PRODUCT VARIANTS is now called DIRECTLY, ONCE from inside InputfieldPWCommerceRuntimeMarkup::processInput for real pwcommerce Inputfields
 	}
 
+	/**
+	 * Process Input Create New Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processInputCreateNewItems(WireInputData $input) {
 		// TODO @UPDATE- THIS CHANGES - WE NEED TO GET FROM PRODUCT STOCK FIELDS
 		# TODO THIS NEEDS TO HANDLE THE DENOMINATION
@@ -486,6 +552,13 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		return $createdPagesIDs;
 	}
 
+	/**
+	 * Process Input Amend Existing Items.
+	 *
+	 * @param WireInputData $input
+	 * @param array $createdPagesIDs
+	 * @return mixed
+	 */
 	public function processInputAmendExistingItems(WireInputData $input, array $createdPagesIDs = []) {
 		# TODO HERE WE CHECK IF DENOMINATION VALUE HAS CHANGED AND IF SO, WE ALSO CHANGE THE TITLE AND NAME OF THE GCPV PAGE!
 
@@ -568,6 +641,13 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		}
 	}
 
+	/**
+	 * Check Is Changed Parent Title.
+	 *
+	 * @param WireInputData $input
+	 * @param Page $parentPage
+	 * @return mixed
+	 */
 	private function checkIsChangedParentTitle(WireInputData $input, Page $parentPage) {
 		$sanitizer = $this->wire('sanitizer');
 		$incomingGiftCardProductVariantsParentTitle = $sanitizer->text($input->title);
@@ -579,6 +659,12 @@ class InputfieldPWCommerceGiftCardProductVariants extends WireData
 		return $incomingGiftCardProductVariantsParentTitle !== $existingGiftCardProductVariantsParentTitle;
 	}
 
+	/**
+	 * Process Input Delete Items.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	public function processInputDeleteItems(WireInputData $input) {
 		$deleteItems = $input->pwcommerce_is_delete_item;
 

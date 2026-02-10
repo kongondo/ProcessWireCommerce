@@ -9,6 +9,11 @@ trait TraitPWCommerceActionsPageManipulation
 
 
 
+	/**
+	 * Action Publish Items.
+	 *
+	 * @return mixed
+	 */
 	private function actionPublishItems() {
 
 		$items = $this->items;
@@ -70,6 +75,11 @@ trait TraitPWCommerceActionsPageManipulation
 		return $result;
 	}
 
+	/**
+	 * Action Lock Items.
+	 *
+	 * @return mixed
+	 */
 	private function actionLockItems() {
 
 		$items = $this->items;
@@ -114,6 +124,11 @@ trait TraitPWCommerceActionsPageManipulation
 		return $result;
 	}
 
+	/**
+	 * Action Clone Items.
+	 *
+	 * @return mixed
+	 */
 	private function actionCloneItems() {
 		// @NOTE: currently for products only!
 
@@ -166,6 +181,11 @@ trait TraitPWCommerceActionsPageManipulation
 		return $result;
 	}
 
+	/**
+	 * Action Trash Items.
+	 *
+	 * @return mixed
+	 */
 	private function actionTrashItems() {
 
 		$items = $this->items;

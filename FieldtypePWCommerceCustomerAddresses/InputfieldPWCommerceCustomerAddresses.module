@@ -24,6 +24,11 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 
 
 
+	/**
+	 * Get Module Info.
+	 *
+	 * @return mixed
+	 */
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'PWCommerce Customer Addresses: Inputfield',
@@ -44,6 +49,11 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 	protected $xstoreCustomerAddresses; // the alpinejs store used by this inputfield.
 	protected $xstore; // the full prefix to the alpine store used by this inputfield
 
+	/**
+	 * Init.
+	 *
+	 * @return mixed
+	 */
 	public function init() {
 		parent::init();
 		// if we want this modules css and js classes to be autoloaded
@@ -64,10 +74,22 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		// i.e., '$store.InputfieldPWCommerceCustomerAddressesStore'
 	}
 
+	/**
+	 * Set Page.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function setPage(Page $page) {
 		$this->page = $page;
 	}
 
+	/**
+	 * Set Field.
+	 *
+	 * @param Field $field
+	 * @return mixed
+	 */
 	public function setField(Field $field) {
 		$this->field = $field;
 	}
@@ -77,6 +99,7 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 	/**
 	 * Render the entire input area for customer addresses
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 
@@ -128,17 +151,21 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 	/**
 	 * Called before render() or renderValue() method by InputfieldWrapper, before Inputfield-specific CSS/JS files added
 	 *
-	 * @param Inputfield|InputfieldWrapper|null The parent Inputfield/wrapper that is rendering it or null if no parent.
-	 * @param bool $renderValueMode Whether renderValueMode will be used.
-	 * @return bool
-	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return string|mixed
 	 */
-	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+	public function renderReady(Inputfield $parent = null, bool $renderValueMode = false) {
 		//#########
 		$this->preloadInputfieldAssets();
 		return parent::renderReady($parent, $renderValueMode);
 	}
 
+	/**
+	 * Get Java Script Configurations Content.
+	 *
+	 * @return mixed
+	 */
 	private function getJavaScriptConfigurationsContent() {
 
 		$customerAddresses = $this->customerAddresses;
@@ -167,11 +194,21 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $dataJSON;
 	}
 
+	/**
+	 * Is Lacking Primary Shipping Address.
+	 *
+	 * @return bool
+	 */
 	private function isLackingPrimaryShippingAddress() {
 		$primaryShippingAddress = $this->customerAddresses->get("addressType=shipping_primary");
 		return empty($primaryShippingAddress);
 	}
 
+	/**
+	 * Render Add New Link.
+	 *
+	 * @return string|mixed
+	 */
 	protected function renderAddNewLink() {
 		$name = $this->attr('name');
 		$pageID = $this->page->id;
@@ -188,6 +225,11 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $out;
 	}
 
+	/**
+	 * Render Footer.
+	 *
+	 * @return string|mixed
+	 */
 	private function renderFooter() {
 		//------------------- add new address (getInputfieldMarkup)
 		// @note: SINGLE ADD NEW IN FOOTER OF WRAPPER - CAN ONLY HAVE ONE!
@@ -205,6 +247,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $wrapper->render();
 	}
 
+	/**
+	 * Render Copy Customer Names Link.
+	 *
+	 * @param int $customerAddressID
+	 * @return string|mixed
+	 */
 	private function renderCopyCustomerNamesLink($customerAddressID) {
 		// @note: using 'span' instead of 'a' as the latter is submitting the form on the page for some reason!
 		// we use 'uk-link' to style it like an 'a'
@@ -218,6 +266,11 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $out;
 	}
 
+	/**
+	 *    render Value.
+	 *
+	 * @return mixed
+	 */
 	public function ___renderValue() {
 		return $this->buildForm($this->customerAddresses, $isNew = false, $isRenderValueOnly = true);
 	}
@@ -225,12 +278,10 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 	/**
 	 * Preload all assets used by Inputfields of this type
 	 *
-	 * This ensures all required JS/CSS files are loaded in the original/non-ajax request.
-	 *
-	 * @param array $fieldIDs Optionally specify the IDs of the Field objects you want to limit preload to.
-	 *
+	 * @param array $fieldIDs
+	 * @return mixed
 	 */
-	protected function preloadInputfieldAssets($fieldIDs = []) {
+	protected function preloadInputfieldAssets(array $fieldIDs = []) {
 		//-------------
 		// TODO: MIGHT EVENTUALLY MOVE TO PROCESSMODULE!
 		// LOAD COMMON SHARED STYLES (tailwind, modals, etc)
@@ -258,7 +309,15 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 
 	// ~~~~~~~~~~~~~~~
 
-	private function buildForm($customerAddresses, $isNew = false, $isRenderValueOnly = false) {
+	/**
+	 * Build Form.
+	 *
+	 * @param mixed $customerAddresses
+	 * @param bool $isNew
+	 * @param bool $isRenderValueOnly
+	 * @return mixed
+	 */
+	private function buildForm($customerAddresses, bool $isNew = false, bool $isRenderValueOnly = false) {
 
 		// GET MAIN WRAPPER
 		$wrapper = $this->pwcommerce->getInputfieldWrapper();
@@ -320,10 +379,11 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 	/**
 	 * Build a row of inputs representing a single customer address.
 	 *
-	 * @access private
-	 * @return InputfieldFieldset
+	 * @param WireData $customerAddress
+	 * @param bool $isNew
+	 * @return mixed
 	 */
-	private function buildRow(WireData $customerAddress, $isNew = false) {
+	private function buildRow(WireData $customerAddress, bool $isNew = false) {
 
 		$id = $customerAddress->id;
 
@@ -416,6 +476,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 
 	}
 
+	/**
+	 * Get Customer Address Make Primary Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressMakePrimaryMarkup(WireData $customerAddress) {
 
 		// ------
@@ -442,6 +508,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 
 	}
 
+	/**
+	 * Get Customer Address I D Markup.
+	 *
+	 * @param Wiredata $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressIDMarkup(Wiredata $customerAddress) {
 		//------------------- track customer addresses ID just so we know if there is anything to save (getInputfieldHidden)
 
@@ -455,6 +527,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer First Name Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerFirstNameMarkup(WireData $customerAddress) {
 		$columnWidth = 33;
 		//------------------- first_name (getInputfieldText) [required]
@@ -487,6 +565,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Middle Name Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerMiddleNameMarkup(WireData $customerAddress) {
 		$columnWidth = 33;
 
@@ -515,6 +599,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Last Name Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerLastNameMarkup(WireData $customerAddress) {
 		$columnWidth = 33;
 
@@ -547,6 +637,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address Line One Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressLineOneMarkup(WireData $customerAddress) {
 		//------------------- address line one (getInputfieldText) [required]
 		$options = [
@@ -570,6 +666,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address Line Two Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressLineTwoMarkup(WireData $customerAddress) {
 		//------------------- address line two (getInputfieldText)
 		$options = [
@@ -590,6 +692,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address City Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressCityMarkup(WireData $customerAddress) {
 		$columnWidth = 50;
 		//------------------- address city (getInputfieldText) [required]
@@ -614,6 +722,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address Region Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressRegionMarkup(WireData $customerAddress) {
 		$columnWidth = 50;
 		//------------------- address region (getInputfieldText)
@@ -636,6 +750,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address Postal Code Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressPostalCodeMarkup(WireData $customerAddress) {
 		$columnWidth = 50;
 		//------------------- address postal/zip code (getInputfieldText) [required]
@@ -660,7 +780,14 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
-	private function getCustomerAddressCountryMarkup(WireData $customerAddress, $isNew = false) {
+	/**
+	 * Get Customer Address Country Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @param bool $isNew
+	 * @return mixed
+	 */
+	private function getCustomerAddressCountryMarkup(WireData $customerAddress, bool $isNew = false) {
 		$columnWidth = 50;
 
 		$customerAddressCountryWrapperClasses = "pwcommerce_no_outline";
@@ -706,6 +833,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address Phone Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressPhoneMarkup(WireData $customerAddress) {
 		$columnWidth = 50;
 		//------------------- shipping address phone (getInputfieldText)
@@ -726,6 +859,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address Company Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressCompanyMarkup(WireData $customerAddress) {
 		//------------------- shipping address company (getInputfieldText)
 		$options = [
@@ -744,6 +883,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get Customer Address Type Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressTypeMarkup(WireData $customerAddress) {
 
 		// radio responses
@@ -793,6 +938,12 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 
 	}
 
+	/**
+	 * Get Customer Address Copy Customer Names Markup.
+	 *
+	 * @param WireData $customerAddress
+	 * @return mixed
+	 */
 	private function getCustomerAddressCopyCustomerNamesMarkup(WireData $customerAddress) {
 
 		//------------------- copy customer names to address (getInputfieldMarkup)
@@ -807,6 +958,11 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return $field;
 	}
 
+	/**
+	 * Get No Customer Addresses Not Found Notice Markup.
+	 *
+	 * @return mixed
+	 */
 	private function getNoCustomerAddressesNotFoundNoticeMarkup() {
 		$out = "<p id='pwcommerce_customer_addresses_no_customer_addresses_found'>" . $this->_('Customer has no saved addresses. Please add a shipping address.') . "</p>";
 		return $out;
@@ -815,6 +971,8 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 	/**
 	 * Process input for the values sent from the notes for this page
 	 *
+	 * @param WireInputData $input
+	 * @return mixed
 	 */
 	public function ___processInput(WireInputData $input) {
 
@@ -898,9 +1056,8 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 	/**
 	 * Make a string value to represent these values that can be used for comparison purposes.
 	 *
-	 * @note: this is only for internal use since we don't have a __toString() method.
-	 * @return string
-	 *
+	 * @param array $items
+	 * @return mixed
 	 */
 	private function toStringInhouse($items) {
 
@@ -937,6 +1094,11 @@ class InputfieldPWCommerceCustomerAddresses extends Inputfield
 		return implode("\n", $a);
 	}
 
+	/**
+	 * Get New Blank Address.
+	 *
+	 * @return mixed
+	 */
 	private function getNewBlankAddress() {
 		$newItem = $this->field->type->getBlankRecord();
 		$newItem->id = (int) microtime(true);

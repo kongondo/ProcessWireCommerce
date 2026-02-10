@@ -7,6 +7,11 @@ trait TraitPWCommerceAdminRenderGeneralSettingsOrders
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ORDERS TAB  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Orders Tab.
+	 *
+	 * @return mixed
+	 */
 	private function getOrdersTab() {
 
 		// quick filters thresholds

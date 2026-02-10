@@ -7,6 +7,11 @@ trait TraitPWCommerceActionsSettings
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SETTINGS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Action Tax Settings.
+	 *
+	 * @return mixed
+	 */
 	private function actionTaxSettings() {
 
 		// TODO: ACCESS CHECKS HERE - FOR FUTURE RELEASE!
@@ -63,6 +68,11 @@ trait TraitPWCommerceActionsSettings
 		return $result;
 	}
 
+	/**
+	 * Action General Settings.
+	 *
+	 * @return mixed
+	 */
 	private function actionGeneralSettings() {
 
 		// TODO: ACCESS CHECKS HERE - FOR FUTURE RELEASE!
@@ -236,6 +246,11 @@ trait TraitPWCommerceActionsSettings
 		return $result;
 	}
 
+	/**
+	 * Get Current Gui Navigation Type.
+	 *
+	 * @return mixed
+	 */
 	private function getCurrentGuiNavigationType() {
 		$generalSettings = $this->pwcommerce->getShopGeneralSettings();
 		$currentGuiNavigationType = $generalSettings->get('gui_navigation_type');
@@ -243,6 +258,13 @@ trait TraitPWCommerceActionsSettings
 		return $currentGuiNavigationType;
 	}
 
+	/**
+	 * Process G U I Navigation Type Page.
+	 *
+	 * @param mixed $guiNavigationTypeCurrentValue
+	 * @param mixed $guiNavigationTypeIncomingValue
+	 * @return mixed
+	 */
 	private function processGUINavigationTypePage($guiNavigationTypeCurrentValue, $guiNavigationTypeIncomingValue) {
 		// note: side menu only option is 'side_menu_only'
 		$dropdownNavigationTypes = [
@@ -275,6 +297,11 @@ trait TraitPWCommerceActionsSettings
 		}
 	}
 
+	/**
+	 * Action Checkout Settings.
+	 *
+	 * @return mixed
+	 */
 	private function actionCheckoutSettings() {
 
 		// TODO: ACCESS CHECKS HERE - FOR FUTURE RELEASE!

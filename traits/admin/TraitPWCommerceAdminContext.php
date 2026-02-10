@@ -9,6 +9,11 @@ trait TraitPWCommerceAdminContext
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CONTEXTS ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get P W Commerce Context Render.
+	 *
+	 * @return mixed
+	 */
 	private function getPWCommerceContextRender() {
 		$adminURL = $this->adminURL;
 		$ajaxPostURL = $this->ajaxPostURL;
@@ -122,6 +127,11 @@ trait TraitPWCommerceAdminContext
 
 
 	// check if current context/view uses/needs InputfieldSelector
+	/**
+	 * Is Context Use Inputfield Selector.
+	 *
+	 * @return bool
+	 */
 	private function isContextUseInputfieldSelector() {
 
 		// ------------
@@ -149,6 +159,11 @@ trait TraitPWCommerceAdminContext
 	}
 
 	// check if current context/view uses/needs quick filters.
+	/**
+	 * Is Context Use Quick Filters.
+	 *
+	 * @return bool
+	 */
 	private function isContextUseQuickFilters() {
 
 		// ------------
@@ -176,6 +191,11 @@ trait TraitPWCommerceAdminContext
 		return $isContextUseQuickFilters;
 	}
 
+	/**
+	 * Is Context Use Bulk Edit.
+	 *
+	 * @return bool
+	 */
 	private function isContextUseBulkEdit() {
 		$contextsNotBulkEditing = [
 			'',
@@ -197,6 +217,11 @@ trait TraitPWCommerceAdminContext
 		return $isBulkEditing;
 	}
 
+	/**
+	 * Is Context Need Save Button.
+	 *
+	 * @return bool
+	 */
 	private function isContextNeedSaveButton() {
 		$contextsNeedingSaveButton = [
 			'tax-settings',
@@ -213,6 +238,11 @@ trait TraitPWCommerceAdminContext
 	}
 
 	// check if current context/view uses tabs
+	/**
+	 * Is Context Use Tabs.
+	 *
+	 * @return bool
+	 */
 	private function isContextUseTabs() {
 		$contextsUsingTabs = [
 			'general-settings',
@@ -226,6 +256,11 @@ trait TraitPWCommerceAdminContext
 	}
 
 	// check if current context/view needs to modify the Process Breadcrumb
+	/**
+	 * Is Context Modify Breadcrumb.
+	 *
+	 * @return bool
+	 */
 	private function isContextModifyBreadcrumb() {
 		// TODO - DO WE NEED TO ADD 'addons' here?
 		$contextsNotModifyingBreadcrumb = [
@@ -244,6 +279,11 @@ trait TraitPWCommerceAdminContext
 	// check if current context/view allows DELETE TAB (ProcessPageEdit::buildFormDelete) when editing a single item in the embedded form (ProcessPageEdit::execute()) built via getEmbeddedEdit()
 	// we don't want ORDER to be trashable this way!
 	// @note: only applies to contexts that EDIT using getEmbeddedEdit()
+	/**
+	 * Is Context Process Page Edit Trashable.
+	 *
+	 * @return bool
+	 */
 	private function isContextProcessPageEditTrashable() {
 		$contextsNotProcessPageEditTrashable = [
 			'order',
@@ -256,6 +296,11 @@ trait TraitPWCommerceAdminContext
 	// check if current context/view uses/needs the basic add new form for adding new items
 	// @note: only applies to contexts that ADD new items
 	// e.g. category, product, order, etc
+	/**
+	 * Is Context Use Basic Add New Item Form.
+	 *
+	 * @return bool
+	 */
 	private function isContextUseBasicAddNewItemForm() {
 		$contextsNotUsingBasicAddNewItemForm = [
 			//'orders',// TODO: @update: Saturday 04 September 2021 -> now uses basic form as well; with option 'title' TODO: delete when done
@@ -273,6 +318,11 @@ trait TraitPWCommerceAdminContext
 	// check if current context/view uses/needs a save + publish button in the basic add new form for adding new items
 	// @note: only applies to contexts that ADD new items
 	// e.g. category, product, order, etc
+	/**
+	 * Is Context Add New Item Use Save And Publish Button.
+	 *
+	 * @return bool
+	 */
 	private function isContextAddNewItemUseSaveAndPublishButton() {
 		$contextsNotUsingSaveAndPublishButtonInAddNewItemForm = [
 			// @note: we don't allow publishing of new orders until they are marked as complete when editing
@@ -287,6 +337,11 @@ trait TraitPWCommerceAdminContext
 	// otherwise redirects back to bulk edit/view
 	// @note: only applies to contexts that ADD new items
 	// e.g. category, product, order, etc
+	/**
+	 * Is Context Redirect To Edit After Add New Item.
+	 *
+	 * @return bool
+	 */
 	private function isContextRedirectToEditAfterAddNewItem() {
 		$contextsNotRedirectingToEditAfterAddNewItem = [
 			'tax-rates',
@@ -299,6 +354,11 @@ trait TraitPWCommerceAdminContext
 
 	// check if current context/view will need a page passed to its renderViewItem methods.
 	// e.g. addons
+	/**
+	 * Is Context Need Page For Viewt Item.
+	 *
+	 * @return bool
+	 */
 	private function isContextNeedPageForViewtItem() {
 		$contextsNotNeedPageForViewItem = [
 			// @note: we need to redirect to bulk edit view even though these are single edits
@@ -311,6 +371,11 @@ trait TraitPWCommerceAdminContext
 
 	// check if current context/view is a single special edit item.
 	// e.g. payment providers special process single edit
+	/**
+	 * Is Context Special Edit Item.
+	 *
+	 * @return bool
+	 */
 	private function isContextSpecialEditItem() {
 		$contextsIsSpecialEdit = [
 			// @note: we need to redirect to bulk edit view even though these are single edits
@@ -321,6 +386,11 @@ trait TraitPWCommerceAdminContext
 		return $isSpecialEditItem;
 	}
 
+	/**
+	 * Is Context Processes Own Form.
+	 *
+	 * @return bool
+	 */
 	private function isContextProcessesOwnForm() {
 		$contextsIsProcessesOwnForm = [
 			// @note: addons process their own forms
@@ -334,6 +404,11 @@ trait TraitPWCommerceAdminContext
 	// check if current context/view needs to do some intermediate pre-processing before creating/adding a new item
 	// e.g. discounts need an intermediate 'select discount type' before creation
 	// TODO DELETE IF NOT IN USE
+	/**
+	 * Is Context Need Pre Process.
+	 *
+	 * @return bool
+	 */
 	private function isContextNeedPreProcess() {
 		$contextsNeedingPreProcess = [
 			'discounts',
@@ -343,6 +418,11 @@ trait TraitPWCommerceAdminContext
 		return $isNeedPreProces;
 	}
 
+	/**
+	 * Is Editable.
+	 *
+	 * @return bool
+	 */
 	private function isEditable() {
 		$isEditable = true;
 		$id = (int) $this->input->get->id;
@@ -354,6 +434,12 @@ trait TraitPWCommerceAdminContext
 		return $isEditable;
 	}
 
+	/**
+	 * Is Order Editable.
+	 *
+	 * @param int $id
+	 * @return bool
+	 */
 	private function isOrderEditable($id) {
 		$fields = 'pwcommerce_order.order_status';
 		// @note: just using template here to be absolutely sure
@@ -362,15 +448,31 @@ trait TraitPWCommerceAdminContext
 		return (int) $orderStatus <= PwCommerce::ORDER_STATUS_DRAFT;
 	}
 
+	/**
+	 * Is Not In Configure P W Commerce Page.
+	 *
+	 * @return bool
+	 */
 	private function isNotInConfigurePWCommercePage() {
 		return $this->context !== 'configure-pwcommerce';
 	}
 
+	/**
+	 * Remove Cookie For Context.
+	 *
+	 * @param mixed $cookieName
+	 * @return mixed
+	 */
 	private function removeCookieForContext($cookieName) {
 		$this->wire('input')->cookie->remove($cookieName);
 	}
 
 	// @note: for future release; not in use for now
+	/**
+	 * Get Context Browser Title.
+	 *
+	 * @return mixed
+	 */
 	private function getContextBrowserTitle() {
 		$out = '';
 		return $out;
@@ -382,12 +484,7 @@ trait TraitPWCommerceAdminContext
 	/**
 	 * Hidden markup output in all views (add/view/edit/bulk) for detection in JavaScript if in 'shop'.
 	 *
-	 * Since PWCommerce Shop Pages can be edited outside the shop context
-	 * we need a way to conditionally init some JavaScript code.
-	 * For instance, to only init Alpine.js or htmx if a page is being edited from inside PWCommerce edit form.
-	 *
-	 * @access private
-	 * @return string Hidden input markup for JavaScript to detect.
+	 * @return mixed
 	 */
 	private function getDetectIfInPWCommerceShopContextMarkup() {
 		$options = [
@@ -403,12 +500,7 @@ trait TraitPWCommerceAdminContext
 	/**
 	 * Hidden markup output in all views (add/view/edit/bulk) to tell JavaScript shop context of current view.
 	 *
-	 * @note: The values match the context as used here in ProcessPWCommerce and not necessarily those used in InputfieldPWCommerceRuntimeMarkup!
-	 * These include: 'products', 'orders', 'general-settings', etc.
-	 * They are always plurals.
-	 *
-	 * @access private
-	 * @return string Hidden input markup for JavaScript to detect current ProcessPWCommerce shop context.
+	 * @return mixed
 	 */
 	private function getPWCommerceShopCurrentContextMarkup() {
 		$options = [

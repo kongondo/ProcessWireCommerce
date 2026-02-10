@@ -4,6 +4,12 @@ namespace ProcessWire;
 
 trait TraitPWCommerceOrderPage
 {
+	/**
+	 * Set Order Page.
+	 *
+	 * @param mixed $order
+	 * @return mixed
+	 */
 	public function setOrderPage($order)
 	{
 		// ---------------------------
@@ -17,6 +23,11 @@ trait TraitPWCommerceOrderPage
 		$this->orderPage = $order;
 	}
 
+	/**
+	 * Get New Order Page.
+	 *
+	 * @return mixed
+	 */
 	public function getNewOrderPage()
 	{
 
@@ -42,10 +53,7 @@ trait TraitPWCommerceOrderPage
 	/**
 	 * Gets the session's order's order page.
 	 *
-	 * @note: This is the whole order page including all its fields.
-	 * To get only the 'pwcommerce_order' portion @see getOrder()
-	 *
-	 * @return Page Order page including all its fields.
+	 * @return mixed
 	 */
 	public function getOrderPage()
 	{
@@ -66,6 +74,12 @@ trait TraitPWCommerceOrderPage
 		return $this->orderPage;
 	}
 
+	/**
+	 * Set Order Page P W Commerce Order Values.
+	 *
+	 * @param Page $orderPage
+	 * @return mixed
+	 */
 	private function setOrderPagePWCommerceOrderValues(Page $orderPage)
 	{
 		/** @var Page $orderPage */

@@ -7,6 +7,11 @@ trait TraitPWCommerceActionsDiscount
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DISCOUNT ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get New Discount Title.
+	 *
+	 * @return mixed
+	 */
 	private function getNewDiscountTitle() {
 		// AUTO DISCOUNT TITLE
 		// @note: can be edited post creation (TODO: ok?)
@@ -17,6 +22,11 @@ trait TraitPWCommerceActionsDiscount
 		return $title;
 	}
 
+	/**
+	 * Action Pre Process Discount.
+	 *
+	 * @return mixed
+	 */
 	private function actionPreProcessDiscount() {
 
 		$result = [

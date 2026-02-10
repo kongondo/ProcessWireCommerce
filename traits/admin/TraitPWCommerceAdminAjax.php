@@ -11,9 +11,7 @@ trait TraitPWCommerceAdminAjax
 	/**
 	 * Outputs javascript configuration values for this module.
 	 *
-	 * @access protected
-	 * @return string $scripts.
-	 *
+	 * @return mixed
 	 */
 	protected function ajaxConfigs() {
 		$adminURL = $this->adminURL;

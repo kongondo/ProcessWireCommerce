@@ -20,6 +20,11 @@ namespace ProcessWire;
 class PWCommerceContinents extends WireData
 {
 
+	/**
+	 * Get Continents.
+	 *
+	 * @return mixed
+	 */
 	public function getContinents() {
 		$continents = [
 			[

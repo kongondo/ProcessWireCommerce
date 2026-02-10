@@ -32,6 +32,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 
 	// ----------
 
+	/**
+	 *   construct.
+	 *
+	 * @param mixed $options
+	 * @return mixed
+	 */
 	public function __construct($options = null)
 	{
 		if (is_array($options)) {
@@ -42,7 +48,8 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 	/**
 	 * Render single payment provider special edit headline to append to the Process headline in PWCommerce.
 	 *
-	 * @return string $out Headline string to append to the main Process headline.
+	 * @param Page $paymentProvider
+	 * @return string|mixed
 	 */
 	public function renderSpecialEditItemHeadline(Page $paymentProvider)
 	{
@@ -54,6 +61,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $headline;
 	}
 
+	/**
+	 * Render Special Edit Item.
+	 *
+	 * @param Page $paymentProvider
+	 * @return string|mixed
+	 */
 	public function renderSpecialEditItem(Page $paymentProvider)
 	{
 
@@ -75,6 +88,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Build Special Edit Payment Provider.
+	 *
+	 * @return mixed
+	 */
 	private function buildSpecialEditPaymentProvider()
 	{
 		/** @var array $schema */
@@ -175,6 +193,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $wrapper;
 	}
 
+	/**
+	 * Get Payment Provider Config Fields Data.
+	 *
+	 * @return mixed
+	 */
 	private function getPaymentProviderConfigFieldsData()
 	{
 		// TODO: NEEDS TO BE IN CONTEXT FOR THE CURRENT EDIT! E.G. PAYPAL, STRIPE, ETC
@@ -193,6 +216,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $paymentProviderConfigFieldsData;
 	}
 
+	/**
+	 * Get Payment Provider Class.
+	 *
+	 * @return mixed
+	 */
 	private function getPaymentProviderClass()
 	{
 		$paymentClass = null;
@@ -219,6 +247,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $paymentClass;
 	}
 
+	/**
+	 * Get Non Core Payment Provider Class.
+	 *
+	 * @return mixed
+	 */
 	private function getNonCorePaymentProviderClass()
 	{
 
@@ -260,6 +293,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $paymentClass;
 	}
 
+	/**
+	 * Get Payment Provider Configs.
+	 *
+	 * @return mixed
+	 */
 	private function getPaymentProviderConfigs()
 	{
 		/** @var array $paymentProviderConfigs */
@@ -286,6 +324,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $paymentProviderConfigs;
 	}
 
+	/**
+	 * Get Inputfield For Edit Payment Provider.
+	 *
+	 * @param array $options
+	 * @return mixed
+	 */
 	private function getInputfieldForEditPaymentProvider($options)
 	{
 		// TODO: DELETE UNREQUIRED ONES!
@@ -303,6 +347,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $field;
 	}
 
+	/**
+	 * Get Payment Provider Setting Value.
+	 *
+	 * @param mixed $setting
+	 * @return mixed
+	 */
 	private function getPaymentProviderSettingValue($setting)
 	{
 		$paymentProviderConfigs = $this->paymentProviderConfigs;
@@ -315,6 +365,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+	/**
+	 * Get Results Table Headers.
+	 *
+	 * @return mixed
+	 */
 	protected function getResultsTableHeaders()
 	{
 		return [
@@ -325,6 +380,13 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		];
 	}
 
+	/**
+	 * Get Results Table Row.
+	 *
+	 * @param Page $page
+	 * @param mixed $editItemTitle
+	 * @return mixed
+	 */
 	protected function getResultsTableRow($page, $editItemTitle)
 	{
 		$active = $this->_('Activated');
@@ -357,6 +419,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $row;
 	}
 
+	/**
+	 * Get No Results Table Records.
+	 *
+	 * @return mixed
+	 */
 	protected function getNoResultsTableRecords()
 	{
 		$noResultsTableRecords = $this->_('No payment providers found.');
@@ -364,6 +431,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 	}
 
 
+	/**
+	 * Get Edit Item U R L.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	protected function getEditItemURL($page)
 	{
 		$label = '';
@@ -384,6 +457,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Bulk Edit Actions Panel.
+	 *
+	 * @param mixed $adminURL
+	 * @return mixed
+	 */
 	protected function getBulkEditActionsPanel($adminURL)
 	{
 		$actions = [
@@ -407,6 +486,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Payment Provider Settings.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	private function getPaymentProviderSettings($page)
 	{
 		$paymentProviderSettings = [];
@@ -417,6 +502,12 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 		return $paymentProviderSettings;
 	}
 
+	/**
+	 * Is Live Payment Provider.
+	 *
+	 * @param Page $page
+	 * @return bool
+	 */
 	private function isLivePaymentProvider($page){
 		$paymentProviderSettings = $this->getPaymentProviderSettings($page);
 		$isLive = !empty($paymentProviderSettings['is_live']);
@@ -432,6 +523,11 @@ class PWCommerceAdminRenderPaymentProviders extends WireData
 
 
 
+	/**
+	 * Is Non Core Payment Provider.
+	 *
+	 * @return bool
+	 */
 	private function isNonCorePaymentProvider()
 	{
 		$namesOfCorePaymentAddons = $this->pwcommerce->getNamesOfCorePaymentAddons();

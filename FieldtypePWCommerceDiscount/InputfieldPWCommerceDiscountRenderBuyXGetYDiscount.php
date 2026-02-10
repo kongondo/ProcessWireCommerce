@@ -39,6 +39,13 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @param mixed $field
+	 * @return mixed
+	 */
 	public function __construct($page, $field) {
 		parent::__construct($page, $field);
 		// @NOTE: WE INHERIT BELOW PROPS FROM PARENT CLASS 'InputfieldPWCommerceDiscountRenderOrderDiscount'
@@ -58,6 +65,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Set Discount Applies To Get Y Mode.
+	 *
+	 * @return mixed
+	 */
 	private function setDiscountAppliesToGetYMode() {
 		$firstItemDiscountAppliesTo = $this->discountAppliesTo->first();
 		if (!empty($firstItemDiscountAppliesTo)) {
@@ -66,6 +78,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Set Discount Eligibility Exclusive Items.
+	 *
+	 * @return mixed
+	 */
 	private function setDiscountEligibilityExclusiveItems() {
 		// SET DISCOUNT ELIGIBILITY EXCLUSIVE ITEMS
 		// @note: $this->discountCustomerEligibility CONTAINS BOTH 'BUY X' ITEMS AND 'CUSTOMER ELIGIBILITY' ITEMS
@@ -95,6 +112,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Set Discount Customer Eligibility Type.
+	 *
+	 * @return mixed
+	 */
 	protected function setDiscountCustomerEligibilityType() {
 		// @note: THIS NEEDS TO GET ONLY 'CUSTOMERS'
 		// IT NEEDS TO EXCLUDE 'products_buy_x' OR 'categories_buy_x'!
@@ -108,6 +130,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Set Discount Eligibility Buy X Mode.
+	 *
+	 * @return mixed
+	 */
 	private function setDiscountEligibilityBuyXMode() {
 		// @note: THIS NEEDS TO GET ONLY 'products_buy_x' OR 'categories_buy_x'
 		// IT NEEDS TO EXCLUDE CUSTOMERS!
@@ -125,6 +152,7 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 	/**
 	 * Render the entire input area for product discount
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		// @overrides parent::render
@@ -138,6 +166,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $out;
 	}
 
+	/**
+	 * Get Init Values Array For Alpine J S.
+	 *
+	 * @return mixed
+	 */
 	protected function getInitValuesArrayForAlpineJS() {
 		// @overrides parent::getInitValuesArrayForAlpineJS
 		$radioValues = parent::getInitValuesArrayForAlpineJS();
@@ -149,6 +182,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $radioValues;
 	}
 
+	/**
+	 * Get Discounts Form Header.
+	 *
+	 * @return mixed
+	 */
 	protected function getDiscountsFormHeader() {
 		// @overrides parent::getDiscountsFormHeader
 		$discountTypeHeader =
@@ -158,6 +196,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $discountTypeHeader;
 	}
 
+	/**
+	 * Render Discount Value.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountValue($wrapper) {
 		// @overrides parent::renderDiscountValue
 		// REMOVE the 'RENDER VALUE' Inputfields since not needed in Buy X Get Y discount
@@ -166,6 +210,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Render Discount Minimum Requirement.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	protected function renderDiscountMinimumRequirement($wrapper) {
 		// @overrides parent::renderDiscountMinimumRequirement
 		// TOTALLY REPLACE WITH 'CUSTOMER BUYS X' & 'CUSTOMER GETS Y' INPUTFIELDS
@@ -177,6 +227,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Get Value For Minimum Requirement Type.
+	 *
+	 * @return mixed
+	 */
 	private function getValueForMinimumRequirementType() {
 		// @note: 'purchase' or 'quantity'
 		$value = !empty($this->discount->discountMinimumRequirementType) ? $this->discount->discountMinimumRequirementType : 'quantity';
@@ -185,6 +240,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 	}
 
 	### MINIMIMUM REQUIREMENT + ELIGIBILITY (CUSTOMER BUYS X) ###
+	/**
+	 * Render Discount Customer Buys X.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountCustomerBuysX($wrapper) {
 		// radio to select customer buys x minimum requirement type
 		$field = $this->getMarkupForDiscountCustomerBuysMinimumRadioField();
@@ -212,6 +273,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Buys Minimum Radio Field.
+	 *
+	 * @return mixed
+	 */
 	protected function getMarkupForDiscountCustomerBuysMinimumRadioField() {
 		//------------------- pwcommerce_discount_customer_buys_minimum_type (getInputfieldRadios)
 
@@ -262,6 +328,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 	}
 
 	### APPLIES TO (GETS Y) ###
+	/**
+	 * Render Discount Customer Gets Y.
+	 *
+	 * @param mixed $wrapper
+	 * @return string|mixed
+	 */
 	private function renderDiscountCustomerGetsY($wrapper) {
 		$mode = "get_y";
 		// markup to show customer gets header
@@ -302,6 +374,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $wrapper;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Gets Y Header Markup Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerGetsYHeaderMarkupField() {
 		//------------------- active dates header markup (getInputfieldMarkup)
 		$options = [
@@ -322,6 +399,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Gets Y Discounted Value Radio Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerGetsYDiscountedValueRadioField() {
 		//------------------- pwcommerce_discount_customer_get_y_discounted_value_type (getInputfieldRadios)
 
@@ -363,6 +445,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Gets Y Discounted Value Percent Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerGetsYDiscountedValuePercentTextField() {
 		//------------------- pwcommerce_discount_value (getInputfieldText)
 
@@ -415,6 +502,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Maximum Usage Per Order Amount Toggle Checkbox Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMaximumUsagePerOrderAmountToggleCheckboxField() {
 		//------------------- pwcommerce_discount_set_maximum_usage_per_order_toggle (getInputfieldCheckbox)
 // @note: comes from META! @see: FieldtypePWCommerceDiscount::wakeupValue()
@@ -442,6 +534,11 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Maximum Usage Per Order Amount Text Field.
+	 *
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountMaximumUsagePerOrderAmountTextField() {
 		//------------------- pwcommerce_discount_set_maximum_usage_per_order (getInputfieldText)
 		$options = [
@@ -471,6 +568,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 	}
 	### SHARED INPUTS ###
 
+	/**
+	 * Get Markup For Discount Customer Buys Gets Amount Text Field.
+	 *
+	 * @param string $mode
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerBuysGetsAmountTextField($mode = 'buy_x') {
 
 		//------------------- pwcommerce_discount_value (getInputfieldText)
@@ -545,6 +648,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Buys Gets Items From Radio Field.
+	 *
+	 * @param string $mode
+	 * @return mixed
+	 */
 	protected function getMarkupForDiscountCustomerBuysGetsItemsFromRadioField($mode = 'buy_x') {
 		//------------------- pwcommerce_discount_customer_buys_gets_items_from_type (getInputfieldRadios)
 
@@ -618,6 +727,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Buys Gets Categories Text Tags Field.
+	 *
+	 * @param string $mode
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerBuysGetsCategoriesTextTagsField($mode = 'buy_x') {
 		// TODO: Unused categories?!
 		//------------------- pwcommerce_discount_customer_MODE_categories (getInputfieldTextTags)
@@ -703,6 +818,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $field;
 	}
 
+	/**
+	 * Get Markup For Discount Customer Buys Gets Products Text Tags Field.
+	 *
+	 * @param string $mode
+	 * @return mixed
+	 */
 	private function getMarkupForDiscountCustomerBuysGetsProductsTextTagsField($mode = 'buy_x') {
 		//------------------- pwcommerce_discount_customer_MODE_products (getInputfieldTextTags)
 		// @NOTE: we reuse this field for buys x and gets y
@@ -812,6 +933,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 	// @NOTE: PARENT CLASS WILL DO MAIN PROCESSING
 	// HERE WE ONLY PROCESS A FEW INPUTS UNIQUE TO BUY X GET Y DISCOUNT
 
+	/**
+	 * Process Discount Value Type.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountValueType(WireInputData $input) {
 		// @note: 'products_get_y' OR 'categories_get_y'
 		// @note: identical to values of $discountAppliesTo->itemType in FieldtypeDiscountsApplTo
@@ -821,6 +948,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $discountValueType;
 	}
 
+	/**
+	 * Process Discount Value.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountValue(WireInputData $input) {
 		// @note: if 'FREE' this is 100
 		$discountValue = 100;
@@ -833,6 +966,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $discountValue;
 	}
 
+	/**
+	 * Process Discount Minimum Requirement Type.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function processDiscountMinimumRequirementType($input) {
 		//@note: pwcommerce_discount_customer_buys_minimum_type: TEXT IN ALLOWED OPTIONS (purchase|quantity)
 		$discountMinimumRequirementTypeRaw = $input->pwcommerce_discount_customer_buys_minimum_type;
@@ -843,6 +982,13 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $discountMinimumRequirementType;
 	}
 
+	/**
+	 * Process Discount Minimum Requirement Amount.
+	 *
+	 * @param mixed $input
+	 * @param mixed $discountMinimumRequirementType
+	 * @return mixed
+	 */
 	protected function processDiscountMinimumRequirementAmount($input, $discountMinimumRequirementType) {
 		// @NOTE: MINIMUMS CAN BE ZERO IN OTHER DISCOUNTS EXCEPT FOR BOGO! HENCE THIS OVERRIDE METHOD
 		//@note: pwcommerce_customer_buy_x_amount: FLOAT/INT for 'purchase'/'amount' respectively
@@ -870,6 +1016,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $discountMinimumRequirementAmount;
 	}
 
+	/**
+	 * Process Discount Meta Data.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processDiscountMetaData(WireInputData $input) {
 		$metaData = '';
 		$metaDataArray = [];
@@ -905,6 +1057,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $metaData;
 	}
 
+	/**
+	 * Process Input For Discounts Apply To.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processInputForDiscountsApplyTo(WireInputData $input) {
 		# @NOTE: THESE ARE THE 'GET Y' ITEMS IN THE BOGO DISCOUNT
 		##########################################################
@@ -988,6 +1146,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 
 	}
 
+	/**
+	 * Process Discount Get Y Applies To Item Type.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	private function processDiscountGetYAppliesToItemType($input) {
 		// @note: 'products_get_y' OR 'categories_get_y'
 		$discountGetYAppliesToItemTypeRaw = $input->pwcommerce_discount_customer_get_y_items_from_type;
@@ -998,6 +1162,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $discountGetYAppliesToItemType;
 	}
 
+	/**
+	 * Is Valid Exclude Shipping Rate Amount.
+	 *
+	 * @param mixed $input
+	 * @return bool
+	 */
 	private function isValidExcludeShippingRateAmount($input) {
 		$isValidExcludeShippingRateAmount = true;
 		// -----
@@ -1012,6 +1182,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $isValidExcludeShippingRateAmount;
 	}
 
+	/**
+	 * Get Error For Discounts Apply To.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	protected function getErrorForDiscountsApplyTo($input = NULL) {
 		// TODO
 		// for product discounts, error can be about missing radio (applies to shipping_all_countries or shipping_selected_countries) AND/OR missing IDs in selectize, i.e. missing countries IDs. Hence, need to tailor for these two scenarios!
@@ -1024,6 +1200,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $errorString;
 	}
 
+	/**
+	 * Process Input For Discounts Eligibility.
+	 *
+	 * @param WireInputData $input
+	 * @return mixed
+	 */
 	protected function processInputForDiscountsEligibility(WireInputData $input) {
 		# @NOTE: THESE ARE BOTH THE 'BUY X' ITEMS AND THE CUSTOMER ELIGIBILITY IN THE BOGO DISCOUNT
 		# THE 'BUY X' will store either of 'categories_buy_x' OR 'products_buy_x'
@@ -1234,6 +1416,12 @@ class InputfieldPWCommerceDiscountRenderBuyXGetYDiscount extends InputfieldPWCom
 		return $discountsEligibility;
 	}
 
+	/**
+	 * Process Extra Input Errors.
+	 *
+	 * @param mixed $errors
+	 * @return mixed
+	 */
 	protected function processExtraInputErrors($errors) {
 
 		// get parent errors and add to them, if applicable

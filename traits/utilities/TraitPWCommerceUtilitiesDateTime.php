@@ -7,12 +7,22 @@ trait TraitPWCommerceUtilitiesDateTime
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DATE AND TIME  ~~~~~~~~~~~~~~~~~~
 
+	/**
+	 * Get Date Time Format.
+	 *
+	 * @return mixed
+	 */
 	public function getDateTimeFormat() {
 		$datetimeFormat = $this->getDateFormat() . ' ' . $this->getTimeFormat();
 		// --------------
 		return $datetimeFormat;
 	}
 
+	/**
+	 * Get Date Format.
+	 *
+	 * @return mixed
+	 */
 	public function getDateFormat() {
 		$dateFormat = '';
 		// check if general settings has date and time formats set
@@ -32,6 +42,11 @@ trait TraitPWCommerceUtilitiesDateTime
 		return $dateFormat;
 	}
 
+	/**
+	 * Get Time Format.
+	 *
+	 * @return mixed
+	 */
 	public function getTimeFormat() {
 		$timeFormat = '';
 		// check if general settings has date and time formats set
@@ -60,9 +75,7 @@ trait TraitPWCommerceUtilitiesDateTime
 	/**
 	 * Return the 'time portion' only in the ProcessWire dateFormat config setting.
 	 *
-	 * Used if we need to replace relative time in some instances or only date was specified in general settings.
-	 *
-	 * @return string $timeFormat
+	 * @return mixed
 	 */
 	private function getTimeFormatFromConfigDateFormat() {
 		$wdt = $this->wire('datetime');
@@ -78,9 +91,7 @@ trait TraitPWCommerceUtilitiesDateTime
 	/**
 	 * Return the 'date portion' only in the ProcessWire dateFormat config setting.
 	 *
-	 * Used if only time format was specified in general settings.
-	 *
-	 * @return string $timeFormat
+	 * @return mixed
 	 */
 	private function getDateFormatFromConfigDateFormat() {
 		$wdt = $this->wire('datetime');
@@ -96,9 +107,8 @@ trait TraitPWCommerceUtilitiesDateTime
 	/**
 	 * Build the string for the last created date of of a given page.
 	 *
-	 * @credits: ProcessPageEdit::buildFormInfo().
-	 * @param Page $page The page whose created date we are building.
-	 * @return String $createdDate The last created date string.
+	 * @param Page $page
+	 * @return mixed
 	 */
 	public function getCreatedDate($page) {
 		$unknown = '[?]';
@@ -110,34 +120,65 @@ trait TraitPWCommerceUtilitiesDateTime
 		return $createdDate;
 	}
 
+	/**
+	 * Get End Of Last Year Date Time.
+	 *
+	 * @return \DateTime
+	 */
 	public function getEndOfLastYearDateTime(): \DateTime {
 		$endOfLastYear = new \DateTime('last day of December this year -1 years');
 		return $endOfLastYear;
 	}
 
+	/**
+	 * Get End Of Last Year Timestamp.
+	 *
+	 * @return int
+	 */
 	public function getEndOfLastYearTimestamp(): int {
 		$endOfLastYear = $this->getEndOfLastYearDateTime();
 		$endOfLastYearTimestamp = $endOfLastYear->getTimestamp();
 		return $endOfLastYearTimestamp;
 	}
 
+	/**
+	 * Get Start Of Next Year Date Time.
+	 *
+	 * @return \DateTime
+	 */
 	public function getStartOfNextYearDateTime(): \DateTime {
 		$startOfNextYear = new \DateTime('first day of January this year +1 years');
 		return $startOfNextYear;
 	}
 
+	/**
+	 * Get Start Of Next Year Timestamp.
+	 *
+	 * @return int
+	 */
 	public function getStartOfNextYearTimestamp(): int {
 		$startOfNextYear = $this->getStartOfNextYearDateTime();
 		$startOfNextYearTimestamp = $startOfNextYear->getTimestamp();
 		return $startOfNextYearTimestamp;
 	}
 
+	/**
+	 * Get This Year.
+	 *
+	 * @return mixed
+	 */
 	public function getThisYear() {
 		$now = new \DateTime();
 		$year = $now->format("Y");
 		return $year;
 	}
 
+	/**
+	 * Get Number Of Days In Given Year.
+	 *
+	 * @param mixed $yearNumber
+	 * @return mixed
+	 */
 	public function getNumberOfDaysInGivenYear($yearNumber = null) {
 		// if not give a year number (e.g. 1980), use this year as default
 		$yearNumber = !empty((int) $yearNumber) ? (int) $yearNumber : (int) $this->getThisYear();
@@ -151,12 +192,24 @@ trait TraitPWCommerceUtilitiesDateTime
 		return $totalDaysInYear;
 	}
 
+	/**
+	 * Get Number Of Days For Given Month In Given Year.
+	 *
+	 * @param mixed $monthNumber
+	 * @param mixed $yearNumber
+	 * @return mixed
+	 */
 	public function getNumberOfDaysForGivenMonthInGivenYear($monthNumber, $yearNumber) {
 		$monthNumber = (int) $monthNumber;
 		$yearNumber = (int) $yearNumber;
 		return cal_days_in_month(CAL_GREGORIAN, $monthNumber, $yearNumber);
 	}
 
+	/**
+	 * Get Number Of Days For Each Month For This Year.
+	 *
+	 * @return array
+	 */
 	public function getNumberOfDaysForEachMonthForThisYear(): array {
 		$thisYear = (int) $this->getThisYear();
 		$numberOfDaysForEachMonthThisYear = [];
@@ -174,6 +227,11 @@ trait TraitPWCommerceUtilitiesDateTime
 		return $numberOfDaysForEachMonthThisYear;
 	}
 
+	/**
+	 * Get Months Names.
+	 *
+	 * @return mixed
+	 */
 	public function getMonthsNames() {
 		return [
 			$this->_('January'),
@@ -191,6 +249,11 @@ trait TraitPWCommerceUtilitiesDateTime
 		];
 	}
 
+	/**
+	 * Get This Years Start And End Months Timestamps.
+	 *
+	 * @return mixed
+	 */
 	public function getThisYearsStartAndEndMonthsTimestamps() {
 		$months = $this->getMonthsNames();
 		$monthsTimestamps = [];
@@ -209,6 +272,11 @@ trait TraitPWCommerceUtilitiesDateTime
 		return $monthsTimestamps;
 	}
 
+	/**
+	 * Get Shop Date Format.
+	 *
+	 * @return mixed
+	 */
 	public function getShopDateFormat() {
 		$datetimeFormat = $this->getDateTimeFormat();
 		if (empty($datetimeFormat)) {
@@ -218,6 +286,11 @@ trait TraitPWCommerceUtilitiesDateTime
 		return $datetimeFormat;
 	}
 
+	/**
+	 * Get Shop Date Only Format.
+	 *
+	 * @return mixed
+	 */
 	public function getShopDateOnlyFormat() {
 		$dateFormat = $this->getDateFormat();
 		if (empty($dateFormat)) {

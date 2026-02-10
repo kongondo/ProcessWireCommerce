@@ -45,6 +45,11 @@ trait TraitPWCommerceDiscounts
 
 
 
+	/**
+	 * Get Allowed Discount Types.
+	 *
+	 * @return mixed
+	 */
 	public function getAllowedDiscountTypes() {
 		return [
 			// WHOLE ORDER
@@ -66,6 +71,11 @@ trait TraitPWCommerceDiscounts
 		];
 	}
 
+	/**
+	 * Get Allowed Minimum Requirement Types.
+	 *
+	 * @return mixed
+	 */
 	public function getAllowedMinimumRequirementTypes() {
 		return [
 			'none',
@@ -74,6 +84,11 @@ trait TraitPWCommerceDiscounts
 		];
 	}
 
+	/**
+	 * Get Allowed Applies To Item Types.
+	 *
+	 * @return mixed
+	 */
 	public function getAllowedAppliesToItemTypes() {
 		// @note: the 'discount applies to 4 items of y' in a BOGO and the 'customer gets this discount [free/%] on these items' is saved in the meta of FieldtypePWCommerceDiscount. We get the values as properties during runtime as well
 		return [
@@ -95,6 +110,11 @@ trait TraitPWCommerceDiscounts
 		];
 	}
 
+	/**
+	 * Get Allowed Eligibility Item Types.
+	 *
+	 * @return mixed
+	 */
 	public function getAllowedEligibilityItemTypes() {
 		return [
 			// CUSTOMER
@@ -108,6 +128,12 @@ trait TraitPWCommerceDiscounts
 	}
 
 	// TODO DELETE IF NOT IN USE
+	/**
+	 * Process Discount Action.
+	 *
+	 * @param mixed $input
+	 * @return mixed
+	 */
 	public function processDiscountAction($input) {
 		$this->input = $input;
 		$response = null;
@@ -123,10 +149,7 @@ trait TraitPWCommerceDiscounts
 	/**
 	 * xxxxx.
 	 *
-	 * TODO.
-	 *
-	 * @access public
-	 *
+	 * @return mixed
 	 */
 	public function redeemDiscountRender() {
 		$t = $this->getPWCommerceTemplate("gift-card-redeem-html.php");
@@ -137,6 +160,12 @@ trait TraitPWCommerceDiscounts
 	}
 
 	// TODO AMEND THIS OR DELETE?!
+	/**
+	 * Get Discounts Info.
+	 *
+	 * @param array $discountsIDs
+	 * @return mixed
+	 */
 	private function getDiscountsInfo(array $discountsIDs) {
 		// TODO -> PAGE ARRAY FROM SELECTOR OR ARRAY?
 		$discountsInfo = new PageArray();
@@ -156,6 +185,14 @@ trait TraitPWCommerceDiscounts
 	// ~~~~~~~~~~~~~~~~
 	// DISCOUNT VALIDATION
 
+	/**
+	 * Set Discount Checks Properties.
+	 *
+	 * @param mixed $code
+	 * @param mixed $customerEmail
+	 * @param int $customerShippingCountryID
+	 * @return mixed
+	 */
 	private function setDiscountChecksProperties($code, $customerEmail, $customerShippingCountryID) {
 		// TODO SANITIZE AND SET TO $this->code, $this->customerEmail and $this->customerShippingCountry
 		// set discount code
@@ -170,6 +207,14 @@ trait TraitPWCommerceDiscounts
 
 	}
 
+	/**
+	 * Is Valid Discount.
+	 *
+	 * @param string $code
+	 * @param string $customerEmail
+	 * @param int $customerShippingCountryID
+	 * @return bool
+	 */
 	public function isValidDiscount(string $code, string $customerEmail, int $customerShippingCountryID) {
 		// @NOTE: WILL SET $this->code, $this->customerEmail and $this->customerShippingCountry
 		$this->setDiscountChecksProperties($code, $customerEmail, $customerShippingCountryID);
@@ -180,6 +225,14 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Valid Discount By I D.
+	 *
+	 * @param int $discountID
+	 * @param string $customerEmail
+	 * @param int $customerShippingCountryID
+	 * @return bool
+	 */
 	public function isValidDiscountByID(int $discountID, string $customerEmail, int $customerShippingCountryID) {
 		$code = $this->getDiscountCodeByDiscountID($discountID);
 		$isValid = $this->isValidDiscount($code, $customerEmail, $customerShippingCountryID);
@@ -187,6 +240,14 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Validate And Set Discount.
+	 *
+	 * @param string $code
+	 * @param string $customerEmail
+	 * @param int $customerShippingCountryID
+	 * @return mixed
+	 */
 	public function validateAndSetDiscount(string $code, string $customerEmail, int $customerShippingCountryID) {
 		// =====
 
@@ -263,6 +324,14 @@ trait TraitPWCommerceDiscounts
 		return $result;
 	}
 
+	/**
+	 * Validate And Set Discount By I D.
+	 *
+	 * @param int $discountID
+	 * @param string $customerEmail
+	 * @param string $customerShippingCountryID
+	 * @return mixed
+	 */
 	public function validateAndSetDiscountByID(int $discountID, string $customerEmail, string $customerShippingCountryID) {
 		// NOTE - strval in case discount was not found and this returns null!
 		$code = strval($this->getDiscountCodeByDiscountID($discountID));
@@ -270,6 +339,11 @@ trait TraitPWCommerceDiscounts
 		return $result;
 	}
 
+	/**
+	 * Get Validation Checks.
+	 *
+	 * @return mixed
+	 */
 	private function getValidationChecks() {
 		return [
 			'is_valid_customer_email',
@@ -288,6 +362,12 @@ trait TraitPWCommerceDiscounts
 		];
 	}
 
+	/**
+	 * Get Invalid Discount Errors.
+	 *
+	 * @param string $singleErrorindex
+	 * @return mixed
+	 */
 	private function getInvalidDiscountErrors($singleErrorindex = '') {
 
 		$errors = [
@@ -342,6 +422,11 @@ trait TraitPWCommerceDiscounts
 
 	}
 
+	/**
+	 *  is Valid Discount.
+	 *
+	 * @return mixed
+	 */
 	public function _isValidDiscount() {
 		/** @var array $isValid */
 		$isValid = $this->runValidateDiscountChecks();
@@ -349,6 +434,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Run Validate Discount Checks.
+	 *
+	 * @return mixed
+	 */
 	private function runValidateDiscountChecks() {
 
 		$isValid = true;
@@ -394,6 +484,12 @@ trait TraitPWCommerceDiscounts
 
 	}
 
+	/**
+	 * Validate Discount Check.
+	 *
+	 * @param mixed $check
+	 * @return mixed
+	 */
 	private function validateDiscountCheck($check) {
 
 		// $isValid = false;/ TODO NEEDED?
@@ -490,12 +586,22 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Valid Customer Email.
+	 *
+	 * @return bool
+	 */
 	private function isValidCustomerEmail() {
 		$sanitizedEmail = $this->wire('sanitizer')->email($this->customerEmail);
 		$isValid = !empty($sanitizedEmail);
 		return $isValid;
 	}
 
+	/**
+	 * Is Valid Customer Shipping Country.
+	 *
+	 * @return bool
+	 */
 	private function isValidCustomerShippingCountry() {
 		// @note: $this->customerShippingCountry was already set in $his->setDiscountChecksProperties() via $this->isValidDiscount()
 		// it is a Page
@@ -507,6 +613,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Exist Discount.
+	 *
+	 * @return bool
+	 */
 	private function isExistDiscount() {
 		// @note: $this->code was already set in $his->setDiscountChecksProperties() via $this->isValidDiscount()
 		// it is a string
@@ -536,6 +647,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Live Discount.
+	 *
+	 * @return bool
+	 */
 	private function isLiveDiscount() {
 		$today = time();
 		// @NOTE TODO: CURRENTLY THIS IS TIMESTAMP IN WAKEUPVALUE! BUT MIGHT CHANGE IN FUTURE; SO WE CHECK HERE!
@@ -546,6 +662,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Not Expired Discount.
+	 *
+	 * @return bool
+	 */
 	private function isNotExpiredDiscount() {
 		$today = time();
 		// @NOTE TODO: CURRENTLY THIS IS TIMESTAMP IN WAKEUPVALUE! BUT MIGHT CHANGE IN FUTURE; SO WE CHECK HERE!
@@ -562,6 +683,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Free Shipping Discount Already Applied To Order.
+	 *
+	 * @return bool
+	 */
 	private function isFreeShippingDiscountAlreadyAppliedToOrder() {
 		// @note - WE ONLY ALLOW ONE FREE SHIPPING PER ORDER
 		//  it doesn't make sense to have multiple free shipping in one order!
@@ -601,6 +727,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Free Shipping Exclude Rates Over Certain Amount Requirement Satisfied.
+	 *
+	 * @return bool
+	 */
 	private function isFreeShippingExcludeRatesOverCertainAmountRequirementSatisfied() {
 		// TODO: HOW TO HANDLE MULTIPLE MATCHED SHIPPING RATES? WHICH ONE DO WE CHECK FOR EXCLUDE SHIPPING RATES OVER A CERTAIN AMOUNT? THE HIGHEST OR THE LOWEST AND WHY? HOW DO WE THEN CHOOSE WHICH DELIVERY TIME TO USE? PWCOMMERCE? DEVS?
 		// @note - WE ONLY ALLOW ONE FREE SHIPPING PER ORDER
@@ -690,6 +821,11 @@ trait TraitPWCommerceDiscounts
 		//--------
 		return $isValid;
 	}
+	/**
+	 * Is Customer Eligible For Discount.
+	 *
+	 * @return bool
+	 */
 	private function isCustomerEligibleForDiscount() {
 		// IF CUSTOMER ELIGIBILITY TYPE IS NOT 'all_customers;
 		// we then check if eligibility is 'specific_customers' OR 'customer_groups'
@@ -770,6 +906,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Discount Global Limit Reached.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountGlobalLimitReached() {
 		// count current usage and see if that >= limit
 		// TODO findRaw vs $pages->count()? findRaw for now!
@@ -788,6 +929,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Discount Per Customer Limit Reached.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountPerCustomerLimitReached() {
 		// count current usage OF THIS CUSTOMER and see if that >= per customer limit
 		// TODO findRaw vs $pages->count()? findRaw for now!
@@ -806,6 +952,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Discount Minimum Purchase And Applies To Requirements Satisfied.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountMinimumPurchaseAndAppliesToRequirementsSatisfied() {
 
 		// TODO NOT APPLICABLE FOR ORDER!
@@ -845,6 +996,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Discount Minimum Purchase And Applies To Categories Requirements Satisfied.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountMinimumPurchaseAndAppliesToCategoriesRequirementsSatisfied() {
 		// TODO FOR PRODUCTS AND CATEGORIES, WE NEED TO CHECK MINIMUM APPLIES TO AND MINIMUM PURCHASE AMOUNT IN TANDEM IN CASE OF QUANTITY! E.G. if discount says customer must buy 10 items as min qty, this must come from the applies to categoreis! if the categories include men's and women's categories, it means, the number of items from men's or from women's or from both MUST TOTAL >= 10 items!!!
 		// @UPDATE: SATURDAY, 14 OCTOBER 2023, 1952: ABOVE LOGIC IS WRONG! @SEE isDiscountMinimumPurchaseAndAppliesToRequirementsSatisfied FOR EXPLANATION!
@@ -1015,6 +1171,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Discount Minimum Purchase And Applies To Products Requirements Satisfied.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountMinimumPurchaseAndAppliesToProductsRequirementsSatisfied() {
 		// TODO FOR PRODUCTS AND CATEGORIES, WE NEED TO CHECK MINIMUM APPLIES TO AND MINIMUM PURCHASE AMOUNT IN TANDEM IN CASE OF QUANTITY! E.G. if discount says customer must buy 10 items as min qty, this must come from the applies to categoreis! if the categories include men's and women's categories, it means, the number of items from men's or from women's or from both MUST TOTAL >= 10 items!!!
 		// @UPDATE: SATURDAY, 14 OCTOBER 2023, 1952: ABOVE LOGIC IS WRONG! @SEE isDiscountMinimumPurchaseAndAppliesToRequirementsSatisfied FOR EXPLANATION!
@@ -1133,6 +1294,14 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Get Cart Applies To Products Total For Minimum Purchase Requirement.
+	 *
+	 * @param mixed $isCategoryMode
+	 * @param array $appliesToProductIDs
+	 * @param string $minimumRequirementType
+	 * @return mixed
+	 */
 	private function getCartAppliesToProductsTotalForMinimumPurchaseRequirement($isCategoryMode, array $appliesToProductIDs, $minimumRequirementType = 'purchase') {
 
 		/** @var array $cart */
@@ -1178,6 +1347,11 @@ trait TraitPWCommerceDiscounts
 		return $cartAppliesToProductsTotalAmount;
 	}
 
+	/**
+	 * Is Category Mode For Products Total For Minimum Purchase Requirement.
+	 *
+	 * @return bool
+	 */
 	private function isCategoryModeForProductsTotalForMinimumPurchaseRequirement() {
 		$isCategoryMode = $this->isCategoriesDiscount($this->discount->discountType) || $this->isBogoBuyXCategoriesDiscount() || $this->isBogGetYCategoriesDiscount();
 
@@ -1185,6 +1359,11 @@ trait TraitPWCommerceDiscounts
 		return $isCategoryMode;
 	}
 
+	/**
+	 * Is Discount Minimum Purchase And Applies To Free Shipping Requirements Satisfied.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountMinimumPurchaseAndAppliesToFreeShippingRequirementsSatisfied() {
 		// ********
 		// TODO IMPLEMENT 'EXCLUDE SHIPPING RATES OVER CERTAIN AMOUNT' FROM FREE SHIPPING
@@ -1291,10 +1470,20 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Is Discount Exclude Shipping Rates Over A Certain Amount Free Shipping Requirement Satisfied.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountExcludeShippingRatesOverACertainAmountFreeShippingRequirementSatisfied() {
 		// TODO USE LIVE SHIPPING RATES TO CHECK THIS
 	}
 
+	/**
+	 * Is Discount Minimum Purchase Met.
+	 *
+	 * @return bool
+	 */
 	private function isDiscountMinimumPurchaseMet() {
 		// @NOTE: THIS IS ALREADY DONE FOR PRODUCTS, CATEGORIES AND FREE SHIPPING IN the check for 'is_applies_to_requirements_satisfied' above, i.e. $this->isDiscountMinimumPurchaseAndAppliesToRequirementsSatisfied()
 		// HERE WE ONLY DO IT FOR ORDER. WE WILL DO THIS SEPARATELY FOR BOGO!S
@@ -1312,6 +1501,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Check Discount Minimum Amount Validity.
+	 *
+	 * @return mixed
+	 */
 	private function checkDiscountMinimumAmountValidity() {
 		// =======
 		/** @var WireData $discount */
@@ -1335,6 +1529,11 @@ trait TraitPWCommerceDiscounts
 		return $checkMinimumAmountValidity;
 	}
 
+	/**
+	 * Is B O G O Discount Minimum Requirements Met.
+	 *
+	 * @return bool
+	 */
 	private function isBOGODiscountMinimumRequirementsMet() {
 		// ++++++++++++
 		// GET THE DISCOUNT TYPE
@@ -1384,6 +1583,11 @@ trait TraitPWCommerceDiscounts
 
 	// BUY X
 
+	/**
+	 * Is B O G O Customer Buys X From And Spend Requirement Met.
+	 *
+	 * @return bool
+	 */
 	private function isBOGOCustomerBuysXFromAndSpendRequirementMet() {
 		$isValid = false; // @note: default to false so that we don't return true in case part 2 of the checks does not run
 		# ++++++++++
@@ -1463,6 +1667,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Get Cart Items Categories I Ds.
+	 *
+	 * @return array
+	 */
 	private function getCartItemsCategoriesIDs(): array {
 		$isIncludeProductIDs = false;
 		$cartCategoriesIDs = $this->getCartItemsCategoriesIDsWithAssociatedProductsIDs($isIncludeProductIDs);
@@ -1471,7 +1680,13 @@ trait TraitPWCommerceDiscounts
 		return $cartCategoriesIDs;
 	}
 
-	private function getCartItemsCategoriesIDsWithAssociatedProductsIDs($isIncludeProductIDs = true) {
+	/**
+	 * Get Cart Items Categories I Ds With Associated Products I Ds.
+	 *
+	 * @param bool $isIncludeProductIDs
+	 * @return mixed
+	 */
+	private function getCartItemsCategoriesIDsWithAssociatedProductsIDs(bool $isIncludeProductIDs = true) {
 
 		$cartTopLevelProductsIDs = $this->getOrderCartTopLevelProductsIDs();
 
@@ -1509,7 +1724,13 @@ trait TraitPWCommerceDiscounts
 		return $cartCategoriesIDs;
 	}
 
-	private function getCartCategoriesIDsWithAssociatedProductsIDs($isIncludeProductIDs = false): array {
+	/**
+	 * Get Cart Categories I Ds With Associated Products I Ds.
+	 *
+	 * @param bool $isIncludeProductIDs
+	 * @return array
+	 */
+	private function getCartCategoriesIDsWithAssociatedProductsIDs(bool $isIncludeProductIDs = false): array {
 
 		// TODO DELETE IF NO LONGER IN USE! SPLITTING THIS UP FOR CATEGORIES ONLY!
 		$cartTopLevelProductsIDs = $this->getOrderCartTopLevelProductsIDs();
@@ -1541,6 +1762,11 @@ trait TraitPWCommerceDiscounts
 		return $cartCategoriesIDs;
 	}
 
+	/**
+	 * Get Cart Items Products I Ds.
+	 *
+	 * @return array
+	 */
 	private function getCartItemsProductsIDs(): array {
 		$cart = $this->getOrderCart();
 		$cartProductsIDs = array_column($cart, 'product_id');
@@ -1549,6 +1775,11 @@ trait TraitPWCommerceDiscounts
 		return $cartProductsIDs;
 	}
 
+	/**
+	 * Get Saved Buy X Eligibility Categories I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getSavedBuyXEligibilityCategoriesIDs() {
 		// =======
 		/** @var WireArray $discountEligibility */
@@ -1561,6 +1792,11 @@ trait TraitPWCommerceDiscounts
 		return $discountEligibilityCategoriesIDs;
 	}
 
+	/**
+	 * Get Saved Buy X Eligibility Products I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getSavedBuyXEligibilityProductsIDs() {
 		// TODO COULD REFACTOR THIS! NEAR IDENTICAL TO 	$this->getSavedBuyXEligibilityCategoriesIDs()
 		// =======
@@ -1589,6 +1825,11 @@ trait TraitPWCommerceDiscounts
 		return $discountEligibilityProductsIDs;
 	}
 
+	/**
+	 * Get Buy X Eligible Categories Products I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getBuyXEligibleCategoriesProductsIDs() {
 
 		// @note: this will first get the products IDs for eligible products
@@ -1637,6 +1878,11 @@ trait TraitPWCommerceDiscounts
 		return $eligibleItemsProductIDsForSum;
 	}
 
+	/**
+	 * Get Buy X Eligible Products I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getBuyXEligibleProductsIDs() {
 		// @note: this will check both products and products variants parent_ids!
 		// $this->buyXEligibleItemsIDs
@@ -1659,6 +1905,12 @@ trait TraitPWCommerceDiscounts
 		return $eligibleItemsProductIDsForSum;
 	}
 
+	/**
+	 * Get Buy X Eligible Items Sum.
+	 *
+	 * @param mixed $checkItemsForSum
+	 * @return mixed
+	 */
 	private function getBuyXEligibleItemsSum($checkItemsForSum) {
 		// @note: $checkItemsForSum are already filtered to be eligible product/variant IDs only!
 		$minimumRequirementType = $this->discount->discountMinimumRequirementType;
@@ -1694,6 +1946,11 @@ trait TraitPWCommerceDiscounts
 
 	}
 
+	/**
+	 * Get Buy X Eligible Products And Variants I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getBuyXEligibleProductsAndVariantsIDs() {
 		$discountSavedEligibilityProductsAndVariantsIDs = $this->getSavedDiscountEligibilityProductsORCategoriesIDs();
 		// --------
@@ -1737,6 +1994,11 @@ trait TraitPWCommerceDiscounts
 		return $discountSavedEligibilityProductsAndVariantsIDs;
 	}
 
+	/**
+	 * Get Saved Discount Eligibility Products O R Categories I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getSavedDiscountEligibilityProductsORCategoriesIDs() {
 		// =======
 		/** @var WireArray $discountEligibility */
@@ -1757,6 +2019,11 @@ trait TraitPWCommerceDiscounts
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// GET Y
 
+	/**
+	 * Is B O G O Customer Gets Y From And Quantity Of Items Requirement Met.
+	 *
+	 * @return bool
+	 */
 	private function isBOGOCustomerGetsYFromAndQuantityOfItemsRequirementMet() {
 		$isValid = false; // @note: default to false so that we don't return true in case part 2 of the checks does not run
 		# ++++++++++
@@ -1836,6 +2103,11 @@ trait TraitPWCommerceDiscounts
 		return $isValid;
 	}
 
+	/**
+	 * Get Saved Get Y Applies To Categories I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getSavedGetYAppliesToCategoriesIDs() {
 		// =======
 		/** @var WireArray $discountAppliesTo */
@@ -1848,6 +2120,12 @@ trait TraitPWCommerceDiscounts
 		return $discountAppliesToCategoriesIDs;
 	}
 
+	/**
+	 * Get Get Y Applies To Items Sum.
+	 *
+	 * @param mixed $checkItemsForSum
+	 * @return mixed
+	 */
 	private function getGetYAppliesToItemsSum($checkItemsForSum) {
 		// @note: $checkItemsForSum are already filtered to be eligible product/variant IDs only!
 
@@ -1875,6 +2153,11 @@ trait TraitPWCommerceDiscounts
 
 	}
 
+	/**
+	 * Get Saved Get Y Applies To Products I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getSavedGetYAppliesToProductsIDs() {
 		// TODO COULD REFACTOR THIS! NEAR IDENTICAL TO 	$this->getSavedGetYAppliesToCategoriesIDs()
 		// =======
@@ -1903,6 +2186,11 @@ trait TraitPWCommerceDiscounts
 		return $discountAppliesToProductsIDs;
 	}
 
+	/**
+	 * Get Get Y Applies To Products I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getGetYAppliesToProductsIDs() {
 		// @note: this will check both products and products variants parent_ids!
 		// $this->getYAppliesToItemsIDs
@@ -1925,6 +2213,11 @@ trait TraitPWCommerceDiscounts
 		return $appliesToItemsProductIDsForSum;
 	}
 
+	/**
+	 * Get Get Y Applies To Categories Products I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getGetYAppliesToCategoriesProductsIDs() {
 
 		// @note: this will first get the products IDs for eligible products
@@ -1973,6 +2266,11 @@ trait TraitPWCommerceDiscounts
 		return $eligibleItemsProductIDsForSum;
 	}
 
+	/**
+	 * Get Get Y Applies To Products And Variants I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getGetYAppliesToProductsAndVariantsIDs() {
 		$discountSavedAppliesToProductsAndVariantsIDs = $this->getSavedDiscountAppliesToProductsORCategoriesIDs();
 		// --------
@@ -2016,6 +2314,11 @@ trait TraitPWCommerceDiscounts
 		return $discountSavedAppliesToProductsAndVariantsIDs;
 	}
 
+	/**
+	 * Get Saved Discount Applies To Products O R Categories I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getSavedDiscountAppliesToProductsORCategoriesIDs() {
 		// =======
 		/** @var WireArray $discountAppliesTo */
@@ -2033,6 +2336,11 @@ trait TraitPWCommerceDiscounts
 		return $discountAppliesToProductsORCategoriesIDsSaved;
 	}
 
+	/**
+	 * Process B O G O Apply Discount.
+	 *
+	 * @return mixed
+	 */
 	private function processBOGOApplyDiscount() {
 
 		// TODO WIP! TEST FOR BOGO GROUPING FOR APPPLY DISCOUNT!
@@ -2196,9 +2504,8 @@ trait TraitPWCommerceDiscounts
 	/**
 	 * Return the discount code of a given discount ID.
 	 *
-	 * Note: we only check published discount pages!
-	 * @param int $discountID Discount ID whose page we get the discount code from.
-	 * @return string|NULL $code The discount code or Null if not found.
+	 * @param int $discountID
+	 * @return mixed
 	 */
 	public function getDiscountCodeByDiscountID(int $discountID) {
 		$discountID = (int) $discountID;
@@ -2214,9 +2521,8 @@ trait TraitPWCommerceDiscounts
 	/**
 	 * Return the discount page for a given discount code.
 	 *
-	 * Note: we only check published discount pages!
-	 * @param string $code Discount code whose page we get the discount page from.
-	 * @return Page|NullPage $code The discount Page or NullPages if not found.
+	 * @param mixed $code
+	 * @return mixed
 	 */
 	public function getDiscountPageByCode($code) {
 		$code = $this->wire('sanitizer')->text($code);
@@ -2232,6 +2538,12 @@ trait TraitPWCommerceDiscounts
 	// DISCOUNTS REFRESH/RECALCULATION
 
 	// TODO DELETE IF NO LONGER IN USE
+	/**
+	 * Recalculate Discounts In Session.
+	 *
+	 * @param mixed $mode
+	 * @return mixed
+	 */
 	public function recalculateDiscountsInSession($mode) {
 		/** @var array $cart */
 		$cart = $this->getOrderCart();
@@ -2245,11 +2557,11 @@ trait TraitPWCommerceDiscounts
 	// DISCOUNT APPLICATION
 
 	/**
-	 *
 	 * Get redeemed discount IDs in session and apply them.
 	 *
-	 * Save the discount values to session.
-	 * @return void
+	 * @param string $customerEmail
+	 * @param string $customerShippingCountryID
+	 * @return mixed
 	 */
 	public function validateAndApplyDiscounts(string $customerEmail, string $customerShippingCountryID) {
 
@@ -2500,11 +2812,21 @@ trait TraitPWCommerceDiscounts
 
 	}
 
+	/**
+	 * Remove Redeemed Discounts From Session.
+	 *
+	 * @return mixed
+	 */
 	private function removeRedeemedDiscountsFromSession() {
 		$this->session->remove(PwCommerce::DISCOUNT_REDEEMED_DISCOUNTS);
 	}
 
 	// Public method to remove redeemed discounts
+	/**
+	 * Remove Discounts.
+	 *
+	 * @return mixed
+	 */
 	public function removeDiscounts() {
 		return $this->removeRedeemedDiscountsFromSession();
 	}
@@ -2515,16 +2837,34 @@ trait TraitPWCommerceDiscounts
 
 	// WHOLE ORDER DISCOUNTS
 
+	/**
+	 * Is Whole Order Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isWholeOrderDiscount($discountType) {
 		$isWholeOrderDiscount = in_array($discountType, ['whole_order_percentage', 'whole_order_fixed']);
 		return $isWholeOrderDiscount;
 	}
 
+	/**
+	 * Is Whole Order Fixed Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isWholeOrderFixedDiscount($discountType) {
 		$isWholeOrderFixedDiscount = $discountType === 'whole_order_fixed';
 		return $isWholeOrderFixedDiscount;
 	}
 
+	/**
+	 * Is Whole Order Percentage Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isWholeOrderPercentageDiscount($discountType) {
 		$isWholeOrderPercentageDiscount = $discountType === 'whole_order_percentage';
 		return $isWholeOrderPercentageDiscount;
@@ -2532,6 +2872,12 @@ trait TraitPWCommerceDiscounts
 
 	// CATEGORIES DISCOUNTS
 
+	/**
+	 * Is Categories Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isCategoriesDiscount($discountType) {
 		$isCategoriesDiscount = in_array($discountType, [
 			'categories_percentage',
@@ -2541,16 +2887,34 @@ trait TraitPWCommerceDiscounts
 		return $isCategoriesDiscount;
 	}
 
+	/**
+	 * Is Categories Percentage Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isCategoriesPercentageDiscount($discountType) {
 		$isCategoriesPercentageDiscount = $discountType === 'categories_percentage';
 		return $isCategoriesPercentageDiscount;
 	}
 
+	/**
+	 * Is Categories Fixed Per Order Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isCategoriesFixedPerOrderDiscount($discountType) {
 		$isCategoriesFixedPerOrderDiscount = $discountType === 'categories_fixed_per_order';
 		return $isCategoriesFixedPerOrderDiscount;
 	}
 
+	/**
+	 * Is Categories Fixed Per Item Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isCategoriesFixedPerItemDiscount($discountType) {
 		$isCategoriesFixedPerItemDiscount = $discountType === 'categories_fixed_per_item';
 		return $isCategoriesFixedPerItemDiscount;
@@ -2558,6 +2922,12 @@ trait TraitPWCommerceDiscounts
 
 	// PRODUCTS DISCOUNTS
 
+	/**
+	 * Is Products Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isProductsDiscount($discountType) {
 		$isProductsDiscount = in_array($discountType, [
 			'products_percentage',
@@ -2567,16 +2937,34 @@ trait TraitPWCommerceDiscounts
 		return $isProductsDiscount;
 	}
 
+	/**
+	 * Is Products Percentage Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isProductsPercentageDiscount($discountType) {
 		$isProductsPercentageDiscount = $discountType === 'products_percentage';
 		return $isProductsPercentageDiscount;
 	}
 
+	/**
+	 * Is Products Fixed Per Order Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isProductsFixedPerOrderDiscount($discountType) {
 		$isProductsFixedPerOrderDiscount = $discountType === 'products_fixed_per_order';
 		return $isProductsFixedPerOrderDiscount;
 	}
 
+	/**
+	 * Is Products Fixed Per Item Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isProductsFixedPerItemDiscount($discountType) {
 		$isProductsFixedPerItemDiscount = $discountType === 'products_fixed_per_item';
 		return $isProductsFixedPerItemDiscount;
@@ -2584,11 +2972,22 @@ trait TraitPWCommerceDiscounts
 
 	// FREE SHIPPING DISCOUNT
 
+	/**
+	 * Is Free Shipping Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isFreeShippingDiscount($discountType) {
 		$isFreeShippingDiscount = $discountType === 'free_shipping';
 		return $isFreeShippingDiscount;
 	}
 
+	/**
+	 * Is Free Shipping Discount Applied To Order.
+	 *
+	 * @return bool
+	 */
 	public function isFreeShippingDiscountAppliedToOrder() {
 		// GRAB REDEEMED DISOUNTS INFO FROM THE SESSION
 		$redeemedDiscountsIDs = $this->getSessionRedeemedDiscountsIDs();
@@ -2610,6 +3009,12 @@ trait TraitPWCommerceDiscounts
 
 	// BOGO DISCOUNT
 
+	/**
+	 * Is Bogo Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isBogoDiscount($discountType) {
 		$isBogoDicount = in_array($discountType, ['categories_get_y', 'products_get_y']);
 		return $isBogoDicount;
@@ -2618,21 +3023,41 @@ trait TraitPWCommerceDiscounts
 	// TODO MAKING THIS PRIVATE FOR NOW SINCE THEY RELY ON IN MEMORY CHECKS
 	// TODO MAYBE PASS OPTIONAL PARAMETER TO ALLOW FOR CHECK?
 
+	/**
+	 * Is Bogo Buy X Categories Discount.
+	 *
+	 * @return bool
+	 */
 	private function isBogoBuyXCategoriesDiscount() {
 		$isCategoriesBuyX = !empty($this->discountEligibility->get("itemType=" . PwCommerce::DISCOUNT_BOGO_CATEGORIES_BUY_X));
 		return $isCategoriesBuyX;
 	}
 
+	/**
+	 * Is Bog Get Y Categories Discount.
+	 *
+	 * @return bool
+	 */
 	private function isBogGetYCategoriesDiscount() {
 		$isCategoriesGetY = !empty($this->discountAppliesTo->get("itemType=" . PwCommerce::DISCOUNT_BOGO_CATEGORIES_GET_Y));
 		return $isCategoriesGetY;
 	}
 
+	/**
+	 * Is Bogo Buy X Products Discount.
+	 *
+	 * @return bool
+	 */
 	private function isBogoBuyXProductsDiscount() {
 		$isProductsBuyX = !empty($this->discountEligibility->get("itemType=" . PwCommerce::DISCOUNT_BOGO_PRODUCTS_BUY_X));
 		return $isProductsBuyX;
 	}
 
+	/**
+	 * Is Bog Get Y Products Discount.
+	 *
+	 * @return bool
+	 */
 	private function isBogGetYProductsDiscount() {
 		$isProductsGetY = !empty($this->discountAppliesTo->get("itemType=" . PwCommerce::DISCOUNT_BOGO_PRODUCTS_GET_Y));
 		return $isProductsGetY;
@@ -2640,6 +3065,12 @@ trait TraitPWCommerceDiscounts
 
 	// FIXED DISCOUNTS
 
+	/**
+	 * Is Fixed Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isFixedDiscount($discountType) {
 		$isFixedDiscount = in_array($discountType, [
 			// whole order
@@ -2654,6 +3085,12 @@ trait TraitPWCommerceDiscounts
 		return $isFixedDiscount;
 	}
 
+	/**
+	 * Is Fixed Per Order Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isFixedPerOrderDiscount($discountType) {
 		$isFixedPerOrderDiscount = in_array($discountType, [
 			// whole order
@@ -2666,6 +3103,12 @@ trait TraitPWCommerceDiscounts
 		return $isFixedPerOrderDiscount;
 	}
 
+	/**
+	 * Is Fixed Per Item Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isFixedPerItemDiscount($discountType) {
 		$isFixedPerItemDiscount = in_array($discountType, [
 			// categories
@@ -2678,6 +3121,12 @@ trait TraitPWCommerceDiscounts
 
 	// PERCENTAGE DISCOUNTS
 
+	/**
+	 * Is Percentage Discount.
+	 *
+	 * @param mixed $discountType
+	 * @return bool
+	 */
 	public function isPercentageDiscount($discountType) {
 		$isProductsDiscount = in_array($discountType, [
 			// whole order
@@ -2690,6 +3139,11 @@ trait TraitPWCommerceDiscounts
 		return $isProductsDiscount;
 	}
 
+	/**
+	 * Get Unique Automatic Discount Code.
+	 *
+	 * @return mixed
+	 */
 	public function getUniqueAutomaticDiscountCode() {
 		// do-while Loop
 		do {
@@ -2712,6 +3166,11 @@ trait TraitPWCommerceDiscounts
 		return $code;
 	}
 
+	/**
+	 * Generate Unique Automatic Discount Code.
+	 *
+	 * @return mixed
+	 */
 	private function generateUniqueAutomaticDiscountCode() {
 		$bytes = random_bytes(6);
 		// $code = strtoupper(bin2hex($bytes)); // 12 digit code
@@ -2724,8 +3183,7 @@ trait TraitPWCommerceDiscounts
 	/**
 	 * Get order cart in session.
 	 *
-	 * @access private
-	 * @return array $cart Array of stdClass items.
+	 * @return mixed
 	 */
 	private function getOrderCart() {
 		/** @var array $cart */
@@ -2734,6 +3192,11 @@ trait TraitPWCommerceDiscounts
 		return $cart;
 	}
 
+	/**
+	 * Get Order Cart Products And Variants I Ds.
+	 *
+	 * @return mixed
+	 */
 	private function getOrderCartProductsAndVariantsIDs() {
 		$cart = $this->getOrderCart();
 		$cartProductsAndVariantsIDs = array_column($cart, 'product_id');
@@ -2742,9 +3205,9 @@ trait TraitPWCommerceDiscounts
 	}
 
 	/**
-	 * @access private
-	 * for items in the cart, get products IDs of products or if variants, their parent product's ID.
-	 * @return array $cartTopLevelProductsIDs.
+	 * Get Order Cart Top Level Products I Ds.
+	 *
+	 * @return mixed
 	 */
 	private function getOrderCartTopLevelProductsIDs() {
 		$cart = $this->getOrderCart();
@@ -2759,12 +3222,10 @@ trait TraitPWCommerceDiscounts
 	/**
 	 * For items in the cart, find their categories IDs.
 	 *
-	 * For variants, we use their parent product's IDs to search.
-	 *
-	 * @access private
-	 * @return array
+	 * @param bool $isIncludeProductIDs
+	 * @return mixed
 	 */
-	private function getOrderCartCategoriesIDs($isIncludeProductIDs = false) {
+	private function getOrderCartCategoriesIDs(bool $isIncludeProductIDs = false) {
 
 		// TODO DELETE IF NO LONGER IN USE! SPLITTING THIS UP FOR CATEGORIES ONLY!
 		$cartTopLevelProductsIDs = $this->getOrderCartTopLevelProductsIDs();
@@ -2799,9 +3260,8 @@ trait TraitPWCommerceDiscounts
 	/**
 	 * For BOGO BUY X Categories (categories_buy_x).
 	 *
-	 * Get the Produts or Variants IDs in the order card associated with the given categories IDs.
-	 * @param mixed $cartItemsProductsORCategoriesIDs Nested Array of $productID => $categoriesIDsArray
-	 * @return array $cartEligibleProductsAndVariantsIDsForCategoriesBuyX Array with values representing cart items product ids.
+	 * @param mixed $cartItemsProductsORCategoriesIDs
+	 * @return mixed
 	 */
 	private function getOrderCartEligibleProductsAndVariantsIDsForAssociatedCategories($cartItemsProductsORCategoriesIDs) {
 		$cart = $this->getOrderCart();
@@ -2820,6 +3280,11 @@ trait TraitPWCommerceDiscounts
 		return $cartEligibleProductsAndVariantsIDsForCategoriesBuyX;
 	}
 
+	/**
+	 * Get Session Redeemed Discounts.
+	 *
+	 * @return mixed
+	 */
 	public function getSessionRedeemedDiscounts() {
 
 		/** @var array $redeemedDiscounts */
@@ -2845,6 +3310,11 @@ trait TraitPWCommerceDiscounts
 
 	}
 
+	/**
+	 * Get Session Redeemed Discounts I Ds.
+	 *
+	 * @return mixed
+	 */
 	public function getSessionRedeemedDiscountsIDs() {
 		/** @var array $redeemedDiscountsIDs */
 		$redeemedDiscountsIDs = $this->session->get(PwCommerce::DISCOUNT_REDEEMED_DISCOUNTS_IDS);
@@ -2852,6 +3322,12 @@ trait TraitPWCommerceDiscounts
 		return $redeemedDiscountsIDs;
 	}
 
+	/**
+	 * Track Redeemed Discounts I Ds.
+	 *
+	 * @param int $discountID
+	 * @return mixed
+	 */
 	private function trackRedeemedDiscountsIDs($discountID) {
 		// GET ALREADY SAVED DISCOUNT IDS FROM SESSION
 		$redeemedDiscountsIDs = $this->getSessionRedeemedDiscountsIDs();
@@ -2865,6 +3341,12 @@ trait TraitPWCommerceDiscounts
 		$this->session->set(PwCommerce::DISCOUNT_REDEEMED_DISCOUNTS_IDS, $redeemedDiscountsIDs);
 	}
 
+	/**
+	 * Is Discount Already Applied.
+	 *
+	 * @param int $discountID
+	 * @return bool
+	 */
 	private function isDiscountAlreadyApplied($discountID) {
 		$redeemedDiscountsIDs = $this->getSessionRedeemedDiscountsIDs();
 
@@ -2874,6 +3356,12 @@ trait TraitPWCommerceDiscounts
 		return $isDiscountAlreadyApplied;
 	}
 
+	/**
+	 * Remove Tracked Redeemed Discount I D.
+	 *
+	 * @param int $discountID
+	 * @return mixed
+	 */
 	public function removeTrackedRedeemedDiscountID($discountID) {
 		// first check if the discount ID to remove is being tracked
 		$isDiscountAlreadyApplied = $this->isDiscountAlreadyApplied($discountID);

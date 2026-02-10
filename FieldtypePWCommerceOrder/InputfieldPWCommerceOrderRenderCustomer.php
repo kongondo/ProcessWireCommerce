@@ -28,6 +28,12 @@ class InputfieldPWCommerceOrderRenderCustomer extends WireData
 	private $inputfieldOrderCustomer;
 
 
+	/**
+	 *   construct.
+	 *
+	 * @param Page $page
+	 * @return mixed
+	 */
 	public function __construct($page) {
 
 		$this->page = $page;
@@ -38,10 +44,7 @@ class InputfieldPWCommerceOrderRenderCustomer extends WireData
 	/**
 	 * Get and set InputfieldPWCommerceOrderCustomer to a class property.
 	 *
-	 * For convenience / reuse.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function setInputfieldOrderCustomer() {
 		$inputfieldName = "InputfieldPWCommerceOrderCustomer";
@@ -52,6 +55,7 @@ class InputfieldPWCommerceOrderRenderCustomer extends WireData
 	/**
 	 * Render the entire input area for order
 	 *
+	 * @return mixed
 	 */
 	public function ___render() {
 		return $this->getOrderCustomerMarkup();
@@ -60,10 +64,7 @@ class InputfieldPWCommerceOrderRenderCustomer extends WireData
 	/**
 	 * Get markup for the customer for this order.
 	 *
-	 * @note: calls the render() method of InputfieldPWCommerceOrderCustomer.
-	 *
-	 * @access private
-	 * @return void
+	 * @return mixed
 	 */
 	private function getOrderCustomerMarkup() {
 		// set values to InputfieldPWCommerceOrderCustomer
@@ -77,6 +78,11 @@ class InputfieldPWCommerceOrderRenderCustomer extends WireData
 		return $out;
 	}
 
+	/**
+	 * Get Order Customer Required Fields.
+	 *
+	 * @return mixed
+	 */
 	public function getOrderCustomerRequiredFields() {
 		$requiredFieldsIDs = $this->inputfieldOrderCustomer->getRequiredOrderCustomerInputs();
 

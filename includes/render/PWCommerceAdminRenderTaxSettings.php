@@ -21,6 +21,12 @@ class PWCommerceAdminRenderTaxSettings extends WireData
 {
 
 
+	/**
+	 * Render Results.
+	 *
+	 * @param mixed $selector
+	 * @return string|mixed
+	 */
 	protected function renderResults($selector = null) {
 
 		$pwcommerce = $this->pwcommerce;
