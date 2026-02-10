@@ -217,6 +217,7 @@ trait TraitPWCommerceUtilitiesOrder
 		$monthRevenueMoney = $this->money(0);
 
 		foreach ($months as $monthName) {
+			$monthRevenueMoney = $this->money(0);
 			$isInitialMonthRevenue = true;
 			// get revenue for each order in this month as MONEY
 			if (!empty($monthlySales[$monthName])) {

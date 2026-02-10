@@ -213,6 +213,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 			[$this->_('Price'), 'pwcommerce_orders_table_order_line_item_unit_price'],
 			// TOTAL PRICE
 			[$this->_('Total'), 'pwcommerce_orders_table_order_line_item_total_price'],
+			// NET PRICE
+			[$this->_('NET Price'), 'pwcommerce_orders_table_order_line_item_net_price'],
 		];
 	}
 
@@ -2249,6 +2251,9 @@ class PWCommerceAdminRenderOrders extends WireData {
 			$this->pwcommerce->getValueFormattedAsCurrencyForShop($orderLineItem->unitPrice),
 			// TOTAL DISCOUNTED PRICE WITH TAX + DISCOUNTS INFO
 			$totalPriceAndDiscountsInfo,
+			// NET PRICE
+			// @note: price without tax but with discount
+			$this->pwcommerce->getValueFormattedAsCurrencyForShop($orderLineItem->totalPriceDiscounted),
 		];
 	}
 
@@ -2465,7 +2470,8 @@ class PWCommerceAdminRenderOrders extends WireData {
 					'',
 					'',
 					// using for note for totals
-					"<span class='italic'>" . $this->_('Totals include applicable tax') . "</span>"
+					"<span class='italic'>" . $this->_('Totals include applicable tax') . "</span>",
+					''
 				];
 				$field->footerRow($footerLabels);
 			}

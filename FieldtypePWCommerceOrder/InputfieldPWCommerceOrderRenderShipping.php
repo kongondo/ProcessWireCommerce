@@ -203,7 +203,8 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 		$ajaxPostURL = $this->ajaxPostURL;
 		$calculateShippingAndTaxesParameterJSON =
 			json_encode(['pwcommerce_calculate_shipping_and_taxes' => 1]);
-		$indicator = "htmx-indicator";
+		// $indicator = ".htmx-indicator";
+		$indicator = "#pwcommerce_order_calculate_shipping_indicator";
 		$field->attr([
 			'hx-post' => $ajaxPostURL,
 			'hx-vals' => $calculateShippingAndTaxesParameterJSON,
@@ -282,7 +283,12 @@ class InputfieldPWCommerceOrderRenderShipping extends WireData
 
 	private function getSpinnerForOrderCalculateShipping() {
 		$indicator = "htmx-indicator";
-		$out = "<span class='{$indicator} fa fa-fw fa-spin fa-spinner'></span>";
+		// @note: we need the class 'htmx-indicator' for htmx to pick it up!
+		// However, in getButtonForOrderCalculateShipping(), we reference it as '.htmx-indicator' (class selector)
+		// @UPDATE: we added an id because sometimes htmx picks up ALL indicators!
+		// #pwcommerce_order_calculate_shipping_button
+		$indicatorID = "pwcommerce_order_calculate_shipping_indicator";
+		$out = "<span id='{$indicatorID}' class='{$indicator} fa fa-fw fa-spin fa-spinner'></span>";
 		// ---------
 		return $out;
 	}

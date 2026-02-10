@@ -135,14 +135,16 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 		// ++++++++
 		// (i) schema 'unit_price'
-		$unitPriceBeforeTax = 0;
+		// @note: defaults to unit display price if not computed
+		$unitPriceBeforeTax = $this->unitDisplayPrice;
 		$this->unitPriceBeforeTaxMoney = $this->getUnitPriceBeforeTax();
 		if (!empty($this->unitPriceBeforeTaxMoney)) {
 			$unitPriceBeforeTax = $this->getWholeMoneyAmount($this->unitPriceBeforeTaxMoney);
 		}
 
 		// (iii) schema 'unit_price_with_tax'
-		$unitPriceAfterTax = 0;
+		// @note: defaults to unit display price if not computed
+		$unitPriceAfterTax = $this->unitDisplayPrice;
 		$this->unitPriceAfterTaxMoney = $this->getUnitPriceAfterTax();
 		if (!empty($this->unitPriceAfterTaxMoney)) {
 			$unitPriceAfterTax = $this->getWholeMoneyAmount($this->unitPriceAfterTaxMoney);
@@ -188,7 +190,21 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// (iv) schema 'total_price_discounted_with_tax'
 		// if no discount, discounted total AFTER tax equates to total AFTER tax
 		$totalPriceWithDiscountAfterTax = $totalPriceAfterTax;
-		if ($this->totalPriceWithDiscountBeforeTaxMoney->lessThan($this->totalPriceBeforeTaxMoney)) {
+		// if ($this->totalPriceWithDiscountBeforeTaxMoney->lessThan($this->totalPriceBeforeTaxMoney)) {
+		// 	// DISCOUNT WAS APPLIED (BEFORE TAX)
+		// 	$this->isDiscountApplied = true;
+		// 	// get discounted price with tax
+		// 	$this->totalPriceWithDiscountAfterTaxMoney = $this->getTotalPriceWithDiscountAfterTax();
+		// 	if (!empty($this->totalPriceWithDiscountAfterTaxMoney)) {
+		// 		$totalPriceWithDiscountAfterTax = $this->getWholeMoneyAmount($this->totalPriceWithDiscountAfterTaxMoney);
+		// 	}
+		// }
+
+		// @note: due to precision issues, we use round for comparison
+		$roundedTotalPriceWithDiscountBeforeTaxMoney = $this->getRoundMoney($this->totalPriceWithDiscountBeforeTaxMoney);
+		$roundedTotalPriceBeforeTaxMoney = $this->getRoundMoney($this->totalPriceBeforeTaxMoney);
+
+		if ($roundedTotalPriceWithDiscountBeforeTaxMoney->lessThan($roundedTotalPriceBeforeTaxMoney)) {
 			// DISCOUNT WAS APPLIED (BEFORE TAX)
 			$this->isDiscountApplied = true;
 			// get discounted price with tax
@@ -219,7 +235,20 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 		// (iv) schema 'unit_price_discounted_with_tax'
 		// if no discount, discounted unit AFTER tax equates to unit AFTER tax
 		$unitPriceWithDiscountAfterTax = $unitPriceAfterTax;
-		if ($this->unitPriceWithDiscountBeforeTaxMoney->lessThan($this->unitPriceBeforeTaxMoney)) {
+		// if ($this->unitPriceWithDiscountBeforeTaxMoney->lessThan($this->unitPriceBeforeTaxMoney)) {
+		// 	// DISCOUNT WAS APPLIED (BEFORE TAX)
+		// 	// get discounted price with tax
+		// 	$this->unitPriceWithDiscountAfterTaxMoney = $this->getUnitPriceWithDiscountAfterTax();
+		// 	if (!empty($this->unitPriceWithDiscountAfterTaxMoney)) {
+		// 		$unitPriceWithDiscountAfterTax = $this->getWholeMoneyAmount($this->unitPriceWithDiscountAfterTaxMoney);
+		// 	}
+		// }
+
+		// @note: due to precision issues, we use round for comparison
+		$roundedUnitPriceWithDiscountBeforeTaxMoney = $this->getRoundMoney($this->unitPriceWithDiscountBeforeTaxMoney);
+		$roundedUnitPriceBeforeTaxMoney = $this->getRoundMoney($this->unitPriceBeforeTaxMoney);
+
+		if ($roundedUnitPriceWithDiscountBeforeTaxMoney->lessThan($roundedUnitPriceBeforeTaxMoney)) {
 			// DISCOUNT WAS APPLIED (BEFORE TAX)
 			// get discounted price with tax
 			$this->unitPriceWithDiscountAfterTaxMoney = $this->getUnitPriceWithDiscountAfterTax();
@@ -810,7 +839,12 @@ trait TraitPWCommerceUtilitiesOrderLineItem
 
 	# *********
 
-
+	private function getRoundMoney($money) {
+		// round to 2 dp
+		$moneyAmount = $this->getWholeMoneyAmount($money);
+		$moneyAmount = round($moneyAmount, 2);
+		return $this->money($moneyAmount);
+	}
 
 
 
