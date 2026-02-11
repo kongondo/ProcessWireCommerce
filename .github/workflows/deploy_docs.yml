@@ -36,7 +36,7 @@ jobs:
           tools: phpDocumentor
 
       - name: Generate API Docs
-        run: phpdoc -d . -t site/api --ignore "vendor/,node_modules/,site/,docs/,tests/,test/,.git/,.github/" --template="default"
+        run: ./run_phpdoc.sh
 
       # 3. Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
