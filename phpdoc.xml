@@ -15,7 +15,6 @@
             </source>
             <ignore>
                 <path>vendor/**/*</path>
-                <path>vendor_temp/**/*</path>
                 <path>node_modules/**/*</path>
                 <path>site/**/*</path>
                 <path>docs/**/*</path>

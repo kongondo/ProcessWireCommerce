@@ -23,9 +23,5 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# phpDocumentor
-.phpdoc
-phpDocumentor.phar
-site/api
-vendor_temp
-phpdoc.log
+# Documentation artifacts
+site/
