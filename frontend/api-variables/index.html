@@ -198,7 +198,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    ProcessPWCommerce
+    ProcessWireCommerce
   </div>
 </a>
       </div>
@@ -244,7 +244,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    ProcessPWCommerce
+    ProcessWireCommerce
   </div>
 </a>
     </div>
@@ -590,6 +590,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Product Object">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -805,6 +822,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Product Object">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -858,18 +892,47 @@
 <li><strong><code>$pwcommerce-&gt;getCustomer()</code></strong>: Returns the current customer object.</li>
 <li><strong><code>$pwcommerce-&gt;import($items, $importType, $options)</code></strong>: Import items (e.g. products) into the store.</li>
 <li><strong><code>$pwcommerce-&gt;renderAddToCartButton($product)</code></strong>: Renders an "Add to Cart" button for a given product.</li>
+<li><strong><code>$pwcommerce-&gt;find($selector)</code></strong>: Find commerce-related pages (products, categories, etc.) using short syntax selectors.</li>
 </ul>
 </li>
 </ul>
 <h2 id="product-object">Product Object</h2>
-<p>When working with products (which are standard ProcessWire pages with the <code>product</code> template), you have access to standard ProcessWire fields plus Commerce-specific properties:</p>
+<p>When working with products (which are ProcessWire pages with the <code>pwcommerce-product</code> template), you have access to standard ProcessWire fields plus Commerce-specific properties stored in custom fields:</p>
 <ul>
-<li><strong><code>$product-&gt;title</code></strong>: The product name.</li>
-<li><strong><code>$product-&gt;pw_sku</code></strong>: The product's Stock Keeping Unit.</li>
-<li><strong><code>$product-&gt;pw_price</code></strong>: The product's price.</li>
-<li><strong><code>$product-&gt;pw_stock</code></strong>: Current stock level.</li>
-<li><strong><code>$product-&gt;pw_images</code></strong>: Field containing product images.</li>
+<li><strong><code>$product-&gt;title</code></strong>: The product name (standard ProcessWire field).</li>
+<li><strong><code>$product-&gt;pwcommerce_product_stock</code></strong>: An object containing inventory and pricing data.<ul>
+<li><strong><code>price</code></strong>: The current selling price.</li>
+<li><strong><code>comparePrice</code></strong>: The comparison price (e.g., MSRP).</li>
+<li><strong><code>sku</code></strong>: The product's Stock Keeping Unit.</li>
+<li><strong><code>quantity</code></strong>: The current stock level.</li>
+<li><strong><code>isOnSale</code></strong>: Boolean indicating if the product is on sale.</li>
+<li><strong><code>allowBackorders</code></strong>: Boolean indicating if backorders are allowed.</li>
 </ul>
+</li>
+<li><strong><code>$product-&gt;pwcommerce_images</code></strong>: Field containing product images (ProcessWire Image field).</li>
+<li><strong><code>$product-&gt;pwcommerce_description</code></strong>: The product description (ProcessWire Textarea/CKEditor field).</li>
+<li><strong><code>$product-&gt;pwcommerce_brand</code></strong>: A Page Reference field linking to the brand/manufacturer.</li>
+<li><strong><code>$product-&gt;pwcommerce_categories</code></strong>: A Page Reference field linking to product categories.</li>
+<li><strong><code>$product-&gt;pwcommerce_tags</code></strong>: A Page Reference field linking to product tags.</li>
+<li><strong><code>$product-&gt;pwcommerce_product_settings</code></strong>: An object containing product settings.<ul>
+<li><strong><code>shippingType</code></strong>: The shipping type (e.g., 'physical', 'digital').</li>
+<li><strong><code>taxable</code></strong>: Boolean indicating if the product is taxable.</li>
+<li><strong><code>trackInventory</code></strong>: Boolean indicating if inventory tracking is enabled.</li>
+</ul>
+</li>
+</ul>
+<h3 id="example-access">Example Access</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="x">// Get product price</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="x">$price = $product-&gt;pwcommerce_product_stock-&gt;price;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="x">// Get product SKU</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="x">$sku = $product-&gt;pwcommerce_product_stock-&gt;sku;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="x">// Check if on sale</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="x">if ($product-&gt;pwcommerce_product_stock-&gt;isOnSale) {</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="x">    // ...</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="x">}</span>
+</code></pre></div>
 <h2 id="cart-object">Cart Object</h2>
 <p>The cart object allows you to manage items in the customer's session.</p>
 <ul>
@@ -879,18 +942,18 @@
 <li><strong><code>$cart-&gt;add($product, $qty)</code></strong>: Add a product to the cart programmatically.</li>
 </ul>
 <h2 id="example-usage">Example Usage</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">&lt;?php</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">// Get the cart</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">$cart</span> <span class="o">=</span> <span class="nv">$pwcommerce</span><span class="o">-&gt;</span><span class="na">getCart</span><span class="p">();</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1">// Check if cart is empty</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">if</span><span class="p">(</span><span class="nv">$cart</span><span class="o">-&gt;</span><span class="na">getNumberOfItems</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">echo</span> <span class="s2">&quot;You have items in your cart!&quot;</span><span class="p">;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">echo</span> <span class="s2">&quot;Total: &quot;</span> <span class="o">.</span> <span class="nv">$cart</span><span class="o">-&gt;</span><span class="na">getTotal</span><span class="p">();</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">echo</span> <span class="s2">&quot;Your cart is empty.&quot;</span><span class="p">;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="cp">?&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">&lt;?php</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">// Get the cart</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nv">$cart</span> <span class="o">=</span> <span class="nv">$pwcommerce</span><span class="o">-&gt;</span><span class="na">getCart</span><span class="p">();</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">// Check if cart is empty</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">if</span><span class="p">(</span><span class="nv">$cart</span><span class="o">-&gt;</span><span class="na">getNumberOfItems</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">echo</span> <span class="s2">&quot;You have items in your cart!&quot;</span><span class="p">;</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">echo</span> <span class="s2">&quot;Total: &quot;</span> <span class="o">.</span> <span class="nv">$cart</span><span class="o">-&gt;</span><span class="na">getTotal</span><span class="p">();</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">echo</span> <span class="s2">&quot;Your cart is empty.&quot;</span><span class="p">;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="cp">?&gt;</span>
 </code></pre></div>
 
 
